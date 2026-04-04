@@ -1,0 +1,105 @@
+<div class="container">
+  <h2>Package System</h2>
+
+  <!-- Feedback Messages -->
+  <div *ngIf="feedbackMessage() as msg" 
+       [class]="'feedback ' + msg.type">
+    <span>{{ msg.text }}</span>
+  </div>
+
+  <!-- Form Card -->
+  <div class="card">
+    <h3>{{ isEditMode() ? 'Edit Package' : 'Create New Package' }}</h3>
+    
+    <form [formGroup]="packageForm" (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <!-- Name -->
+        <div class="form-group">
+          <label for="name">Package Name</label>
+          <input type="text" id="name" formControlName="name" placeholder="Enter package name">
+          <div *ngIf="packageForm.get('name')?.invalid && packageForm.get('name')?.touched" class="error-text">
+            * Name is required
+          </div>
+        </div>
+
+        <!-- Code -->
+        <div class="form-group">
+          <label for="code">Package Code</label>
+          <input type="text" id="code" formControlName="code" placeholder="Enter unique code">
+          <div *ngIf="packageForm.get('code')?.invalid && packageForm.get('code')?.touched" class="error-text">
+            * Code is required
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group full-width">
+          <label for="description">Description</label>
+          <textarea id="description" formControlName="description" rows="3" placeholder="Additional details..."></textarea>
+        </div>
+
+        <!-- Status Checkbox -->
+        <div class="form-group">
+          <label>Status</label>
+          <div class="checkbox-group">
+            <span class="status-label" [ngClass]="packageForm.get('is_active')?.value ? 'status-active' : 'status-inactive'">
+              {{ packageForm.get('is_active')?.value ? 'Active' : 'Inactive' }}
+            </span>
+            <label class="switch">
+              <input type="checkbox" formControlName="is_active">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button type="submit" class="btn btn-primary">
+          {{ isEditMode() ? 'Update Package' : 'Create Package' }}
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="resetForm()">
+          Reset Form
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Code</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let pkg of packages()">
+          <td><strong>{{ pkg.name }}</strong></td>
+          <td><code>{{ pkg.code }}</code></td>
+          <td>
+            <span [class]="'badge ' + (pkg.is_active ? 'badge-success' : 'badge-error')">
+              {{ pkg.is_active ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="btn-icon btn-edit" title="Edit" (click)="editPackage(pkg)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              </button>
+              <button class="btn-icon btn-delete" title="Delete" (click)="deletePackage(pkg.id!)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="packages().length === 0">
+          <td colspan="4" style="text-align: center; color: #94a3b8; padding: 2rem;">
+            No packages found. Start by creating one above!
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
