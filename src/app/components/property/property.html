@@ -1,0 +1,183 @@
+<div class="container">
+  <h2>Property Configuration</h2>
+
+  <!-- Feedback Message -->
+  @if (feedbackMessage(); as msg) {
+    <div [class]="'feedback ' + msg.type">
+      {{ msg.text }}
+    </div>
+  }
+
+  <!-- Form Section -->
+  <div class="card">
+    <h3>{{ isEditMode() ? 'Edit Property' : 'Create New Property' }}</h3>
+    <form [formGroup]="propertyForm" (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="tenant_id">Tenant*</label>
+          <select id="tenant_id" formControlName="tenant_id">
+            <option value="">Select Tenant</option>
+            @for (tenant of tenants(); track tenant.id) {
+              <option [value]="tenant.id">{{ tenant.tenant_name }}</option>
+            }
+          </select>
+          @if (propertyForm.get('tenant_id')?.touched && propertyForm.get('tenant_id')?.invalid) {
+            <span class="error-text">Tenant is required</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="property_code">Property Code*</label>
+          <input type="text" id="property_code" formControlName="property_code" placeholder="e.g. PROP01">
+          @if (propertyForm.get('property_code')?.touched && propertyForm.get('property_code')?.invalid) {
+            <span class="error-text">Property code is required</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="property_name">Property Name*</label>
+          <input type="text" id="property_name" formControlName="property_name" placeholder="Property Full Name">
+          @if (propertyForm.get('property_name')?.touched && propertyForm.get('property_name')?.invalid) {
+            <span class="error-text">Property name is required</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="location">Location</label>
+          <input type="text" id="location" formControlName="location" placeholder="City / Area">
+        </div>
+
+        <div class="form-group">
+          <label for="max_users">Max Users</label>
+          <input type="number" id="max_users" formControlName="max_users" min="1">
+        </div>
+
+        <div class="form-group">
+          <label>Status</label>
+          <div class="checkbox-group">
+            <label class="switch">
+              <input type="checkbox" formControlName="is_active">
+              <span class="slider"></span>
+            </label>
+            <span [class]="propertyForm.get('is_active')?.value ? 'status-label status-active' : 'status-label status-inactive'">
+              {{ propertyForm.get('is_active')?.value ? 'Active' : 'Inactive' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="address">Address</label>
+          <textarea id="address" formControlName="address" rows="2" placeholder="Full Property Address"></textarea>
+        </div>
+      </div>
+
+      <!-- Package Mapping Section -->
+      <div class="section-divider">
+        <h4>Package Access Mapping</h4>
+        <p class="section-subtitle">Select packages and set assignment duration</p>
+      </div>
+
+      <div class="packages-grid" formArrayName="packages">
+        @for (pkgControl of packagesFormArray.controls; track $index; let i = $index) {
+          <div [formGroupName]="i" [class]="'package-card ' + (pkgControl.get('selected')?.value ? 'selected' : '')">
+            <div class="package-header">
+              <label class="custom-checkbox">
+                <input type="checkbox" formControlName="selected">
+                <span class="checkmark"></span>
+                <span class="package-name">{{ pkgControl.get('name')?.value }}</span>
+              </label>
+            </div>
+            
+            @if (pkgControl.get('selected')?.value) {
+              <div class="package-details animate-fade-in">
+                <div class="date-group">
+                  <div class="date-field">
+                    <label>Start Date</label>
+                    <input type="date" formControlName="start_date">
+                  </div>
+                  <div class="date-field">
+                    <label>End Date</label>
+                    <input type="date" formControlName="end_date">
+                  </div>
+                </div>
+                <div class="pkg-status">
+                  <label class="mini-switch">
+                    <input type="checkbox" formControlName="is_active">
+                    <span class="mini-slider"></span>
+                    <span class="mini-label">Active Assignment</span>
+                  </label>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="button-group">
+        <button type="submit" class="btn btn-primary">
+          {{ isEditMode() ? 'Update Property' : 'Save Property' }}
+        </button>
+        @if (isEditMode()) {
+          <button type="button" class="btn btn-secondary" (click)="resetForm()">Cancel</button>
+        }
+      </div>
+    </form>
+  </div>
+
+  <!-- List Section -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Tenant</th>
+          <th>Code</th>
+          <th>Property Name</th>
+          <th>Location</th>
+          <th>Packages</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (prop of properties(); track prop.id) {
+          <tr>
+            <td><span class="tenant-tag">{{ prop.tenant?.tenant_name || '-' }}</span></td>
+            <td><strong>{{ prop.property_code }}</strong></td>
+            <td>{{ prop.property_name }}</td>
+            <td>{{ prop.location || '-' }}</td>
+            <td>
+              <div class="package-badges">
+                @for (pkg of prop.packages; track pkg.id) {
+                  <span class="pkg-badge" [title]="'Valid: ' + (pkg.pivot?.start_date | date) + ' - ' + (pkg.pivot?.end_date | date)">
+                    {{ pkg.name }}
+                  </span>
+                } @empty {
+                  <span class="no-pkgs">No packages</span>
+                }
+              </div>
+            </td>
+            <td>
+              <span [class]="'badge ' + (prop.is_active ? 'badge-success' : 'badge-error')">
+                {{ prop.is_active ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td>
+              <div class="action-btns">
+                <button class="btn-icon btn-edit" (click)="editProperty(prop)" title="Edit">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                </button>
+                <button class="btn-icon btn-delete" (click)="deleteProperty(prop.id!)" title="Delete">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 2rem; color: #64748b;">No properties found.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

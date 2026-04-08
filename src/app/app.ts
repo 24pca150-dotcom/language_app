@@ -1,12 +1,13 @@
 import { Component, signal } from '@angular/core';
-import { Package } from './components/package/package';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [Package],
+  standalone: true,
+  imports: [RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = signal('language_app');
+  protected readonly title = signal('Language Management System');
 }

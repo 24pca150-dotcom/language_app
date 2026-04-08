@@ -89,6 +89,7 @@ export class Package implements OnInit {
       this.packageService.delete(id).subscribe({
         next: () => {
           this.showFeedback('success', 'Package deleted successfully');
+          this.resetForm();
           this.loadPackages();
         },
         error: (err) => this.showFeedback('error', 'Failed to delete package'),
