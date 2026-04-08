@@ -6,26 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('property_packages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('property_id')->constrained('properties');
-            $table->foreignId('package_id')->constrained('packages');
+            $table->foreignId('property_id')->constrained('properties')->onDelete('cascade');
+            $table->foreignId('package_id')->constrained('packages')->onDelete('cascade');
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->boolean('is_active')->default(1);
+            $table->unique(['property_id', 'package_id'], 'unique_property_package');
             $table->timestamps();
-            $table->unique(['property_id', 'package_id']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('property_packages');
