@@ -1,14 +1,29 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { PropertyService, PropertyData } from '../../services/property';
 import { TenantService, TenantData } from '../../services/tenant';
 import { PackageService, PackageData } from '../../services/package';
+import {
+  McvInputField,
+  McvTextArea,
+  McvToggleField,
+  McvDateRangePicker,
+  McvCheckbox
+} from 'mcv-ui-toolkit';
 
 @Component({
   selector: 'app-property',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    McvInputField,
+    McvTextArea,
+    McvToggleField,
+    McvDateRangePicker,
+    McvCheckbox
+  ],
   templateUrl: './property.html',
   styleUrls: ['./property.css'],
 })
@@ -17,6 +32,7 @@ export class Property implements OnInit {
   private propertyService = inject(PropertyService);
   private tenantService = inject(TenantService);
   private packageService = inject(PackageService);
+  private cdr = inject(ChangeDetectorRef);
 
   propertyForm: FormGroup;
   properties = signal<PropertyData[]>([]);
@@ -52,7 +68,7 @@ export class Property implements OnInit {
       next: (data) => this.properties.set(data),
       error: () => this.showFeedback('error', 'Failed to load properties')
     });
-    
+
     this.tenantService.getAll().subscribe({
       next: (data) => this.tenants.set(data),
       error: () => this.showFeedback('error', 'Failed to load tenants')
@@ -65,6 +81,8 @@ export class Property implements OnInit {
       },
       error: () => this.showFeedback('error', 'Failed to load packages')
     });
+
+    this.cdr.detectChanges();
   }
 
   initPackageFormArray(packages: PackageData[]) {
@@ -74,8 +92,7 @@ export class Property implements OnInit {
         id: [pkg.id],
         name: [pkg.name],
         selected: [false],
-        start_date: [''],
-        end_date: [''],
+        date_range: [null],
         is_active: [true]
       }));
     });
@@ -90,15 +107,20 @@ export class Property implements OnInit {
     const formValue = this.propertyForm.value;
     const propertyData = {
       ...formValue,
+      tenant_id: Number(formValue.tenant_id),
+      max_users: Number(formValue.max_users),
+      is_active: !!formValue.is_active,
       packages: formValue.packages
         .filter((pkg: any) => pkg.selected)
         .map((pkg: any) => ({
           id: pkg.id,
-          start_date: pkg.start_date || null,
-          end_date: pkg.end_date || null,
-          is_active: pkg.is_active
+          start_date: pkg.date_range?.start ? this.formatDate(pkg.date_range.start) : null,
+          end_date: pkg.date_range?.end ? this.formatDate(pkg.date_range.end) : null,
+          is_active: !!pkg.is_active
         }))
     };
+
+    console.log('Sending Property Data:', propertyData);
 
     if (this.isEditMode()) {
       const id = this.currentPropertyId();
@@ -127,7 +149,7 @@ export class Property implements OnInit {
   editProperty(property: PropertyData): void {
     this.isEditMode.set(true);
     this.currentPropertyId.set(property.id!);
-    
+
     this.propertyForm.patchValue({
       tenant_id: property.tenant_id,
       property_code: property.property_code,
@@ -143,19 +165,20 @@ export class Property implements OnInit {
       const pkgId = control.get('id')?.value;
       const pkgMap = property.packages?.find(p => p.id === pkgId);
       const pivot = pkgMap?.pivot;
-      
+
       if (pivot) {
         control.patchValue({
           selected: true,
-          start_date: pivot.start_date ? new Date(pivot.start_date).toISOString().split('T')[0] : '',
-          end_date: pivot.end_date ? new Date(pivot.end_date).toISOString().split('T')[0] : '',
+          date_range: {
+            start: pivot.start_date ? new Date(pivot.start_date) : null,
+            end: pivot.end_date ? new Date(pivot.end_date) : null
+          },
           is_active: pivot.is_active
         });
       } else {
         control.patchValue({
           selected: false,
-          start_date: '',
-          end_date: '',
+          date_range: null,
           is_active: true
         });
       }
@@ -181,6 +204,20 @@ export class Property implements OnInit {
     this.initPackageFormArray(this.availablePackages());
     this.isEditMode.set(false);
     this.currentPropertyId.set(null);
+  }
+
+  private formatDate(date: any): string | null {
+    if (!date) return null;
+    try {
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return null;
+      const month = '' + (d.getMonth() + 1);
+      const day = '' + d.getDate();
+      const year = d.getFullYear();
+      return [year, month.padStart(2, '0'), day.padStart(2, '0')].join('-');
+    } catch {
+      return null;
+    }
   }
 
   private showFeedback(type: 'success' | 'error', text: string): void {

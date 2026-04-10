@@ -195,13 +195,15 @@ input:focus, select:focus, textarea:focus {
   border-top: 1px dashed #e2e8f0;
 }
 
-.date-group {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 1rem; margin-bottom: 1.25rem;
+/* Ensure MCV toolkit components fit well */
+mcv-date-range-picker {
+  display: block;
+  margin-bottom: 1.5rem;
 }
 
-.date-field label { font-size: 0.7rem; margin-bottom: 0.4rem; color: #94a3b8; }
-.date-field input { padding: 0.5rem; font-size: 0.85rem; border-width: 1px; }
+mcv-toggle-field {
+  display: block;
+}
 
 .pkg-status { display: flex; justify-content: flex-end; }
 .mini-switch { display: flex; align-items: center; gap: 0.625rem; cursor: pointer; }

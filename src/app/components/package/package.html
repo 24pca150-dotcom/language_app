@@ -13,43 +13,35 @@
     
     <form [formGroup]="packageForm" (ngSubmit)="onSubmit()">
       <div class="form-grid">
-        <!-- Name -->
-        <div class="form-group">
-          <label for="name">Package Name</label>
-          <input type="text" id="name" formControlName="name" placeholder="Enter package name">
-          <div *ngIf="packageForm.get('name')?.invalid && packageForm.get('name')?.touched" class="error-text">
-            * Name is required
-          </div>
+        <mcv-input-field 
+          label="Package Name" 
+          formControlName="name" 
+          placeholder="Enter package name"
+          [required]="true">
+        </mcv-input-field>
+
+        <mcv-input-field 
+          label="Package Code" 
+          formControlName="code" 
+          placeholder="Enter unique code"
+          [required]="true">
+        </mcv-input-field>
+
+        <div class="full-width">
+          <mcv-text-area 
+            label="Description" 
+            formControlName="description" 
+            [rows]="3" 
+            placeholder="Additional details...">
+          </mcv-text-area>
         </div>
 
-        <!-- Code -->
-        <div class="form-group">
-          <label for="code">Package Code</label>
-          <input type="text" id="code" formControlName="code" placeholder="Enter unique code">
-          <div *ngIf="packageForm.get('code')?.invalid && packageForm.get('code')?.touched" class="error-text">
-            * Code is required
-          </div>
-        </div>
-
-        <!-- Description -->
-        <div class="form-group full-width">
-          <label for="description">Description</label>
-          <textarea id="description" formControlName="description" rows="3" placeholder="Additional details..."></textarea>
-        </div>
-
-        <!-- Status Checkbox -->
-        <div class="form-group">
-          <label>Status</label>
-          <div class="checkbox-group">
-            <span class="status-label" [ngClass]="packageForm.get('is_active')?.value ? 'status-active' : 'status-inactive'">
-              {{ packageForm.get('is_active')?.value ? 'Active' : 'Inactive' }}
-            </span>
-            <label class="switch">
-              <input type="checkbox" formControlName="is_active">
-              <span class="slider"></span>
-            </label>
-          </div>
-        </div>
+        <mcv-toggle-field 
+          label="Status" 
+          formControlName="is_active"
+          onLabel="Active"
+          offLabel="Inactive">
+        </mcv-toggle-field>
       </div>
 
       <div class="button-group">

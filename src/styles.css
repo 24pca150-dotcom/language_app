@@ -1,1 +1,28 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* MCV UI Toolkit Theme Variables */
+:root {
+  --form-border: #e2e8f0;
+  --form-text: #1e293b;
+  --form-bg: #ffffff;
+  --color-primary: #3b82f6;
+  --color-success: #10b981;
+  --color-error: #ef4444;
+}
+
+/* Fix for MCV Date Range Picker Layout */
+.mcv-weekdays, 
+.mcv-days-grid {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr) !important;
+}
+
+.mcv-calendar-popup {
+    min-width: 280px;
+}
+
+.mcv-day-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

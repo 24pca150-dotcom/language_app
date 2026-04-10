@@ -13,57 +13,55 @@
     <h3>{{ isEditMode() ? 'Edit Tenant' : 'Create New Tenant' }}</h3>
     <form [formGroup]="tenantForm" (ngSubmit)="onSubmit()">
       <div class="form-grid">
-        <div class="form-group">
-          <label for="tenant_code">Tenant Code*</label>
-          <input type="text" id="tenant_code" formControlName="tenant_code" placeholder="e.g. T001">
-          @if (tenantForm.get('tenant_code')?.touched && tenantForm.get('tenant_code')?.invalid) {
-            <span class="error-text">Tenant code is required</span>
-          }
+        <mcv-input-field 
+          label="Tenant Code*" 
+          formControlName="tenant_code" 
+          placeholder="e.g. T001"
+          [required]="true">
+        </mcv-input-field>
+
+        <mcv-input-field 
+          label="Tenant Name*" 
+          formControlName="tenant_name" 
+          placeholder="Full Company Name"
+          [required]="true">
+        </mcv-input-field>
+
+        <mcv-input-field 
+          label="Contact Person" 
+          formControlName="contact_person" 
+          placeholder="John Doe">
+        </mcv-input-field>
+
+        <mcv-email-field 
+          label="Email Address" 
+          formControlName="email" 
+          placeholder="contact@example.com">
+        </mcv-email-field>
+
+        <mcv-phone-field 
+          label="Phone Number" 
+          formControlName="phone" 
+          placeholder="+1 234 567 890"
+          [showCountryCode]="true"
+          defaultCountryCode="+91">
+        </mcv-phone-field>
+
+        <div class="full-width">
+          <mcv-text-area 
+            label="Address" 
+            formControlName="address" 
+            [rows]="3" 
+            placeholder="Full Postal Address">
+          </mcv-text-area>
         </div>
 
-        <div class="form-group">
-          <label for="tenant_name">Tenant Name*</label>
-          <input type="text" id="tenant_name" formControlName="tenant_name" placeholder="Full Company Name">
-          @if (tenantForm.get('tenant_name')?.touched && tenantForm.get('tenant_name')?.invalid) {
-            <span class="error-text">Tenant name is required</span>
-          }
-        </div>
-
-        <div class="form-group">
-          <label for="contact_person">Contact Person</label>
-          <input type="text" id="contact_person" formControlName="contact_person" placeholder="John Doe">
-        </div>
-
-        <div class="form-group">
-          <label for="email">Email Address</label>
-          <input type="text" id="email" formControlName="email" placeholder="contact@example.com">
-          @if (tenantForm.get('email')?.touched && tenantForm.get('email')?.invalid) {
-            <span class="error-text">Invalid email address</span>
-          }
-        </div>
-
-        <div class="form-group">
-          <label for="phone">Phone Number</label>
-          <input type="text" id="phone" formControlName="phone" placeholder="+1 234 567 890">
-        </div>
-
-        <div class="form-group full-width">
-          <label for="address">Address</label>
-          <textarea id="address" formControlName="address" rows="3" placeholder="Full Postal Address"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Status</label>
-          <div class="checkbox-group">
-            <label class="switch">
-              <input type="checkbox" formControlName="is_active">
-              <span class="slider"></span>
-            </label>
-            <span [class]="tenantForm.get('is_active')?.value ? 'status-label status-active' : 'status-label status-inactive'">
-              {{ tenantForm.get('is_active')?.value ? 'Active' : 'Inactive' }}
-            </span>
-          </div>
-        </div>
+        <mcv-toggle-field 
+          label="Status" 
+          formControlName="is_active"
+          onLabel="Active"
+          offLabel="Inactive">
+        </mcv-toggle-field>
       </div>
 
       <div class="button-group">

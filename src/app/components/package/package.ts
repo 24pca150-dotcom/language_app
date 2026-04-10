@@ -2,11 +2,22 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PackageService, PackageData } from '../../services/package';
+import { 
+  McvInputField, 
+  McvTextArea, 
+  McvToggleField
+} from 'mcv-ui-toolkit';
 
 @Component({
   selector: 'app-package',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule,
+    McvInputField,
+    McvTextArea,
+    McvToggleField
+  ],
   templateUrl: './package.html',
   styleUrls: ['./package.css'],
 })

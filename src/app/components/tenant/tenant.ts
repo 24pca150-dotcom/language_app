@@ -2,11 +2,26 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TenantService, TenantData } from '../../services/tenant';
+import { 
+  McvInputField, 
+  McvPhoneField, 
+  McvEmailField, 
+  McvTextArea, 
+  McvToggleField 
+} from 'mcv-ui-toolkit';
 
 @Component({
   selector: 'app-tenant',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule,
+    McvInputField,
+    McvPhoneField,
+    McvEmailField,
+    McvTextArea,
+    McvToggleField
+  ],
   templateUrl: './tenant.html',
   styleUrls: ['./tenant.css'],
 })
