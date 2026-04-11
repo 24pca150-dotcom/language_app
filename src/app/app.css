@@ -139,17 +139,24 @@ body {
   .sidebar {
     width: 80px;
   }
-  .logo span, .nav-item span, .user-info {
+
+  .logo span,
+  .nav-item span,
+  .user-info {
     display: none;
   }
+
   .content-area {
     margin-left: 80px;
   }
-  .sidebar-header, .sidebar-footer {
+
+  .sidebar-header,
+  .sidebar-footer {
     padding: 1.5rem 0;
     display: flex;
     justify-content: center;
   }
+
   .nav-item {
     justify-content: center;
     padding: 1rem;

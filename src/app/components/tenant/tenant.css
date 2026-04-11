@@ -2,7 +2,6 @@
 
 :host {
   display: block;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: #1a1a1a;
   background-color: #f8fafc;
   min-height: 100vh;
@@ -48,8 +47,15 @@ h2 {
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Form Card */
@@ -147,7 +153,10 @@ textarea:focus {
 .slider {
   position: absolute;
   cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: #cbd5e1;
   transition: .4s;
   border-radius: 34px;
@@ -163,14 +172,14 @@ textarea:focus {
   background-color: white;
   transition: .4s;
   border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-input:checked + .slider {
+input:checked+.slider {
   background-color: #2563eb;
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
   transform: translateX(24px);
 }
 
@@ -179,8 +188,13 @@ input:checked + .slider:before {
   font-weight: 700;
 }
 
-.status-active { color: #16a34a; }
-.status-inactive { color: #64748b; }
+.status-active {
+  color: #16a34a;
+}
+
+.status-inactive {
+  color: #64748b;
+}
 
 /* Buttons */
 .button-group {
@@ -204,7 +218,9 @@ input:checked + .slider:before {
   justify-content: center;
 }
 
-.btn:active { transform: scale(0.96); }
+.btn:active {
+  transform: scale(0.96);
+}
 
 .btn-primary {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
@@ -222,7 +238,9 @@ input:checked + .slider:before {
   color: #475569;
 }
 
-.btn-secondary:hover { background-color: #e2e8f0; }
+.btn-secondary:hover {
+  background-color: #e2e8f0;
+}
 
 /* Table Section */
 .table-container {
@@ -261,7 +279,9 @@ tr:last-child td {
   border-bottom: none;
 }
 
-tr:hover { background-color: #fefeff; }
+tr:hover {
+  background-color: #fefeff;
+}
 
 .action-btns {
   display: flex;
@@ -280,11 +300,25 @@ tr:hover { background-color: #fefeff; }
   transition: all 0.2s;
 }
 
-.btn-edit { background-color: #eff6ff; color: #2563eb; }
-.btn-edit:hover { background-color: #dbeafe; transform: translateY(-2px); }
+.btn-edit {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
 
-.btn-delete { background-color: #fef2f2; color: #dc2626; }
-.btn-delete:hover { background-color: #fee2e2; transform: translateY(-2px); }
+.btn-edit:hover {
+  background-color: #dbeafe;
+  transform: translateY(-2px);
+}
+
+.btn-delete {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.btn-delete:hover {
+  background-color: #fee2e2;
+  transform: translateY(-2px);
+}
 
 /* Badges */
 .badge {
@@ -296,8 +330,15 @@ tr:hover { background-color: #fefeff; }
   letter-spacing: 0.05em;
 }
 
-.badge-success { background-color: #dcfce7; color: #166534; }
-.badge-error { background-color: #fee2e2; color: #991b1b; }
+.badge-success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.badge-error {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
 
 @media (max-width: 1024px) {
   .form-grid {

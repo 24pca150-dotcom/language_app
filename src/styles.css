@@ -10,19 +10,29 @@
   --color-error: #ef4444;
 }
 
+* {
+  font-family: 'Times New Roman', Times, serif !important;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f8fafc;
+}
+
 /* Fix for MCV Date Range Picker Layout */
-.mcv-weekdays, 
+.mcv-weekdays,
 .mcv-days-grid {
   display: grid !important;
   grid-template-columns: repeat(7, 1fr) !important;
 }
 
 .mcv-calendar-popup {
-    min-width: 280px;
+  min-width: 280px;
 }
 
 .mcv-day-cell {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
