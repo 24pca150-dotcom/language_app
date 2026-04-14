@@ -32,6 +32,7 @@ export class Tenant implements OnInit {
   tenantForm: FormGroup;
   tenants = signal<TenantData[]>([]);
   isEditMode = signal(false);
+  isFormVisible = signal(false); // Default to table view
   currentTenantId = signal<number | null>(null);
   feedbackMessage = signal<{ type: 'success' | 'error', text: string } | null>(null);
 
@@ -58,6 +59,11 @@ export class Tenant implements OnInit {
     });
   }
 
+  showCreateForm(): void {
+    this.resetForm();
+    this.isFormVisible.set(true);
+  }
+
   onSubmit(): void {
     if (this.tenantForm.invalid) {
       this.tenantForm.markAllAsTouched();
@@ -72,7 +78,7 @@ export class Tenant implements OnInit {
         this.tenantService.update(id, tenantData).subscribe({
           next: () => {
             this.showFeedback('success', 'Tenant updated successfully');
-            this.resetForm();
+            this.isFormVisible.set(false);
             this.loadTenants();
           },
           error: (err) => this.showFeedback('error', err.error?.message || 'Failed to update tenant'),
@@ -82,7 +88,7 @@ export class Tenant implements OnInit {
       this.tenantService.create(tenantData).subscribe({
         next: () => {
           this.showFeedback('success', 'Tenant created successfully');
-          this.resetForm();
+          this.isFormVisible.set(false);
           this.loadTenants();
         },
         error: (err) => this.showFeedback('error', err.error?.message || 'Failed to create tenant'),
@@ -102,6 +108,7 @@ export class Tenant implements OnInit {
       address: tenant.address,
       is_active: tenant.is_active,
     });
+    this.isFormVisible.set(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -121,6 +128,11 @@ export class Tenant implements OnInit {
     this.tenantForm.reset({ is_active: true });
     this.isEditMode.set(false);
     this.currentTenantId.set(null);
+  }
+
+  cancelForm(): void {
+    this.resetForm();
+    this.isFormVisible.set(false);
   }
 
   private showFeedback(type: 'success' | 'error', text: string): void {

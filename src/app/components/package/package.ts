@@ -28,6 +28,7 @@ export class Package implements OnInit {
   packageForm: FormGroup;
   packages = signal<PackageData[]>([]);
   isEditMode = signal(false);
+  isFormVisible = signal(false); // Default to table view
   currentPackageId = signal<number | null>(null);
   feedbackMessage = signal<{ type: 'success' | 'error', text: string } | null>(null);
 
@@ -51,6 +52,11 @@ export class Package implements OnInit {
     });
   }
 
+  showCreateForm(): void {
+    this.resetForm();
+    this.isFormVisible.set(true);
+  }
+
   onSubmit(): void {
     if (this.packageForm.invalid) {
       this.packageForm.markAllAsTouched();
@@ -65,7 +71,7 @@ export class Package implements OnInit {
         this.packageService.update(id, packageData).subscribe({
           next: () => {
             this.showFeedback('success', 'Package updated successfully');
-            this.resetForm();
+            this.isFormVisible.set(false);
             this.loadPackages();
           },
           error: (err) => this.showFeedback('error', err.error?.message || 'Failed to update package'),
@@ -75,7 +81,7 @@ export class Package implements OnInit {
       this.packageService.create(packageData).subscribe({
         next: () => {
           this.showFeedback('success', 'Package created successfully');
-          this.resetForm();
+          this.isFormVisible.set(false);
           this.loadPackages();
         },
         error: (err) => this.showFeedback('error', err.error?.message || 'Failed to create package'),
@@ -92,6 +98,7 @@ export class Package implements OnInit {
       description: pkg.description,
       is_active: pkg.is_active,
     });
+    this.isFormVisible.set(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -100,7 +107,6 @@ export class Package implements OnInit {
       this.packageService.delete(id).subscribe({
         next: () => {
           this.showFeedback('success', 'Package deleted successfully');
-          this.resetForm();
           this.loadPackages();
         },
         error: (err) => this.showFeedback('error', 'Failed to delete package'),
@@ -112,6 +118,11 @@ export class Package implements OnInit {
     this.packageForm.reset({ is_active: true });
     this.isEditMode.set(false);
     this.currentPackageId.set(null);
+  }
+
+  cancelForm(): void {
+    this.resetForm();
+    this.isFormVisible.set(false);
   }
 
   private showFeedback(type: 'success' | 'error', text: string): void {

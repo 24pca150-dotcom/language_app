@@ -39,6 +39,7 @@ export class Property implements OnInit {
   tenants = signal<TenantData[]>([]);
   availablePackages = signal<PackageData[]>([]);
   isEditMode = signal(false);
+  isFormVisible = signal(false); // Default to table view
   currentPropertyId = signal<number | null>(null);
   feedbackMessage = signal<{ type: 'success' | 'error', text: string } | null>(null);
 
@@ -98,6 +99,11 @@ export class Property implements OnInit {
     });
   }
 
+  showCreateForm(): void {
+    this.resetForm();
+    this.isFormVisible.set(true);
+  }
+
   onSubmit(): void {
     if (this.propertyForm.invalid) {
       this.propertyForm.markAllAsTouched();
@@ -120,15 +126,13 @@ export class Property implements OnInit {
         }))
     };
 
-    console.log('Sending Property Data:', propertyData);
-
     if (this.isEditMode()) {
       const id = this.currentPropertyId();
       if (id) {
         this.propertyService.update(id, propertyData).subscribe({
           next: () => {
             this.showFeedback('success', 'Property updated successfully');
-            this.resetForm();
+            this.isFormVisible.set(false);
             this.loadInitialData();
           },
           error: (err) => this.showFeedback('error', err.error?.message || 'Failed to update property'),
@@ -138,7 +142,7 @@ export class Property implements OnInit {
       this.propertyService.create(propertyData).subscribe({
         next: () => {
           this.showFeedback('success', 'Property created successfully');
-          this.resetForm();
+          this.isFormVisible.set(false);
           this.loadInitialData();
         },
         error: (err) => this.showFeedback('error', err.error?.message || 'Failed to create property'),
@@ -184,6 +188,7 @@ export class Property implements OnInit {
       }
     });
 
+    this.isFormVisible.set(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -204,6 +209,11 @@ export class Property implements OnInit {
     this.initPackageFormArray(this.availablePackages());
     this.isEditMode.set(false);
     this.currentPropertyId.set(null);
+  }
+
+  cancelForm(): void {
+    this.resetForm();
+    this.isFormVisible.set(false);
   }
 
   private formatDate(date: any): string | null {
