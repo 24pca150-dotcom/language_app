@@ -2,10 +2,22 @@ import { Routes } from '@angular/router';
 import { Package } from './components/package/package';
 import { Tenant } from './components/tenant/tenant';
 import { Property } from './components/property/property';
+import { Course } from './components/course/course';
+import { Level } from './components/level/level';
+import { CoursePackageLevel } from './components/course-package-level/course-package-level';
+import { Chapter } from './components/chapter/chapter';
+import { SubChapter } from './components/sub-chapter/sub-chapter';
+import { Assessment } from './components/assessment/assessment';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'tenants', pathMatch: 'full' },
   { path: 'packages', component: Package },
   { path: 'tenants', component: Tenant },
   { path: 'properties', component: Property },
+  { path: 'courses', component: Course },
+  { path: 'levels', component: Level },
+  { path: 'course-package-levels', component: CoursePackageLevel },
+  { path: 'chapters', component: Chapter },
+  { path: 'sub-chapters', component: SubChapter },
+  { path: 'assessments', component: Assessment },
 ];

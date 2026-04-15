@@ -1,0 +1,82 @@
+<div class="container">
+  <!-- Feedback Messages -->
+  <div *ngIf="feedbackMessage() as msg" [class]="'feedback ' + msg.type">
+    <span>{{ msg.text }}</span>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Course-Package-Level Mapping</h3>
+    </div>
+
+    <div class="mapping-selector">
+      <div class="form-group">
+        <label>Select Package</label>
+        <select [(ngModel)]="selectedPackageId" (change)="onPackageChange()" class="form-select">
+          <option [ngValue]="null" disabled>Select a package</option>
+          <option *ngFor="let pkg of packages()" [ngValue]="pkg.id">{{ pkg.name }} ({{ pkg.code }})</option>
+        </select>
+      </div>
+    </div>
+
+    <div *ngIf="selectedPackageId()" class="dual-list-container">
+      <!-- Mapped Levels -->
+      <div class="list-section">
+        <h4>Mapped Levels</h4>
+        <div class="list-box">
+          <div *ngIf="mappedLevels().length === 0" class="empty-list">
+            No levels mapped to this package.
+          </div>
+          <div *ngFor="let level of mappedLevels()" class="list-item">
+            <div class="item-info">
+              <span class="item-name">{{ level.name }}</span>
+              <span class="item-code">{{ level.code }}</span>
+            </div>
+            <button class="btn-remove" (click)="unmapLevel(level.id!)" title="Remove Mapping">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div class="list-spacer">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </div>
+
+      <!-- Available Levels -->
+      <div class="list-section">
+        <h4>Available Levels</h4>
+        <div class="list-box">
+          <div *ngIf="availableLevels().length === 0" class="empty-list">
+            All levels are already mapped.
+          </div>
+          <div *ngFor="let level of availableLevels()" class="list-item">
+            <div class="item-info">
+              <span class="item-name">{{ level.name }}</span>
+              <span class="item-code">{{ level.code }}</span>
+            </div>
+            <button class="btn-add" (click)="mapLevel(level.id!)" title="Add Mapping">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!selectedPackageId()" class="selection-prompt">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+      </svg>
+      <p>Select a package to start mapping levels.</p>
+    </div>
+  </div>
+</div>
