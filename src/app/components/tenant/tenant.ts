@@ -64,6 +64,18 @@ export class Tenant implements OnInit {
 
   showCreateForm(): void {
     this.resetForm();
+    // Autofill tenant_code like TC001
+    const tenants = this.tenants();
+    let nextCode = 'TC001';
+    if (tenants.length > 0) {
+      const codes = tenants
+        .map(t => t.tenant_code)
+        .filter(code => /^TC\d{3}$/.test(code))
+        .map(code => parseInt(code.slice(2), 10));
+      const max = codes.length ? Math.max(...codes) : 0;
+      nextCode = 'TC' + ('' + (max + 1)).padStart(3, '0');
+    }
+    this.tenantForm.patchValue({ tenant_code: nextCode });
     this.isFormVisible.set(true);
   }
 

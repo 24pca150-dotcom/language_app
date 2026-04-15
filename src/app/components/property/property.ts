@@ -115,6 +115,18 @@ export class Property implements OnInit {
 
   showCreateForm(): void {
     this.resetForm();
+    // Autofill property_code like PC001
+    const properties = this.properties();
+    let nextCode = 'PC001';
+    if (properties.length > 0) {
+      const codes = properties
+        .map(p => p.property_code)
+        .filter(code => /^PC\d{3}$/.test(code))
+        .map(code => parseInt(code.slice(2), 10));
+      const max = codes.length ? Math.max(...codes) : 0;
+      nextCode = 'PC' + ('' + (max + 1)).padStart(3, '0');
+    }
+    this.propertyForm.patchValue({ property_code: nextCode });
     this.isFormVisible.set(true);
   }
 

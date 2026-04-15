@@ -54,6 +54,18 @@ export class Package implements OnInit {
 
   showCreateForm(): void {
     this.resetForm();
+    // Autofill code like PK001
+    const packages = this.packages();
+    let nextCode = 'PK001';
+    if (packages.length > 0) {
+      const codes = packages
+        .map(p => p.code)
+        .filter(code => /^PK\d{3}$/.test(code))
+        .map(code => parseInt(code.slice(2), 10));
+      const max = codes.length ? Math.max(...codes) : 0;
+      nextCode = 'PK' + ('' + (max + 1)).padStart(3, '0');
+    }
+    this.packageForm.patchValue({ code: nextCode });
     this.isFormVisible.set(true);
   }
 
