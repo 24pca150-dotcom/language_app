@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { PropertyService, PropertyData } from '../../services/property';
 import { TenantService, TenantData } from '../../services/tenant';
@@ -17,6 +17,7 @@ import {
   standalone: true,
   imports: [
     CommonModule,
+    DatePipe,
     ReactiveFormsModule,
     McvInputField,
     McvTextArea,
@@ -88,14 +89,27 @@ export class Property implements OnInit {
 
   initPackageFormArray(packages: PackageData[]) {
     this.packagesFormArray.clear();
-    packages.forEach(pkg => {
-      this.packagesFormArray.push(this.fb.group({
+    packages.forEach((pkg, index) => {
+      const group = this.fb.group({
         id: [pkg.id],
         name: [pkg.name],
         selected: [false],
         date_range: [null],
         is_active: [true]
-      }));
+      });
+
+      // Add dynamic validators for date_range based on selected status
+      group.get('selected')?.valueChanges.subscribe(selected => {
+        const dateRangeControl = group.get('date_range');
+        if (selected) {
+          dateRangeControl?.setValidators([Validators.required]);
+        } else {
+          dateRangeControl?.clearValidators();
+        }
+        dateRangeControl?.updateValueAndValidity();
+      });
+
+      this.packagesFormArray.push(group);
     });
   }
 
@@ -107,6 +121,7 @@ export class Property implements OnInit {
   onSubmit(): void {
     if (this.propertyForm.invalid) {
       this.propertyForm.markAllAsTouched();
+      this.showFeedback('error', 'Please fill all required fields correctly.');
       return;
     }
 
@@ -118,12 +133,17 @@ export class Property implements OnInit {
       is_active: !!formValue.is_active,
       packages: formValue.packages
         .filter((pkg: any) => pkg.selected)
-        .map((pkg: any) => ({
-          id: pkg.id,
-          start_date: pkg.date_range?.start ? this.formatDate(pkg.date_range.start) : null,
-          end_date: pkg.date_range?.end ? this.formatDate(pkg.date_range.end) : null,
-          is_active: !!pkg.is_active
-        }))
+        .map((pkg: any) => {
+          const startDate = pkg.date_range?.start ? this.formatDate(pkg.date_range.start) : null;
+          const endDate = pkg.date_range?.end ? this.formatDate(pkg.date_range.end) : null;
+          
+          return {
+            id: pkg.id,
+            start_date: startDate,
+            end_date: endDate,
+            is_active: !!pkg.is_active
+          };
+        })
     };
 
     if (this.isEditMode()) {

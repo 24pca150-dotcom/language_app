@@ -100,12 +100,12 @@
         </mcv-email-field>
 
         <mcv-phone-field 
+          #phoneField
           label="Phone Number" 
           formControlName="phone" 
           placeholder="+1 234 567 890"
           [showCountryCode]="true"
-          defaultCountryCode="+91"
-          [required]="true">
+          defaultCountryCode="+91">
         </mcv-phone-field>
 
         <div class="full-width">
@@ -113,8 +113,7 @@
             label="Address" 
             formControlName="address" 
             [rows]="3" 
-            placeholder="Full Postal Address"
-            [required]="true"> 
+            placeholder="Full Postal Address"> 
           </mcv-text-area>
         </div>
 

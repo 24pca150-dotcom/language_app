@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { PackageService, PackageData } from '../../services/package';
 import { 
   McvInputField, 
@@ -12,7 +12,7 @@ import {
   selector: 'app-package',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     ReactiveFormsModule,
     McvInputField,
     McvTextArea,
@@ -60,6 +60,7 @@ export class Package implements OnInit {
   onSubmit(): void {
     if (this.packageForm.invalid) {
       this.packageForm.markAllAsTouched();
+      this.showFeedback('error', 'Please fill all required fields correctly.');
       return;
     }
 

@@ -1,20 +1,20 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TenantService, TenantData } from '../../services/tenant';
-import { 
-  McvInputField, 
-  McvPhoneField, 
-  McvEmailField, 
-  McvTextArea, 
-  McvToggleField 
+import {
+  McvInputField,
+  McvPhoneField,
+  McvEmailField,
+  McvTextArea,
+  McvToggleField
 } from 'mcv-ui-toolkit';
 
 @Component({
   selector: 'app-tenant',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     ReactiveFormsModule,
     McvInputField,
     McvPhoneField,
@@ -28,6 +28,9 @@ import {
 export class Tenant implements OnInit {
   private fb = inject(FormBuilder);
   private tenantService = inject(TenantService);
+  private cdr = inject(ChangeDetectorRef);
+
+  @ViewChild('phoneField') phoneField?: ElementRef;
 
   tenantForm: FormGroup;
   tenants = signal<TenantData[]>([]);
@@ -41,7 +44,7 @@ export class Tenant implements OnInit {
       tenant_code: ['', Validators.required],
       tenant_name: ['', Validators.required],
       contact_person: [''],
-      email: ['', [Validators.email]],
+      email: ['', [Validators.required, Validators.email]],
       phone: [''],
       address: [''],
       is_active: [true],
@@ -67,10 +70,44 @@ export class Tenant implements OnInit {
   onSubmit(): void {
     if (this.tenantForm.invalid) {
       this.tenantForm.markAllAsTouched();
+      this.showFeedback('error', 'Please fill all required fields correctly.');
       return;
     }
 
-    const tenantData: TenantData = this.tenantForm.value;
+    // Get the actual phone value from the McvPhoneField component
+    let phoneValue: any = null;
+    
+    // Method 1: Use ViewChild reference to phoneField
+    if (this.phoneField && this.phoneField.nativeElement) {
+      const inputs = this.phoneField.nativeElement.querySelectorAll('input');
+      if (inputs.length > 0) {
+        phoneValue = inputs[inputs.length - 1].value?.trim() || null;
+      }
+    }
+    
+    // Method 2: Direct input with formControlName
+    if (!phoneValue) {
+      let phoneInput = document.querySelector('[formControlName="phone"]') as HTMLInputElement;
+      phoneValue = phoneInput?.value?.trim() || null;
+    }
+    
+    // Method 3: Look for input inside mcv-phone-field
+    if (!phoneValue) {
+      const phoneField = document.querySelector('mcv-phone-field');
+      if (phoneField) {
+        const inputs = phoneField.querySelectorAll('input');
+        if (inputs.length > 0) {
+          phoneValue = (inputs[inputs.length - 1] as HTMLInputElement).value?.trim() || null;
+        }
+      }
+    }
+
+    let tenantData: TenantData = this.tenantForm.value;
+    
+    // Override phone value with actual input value
+    if (phoneValue) {
+      tenantData.phone = phoneValue;
+    }
 
     if (this.isEditMode()) {
       const id = this.currentTenantId();
@@ -99,6 +136,8 @@ export class Tenant implements OnInit {
   editTenant(tenant: TenantData): void {
     this.isEditMode.set(true);
     this.currentTenantId.set(tenant.id!);
+    
+    // Set all values including phone
     this.tenantForm.patchValue({
       tenant_code: tenant.tenant_code,
       tenant_name: tenant.tenant_name,
@@ -108,6 +147,21 @@ export class Tenant implements OnInit {
       address: tenant.address,
       is_active: tenant.is_active,
     });
+
+    // Update validity for all controls
+    setTimeout(() => {
+      Object.keys(this.tenantForm.controls).forEach(key => {
+        const control = this.tenantForm.get(key);
+        control?.updateValueAndValidity({ emitEvent: false });
+      });
+      
+      // Mark form clean after all values are properly set
+      this.tenantForm.markAsPristine();
+      this.tenantForm.markAsUntouched();
+      
+      this.cdr.detectChanges();
+    }, 100);
+    
     this.isFormVisible.set(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -126,6 +180,8 @@ export class Tenant implements OnInit {
 
   resetForm(): void {
     this.tenantForm.reset({ is_active: true });
+    this.tenantForm.markAsPristine();
+    this.tenantForm.markAsUntouched();
     this.isEditMode.set(false);
     this.currentTenantId.set(null);
   }
