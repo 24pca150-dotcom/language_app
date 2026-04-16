@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { PackageService, PackageData } from '../../services/package';
 import { 
   McvInputField, 
@@ -16,7 +17,8 @@ import {
     ReactiveFormsModule,
     McvInputField,
     McvTextArea,
-    McvToggleField
+    McvToggleField,
+    TranslateModule
   ],
   templateUrl: './package.html',
   styleUrls: ['./package.css'],
@@ -54,19 +56,21 @@ export class Package implements OnInit {
 
   showCreateForm(): void {
     this.resetForm();
-    // Autofill code like PK001
-    const packages = this.packages();
+    this.isFormVisible.set(true);
+  }
+
+  generateCode(): void {
+    const packagesList = this.packages();
     let nextCode = 'PK001';
-    if (packages.length > 0) {
-      const codes = packages
+    if (packagesList.length > 0) {
+      const codes = packagesList
         .map(p => p.code)
-        .filter(code => /^PK\d{3}$/.test(code))
+        .filter(code => code && /^PK\d{3}$/.test(code))
         .map(code => parseInt(code.slice(2), 10));
       const max = codes.length ? Math.max(...codes) : 0;
       nextCode = 'PK' + ('' + (max + 1)).padStart(3, '0');
     }
     this.packageForm.patchValue({ code: nextCode });
-    this.isFormVisible.set(true);
   }
 
   onSubmit(): void {

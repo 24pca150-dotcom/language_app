@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { SubChapterService, SubChapterData } from '../../services/sub-chapter';
 import { ChapterService, ChapterData } from '../../services/chapter';
 import {
@@ -17,7 +18,8 @@ import {
     ReactiveFormsModule,
     McvInputField,
     McvTextArea,
-    McvToggleField
+    McvToggleField,
+    TranslateModule
   ],
   templateUrl: './sub-chapter.html',
   styleUrls: ['./sub-chapter.css'],

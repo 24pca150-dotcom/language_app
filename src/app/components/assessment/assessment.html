@@ -1,11 +1,13 @@
 <div class="container">
   <!-- Feedback Messages -->
-  <div *ngIf="feedbackMessage() as msg" [class]="'feedback ' + msg.type">
+  @if (feedbackMessage(); as msg) {
+  <div [class]="'feedback ' + msg.type">
     <span>{{ msg.text }}</span>
   </div>
+  }
 
   <!-- List View -->
-  <div *ngIf="!isFormVisible()">
+  @if (!isFormVisible()) {
     <div class="action-bar">
       <button class="btn btn-primary" (click)="showCreateForm()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -14,7 +16,7 @@
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
-        Create Assessment
+        {{ 'ASSESSMENT.CREATE_BTN' | translate }}
       </button>
     </div>
 
@@ -23,35 +25,38 @@
       <table>
         <thead>
           <tr>
-            <th>Title</th>
-            <th>Level</th>
-            <th>Pass %</th>
-            <th>Questions</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <th>{{ 'COMMON.TITLE' | translate }}</th>
+            <th>{{ 'CHAPTER.LEVEL' | translate }}</th>
+            <th>{{ 'ASSESSMENT.PASS_PERCENTAGE' | translate }}</th>
+            <th>{{ 'ASSESSMENT.QUESTIONS' | translate }}</th>
+            <th>{{ 'COMMON.STATUS' | translate }}</th>
+            <th>{{ 'COMMON.ACTIONS' | translate }}</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let assessment of assessments()">
+          @for (assessment of assessments(); track assessment.id) {
+          <tr>
             <td><strong>{{ assessment.title }}</strong></td>
             <td>{{ assessment.level?.name }} ({{ assessment.level?.course?.name }})</td>
             <td>{{ assessment.pass_percentage }}%</td>
             <td>{{ assessment.questions?.length || 0 }}</td>
             <td>
               <span [class]="'badge ' + (assessment.is_active ? 'badge-success' : 'badge-error')">
-                {{ assessment.is_active ? 'Active' : 'Inactive' }}
+                {{ assessment.is_active ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
               </span>
             </td>
             <td>
               <div class="action-btns">
-                <button class="btn-icon btn-edit" title="Edit" (click)="editAssessment(assessment)">
+                <button class="btn-icon btn-edit" [title]="'COMMON.EDIT' | translate"
+                  (click)="editAssessment(assessment)">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                     <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                   </svg>
                 </button>
-                <button class="btn-icon btn-delete" title="Delete" (click)="deleteAssessment(assessment.id!)">
+                <button class="btn-icon btn-delete" [title]="'COMMON.DELETE' | translate"
+                  (click)="deleteAssessment(assessment.id!)">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="3 6 5 6 21 6"></polyline>
@@ -63,20 +68,24 @@
               </div>
             </td>
           </tr>
-          <tr *ngIf="assessments().length === 0">
+          }
+          @if (assessments().length === 0) {
+          <tr>
             <td colspan="6" style="text-align: center; color: #94a3b8; padding: 2rem;">
-              No assessments found. Link one to a level!
+              {{ 'ASSESSMENT.EMPTY' | translate }}
             </td>
           </tr>
+          }
         </tbody>
       </table>
     </div>
-  </div>
+  }
 
   <!-- Form View -->
-  <div class="card" *ngIf="isFormVisible()">
+  @if (isFormVisible()) {
+  <div class="card">
     <div class="card-header">
-      <h3>{{ isEditMode() ? 'Edit Assessment' : 'Create New Assessment' }}</h3>
+      <h3>{{ isEditMode() ? ('ASSESSMENT.EDIT_TITLE' | translate) : ('ASSESSMENT.CREATE_TITLE' | translate) }}</h3>
       <button class="btn-close" (click)="cancelForm()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
@@ -89,75 +98,97 @@
     <form [formGroup]="assessmentForm" (ngSubmit)="onSubmit()">
       <div class="form-grid">
         <div class="form-group">
-          <label>Level</label>
+          <label>{{ 'CHAPTER.LEVEL' | translate }}</label>
           <select formControlName="level_id" class="form-select">
-            <option value="" disabled>Select a level</option>
-            <option *ngFor="let level of levels()" [value]="level.id">{{ level.name }} ({{ level.course?.name }})</option>
+            <option value="" disabled>{{ 'CHAPTER.SELECT_LEVEL' | translate }}</option>
+            @for (level of levels(); track level.id) {
+            <option [value]="level.id">{{ level.name }} ({{ level.course?.name }})</option>
+            }
           </select>
         </div>
 
-        <mcv-input-field label="Assessment Title" formControlName="title" placeholder="e.g. Final MCQ" [required]="true"></mcv-input-field>
-        <mcv-input-field label="Pass Percentage (%)" formControlName="pass_percentage" type="number" [required]="true"></mcv-input-field>
-        
+        <mcv-input-field [label]="'COMMON.TITLE' | translate" formControlName="title" placeholder="e.g. Final MCQ"
+          [required]="true"></mcv-input-field>
+        <mcv-input-field [label]="'ASSESSMENT.PASS_PERCENTAGE' | translate" formControlName="pass_percentage"
+          type="number" [required]="true"></mcv-input-field>
+
         <div class="full-width">
-          <mcv-text-area label="Description" formControlName="description" [rows]="2" placeholder="Instructions..."></mcv-text-area>
+          <mcv-text-area [label]="'COMMON.DESCRIPTION' | translate" formControlName="description" [rows]="2"
+            placeholder="Instructions..."></mcv-text-area>
         </div>
 
-        <mcv-toggle-field label="Status" formControlName="is_active" onLabel="Active" offLabel="Inactive"></mcv-toggle-field>
+        <mcv-toggle-field [label]="'COMMON.STATUS' | translate" formControlName="is_active"
+          [onLabel]="'COMMON.ACTIVE' | translate" [offLabel]="'COMMON.INACTIVE' | translate"></mcv-toggle-field>
       </div>
 
       <!-- Questions Section -->
       <div class="questions-section">
         <div class="section-header">
-          <h4>Questions</h4>
+          <h4>{{ 'ASSESSMENT.QUESTIONS' | translate }}</h4>
           <button type="button" class="btn btn-secondary btn-sm" (click)="addQuestion()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            Add Question
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            {{ 'ASSESSMENT.ADD_QUESTION' | translate }}
           </button>
         </div>
 
         <div formArrayName="questions" class="questions-list">
-          <div *ngFor="let question of questions.controls; let qIndex = index" [formGroupName]="qIndex" class="question-card">
+          @for (question of questions.controls; track qIndex; let qIndex = $index) {
+          <div [formGroupName]="qIndex" class="question-card">
             <div class="question-header">
-              <span class="q-number">Question {{ qIndex + 1 }}</span>
-              <button type="button" class="btn-remove-circle" (click)="removeQuestion(qIndex)" title="Remove Question">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              <span class="q-number">{{ 'COMMON.NAME' | translate }} {{ qIndex + 1 }}</span>
+              <button type="button" class="btn-remove-circle" (click)="removeQuestion(qIndex)"
+                [title]="'COMMON.DELETE' | translate">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
               </button>
             </div>
 
-            <mcv-text-area label="Question Text" formControlName="question_text" [rows]="2" [required]="true"></mcv-text-area>
+            <mcv-text-area [label]="'ASSESSMENT.QUESTION_TEXT' | translate" formControlName="question_text" [rows]="2"
+              [required]="true"></mcv-text-area>
 
             <!-- Options Section -->
             <div formArrayName="options" class="options-grid">
-              <div *ngFor="let option of getOptions(qIndex).controls; let oIndex = index" [formGroupName]="oIndex" class="option-item">
+              @for (option of getOptions(qIndex).controls; track oIndex; let oIndex = $index) {
+              <div [formGroupName]="oIndex" class="option-item">
                 <div class="option-row">
-                  <input type="radio" 
-                         [name]="'correct_' + qIndex" 
-                         [checked]="option.get('is_correct')?.value" 
-                         (change)="setCorrectOption(qIndex, oIndex)"
-                         title="Mark as correct">
-                  <input type="text" formControlName="option_text" class="form-input" placeholder="Option text">
-                  <button type="button" class="btn-remove-child" (click)="removeOption(qIndex, oIndex)" *ngIf="getOptions(qIndex).length > 2">
-                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  <input type="radio" [name]="'correct_' + qIndex" [checked]="option.get('is_correct')?.value"
+                    (change)="setCorrectOption(qIndex, oIndex)" title="Mark as correct">
+                  <input type="text" formControlName="option_text" class="form-input"
+                    [placeholder]="'ASSESSMENT.OPTION_TEXT' | translate">
+                  @if (getOptions(qIndex).length > 2) {
+                  <button type="button" class="btn-remove-child" (click)="removeOption(qIndex, oIndex)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
                   </button>
+                  }
                 </div>
               </div>
+              }
             </div>
             <button type="button" class="btn btn-outline btn-xs" (click)="addOption(qIndex)">
-              Add Option
+              {{ 'ASSESSMENT.ADD_OPTION' | translate }}
             </button>
           </div>
+          }
         </div>
       </div>
 
       <div class="button-group">
         <button type="submit" class="btn btn-primary">
-          {{ isEditMode() ? 'Save Changes' : 'Submit' }}
+          {{ isEditMode() ? ('COMMON.SAVE_CHANGES' | translate) : ('COMMON.SUBMIT' | translate) }}
         </button>
         <button type="button" class="btn btn-secondary" (click)="cancelForm()">
-          Cancel
+          {{ 'COMMON.CANCEL' | translate }}
         </button>
       </div>
     </form>
   </div>
+  }
 </div>

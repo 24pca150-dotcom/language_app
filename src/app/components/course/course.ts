@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { CourseService, CourseData } from '../../services/course';
 import {
   McvInputField,
@@ -16,7 +17,8 @@ import {
     ReactiveFormsModule,
     McvInputField,
     McvTextArea,
-    McvToggleField
+    McvToggleField,
+    TranslateModule
   ],
   templateUrl: './course.html',
   styleUrls: ['./course.css'],

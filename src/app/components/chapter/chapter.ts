@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { ChapterService, ChapterData } from '../../services/chapter';
 import { LevelService, LevelData } from '../../services/level';
 import {
@@ -17,7 +18,8 @@ import {
     ReactiveFormsModule,
     McvInputField,
     McvTextArea,
-    McvToggleField
+    McvToggleField,
+    TranslateModule
   ],
   templateUrl: './chapter.html',
   styleUrls: ['./chapter.css'],
@@ -68,6 +70,20 @@ export class Chapter implements OnInit {
   showCreateForm(): void {
     this.resetForm();
     this.isFormVisible.set(true);
+  }
+
+  generateCode(): void {
+    const chaptersList = this.chapters();
+    let nextCode = 'CH001';
+    if (chaptersList.length > 0) {
+      const codes = chaptersList
+        .map(c => c.code)
+        .filter(code => code && /^CH\d{3}$/.test(code))
+        .map(code => parseInt(code.slice(2), 10));
+      const max = codes.length ? Math.max(...codes) : 0;
+      nextCode = 'CH' + ('' + (max + 1)).padStart(3, '0');
+    }
+    this.chapterForm.patchValue({ code: nextCode });
   }
 
   onSubmit(): void {

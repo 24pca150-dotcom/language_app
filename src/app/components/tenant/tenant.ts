@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { TenantService, TenantData } from '../../services/tenant';
 import {
   McvInputField,
@@ -20,7 +21,8 @@ import {
     McvPhoneField,
     McvEmailField,
     McvTextArea,
-    McvToggleField
+    McvToggleField,
+    TranslateModule
   ],
   templateUrl: './tenant.html',
   styleUrls: ['./tenant.css'],
@@ -64,19 +66,21 @@ export class Tenant implements OnInit {
 
   showCreateForm(): void {
     this.resetForm();
-    // Autofill tenant_code like TC001
-    const tenants = this.tenants();
+    this.isFormVisible.set(true);
+  }
+
+  generateCode(): void {
+    const tenantsList = this.tenants();
     let nextCode = 'TC001';
-    if (tenants.length > 0) {
-      const codes = tenants
+    if (tenantsList.length > 0) {
+      const codes = tenantsList
         .map(t => t.tenant_code)
-        .filter(code => /^TC\d{3}$/.test(code))
+        .filter(code => code && /^TC\d{3}$/.test(code))
         .map(code => parseInt(code.slice(2), 10));
       const max = codes.length ? Math.max(...codes) : 0;
       nextCode = 'TC' + ('' + (max + 1)).padStart(3, '0');
     }
     this.tenantForm.patchValue({ tenant_code: nextCode });
-    this.isFormVisible.set(true);
   }
 
   onSubmit(): void {

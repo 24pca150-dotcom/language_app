@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { PropertyService, PropertyData } from '../../services/property';
 import { TenantService, TenantData } from '../../services/tenant';
 import { PackageService, PackageData } from '../../services/package';
@@ -23,7 +24,8 @@ import {
     McvTextArea,
     McvToggleField,
     McvDateRangePicker,
-    McvCheckbox
+    McvCheckbox,
+    TranslateModule
   ],
   templateUrl: './property.html',
   styleUrls: ['./property.css'],
@@ -115,19 +117,21 @@ export class Property implements OnInit {
 
   showCreateForm(): void {
     this.resetForm();
-    // Autofill property_code like PC001
-    const properties = this.properties();
+    this.isFormVisible.set(true);
+  }
+
+  generateCode(): void {
+    const propertiesList = this.properties();
     let nextCode = 'PC001';
-    if (properties.length > 0) {
-      const codes = properties
+    if (propertiesList.length > 0) {
+      const codes = propertiesList
         .map(p => p.property_code)
-        .filter(code => /^PC\d{3}$/.test(code))
+        .filter(code => code && /^PC\d{3}$/.test(code))
         .map(code => parseInt(code.slice(2), 10));
       const max = codes.length ? Math.max(...codes) : 0;
       nextCode = 'PC' + ('' + (max + 1)).padStart(3, '0');
     }
     this.propertyForm.patchValue({ property_code: nextCode });
-    this.isFormVisible.set(true);
   }
 
   onSubmit(): void {

@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { LevelService, LevelData } from '../../services/level';
 import { CourseService, CourseData } from '../../services/course';
 import {
@@ -17,7 +18,8 @@ import {
     ReactiveFormsModule,
     McvInputField,
     McvTextArea,
-    McvToggleField
+    McvToggleField,
+    TranslateModule
   ],
   templateUrl: './level.html',
   styleUrls: ['./level.css'],
@@ -69,6 +71,20 @@ export class Level implements OnInit {
   showCreateForm(): void {
     this.resetForm();
     this.isFormVisible.set(true);
+  }
+
+  generateCode(): void {
+    const levelsList = this.levels();
+    let nextCode = 'LV001';
+    if (levelsList.length > 0) {
+      const codes = levelsList
+        .map(l => l.code)
+        .filter(code => code && /^LV\d{3}$/.test(code))
+        .map(code => parseInt(code.slice(2), 10));
+      const max = codes.length ? Math.max(...codes) : 0;
+      nextCode = 'LV' + ('' + (max + 1)).padStart(3, '0');
+    }
+    this.levelForm.patchValue({ code: nextCode });
   }
 
   onSubmit(): void {

@@ -1,33 +1,39 @@
 <div class="container">
   <!-- Feedback Messages -->
-  <div *ngIf="feedbackMessage() as msg" [class]="'feedback ' + msg.type">
+  @if (feedbackMessage(); as msg) {
+  <div [class]="'feedback ' + msg.type">
     <span>{{ msg.text }}</span>
   </div>
+  }
 
   <div class="card">
     <div class="card-header">
-      <h3>Course-Package-Level Mapping</h3>
+      <h3>{{ 'MAPPING.TITLE' | translate }}</h3>
     </div>
 
     <div class="mapping-selector">
       <div class="form-group">
-        <label>Select Package</label>
+        <label>{{ 'MAPPING.SELECT_PACKAGE' | translate }}</label>
         <select [(ngModel)]="selectedPackageId" (change)="onPackageChange()" class="form-select">
-          <option [ngValue]="null" disabled>Select a package</option>
+          <option [ngValue]="null" disabled>{{ 'MAPPING.SELECT_PACKAGE' | translate }}</option>
           <option *ngFor="let pkg of packages()" [ngValue]="pkg.id">{{ pkg.name }} ({{ pkg.code }})</option>
         </select>
       </div>
     </div>
 
-    <div *ngIf="selectedPackageId()" class="dual-list-container">
+    @if (selectedPackageId()) {
+    <div class="dual-list-container">
       <!-- Mapped Levels -->
       <div class="list-section">
-        <h4>Mapped Levels</h4>
+        <h4>{{ 'MAPPING.MAPPED_LEVELS' | translate }}</h4>
         <div class="list-box">
-          <div *ngIf="mappedLevels().length === 0" class="empty-list">
-            No levels mapped to this package.
+          @if (mappedLevels().length === 0) {
+          <div class="empty-list">
+            {{ 'MAPPING.NO_MAPPED' | translate }}
           </div>
-          <div *ngFor="let level of mappedLevels()" class="list-item">
+          }
+          @for (level of mappedLevels(); track level.id) {
+          <div class="list-item">
             <div class="item-info">
               <span class="item-name">{{ level.name }}</span>
               <span class="item-code">{{ level.code }}</span>
@@ -39,6 +45,7 @@
               </svg>
             </button>
           </div>
+          }
         </div>
       </div>
 
@@ -51,12 +58,15 @@
 
       <!-- Available Levels -->
       <div class="list-section">
-        <h4>Available Levels</h4>
+        <h4>{{ 'MAPPING.AVAILABLE_LEVELS' | translate }}</h4>
         <div class="list-box">
-          <div *ngIf="availableLevels().length === 0" class="empty-list">
-            All levels are already mapped.
+          @if (availableLevels().length === 0) {
+          <div class="empty-list">
+            {{ 'MAPPING.ALL_MAPPED' | translate }}
           </div>
-          <div *ngFor="let level of availableLevels()" class="list-item">
+          }
+          @for (level of availableLevels(); track level.id) {
+          <div class="list-item">
             <div class="item-info">
               <span class="item-name">{{ level.name }}</span>
               <span class="item-code">{{ level.code }}</span>
@@ -68,15 +78,21 @@
               </svg>
             </button>
           </div>
+          }
         </div>
       </div>
     </div>
+    }
 
-    <div *ngIf="!selectedPackageId()" class="selection-prompt">
+    @if (!selectedPackageId()) {
+    <div class="selection-prompt">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5">
-        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+        <path
+          d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+        </path>
       </svg>
-      <p>Select a package to start mapping levels.</p>
+      <p>{{ 'MAPPING.SELECTION_PROMPT' | translate }}</p>
     </div>
+    }
   </div>
 </div>
