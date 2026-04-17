@@ -12,6 +12,14 @@
     "ASSESSMENTS": "Assessments",
     "LANGUAGE": "Language"
   },
+  "LEARNING_MODE": {
+    "CREATE_BTN": "Create Learning Mode",
+    "CREATE_TITLE": "Create New Learning Mode",
+    "EDIT_TITLE": "Edit Learning Mode",
+    "CODE": "Learning Mode Code",
+    "NAME": "Learning Mode Name",
+    "EMPTY": "No learning modes found."
+  },
   "COMMON": {
     "CREATE": "Create",
     "EDIT": "Edit",
@@ -136,6 +144,31 @@
     "QUESTION_TEXT": "Question Text",
     "ADD_OPTION": "Add Option",
     "OPTION_TEXT": "Option text",
-    "EMPTY": "No assessments found. Link one to a level!"
+    "EMPTY": "No assessments found. Link one to a level!",
+    "MAP_LEVEL": "Map to Level",
+    "MAP_CHAPTER": "Map to Chapter",
+    "MAP_SUBCHAPTER": "Map to Sub-Chapter",
+    "DURATION": "Duration (Minutes)",
+    "REVIEW_MODE": "Review Mode",
+    "ACTIVITY_TYPE": "Activity Type",
+    "PRELUDE": "Activity Content / Prelude",
+    "PRELUDE_HINT": "Passage text or Media URL...",
+    "MANDATORY": "Mandatory?",
+    "ALLOW_RESTART": "Allow Restart?",
+    "QUESTION_TYPE": "Question Type",
+    "MEDIA_URL": "Media URL (Question specific)",
+    "OPTIONS_TITLE": "Options / Possible Answers",
+    "ADD_PAIR": "+ Add Pair",
+    "INSTANT_REVIEW": "Review instantly after each question",
+    "AFTER_REVIEW": "Review after completing all questions",
+    "PLAIN": "Plain Questions",
+    "LISTEN": "Listen Audio & Answer",
+    "READ": "Read Passage & Answer",
+    "WATCH": "Watch Video & Answer",
+    "MCQ": "Multiple Choice",
+    "FITB": "Fill in the blank",
+    "MATCH": "Match Sides",
+    "TF": "True/False",
+    "ORAL": "Oral Test"
   }
 }

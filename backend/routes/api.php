@@ -13,6 +13,7 @@ use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\SubChapterController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\LearningProgressController;
+use App\Http\Controllers\LearningModeController;
 
 // Existing resources
 Route::apiResource('packages', PackageController::class);
@@ -25,6 +26,7 @@ Route::apiResource('levels', LevelController::class);
 Route::apiResource('chapters', ChapterController::class);
 Route::apiResource('sub-chapters', SubChapterController::class);
 Route::apiResource('assessments', AssessmentController::class);
+Route::apiResource('learning-modes', LearningModeController::class);
 
 // Course-Package-Level mapping
 Route::get('packages/{packageId}/levels', [CoursePackageLevelController::class, 'index']);
@@ -37,6 +39,7 @@ Route::post('assessments/{assessmentId}/submit', [AssessmentController::class, '
 // Learning progress (strict mode)
 Route::get('users/{userId}/courses/{courseId}/progress', [LearningProgressController::class, 'getUserProgress']);
 Route::get('users/{userId}/levels/{levelId}/access', [LearningProgressController::class, 'getLevelAccess']);
+Route::get('users/{userId}/levels/{levelId}/chapters/progress', [LearningProgressController::class, 'getChapterProgress']);
 
 Route::get('/user', function (Request $request) {
     return $request->user();

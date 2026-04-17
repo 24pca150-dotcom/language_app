@@ -11,11 +11,15 @@ class AssessmentQuestion extends Model
     protected $fillable = [
         'assessment_id',
         'question_text',
+        'question_type',
+        'additional_data',
+        'media_url',
         'sort_order',
     ];
 
     protected $casts = [
         'sort_order' => 'integer',
+        'additional_data' => 'array',
     ];
 
     public function assessment(): BelongsTo

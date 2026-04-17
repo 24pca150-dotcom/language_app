@@ -43,6 +43,7 @@ export class SubChapter implements OnInit {
       name: ['', Validators.required],
       content_type: ['text', Validators.required],
       content: [''],
+      content_meta: [null],
       sort_order: [0],
       is_active: [true],
     });
@@ -113,6 +114,7 @@ export class SubChapter implements OnInit {
       name: subChapter.name,
       content_type: subChapter.content_type,
       content: subChapter.content,
+      content_meta: subChapter.content_meta,
       sort_order: subChapter.sort_order,
       is_active: subChapter.is_active,
     });

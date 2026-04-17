@@ -12,25 +12,33 @@ export interface QuestionOptionData {
 
 export interface AssessmentQuestionData {
   id?: number;
-  assessment_id?: number;
+  assessment_id: number | null;
   question_text: string;
+  question_type: string;
+  additional_data?: any;
+  media_url?: string;
   sort_order?: number;
-  question_type?: string; // Added for question type
   options: QuestionOptionData[];
 }
 
 export interface AssessmentData {
   id?: number;
-  level_id: number;
+  level_id: number | null;
+  chapter_id: number | null;
+  sub_chapter_id: number | null;
   title: string;
   description?: string;
   pass_percentage: number;
+  is_mandatory: boolean;
+  duration_minutes?: number | null;
+  allow_restart: boolean;
+  review_mode: 'instantly' | 'after_completion';
+  activity_type: 'listen_audio' | 'read_passage' | 'watch_video' | 'plain';
+  prelude_content?: string;
   is_active: boolean;
-  allow_restart?: boolean; // Added for restart option
-  duration_minutes?: number | null; // Added for fixed duration
-  mode?: string; // Added for assessment mode
-  activity?: string; // Added for assessment activity
   level?: any;
+  chapter?: any;
+  sub_chapter?: any;
   questions?: AssessmentQuestionData[];
   created_at?: string;
   updated_at?: string;
@@ -57,10 +65,12 @@ export class AssessmentService {
   private http = inject(HttpClient);
   private apiUrl = 'http://127.0.0.1:8000/api/assessments';
 
-  getAll(levelId?: number): Observable<AssessmentData[]> {
+  getAll(filters?: { level_id?: number, chapter_id?: number, sub_chapter_id?: number }): Observable<AssessmentData[]> {
     let params = new HttpParams();
-    if (levelId) {
-      params = params.set('level_id', levelId.toString());
+    if (filters) {
+      if (filters.level_id) params = params.set('level_id', filters.level_id.toString());
+      if (filters.chapter_id) params = params.set('chapter_id', filters.chapter_id.toString());
+      if (filters.sub_chapter_id) params = params.set('sub_chapter_id', filters.sub_chapter_id.toString());
     }
     return this.http.get<AssessmentData[]>(this.apiUrl, { params });
   }

@@ -43,6 +43,10 @@ export class Level implements OnInit {
       name: ['', Validators.required],
       code: ['', Validators.required],
       description: [''],
+      objective_listening: [''],
+      objective_speaking: [''],
+      objective_reading: [''],
+      objective_writing: [''],
       estimated_hours: [0, [Validators.required, Validators.min(0)]],
       sort_order: [0],
       is_active: [true],
@@ -78,9 +82,9 @@ export class Level implements OnInit {
     let nextCode = 'LV001';
     if (levelsList.length > 0) {
       const codes = levelsList
-        .map(l => l.code)
-        .filter(code => code && /^LV\d{3}$/.test(code))
-        .map(code => parseInt(code.slice(2), 10));
+          .map(l => l.code)
+          .filter(code => code && /^LV\d{3}$/.test(code))
+          .map(code => parseInt(code.slice(2), 10));
       const max = codes.length ? Math.max(...codes) : 0;
       nextCode = 'LV' + ('' + (max + 1)).padStart(3, '0');
     }
@@ -128,6 +132,10 @@ export class Level implements OnInit {
       name: level.name,
       code: level.code,
       description: level.description,
+      objective_listening: level.objective_listening,
+      objective_speaking: level.objective_speaking,
+      objective_reading: level.objective_reading,
+      objective_writing: level.objective_writing,
       estimated_hours: level.estimated_hours,
       sort_order: level.sort_order,
       is_active: level.is_active,

@@ -16,7 +16,9 @@
         <label>{{ 'MAPPING.SELECT_PACKAGE' | translate }}</label>
         <select [(ngModel)]="selectedPackageId" (change)="onPackageChange()" class="form-select">
           <option [ngValue]="null" disabled>{{ 'MAPPING.SELECT_PACKAGE' | translate }}</option>
-          <option *ngFor="let pkg of packages()" [ngValue]="pkg.id">{{ pkg.name }} ({{ pkg.code }})</option>
+          @for (pkg of packages(); track pkg.id) {
+            <option [ngValue]="pkg.id">{{ pkg.name }} ({{ pkg.code }})</option>
+          }
         </select>
       </div>
     </div>

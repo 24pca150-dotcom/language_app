@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { AssessmentService, AssessmentData } from '../../services/assessment';
 import { LevelService, LevelData } from '../../services/level';
+import { ChapterService, ChapterData } from '../../services/chapter';
+import { SubChapterService, SubChapterData } from '../../services/sub-chapter';
 import {
   McvInputField,
   McvTextArea,
@@ -28,10 +30,15 @@ export class Assessment implements OnInit {
   private fb = inject(FormBuilder);
   private assessmentService = inject(AssessmentService);
   private levelService = inject(LevelService);
+  private chapterService = inject(ChapterService);
+  private subChapterService = inject(SubChapterService);
 
   assessmentForm: FormGroup;
   assessments = signal<AssessmentData[]>([]);
   levels = signal<LevelData[]>([]);
+  chapters = signal<ChapterData[]>([]);
+  subChapters = signal<SubChapterData[]>([]);
+  
   isEditMode = signal(false);
   isFormVisible = signal(false);
   currentAssessmentId = signal<number | null>(null);
@@ -39,15 +46,19 @@ export class Assessment implements OnInit {
 
   constructor() {
     this.assessmentForm = this.fb.group({
-      level_id: ['', Validators.required],
+      level_id: [null],
+      chapter_id: [null],
+      sub_chapter_id: [null],
       title: ['', Validators.required],
       description: [''],
       pass_percentage: [70, [Validators.required, Validators.min(0), Validators.max(100)]],
+      is_mandatory: [true],
+      duration_minutes: [null],
+      allow_restart: [true],
+      review_mode: ['after_completion', Validators.required],
+      activity_type: ['plain', Validators.required],
+      prelude_content: [''],
       is_active: [true],
-      allow_restart: [false], // User can restart in-progress assessment
-      duration_minutes: [null], // Optional fixed duration
-      mode: ['instant', Validators.required], // Assessment Mode
-      activity: ['plain', Validators.required], // Assessment Activity
       questions: this.fb.array([])
     });
   }
@@ -59,6 +70,8 @@ export class Assessment implements OnInit {
   ngOnInit(): void {
     this.loadAssessments();
     this.loadLevels();
+    this.loadChapters();
+    this.loadSubChapters();
   }
 
   loadAssessments(): void {
@@ -71,7 +84,21 @@ export class Assessment implements OnInit {
   loadLevels(): void {
     this.levelService.getAll().subscribe({
       next: (data) => this.levels.set(data),
-      error: () => this.showFeedback('error', 'Failed to load levels for selection'),
+      error: () => this.showFeedback('error', 'Failed to load levels'),
+    });
+  }
+
+  loadChapters(): void {
+    this.chapterService.getAll().subscribe({
+      next: (data) => this.chapters.set(data),
+      error: () => this.showFeedback('error', 'Failed to load chapters'),
+    });
+  }
+
+  loadSubChapters(): void {
+    this.subChapterService.getAll().subscribe({
+      next: (data) => this.subChapters.set(data),
+      error: () => this.showFeedback('error', 'Failed to load sub-chapters'),
     });
   }
 
@@ -79,12 +106,23 @@ export class Assessment implements OnInit {
     const questionForm = this.fb.group({
       question_text: ['', Validators.required],
       sort_order: [this.questions.length],
-      question_type: ['mcq', Validators.required], // Question Type
+      question_type: ['multiple_choice', Validators.required],
+      media_url: [''],
+      additional_data: [null],
       options: this.fb.array([
         this.createOption(true),
         this.createOption(false)
       ])
     });
+
+    // Handle initial option count for non-MCQ types if needed
+    questionForm.get('question_type')?.valueChanges.subscribe(type => {
+        const options = questionForm.get('options') as FormArray;
+        if (type && ['fill_in_the_blank', 'audio_type_text'].includes(type) && options.length === 0) {
+            options.push(this.createOption(true));
+        }
+    });
+
     this.questions.push(questionForm);
   }
 
@@ -122,7 +160,7 @@ export class Assessment implements OnInit {
   showCreateForm(): void {
     this.resetForm();
     this.isFormVisible.set(true);
-    this.addQuestion(); // Start with one question
+    this.addQuestion();
   }
 
   onSubmit(): void {
@@ -162,43 +200,49 @@ export class Assessment implements OnInit {
     this.isEditMode.set(true);
     this.currentAssessmentId.set(assessment.id!);
     
-    // Clear existing questions
     while (this.questions.length !== 0) {
       this.questions.removeAt(0);
     }
 
     this.assessmentForm.patchValue({
       level_id: assessment.level_id,
+      chapter_id: assessment.chapter_id,
+      sub_chapter_id: assessment.sub_chapter_id,
       title: assessment.title,
       description: assessment.description,
       pass_percentage: assessment.pass_percentage,
+      is_mandatory: assessment.is_mandatory,
+      duration_minutes: assessment.duration_minutes,
+      allow_restart: assessment.allow_restart,
+      review_mode: assessment.review_mode,
+      activity_type: assessment.activity_type,
+      prelude_content: assessment.prelude_content,
       is_active: assessment.is_active,
-      allow_restart: assessment.allow_restart ?? false,
-      duration_minutes: assessment.duration_minutes ?? null,
-      mode: assessment.mode ?? 'instant',
-      activity: assessment.activity ?? 'plain',
     });
 
-    // Populate questions and options
     if (assessment.questions) {
       assessment.questions.forEach(q => {
         const qGroup = this.fb.group({
           id: [q.id],
           question_text: [q.question_text, Validators.required],
           sort_order: [q.sort_order],
-          question_type: [q.question_type || 'mcq', Validators.required],
+          question_type: [q.question_type || 'multiple_choice', Validators.required],
+          media_url: [q.media_url || ''],
+          additional_data: [q.additional_data || null],
           options: this.fb.array([])
         });
 
         const oArray = qGroup.get('options') as FormArray;
-        q.options.forEach(o => {
-          oArray.push(this.fb.group({
-            id: [o.id],
-            option_text: [o.option_text, Validators.required],
-            is_correct: [o.is_correct],
-            sort_order: [o.sort_order]
-          }));
-        });
+        if (q.options) {
+          q.options.forEach(o => {
+            oArray.push(this.fb.group({
+              id: [o.id],
+              option_text: [o.option_text, Validators.required],
+              is_correct: [o.is_correct],
+              sort_order: [o.sort_order]
+            }));
+          });
+        }
 
         this.questions.push(qGroup);
       });
@@ -221,7 +265,14 @@ export class Assessment implements OnInit {
   }
 
   resetForm(): void {
-    this.assessmentForm.reset({ is_active: true, pass_percentage: 70 });
+    this.assessmentForm.reset({ 
+      is_active: true, 
+      pass_percentage: 70, 
+      is_mandatory: true, 
+      allow_restart: true,
+      review_mode: 'after_completion',
+      activity_type: 'plain'
+    });
     while (this.questions.length !== 0) {
       this.questions.removeAt(0);
     }

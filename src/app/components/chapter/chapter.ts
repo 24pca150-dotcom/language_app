@@ -43,6 +43,9 @@ export class Chapter implements OnInit {
       name: ['', Validators.required],
       code: ['', Validators.required],
       description: [''],
+      content_type: ['text'],
+      content: [''],
+      content_meta: [null],
       sort_order: [0],
       is_active: [true],
     });
@@ -77,9 +80,9 @@ export class Chapter implements OnInit {
     let nextCode = 'CH001';
     if (chaptersList.length > 0) {
       const codes = chaptersList
-        .map(c => c.code)
-        .filter(code => code && /^CH\d{3}$/.test(code))
-        .map(code => parseInt(code.slice(2), 10));
+          .map(c => c.code)
+          .filter(code => code && /^CH\d{3}$/.test(code))
+          .map(code => parseInt(code.slice(2), 10));
       const max = codes.length ? Math.max(...codes) : 0;
       nextCode = 'CH' + ('' + (max + 1)).padStart(3, '0');
     }
@@ -127,6 +130,9 @@ export class Chapter implements OnInit {
       name: chapter.name,
       code: chapter.code,
       description: chapter.description,
+      content_type: chapter.content_type,
+      content: chapter.content,
+      content_meta: chapter.content_meta,
       sort_order: chapter.sort_order,
       is_active: chapter.is_active,
     });

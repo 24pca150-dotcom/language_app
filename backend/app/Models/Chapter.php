@@ -13,6 +13,9 @@ class Chapter extends Model
         'name',
         'code',
         'description',
+        'content_type',
+        'content',
+        'content_meta',
         'sort_order',
         'is_active',
     ];
@@ -20,6 +23,7 @@ class Chapter extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'sort_order' => 'integer',
+        'content_meta' => 'array',
     ];
 
     public function level(): BelongsTo
@@ -30,5 +34,10 @@ class Chapter extends Model
     public function subChapters(): HasMany
     {
         return $this->hasMany(SubChapter::class)->orderBy('sort_order');
+    }
+
+    public function assessments(): HasMany
+    {
+        return $this->hasMany(Assessment::class);
     }
 }

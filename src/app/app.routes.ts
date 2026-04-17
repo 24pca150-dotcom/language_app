@@ -9,6 +9,9 @@ import { Chapter } from './components/chapter/chapter';
 import { SubChapter } from './components/sub-chapter/sub-chapter';
 import { Assessment } from './components/assessment/assessment';
 
+import { LearningMode } from './components/learning-mode/learning-mode';
+import { CoursePlayer } from './components/course-player/course-player';
+
 export const routes: Routes = [
   { path: '', redirectTo: 'tenants', pathMatch: 'full' },
   { path: 'packages', component: Package },
@@ -20,4 +23,6 @@ export const routes: Routes = [
   { path: 'chapters', component: Chapter },
   { path: 'sub-chapters', component: SubChapter },
   { path: 'assessments', component: Assessment },
+  { path: 'learning-modes', component: LearningMode },
+  { path: 'learn/:levelId', component: CoursePlayer },
 ];

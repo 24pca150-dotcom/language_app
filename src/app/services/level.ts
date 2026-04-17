@@ -8,6 +8,10 @@ export interface LevelData {
   name: string;
   code: string;
   description?: string;
+  objective_listening?: string;
+  objective_speaking?: string;
+  objective_reading?: string;
+  objective_writing?: string;
   estimated_hours?: number;
   sort_order?: number;
   is_active: boolean;

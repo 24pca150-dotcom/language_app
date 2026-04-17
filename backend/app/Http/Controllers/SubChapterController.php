@@ -23,20 +23,21 @@ class SubChapterController extends Controller
         $validated = $request->validate([
             'chapter_id' => 'required|exists:chapters,id',
             'name' => 'required|string|max:255',
-            'content_type' => 'required|in:text,video,file',
+            'content_type' => 'required|in:text,video,file,image,slide_view',
             'content' => 'nullable|string',
+            'content_meta' => 'nullable|array',
             'sort_order' => 'nullable|integer|min:0',
             'is_active' => 'boolean',
         ]);
 
         $subChapter = SubChapter::create($validated);
 
-        return response()->json($subChapter->load('chapter.level'), 201);
+        return response()->json($subChapter->load(['chapter.level', 'assessments']), 201);
     }
 
     public function show(SubChapter $subChapter)
     {
-        return response()->json($subChapter->load('chapter.level'));
+        return response()->json($subChapter->load(['chapter.level', 'assessments']));
     }
 
     public function update(Request $request, SubChapter $subChapter)
@@ -44,8 +45,9 @@ class SubChapterController extends Controller
         $validated = $request->validate([
             'chapter_id' => 'required|exists:chapters,id',
             'name' => 'required|string|max:255',
-            'content_type' => 'required|in:text,video,file',
+            'content_type' => 'required|in:text,video,file,image,slide_view',
             'content' => 'nullable|string',
+            'content_meta' => 'nullable|array',
             'sort_order' => 'nullable|integer|min:0',
             'is_active' => 'boolean',
         ]);

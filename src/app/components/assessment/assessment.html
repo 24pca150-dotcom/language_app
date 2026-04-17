@@ -97,60 +97,76 @@
 
     <form [formGroup]="assessmentForm" (ngSubmit)="onSubmit()">
       <div class="form-grid">
+        <!-- Mapping Section -->
         <div class="form-group">
-          <label>{{ 'CHAPTER.LEVEL' | translate }}</label>
+          <label>{{ 'ASSESSMENT.MAP_LEVEL' | translate }}</label>
           <select formControlName="level_id" class="form-select">
-            <option value="" disabled>{{ 'CHAPTER.SELECT_LEVEL' | translate }}</option>
+            <option [ngValue]="null">None</option>
             @for (level of levels(); track level.id) {
-            <option [value]="level.id">{{ level.name }} ({{ level.course?.name }})</option>
+            <option [value]="level.id">{{ level.name }}</option>
             }
           </select>
         </div>
 
-        <mcv-input-field [label]="'COMMON.TITLE' | translate" formControlName="title" placeholder="e.g. Final MCQ"
+        <div class="form-group">
+          <label>{{ 'ASSESSMENT.MAP_CHAPTER' | translate }}</label>
+          <select formControlName="chapter_id" class="form-select">
+            <option [ngValue]="null">None</option>
+            @for (chapter of chapters(); track chapter.id) {
+            <option [value]="chapter.id">{{ chapter.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>{{ 'ASSESSMENT.MAP_SUBCHAPTER' | translate }}</label>
+          <select formControlName="sub_chapter_id" class="form-select">
+            <option [ngValue]="null">None</option>
+            @for (sc of subChapters(); track sc.id) {
+            <option [value]="sc.id">{{ sc.name }}</option>
+            }
+          </select>
+        </div>
+
+        <mcv-input-field [label]="'COMMON.TITLE' | translate" formControlName="title" placeholder="Assessment Title"
           [required]="true"></mcv-input-field>
+        
         <mcv-input-field [label]="'ASSESSMENT.PASS_PERCENTAGE' | translate" formControlName="pass_percentage"
           type="number" [required]="true"></mcv-input-field>
 
-        <div class="full-width">
-          <mcv-text-area [label]="'COMMON.DESCRIPTION' | translate" formControlName="description" [rows]="2"
-            placeholder="Instructions..."></mcv-text-area>
+        <mcv-input-field [label]="'ASSESSMENT.DURATION' | translate" formControlName="duration_minutes" type="number"
+          placeholder="0"></mcv-input-field>
+
+        <div class="form-group">
+          <label>{{ 'ASSESSMENT.REVIEW_MODE' | translate }}</label>
+          <select formControlName="review_mode" class="form-select">
+            <option value="instantly">{{ 'ASSESSMENT.INSTANT_REVIEW' | translate }}</option>
+            <option value="after_completion">{{ 'ASSESSMENT.AFTER_REVIEW' | translate }}</option>
+          </select>
         </div>
 
-        <mcv-toggle-field [label]="'COMMON.STATUS' | translate" formControlName="is_active"
-          [onLabel]="'COMMON.ACTIVE' | translate" [offLabel]="'COMMON.INACTIVE' | translate"></mcv-toggle-field>
+        <div class="form-group">
+          <label>{{ 'ASSESSMENT.ACTIVITY_TYPE' | translate }}</label>
+          <select formControlName="activity_type" class="form-select">
+            <option value="plain">{{ 'ASSESSMENT.PLAIN' | translate }}</option>
+            <option value="listen_audio">{{ 'ASSESSMENT.LISTEN' | translate }}</option>
+            <option value="read_passage">{{ 'ASSESSMENT.READ' | translate }}</option>
+            <option value="watch_video">{{ 'ASSESSMENT.WATCH' | translate }}</option>
+          </select>
+        </div>
+
+        <div class="full-width">
+          <mcv-text-area [label]="'ASSESSMENT.PRELUDE' | translate" formControlName="prelude_content" [rows]="3"
+            [placeholder]="'ASSESSMENT.PRELUDE_HINT' | translate"></mcv-text-area>
+        </div>
+
+        <div class="form-group full-width" style="padding: 10px; background: #f1f5f9; border-radius: 8px; display: flex; gap: 20px;">
+          <mcv-toggle-field [label]="'ASSESSMENT.MANDATORY' | translate" formControlName="is_mandatory"></mcv-toggle-field>
+          <mcv-toggle-field [label]="'ASSESSMENT.ALLOW_RESTART' | translate" formControlName="allow_restart"></mcv-toggle-field>
+          <mcv-toggle-field [label]="'COMMON.STATUS' | translate" formControlName="is_active"></mcv-toggle-field>
+        </div>
       </div>
 
-      <!-- Assessment Mode -->
-      <div class="form-group">
-        <label>Assessment Mode</label>
-        <select formControlName="mode" class="form-select">
-          <option value="instant">Answer reviewed after each question instantly</option>
-          <option value="after">Review answers after completing all questions</option>
-        </select>
-      </div>
-
-      <!-- Assessment Activity -->
-      <div class="form-group">
-        <label>Assessment Activity</label>
-        <select formControlName="activity" class="form-select">
-          <option value="audio">Listen Audio & answer questions</option>
-          <option value="reading">Read Passage / Lines / Conversations / Tables / Charts & answer questions</option>
-          <option value="video">Watch Video & answer questions</option>
-          <option value="plain">Plain Assessment (only questions)</option>
-        </select>
-      </div>
-
-      <!-- Allow Restart -->
-      <div class="form-group">
-        <label><input type="checkbox" formControlName="allow_restart"> Allow Restart (User can restart in-progress assessment)</label>
-      </div>
-
-      <!-- Fixed Duration -->
-      <div class="form-group">
-        <label>Fixed Duration (minutes, optional)</label>
-        <input type="number" formControlName="duration_minutes" class="form-input" min="1" placeholder="e.g. 30">
-      </div>
       <!-- Questions Section -->
       <div class="questions-section">
         <div class="section-header">
@@ -166,11 +182,11 @@
 
         <div formArrayName="questions" class="questions-list">
           @for (question of questions.controls; track qIndex; let qIndex = $index) {
-          <div [formGroupName]="qIndex" class="question-card">
-            <div class="question-header">
-              <span class="q-number">{{ 'COMMON.NAME' | translate }} {{ qIndex + 1 }}</span>
+          <div [formGroupName]="qIndex" class="question-card" style="border-left: 4px solid #3b82f6; background: #ffffff; padding: 1.5rem; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+            <div class="question-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <span class="q-number" style="font-weight: 700; color: #1e293b;">Question #{{ qIndex + 1 }}</span>
               <button type="button" class="btn-remove-circle" (click)="removeQuestion(qIndex)"
-                [title]="'COMMON.DELETE' | translate">
+                style="background: #fee2e2; color: #ef4444; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -178,101 +194,72 @@
               </button>
             </div>
 
-
-            <mcv-text-area [label]="'ASSESSMENT.QUESTION_TEXT' | translate" formControlName="question_text" [rows]="2"
-              [required]="true"></mcv-text-area>
-
-            <!-- Question Type -->
-            <div class="form-group">
-              <label>Question Type</label>
-              <select formControlName="question_type" class="form-select">
-                <option value="mcq">Multiple Choice</option>
-                <option value="type">Type Answer in a blank</option>
-                <option value="drag">Fill in by dragging answer</option>
-                <option value="match">Match Sides</option>
-                <option value="odd">Odd Man Out</option>
-                <option value="truefalse">True or False</option>
-                <option value="audio_type">Type text as you hear (Audio)</option>
-                <option value="audio_pick">Pick words from shuffled list (Audio)</option>
-                <option value="reading_spot">Spot errors in PoS (Reading)</option>
-                <option value="reading_replace">Replace underlined words (Reading)</option>
-                <option value="oral">Oral Test - Repeat Passage/Conversation</option>
-              </select>
+            <div class="form-grid" style="grid-template-columns: 2fr 1fr; gap: 1rem;">
+              <mcv-text-area [label]="'ASSESSMENT.QUESTION_TEXT' | translate" formControlName="question_text" [rows]="2"
+                [required]="true"></mcv-text-area>
+              
+              <div class="form-group">
+                <label>{{ 'ASSESSMENT.QUESTION_TYPE' | translate }}</label>
+                <select formControlName="question_type" class="form-select">
+                  <option value="multiple_choice">{{ 'ASSESSMENT.MCQ' | translate }}</option>
+                  <option value="fill_in_the_blank">{{ 'ASSESSMENT.FITB' | translate }}</option>
+                  <option value="match_sides">{{ 'ASSESSMENT.MATCH' | translate }}</option>
+                  <option value="true_false">{{ 'ASSESSMENT.TF' | translate }}</option>
+                  <option value="oral_test">{{ 'ASSESSMENT.ORAL' | translate }}</option>
+                </select>
+              </div>
             </div>
 
-            <!-- Dynamic Fields Based on Question Type -->
-            @if (question.get('question_type')?.value === 'mcq' || question.get('question_type')?.value === 'truefalse' || question.get('question_type')?.value === 'odd') {
-              <!-- Options Section for MCQ, True/False, Odd Man Out -->
-              <div formArrayName="options" class="options-grid">
+            <mcv-input-field [label]="'ASSESSMENT.MEDIA_URL' | translate" formControlName="media_url" placeholder="URL..."></mcv-input-field>
+
+            <!-- DYNAMIC QUESTION UI BASED ON TYPE -->
+            @if (['multiple_choice', 'true_false', 'odd_man_out', 'audio_pick_words'].includes(question.get('question_type')?.value)) {
+              <div formArrayName="options" class="options-grid" style="margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 10px;">{{ 'ASSESSMENT.OPTIONS_TITLE' | translate }}</label>
                 @for (option of getOptions(qIndex).controls; track oIndex; let oIndex = $index) {
-                <div [formGroupName]="oIndex" class="option-item">
-                  <div class="option-row">
-                    <input type="radio" [name]="'correct_' + qIndex" [checked]="option.get('is_correct')?.value"
-                      (change)="setCorrectOption(qIndex, oIndex)" title="Mark as correct">
-                    <input type="text" formControlName="option_text" class="form-input"
-                      [placeholder]="'ASSESSMENT.OPTION_TEXT' | translate">
-                    @if (getOptions(qIndex).length > 2) {
-                    <button type="button" class="btn-remove-child" (click)="removeOption(qIndex, oIndex)">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                      </svg>
-                    </button>
-                    }
-                  </div>
+                <div [formGroupName]="oIndex" class="option-item" style="display: flex; gap: 10px; align-items: center; margin-bottom: 8px;">
+                  <input type="radio" [name]="'correct_' + qIndex" [checked]="option.get('is_correct')?.value"
+                    (change)="setCorrectOption(qIndex, oIndex)" title="Mark as correct">
+                  <input type="text" formControlName="option_text" class="form-input" style="flex: 1;"
+                    [placeholder]="'ASSESSMENT.OPTION_TEXT' | translate">
+                  @if (getOptions(qIndex).length > 2) {
+                  <button type="button" class="btn-remove-child" (click)="removeOption(qIndex, oIndex)" style="color: #ef4444; background: none; border: none; cursor: pointer;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                  }
                 </div>
                 }
-              </div>
-              <button type="button" class="btn btn-outline btn-xs" (click)="addOption(qIndex)">
-                {{ 'ASSESSMENT.ADD_OPTION' | translate }}
-              </button>
-            }
-            @if (question.get('question_type')?.value === 'type') {
-              <!-- Input for Type Answer -->
-              <div class="form-group">
-                <input type="text" class="form-input" placeholder="Correct answer (for validation)">
+                <button type="button" class="btn btn-outline btn-xs" (click)="addOption(qIndex)" style="margin-top: 5px;">
+                  {{ 'ASSESSMENT.ADD_OPTION' | translate }}
+                </button>
               </div>
             }
-            @if (question.get('question_type')?.value === 'drag') {
-              <!-- Drag and Drop UI Placeholder -->
-              <div class="form-group">
-                <input type="text" class="form-input" placeholder="Correct answer(s) for drag & drop">
+
+            @if (['fill_in_the_blank', 'audio_type_text'].includes(question.get('question_type')?.value)) {
+              <div formArrayName="options" class="options-grid" style="margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 10px;">{{ 'ASSESSMENT.OPTION_TEXT' | translate }} (Correct)</label>
+                <div *ngIf="getOptions(qIndex).length > 0" [formGroupName]="0" class="option-item">
+                    <input type="text" formControlName="option_text" class="form-input" style="flex: 1;"
+                    placeholder="Enter answer">
+                </div>
               </div>
             }
-            @if (question.get('question_type')?.value === 'match') {
-              <!-- Match Sides UI Placeholder -->
-              <div class="form-group">
-                <textarea class="form-input" rows="2" placeholder="Enter pairs (e.g. A:1, B:2)"></textarea>
-              </div>
-            }
-            @if (question.get('question_type')?.value === 'audio_type') {
-              <!-- Audio Type UI Placeholder -->
-              <div class="form-group">
-                <input type="text" class="form-input" placeholder="Correct text as heard">
-              </div>
-            }
-            @if (question.get('question_type')?.value === 'audio_pick') {
-              <!-- Audio Pick UI Placeholder -->
-              <div class="form-group">
-                <input type="text" class="form-input" placeholder="Correct words (comma separated)">
-              </div>
-            }
-            @if (question.get('question_type')?.value === 'reading_spot') {
-              <!-- Reading Spot Error UI Placeholder -->
-              <div class="form-group">
-                <textarea class="form-input" rows="2" placeholder="Text with errors to spot"></textarea>
-              </div>
-            }
-            @if (question.get('question_type')?.value === 'reading_replace') {
-              <!-- Reading Replace UI Placeholder -->
-              <div class="form-group">
-                <textarea class="form-input" rows="2" placeholder="Text with underlined words to replace"></textarea>
-              </div>
-            }
-            @if (question.get('question_type')?.value === 'oral') {
-              <!-- Oral Test UI Placeholder -->
-              <div class="form-group">
-                <textarea class="form-input" rows="2" placeholder="Passage or conversation to repeat"></textarea>
+
+            @if (question.get('question_type')?.value === 'match_sides') {
+              <div formArrayName="options" class="options-grid" style="margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 10px;">{{ 'ASSESSMENT.OPTIONS_TITLE' | translate }}</label>
+                @for (option of getOptions(qIndex).controls; track oIndex; let oIndex = $index) {
+                <div [formGroupName]="oIndex" class="option-item" style="display: flex; gap: 10px; align-items: center; margin-bottom: 8px;">
+                  <input type="text" formControlName="option_text" class="form-input" style="flex: 1;"
+                    placeholder="Pair">
+                </div>
+                }
+                <button type="button" class="btn btn-outline btn-xs" (click)="addOption(qIndex)" style="margin-top: 5px;">
+                  {{ 'ASSESSMENT.ADD_PAIR' | translate }}
+                </button>
               </div>
             }
           </div>
@@ -280,14 +267,15 @@
         </div>
       </div>
 
-      <div class="button-group">
+      <div class="button-group" style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e2e8f0;">
         <button type="submit" class="btn btn-primary">
           {{ isEditMode() ? ('COMMON.SAVE_CHANGES' | translate) : ('COMMON.SUBMIT' | translate) }}
         </button>
-        <button type="button" class="btn btn-secondary" (click)="cancelForm()">
+        <button type="button" class="btn btn-outline" (click)="cancelForm()">
           {{ 'COMMON.CANCEL' | translate }}
         </button>
       </div>
     </form>
   </div>
-}
+  }
+</div>

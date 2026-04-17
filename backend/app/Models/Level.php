@@ -15,6 +15,10 @@ class Level extends Model
         'name',
         'code',
         'description',
+        'objective_listening',
+        'objective_speaking',
+        'objective_reading',
+        'objective_writing',
         'estimated_hours',
         'sort_order',
         'is_active',
@@ -36,9 +40,9 @@ class Level extends Model
         return $this->hasMany(Chapter::class)->orderBy('sort_order');
     }
 
-    public function assessment(): HasOne
+    public function assessments(): HasMany
     {
-        return $this->hasOne(Assessment::class);
+        return $this->hasMany(Assessment::class);
     }
 
     public function packages(): BelongsToMany

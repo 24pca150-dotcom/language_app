@@ -6,11 +6,13 @@ export interface SubChapterData {
   id?: number;
   chapter_id: number;
   name: string;
-  content_type: 'text' | 'video' | 'file';
+  content_type: 'text' | 'video' | 'file' | 'image' | 'slide_view';
   content?: string;
+  content_meta?: any;
   sort_order?: number;
   is_active: boolean;
   chapter?: any;
+  assessments?: any[];
   created_at?: string;
   updated_at?: string;
 }
