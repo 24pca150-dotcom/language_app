@@ -44,6 +44,10 @@ export class Assessment implements OnInit {
       description: [''],
       pass_percentage: [70, [Validators.required, Validators.min(0), Validators.max(100)]],
       is_active: [true],
+      allow_restart: [false], // User can restart in-progress assessment
+      duration_minutes: [null], // Optional fixed duration
+      mode: ['instant', Validators.required], // Assessment Mode
+      activity: ['plain', Validators.required], // Assessment Activity
       questions: this.fb.array([])
     });
   }
@@ -75,6 +79,7 @@ export class Assessment implements OnInit {
     const questionForm = this.fb.group({
       question_text: ['', Validators.required],
       sort_order: [this.questions.length],
+      question_type: ['mcq', Validators.required], // Question Type
       options: this.fb.array([
         this.createOption(true),
         this.createOption(false)
@@ -168,6 +173,10 @@ export class Assessment implements OnInit {
       description: assessment.description,
       pass_percentage: assessment.pass_percentage,
       is_active: assessment.is_active,
+      allow_restart: assessment.allow_restart ?? false,
+      duration_minutes: assessment.duration_minutes ?? null,
+      mode: assessment.mode ?? 'instant',
+      activity: assessment.activity ?? 'plain',
     });
 
     // Populate questions and options
@@ -177,6 +186,7 @@ export class Assessment implements OnInit {
           id: [q.id],
           question_text: [q.question_text, Validators.required],
           sort_order: [q.sort_order],
+          question_type: [q.question_type || 'mcq', Validators.required],
           options: this.fb.array([])
         });
 

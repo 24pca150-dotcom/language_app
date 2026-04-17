@@ -121,6 +121,36 @@
           [onLabel]="'COMMON.ACTIVE' | translate" [offLabel]="'COMMON.INACTIVE' | translate"></mcv-toggle-field>
       </div>
 
+      <!-- Assessment Mode -->
+      <div class="form-group">
+        <label>Assessment Mode</label>
+        <select formControlName="mode" class="form-select">
+          <option value="instant">Answer reviewed after each question instantly</option>
+          <option value="after">Review answers after completing all questions</option>
+        </select>
+      </div>
+
+      <!-- Assessment Activity -->
+      <div class="form-group">
+        <label>Assessment Activity</label>
+        <select formControlName="activity" class="form-select">
+          <option value="audio">Listen Audio & answer questions</option>
+          <option value="reading">Read Passage / Lines / Conversations / Tables / Charts & answer questions</option>
+          <option value="video">Watch Video & answer questions</option>
+          <option value="plain">Plain Assessment (only questions)</option>
+        </select>
+      </div>
+
+      <!-- Allow Restart -->
+      <div class="form-group">
+        <label><input type="checkbox" formControlName="allow_restart"> Allow Restart (User can restart in-progress assessment)</label>
+      </div>
+
+      <!-- Fixed Duration -->
+      <div class="form-group">
+        <label>Fixed Duration (minutes, optional)</label>
+        <input type="number" formControlName="duration_minutes" class="form-input" min="1" placeholder="e.g. 30">
+      </div>
       <!-- Questions Section -->
       <div class="questions-section">
         <div class="section-header">
@@ -148,33 +178,103 @@
               </button>
             </div>
 
+
             <mcv-text-area [label]="'ASSESSMENT.QUESTION_TEXT' | translate" formControlName="question_text" [rows]="2"
               [required]="true"></mcv-text-area>
 
-            <!-- Options Section -->
-            <div formArrayName="options" class="options-grid">
-              @for (option of getOptions(qIndex).controls; track oIndex; let oIndex = $index) {
-              <div [formGroupName]="oIndex" class="option-item">
-                <div class="option-row">
-                  <input type="radio" [name]="'correct_' + qIndex" [checked]="option.get('is_correct')?.value"
-                    (change)="setCorrectOption(qIndex, oIndex)" title="Mark as correct">
-                  <input type="text" formControlName="option_text" class="form-input"
-                    [placeholder]="'ASSESSMENT.OPTION_TEXT' | translate">
-                  @if (getOptions(qIndex).length > 2) {
-                  <button type="button" class="btn-remove-child" (click)="removeOption(qIndex, oIndex)">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="18" y1="6" x2="6" y2="18"></line>
-                      <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                  </button>
-                  }
-                </div>
-              </div>
-              }
+            <!-- Question Type -->
+            <div class="form-group">
+              <label>Question Type</label>
+              <select formControlName="question_type" class="form-select">
+                <option value="mcq">Multiple Choice</option>
+                <option value="type">Type Answer in a blank</option>
+                <option value="drag">Fill in by dragging answer</option>
+                <option value="match">Match Sides</option>
+                <option value="odd">Odd Man Out</option>
+                <option value="truefalse">True or False</option>
+                <option value="audio_type">Type text as you hear (Audio)</option>
+                <option value="audio_pick">Pick words from shuffled list (Audio)</option>
+                <option value="reading_spot">Spot errors in PoS (Reading)</option>
+                <option value="reading_replace">Replace underlined words (Reading)</option>
+                <option value="oral">Oral Test - Repeat Passage/Conversation</option>
+              </select>
             </div>
-            <button type="button" class="btn btn-outline btn-xs" (click)="addOption(qIndex)">
-              {{ 'ASSESSMENT.ADD_OPTION' | translate }}
-            </button>
+
+            <!-- Dynamic Fields Based on Question Type -->
+            @if (question.get('question_type')?.value === 'mcq' || question.get('question_type')?.value === 'truefalse' || question.get('question_type')?.value === 'odd') {
+              <!-- Options Section for MCQ, True/False, Odd Man Out -->
+              <div formArrayName="options" class="options-grid">
+                @for (option of getOptions(qIndex).controls; track oIndex; let oIndex = $index) {
+                <div [formGroupName]="oIndex" class="option-item">
+                  <div class="option-row">
+                    <input type="radio" [name]="'correct_' + qIndex" [checked]="option.get('is_correct')?.value"
+                      (change)="setCorrectOption(qIndex, oIndex)" title="Mark as correct">
+                    <input type="text" formControlName="option_text" class="form-input"
+                      [placeholder]="'ASSESSMENT.OPTION_TEXT' | translate">
+                    @if (getOptions(qIndex).length > 2) {
+                    <button type="button" class="btn-remove-child" (click)="removeOption(qIndex, oIndex)">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                    }
+                  </div>
+                </div>
+                }
+              </div>
+              <button type="button" class="btn btn-outline btn-xs" (click)="addOption(qIndex)">
+                {{ 'ASSESSMENT.ADD_OPTION' | translate }}
+              </button>
+            }
+            @if (question.get('question_type')?.value === 'type') {
+              <!-- Input for Type Answer -->
+              <div class="form-group">
+                <input type="text" class="form-input" placeholder="Correct answer (for validation)">
+              </div>
+            }
+            @if (question.get('question_type')?.value === 'drag') {
+              <!-- Drag and Drop UI Placeholder -->
+              <div class="form-group">
+                <input type="text" class="form-input" placeholder="Correct answer(s) for drag & drop">
+              </div>
+            }
+            @if (question.get('question_type')?.value === 'match') {
+              <!-- Match Sides UI Placeholder -->
+              <div class="form-group">
+                <textarea class="form-input" rows="2" placeholder="Enter pairs (e.g. A:1, B:2)"></textarea>
+              </div>
+            }
+            @if (question.get('question_type')?.value === 'audio_type') {
+              <!-- Audio Type UI Placeholder -->
+              <div class="form-group">
+                <input type="text" class="form-input" placeholder="Correct text as heard">
+              </div>
+            }
+            @if (question.get('question_type')?.value === 'audio_pick') {
+              <!-- Audio Pick UI Placeholder -->
+              <div class="form-group">
+                <input type="text" class="form-input" placeholder="Correct words (comma separated)">
+              </div>
+            }
+            @if (question.get('question_type')?.value === 'reading_spot') {
+              <!-- Reading Spot Error UI Placeholder -->
+              <div class="form-group">
+                <textarea class="form-input" rows="2" placeholder="Text with errors to spot"></textarea>
+              </div>
+            }
+            @if (question.get('question_type')?.value === 'reading_replace') {
+              <!-- Reading Replace UI Placeholder -->
+              <div class="form-group">
+                <textarea class="form-input" rows="2" placeholder="Text with underlined words to replace"></textarea>
+              </div>
+            }
+            @if (question.get('question_type')?.value === 'oral') {
+              <!-- Oral Test UI Placeholder -->
+              <div class="form-group">
+                <textarea class="form-input" rows="2" placeholder="Passage or conversation to repeat"></textarea>
+              </div>
+            }
           </div>
           }
         </div>
@@ -190,5 +290,4 @@
       </div>
     </form>
   </div>
-  }
-</div>
+}

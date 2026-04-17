@@ -15,6 +15,7 @@ export interface AssessmentQuestionData {
   assessment_id?: number;
   question_text: string;
   sort_order?: number;
+  question_type?: string; // Added for question type
   options: QuestionOptionData[];
 }
 
@@ -25,6 +26,10 @@ export interface AssessmentData {
   description?: string;
   pass_percentage: number;
   is_active: boolean;
+  allow_restart?: boolean; // Added for restart option
+  duration_minutes?: number | null; // Added for fixed duration
+  mode?: string; // Added for assessment mode
+  activity?: string; // Added for assessment activity
   level?: any;
   questions?: AssessmentQuestionData[];
   created_at?: string;
