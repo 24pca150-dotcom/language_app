@@ -2,32 +2,81 @@
   <!-- Sidebar Chapters List -->
   <aside class="sidebar">
     <div class="sidebar-header">
-      <h3>Course Modules</h3>
+      <h3>Chapters & Content</h3>
     </div>
     <div class="chapter-list">
-      @for (chapter of chapters(); track chapter.chapter_id) {
-        <div class="chapter-item" 
-             [class.active]="activeChapterId() === chapter.chapter_id"
-             [class.locked]="!chapter.is_unlocked"
-             [class.completed]="chapter.is_completed"
-             (click)="selectChapter(chapter.chapter_id)">
-          <div class="status-icon">
-            @if (!chapter.is_unlocked) {
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-              </svg>
-            }
-            @if (chapter.is_completed) {
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            }
-            @if (chapter.is_unlocked && !chapter.is_completed) {
-              <div class="dot"></div>
-            }
+      @for (chapter of chapters(); track chapter.id) {
+        <div class="chapter-item-wrapper">
+          <!-- Chapter Item -->
+          <div class="chapter-item" 
+               [class.active]="activeChapterId() === chapter.id"
+               [class.locked]="!chapter.is_unlocked"
+               [class.completed]="chapter.is_completed"
+               (click)="selectChapter(chapter.id)">
+            <div class="status-icon">
+              @if (!chapter.is_unlocked) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              } @else if (chapter.is_completed) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              } @else {
+                <div class="dot"></div>
+              }
+            </div>
+            <span class="chapter-name">{{ chapter.name }}</span>
           </div>
-          <span class="chapter-name">{{ chapter.name }}</span>
+
+          <!-- Sub-chapters List (shown when chapter is selected) -->
+          @if (activeChapterId() === chapter.id && (chapter.subChapters?.length || chapter.sub_chapters?.length)) {
+            <div class="sub-chapter-list">
+              @for (subChapter of (chapter.subChapters || chapter.sub_chapters); track subChapter.id) {
+                <div class="sub-chapter-item"
+                     [class.active]="activeSubChapterId() === subChapter.id"
+                     (click)="selectSubChapter(subChapter.id)">
+                  <div class="sub-chapter-icon">
+                    @switch (subChapter.content_type) {
+                      @case ('video') {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                      }
+                      @case ('file') {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                          <polyline points="13 2 13 9 20 9"></polyline>
+                        </svg>
+                      }
+                      @case ('image') {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                          <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                      }
+                      @case ('slide_view') {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                          <line x1="2" y1="17" x2="22" y2="17"></line>
+                          <path d="M5 21h14"></path>
+                        </svg>
+                      }
+                      @default {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                        </svg>
+                      }
+                    }
+                  </div>
+                  <span class="sub-chapter-name">{{ subChapter.name }}</span>
+                </div>
+              }
+            </div>
+          }
         </div>
       }
     </div>
@@ -35,26 +84,103 @@
 
   <!-- Main Content Area -->
   <main class="content-area">
-    <div class="content-wrapper">
-      <!-- Chapter Content -->
-      <div class="content-header">
-        <h1>Lesson Content</h1>
-      </div>
-      
-      <div class="video-placeholder" style="aspect-ratio: 16/9; background: #1e293b; border-radius: 1rem; display: flex; align-items: center; justify-content: center; color: white; margin-bottom: 2rem;">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="5 3 19 12 5 21 5 3"></polygon>
-        </svg>
-      </div>
+    @if (activeChapter(); as chapter) {
+      <div class="content-wrapper">
+        <!-- Chapter Header -->
+        <div class="content-header">
+          <h1>{{ chapter.name }}</h1>
+          @if (chapter.description) {
+            <p class="chapter-description">{{ chapter.description }}</p>
+          }
+        </div>
 
-      <div class="prose">
-        <p>This is where the chapter content would be loaded from the backend...</p>
-      </div>
+        <!-- Sub-chapter Content or Chapter Content -->
+        @if (activeSubChapter(); as subChapter) {
+          <!-- Sub-chapter Content -->
+          <div class="sub-chapter-content">
+            <div class="content-type-badge">{{ subChapter.content_type | titlecase }}</div>
+            
+            @switch (subChapter.content_type) {
+              @case ('video') {
+                <div class="video-placeholder">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                  <p>Video content would be embedded here</p>
+                </div>
+              }
+              @case ('image') {
+                <div class="image-placeholder">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <polyline points="21 15 16 10 5 21"></polyline>
+                  </svg>
+                  <p>Image content would be displayed here</p>
+                </div>
+              }
+              @default {
+                <div class="prose">
+                  @if (subChapter.content) {
+                    <div [innerHTML]="subChapter.content"></div>
+                  } @else {
+                    <p>Content is loading...</p>
+                  }
+                </div>
+              }
+            }
+          </div>
+        } @else {
+          <!-- Chapter Content (when no sub-chapter selected) -->
+          <div class="chapter-content">
+            @if (chapter.content) {
+              <div class="prose">
+                <div [innerHTML]="chapter.content"></div>
+              </div>
+            } @else if (getSubChapters().length > 0) {
+              <div class="info-box">
+                <p>Select a topic from the sidebar to view content.</p>
+              </div>
+            } @else {
+              <div class="prose">
+                <p>{{ chapter.description || 'No content available for this chapter.' }}</p>
+              </div>
+            }
+          </div>
+        }
 
-      <div class="assessment-teaser" style="margin-top: 3rem; padding: 2rem; border-radius: 1rem; background: #eff6ff; border: 2px dashed #3b82f6; text-align: center;">
-        <h3>Assessment feature coming soon!</h3>
-        <p>You will be able to take assessments here once the feature is enabled.</p>
+        <!-- Assessments Section -->
+        @if (chapter.assessments && chapter.assessments.length > 0) {
+          <div class="assessment-section">
+            <h2>Assessments</h2>
+            <div class="assessment-list">
+              @for (assessment of chapter.assessments; track assessment.id) {
+                <div class="assessment-card">
+                  <h3>{{ assessment.name }}</h3>
+                  <p>{{ assessment.description || 'Take this assessment to test your knowledge.' }}</p>
+                  <button class="btn-primary">Start Assessment</button>
+                </div>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="assessment-teaser">
+            <h3>Assessments</h3>
+            <p>No assessments available for this chapter yet.</p>
+          </div>
+        }
       </div>
-    </div>
+    } @else {
+      <div class="content-wrapper">
+        <div class="empty-state">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+          <h2>Select a Chapter</h2>
+          <p>Choose a chapter from the sidebar to begin learning.</p>
+        </div>
+      </div>
+    }
   </main>
 </div>

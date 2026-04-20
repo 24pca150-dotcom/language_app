@@ -16,12 +16,19 @@ export class CoursePackageLevelService {
   private http = inject(HttpClient);
   private apiUrl = 'http://127.0.0.1:8000/api/packages';
 
-  getByPackage(packageId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/${packageId}/levels`);
+  getByPackage(packageId: number, courseId?: number): Observable<any[]> {
+    let url = `${this.apiUrl}/${packageId}/levels`;
+    if (courseId) {
+      url += `?course_id=${courseId}`;
+    }
+    return this.http.get<any[]>(url);
   }
 
-  mapLevels(packageId: number, levelIds: number[]): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${packageId}/levels`, { level_ids: levelIds });
+  mapLevels(packageId: number, courseId: number, levelIds: number[]): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${packageId}/levels`, { 
+      course_id: courseId, 
+      level_ids: levelIds 
+    });
   }
 
   unmap(packageId: number, levelId: number): Observable<any> {

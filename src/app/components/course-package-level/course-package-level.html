@@ -12,10 +12,22 @@
     </div>
 
     <div class="mapping-selector">
+      <!-- Course Selection -->
       <div class="form-group">
-        <label>{{ 'MAPPING.SELECT_PACKAGE' | translate }}</label>
-        <select [(ngModel)]="selectedPackageId" (change)="onPackageChange()" class="form-select">
-          <option [ngValue]="null" disabled>{{ 'MAPPING.SELECT_PACKAGE' | translate }}</option>
+        <label>Course</label>
+        <select [(ngModel)]="selectedCourseId" (change)="onSelectionChange()" class="form-select">
+          <option [ngValue]="null" disabled>Select Course</option>
+          @for (course of courses(); track course.id) {
+            <option [ngValue]="course.id">{{ course.name }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Package Selection -->
+      <div class="form-group">
+        <label>Package</label>
+        <select [(ngModel)]="selectedPackageId" (change)="onSelectionChange()" class="form-select">
+          <option [ngValue]="null" disabled>Select Package</option>
           @for (pkg of packages(); track pkg.id) {
             <option [ngValue]="pkg.id">{{ pkg.name }} ({{ pkg.code }})</option>
           }
@@ -23,11 +35,31 @@
       </div>
     </div>
 
-    @if (selectedPackageId()) {
+    @if (selectedPackageId() && selectedCourseId()) {
+    <!-- Titles Row -->
+    <div class="dual-list-headers">
+      <div class="header-section">
+        <h4>{{ 'MAPPING.MAPPED_LEVELS' | translate }}</h4>
+      </div>
+      <div class="header-section">
+        <div class="section-header-flex">
+          <h4>{{ 'MAPPING.AVAILABLE_LEVELS' | translate }}</h4>
+          <div class="source-selector">
+            <span class="selector-label">From:</span>
+            <select [(ngModel)]="sourceCourseId" (change)="onSourceCourseChange()" class="form-select-sm">
+              @for (course of courses(); track course.id) {
+                <option [ngValue]="course.id">{{ course.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lists Row -->
     <div class="dual-list-container">
       <!-- Mapped Levels -->
       <div class="list-section">
-        <h4>{{ 'MAPPING.MAPPED_LEVELS' | translate }}</h4>
         <div class="list-box">
           @if (mappedLevels().length === 0) {
           <div class="empty-list">
@@ -37,7 +69,10 @@
           @for (level of mappedLevels(); track level.id) {
           <div class="list-item">
             <div class="item-info">
-              <span class="item-name">{{ level.name }}</span>
+              <div class="item-header">
+                <span class="item-name">{{ level.name }}</span>
+                <span class="item-course">{{ level.course?.name }}</span>
+              </div>
               <span class="item-code">{{ level.code }}</span>
             </div>
             <button class="btn-remove" (click)="unmapLevel(level.id!)" title="Remove Mapping">
@@ -60,7 +95,6 @@
 
       <!-- Available Levels -->
       <div class="list-section">
-        <h4>{{ 'MAPPING.AVAILABLE_LEVELS' | translate }}</h4>
         <div class="list-box">
           @if (availableLevels().length === 0) {
           <div class="empty-list">
@@ -70,7 +104,10 @@
           @for (level of availableLevels(); track level.id) {
           <div class="list-item">
             <div class="item-info">
-              <span class="item-name">{{ level.name }}</span>
+              <div class="item-header">
+                <span class="item-name">{{ level.name }}</span>
+                <span class="item-course">{{ level.course?.name }}</span>
+              </div>
               <span class="item-code">{{ level.code }}</span>
             </div>
             <button class="btn-add" (click)="mapLevel(level.id!)" title="Add Mapping">
@@ -86,14 +123,14 @@
     </div>
     }
 
-    @if (!selectedPackageId()) {
+    @if (!selectedPackageId() || !selectedCourseId()) {
     <div class="selection-prompt">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5">
         <path
           d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
         </path>
       </svg>
-      <p>{{ 'MAPPING.SELECTION_PROMPT' | translate }}</p>
+      <p>Please select both a Course and a Package to start mapping levels.</p>
     </div>
     }
   </div>

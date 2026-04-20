@@ -10,7 +10,8 @@
     "CHAPTERS": "Chapters",
     "SUB_CHAPTERS": "Sub-Chapters",
     "ASSESSMENTS": "Assessments",
-    "LANGUAGE": "Language"
+    "LANGUAGE": "Language",
+    "LEARNING_MODE": "Learning Mode"
   },
   "LEARNING_MODE": {
     "CREATE_BTN": "Create Learning Mode",
@@ -18,7 +19,8 @@
     "EDIT_TITLE": "Edit Learning Mode",
     "CODE": "Learning Mode Code",
     "NAME": "Learning Mode Name",
-    "EMPTY": "No learning modes found."
+    "EMPTY": "No learning modes found.",
+    "TITLE": "Learning Mode"
   },
   "COMMON": {
     "CREATE": "Create",
