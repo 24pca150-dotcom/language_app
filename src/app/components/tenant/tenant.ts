@@ -92,21 +92,21 @@ export class Tenant implements OnInit {
 
     // Get the actual phone value from the McvPhoneField component
     let phoneValue: any = null;
-    
+
     // Method 1: Use ViewChild reference to phoneField
-    if (this.phoneField && this.phoneField.nativeElement) {
-      const inputs = this.phoneField.nativeElement.querySelectorAll('input');
-      if (inputs.length > 0) {
-        phoneValue = inputs[inputs.length - 1].value?.trim() || null;
-      }
-    }
-    
+    // if (this.phoneField && this.phoneField.nativeElement) {
+    //   const inputs = this.phoneField.nativeElement.querySelectorAll('input');
+    //   if (inputs.length > 0) {
+    //     phoneValue = inputs[inputs.length - 1].value?.trim() || null;
+    //   }
+    // }
+
     // Method 2: Direct input with formControlName
-    if (!phoneValue) {
-      let phoneInput = document.querySelector('[formControlName="phone"]') as HTMLInputElement;
-      phoneValue = phoneInput?.value?.trim() || null;
-    }
-    
+    // if (!phoneValue) {
+    //   let phoneInput = document.querySelector('[formControlName="phone"]') as HTMLInputElement;
+    //   phoneValue = phoneInput?.value?.trim() || null;
+    // }
+
     // Method 3: Look for input inside mcv-phone-field
     if (!phoneValue) {
       const phoneField = document.querySelector('mcv-phone-field');
@@ -118,8 +118,10 @@ export class Tenant implements OnInit {
       }
     }
 
+
     let tenantData: TenantData = this.tenantForm.value;
-    
+
+
     // Override phone value with actual input value
     if (phoneValue) {
       tenantData.phone = phoneValue;
@@ -152,7 +154,7 @@ export class Tenant implements OnInit {
   editTenant(tenant: TenantData): void {
     this.isEditMode.set(true);
     this.currentTenantId.set(tenant.id!);
-    
+
     // Set all values including phone
     this.tenantForm.patchValue({
       tenant_code: tenant.tenant_code,
@@ -170,14 +172,14 @@ export class Tenant implements OnInit {
         const control = this.tenantForm.get(key);
         control?.updateValueAndValidity({ emitEvent: false });
       });
-      
+
       // Mark form clean after all values are properly set
       this.tenantForm.markAsPristine();
       this.tenantForm.markAsUntouched();
-      
+
       this.cdr.detectChanges();
     }, 100);
-    
+
     this.isFormVisible.set(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }

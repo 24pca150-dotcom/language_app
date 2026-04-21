@@ -8,77 +8,77 @@
 
   <!-- List View -->
   @if (!isFormVisible()) {
-    <div class="action-bar">
-      <button class="btn btn-primary" (click)="showCreateForm()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round"
-          style="display:inline-block; vertical-align:middle; margin-right: 8px;">
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-        {{ 'ASSESSMENT.CREATE_BTN' | translate }}
-      </button>
-    </div>
+  <div class="action-bar">
+    <button class="btn btn-primary" (click)="showCreateForm()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"
+        style="display:inline-block; vertical-align:middle; margin-right: 8px;">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      {{ 'ASSESSMENT.CREATE_BTN' | translate }}
+    </button>
+  </div>
 
-    <!-- Table Container -->
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>{{ 'COMMON.TITLE' | translate }}</th>
-            <th>{{ 'CHAPTER.LEVEL' | translate }}</th>
-            <th>{{ 'ASSESSMENT.PASS_PERCENTAGE' | translate }}</th>
-            <th>{{ 'ASSESSMENT.QUESTIONS' | translate }}</th>
-            <th>{{ 'COMMON.STATUS' | translate }}</th>
-            <th>{{ 'COMMON.ACTIONS' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (assessment of assessments(); track assessment.id) {
-          <tr>
-            <td><strong>{{ assessment.title }}</strong></td>
-            <td>{{ assessment.level?.name }} ({{ assessment.level?.course?.name }})</td>
-            <td>{{ assessment.pass_percentage }}%</td>
-            <td>{{ assessment.questions?.length || 0 }}</td>
-            <td>
-              <span [class]="'badge ' + (assessment.is_active ? 'badge-success' : 'badge-error')">
-                {{ assessment.is_active ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
-              </span>
-            </td>
-            <td>
-              <div class="action-btns">
-                <button class="btn-icon btn-edit" [title]="'COMMON.EDIT' | translate"
-                  (click)="editAssessment(assessment)">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                    <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                  </svg>
-                </button>
-                <button class="btn-icon btn-delete" [title]="'COMMON.DELETE' | translate"
-                  (click)="deleteAssessment(assessment.id!)">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                    <line x1="10" y1="11" x2="10" y2="17"></line>
-                    <line x1="14" y1="11" x2="14" y2="17"></line>
-                  </svg>
-                </button>
-              </div>
-            </td>
-          </tr>
-          }
-          @if (assessments().length === 0) {
-          <tr>
-            <td colspan="6" style="text-align: center; color: #94a3b8; padding: 2rem;">
-              {{ 'ASSESSMENT.EMPTY' | translate }}
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+  <!-- Table Container -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>{{ 'COMMON.TITLE' | translate }}</th>
+          <th>{{ 'CHAPTER.LEVEL' | translate }}</th>
+          <th>{{ 'ASSESSMENT.PASS_PERCENTAGE' | translate }}</th>
+          <th>{{ 'ASSESSMENT.QUESTIONS' | translate }}</th>
+          <th>{{ 'COMMON.STATUS' | translate }}</th>
+          <th>{{ 'COMMON.ACTIONS' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (assessment of assessments(); track assessment.id) {
+        <tr>
+          <td><strong>{{ assessment.title }}</strong></td>
+          <td>{{ assessment.level?.name }} ({{ assessment.level?.course?.name }})</td>
+          <td>{{ assessment.pass_percentage }}%</td>
+          <td>{{ assessment.questions?.length || 0 }}</td>
+          <td>
+            <span [class]="'badge ' + (assessment.is_active ? 'badge-success' : 'badge-error')">
+              {{ assessment.is_active ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
+            </span>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="btn-icon btn-edit" [title]="'COMMON.EDIT' | translate"
+                (click)="editAssessment(assessment)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+              <button class="btn-icon btn-delete" [title]="'COMMON.DELETE' | translate"
+                (click)="deleteAssessment(assessment.id!)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+        }
+        @if (assessments().length === 0) {
+        <tr>
+          <td colspan="6" style="text-align: center; color: #94a3b8; padding: 2rem;">
+            {{ 'ASSESSMENT.EMPTY' | translate }}
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
   }
 
   <!-- Form View -->
@@ -130,7 +130,7 @@
 
         <mcv-input-field [label]="'COMMON.TITLE' | translate" formControlName="title" placeholder="Assessment Title"
           [required]="true"></mcv-input-field>
-        
+
         <mcv-input-field [label]="'ASSESSMENT.PASS_PERCENTAGE' | translate" formControlName="pass_percentage"
           type="number" [required]="true"></mcv-input-field>
 
@@ -160,9 +160,12 @@
             [placeholder]="'ASSESSMENT.PRELUDE_HINT' | translate"></mcv-text-area>
         </div>
 
-        <div class="form-group full-width" style="padding: 10px; background: #f1f5f9; border-radius: 8px; display: flex; gap: 20px;">
-          <mcv-toggle-field [label]="'ASSESSMENT.MANDATORY' | translate" formControlName="is_mandatory"></mcv-toggle-field>
-          <mcv-toggle-field [label]="'ASSESSMENT.ALLOW_RESTART' | translate" formControlName="allow_restart"></mcv-toggle-field>
+        <div class="form-group full-width"
+          style="padding: 10px; background: #f1f5f9; border-radius: 8px; display: flex; gap: 20px;">
+          <mcv-toggle-field [label]="'ASSESSMENT.MANDATORY' | translate"
+            formControlName="is_mandatory"></mcv-toggle-field>
+          <mcv-toggle-field [label]="'ASSESSMENT.ALLOW_RESTART' | translate"
+            formControlName="allow_restart"></mcv-toggle-field>
           <mcv-toggle-field [label]="'COMMON.STATUS' | translate" formControlName="is_active"></mcv-toggle-field>
         </div>
       </div>
@@ -182,8 +185,10 @@
 
         <div formArrayName="questions" class="questions-list">
           @for (question of questions.controls; track qIndex; let qIndex = $index) {
-          <div [formGroupName]="qIndex" class="question-card" style="border-left: 4px solid #3b82f6; background: #ffffff; padding: 1.5rem; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
-            <div class="question-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <div [formGroupName]="qIndex" class="question-card"
+            style="border-left: 4px solid #3b82f6; background: #ffffff; padding: 1.5rem; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+            <div class="question-header"
+              style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
               <span class="q-number" style="font-weight: 700; color: #1e293b;">Question #{{ qIndex + 1 }}</span>
               <button type="button" class="btn-remove-circle" (click)="removeQuestion(qIndex)"
                 style="background: #fee2e2; color: #ef4444; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
@@ -197,7 +202,7 @@
             <div class="form-grid" style="grid-template-columns: 2fr 1fr; gap: 1rem;">
               <mcv-text-area [label]="'ASSESSMENT.QUESTION_TEXT' | translate" formControlName="question_text" [rows]="2"
                 [required]="true"></mcv-text-area>
-              
+
               <div class="form-group">
                 <label>{{ 'ASSESSMENT.QUESTION_TYPE' | translate }}</label>
                 <select formControlName="question_type" class="form-select">
@@ -210,57 +215,69 @@
               </div>
             </div>
 
-            <mcv-input-field [label]="'ASSESSMENT.MEDIA_URL' | translate" formControlName="media_url" placeholder="URL..."></mcv-input-field>
+            <mcv-input-field [label]="'ASSESSMENT.MEDIA_URL' | translate" formControlName="media_url"
+              placeholder="URL..."></mcv-input-field>
 
             <!-- DYNAMIC QUESTION UI BASED ON TYPE -->
-            @if (['multiple_choice', 'true_false', 'odd_man_out', 'audio_pick_words'].includes(question.get('question_type')?.value)) {
-              <div formArrayName="options" class="options-grid" style="margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 1rem;">
-                <label style="font-weight: 600; display: block; margin-bottom: 10px;">{{ 'ASSESSMENT.OPTIONS_TITLE' | translate }}</label>
-                @for (option of getOptions(qIndex).controls; track oIndex; let oIndex = $index) {
-                <div [formGroupName]="oIndex" class="option-item" style="display: flex; gap: 10px; align-items: center; margin-bottom: 8px;">
-                  <input type="radio" [name]="'correct_' + qIndex" [checked]="option.get('is_correct')?.value"
-                    (change)="setCorrectOption(qIndex, oIndex)" title="Mark as correct">
-                  <input type="text" formControlName="option_text" class="form-input" style="flex: 1;"
-                    [placeholder]="'ASSESSMENT.OPTION_TEXT' | translate">
-                  @if (getOptions(qIndex).length > 2) {
-                  <button type="button" class="btn-remove-child" (click)="removeOption(qIndex, oIndex)" style="color: #ef4444; background: none; border: none; cursor: pointer;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="18" y1="6" x2="6" y2="18"></line>
-                      <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                  </button>
-                  }
-                </div>
-                }
-                <button type="button" class="btn btn-outline btn-xs" (click)="addOption(qIndex)" style="margin-top: 5px;">
-                  {{ 'ASSESSMENT.ADD_OPTION' | translate }}
+            @if (['multiple_choice', 'true_false', 'odd_man_out',
+            'audio_pick_words'].includes(question.get('question_type')?.value)) {
+            <div formArrayName="options" class="options-grid"
+              style="margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 1rem;">
+              <label style="font-weight: 600; display: block; margin-bottom: 10px;">{{ 'ASSESSMENT.OPTIONS_TITLE' |
+                translate }}</label>
+              @for (option of getOptions(qIndex).controls; track oIndex; let oIndex = $index) {
+              <div [formGroupName]="oIndex" class="option-item"
+                style="display: flex; gap: 10px; align-items: center; margin-bottom: 8px;">
+                <input type="radio" [name]="'correct_' + qIndex" [checked]="option.get('is_correct')?.value"
+                  (change)="setCorrectOption(qIndex, oIndex)" title="Mark as correct">
+                <input type="text" formControlName="option_text" class="form-input" style="flex: 1;"
+                  [placeholder]="'ASSESSMENT.OPTION_TEXT' | translate">
+                @if (getOptions(qIndex).length > 2) {
+                <button type="button" class="btn-remove-child" (click)="removeOption(qIndex, oIndex)"
+                  style="color: #ef4444; background: none; border: none; cursor: pointer;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
                 </button>
+                }
               </div>
+              }
+              <button type="button" class="btn btn-outline btn-xs" (click)="addOption(qIndex)" style="margin-top: 5px;">
+                {{ 'ASSESSMENT.ADD_OPTION' | translate }}
+              </button>
+            </div>
             }
 
             @if (['fill_in_the_blank', 'audio_type_text'].includes(question.get('question_type')?.value)) {
-              <div formArrayName="options" class="options-grid" style="margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 1rem;">
-                <label style="font-weight: 600; display: block; margin-bottom: 10px;">{{ 'ASSESSMENT.OPTION_TEXT' | translate }} (Correct)</label>
-                <div *ngIf="getOptions(qIndex).length > 0" [formGroupName]="0" class="option-item">
-                    <input type="text" formControlName="option_text" class="form-input" style="flex: 1;"
-                    placeholder="Enter answer">
-                </div>
+            <div formArrayName="options" class="options-grid"
+              style="margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 1rem;">
+              <label style="font-weight: 600; display: block; margin-bottom: 10px;">{{ 'ASSESSMENT.OPTION_TEXT' |
+                translate }} (Correct)</label>
+              @if (getOptions(qIndex).length > 0) {
+              <div [formGroupName]="0" class="option-item">
+                <input type="text" formControlName="option_text" class="form-input" style="flex: 1;"
+                  placeholder="Enter answer">
               </div>
+              }
+            </div>
             }
 
             @if (question.get('question_type')?.value === 'match_sides') {
-              <div formArrayName="options" class="options-grid" style="margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 1rem;">
-                <label style="font-weight: 600; display: block; margin-bottom: 10px;">{{ 'ASSESSMENT.OPTIONS_TITLE' | translate }}</label>
-                @for (option of getOptions(qIndex).controls; track oIndex; let oIndex = $index) {
-                <div [formGroupName]="oIndex" class="option-item" style="display: flex; gap: 10px; align-items: center; margin-bottom: 8px;">
-                  <input type="text" formControlName="option_text" class="form-input" style="flex: 1;"
-                    placeholder="Pair">
-                </div>
-                }
-                <button type="button" class="btn btn-outline btn-xs" (click)="addOption(qIndex)" style="margin-top: 5px;">
-                  {{ 'ASSESSMENT.ADD_PAIR' | translate }}
-                </button>
+            <div formArrayName="options" class="options-grid"
+              style="margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 1rem;">
+              <label style="font-weight: 600; display: block; margin-bottom: 10px;">{{ 'ASSESSMENT.OPTIONS_TITLE' |
+                translate }}</label>
+              @for (option of getOptions(qIndex).controls; track oIndex; let oIndex = $index) {
+              <div [formGroupName]="oIndex" class="option-item"
+                style="display: flex; gap: 10px; align-items: center; margin-bottom: 8px;">
+                <input type="text" formControlName="option_text" class="form-input" style="flex: 1;" placeholder="Pair">
               </div>
+              }
+              <button type="button" class="btn btn-outline btn-xs" (click)="addOption(qIndex)" style="margin-top: 5px;">
+                {{ 'ASSESSMENT.ADD_PAIR' | translate }}
+              </button>
+            </div>
             }
           </div>
           }
