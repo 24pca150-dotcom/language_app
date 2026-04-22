@@ -38,7 +38,7 @@ export class Assessment implements OnInit {
   levels = signal<LevelData[]>([]);
   chapters = signal<ChapterData[]>([]);
   subChapters = signal<SubChapterData[]>([]);
-  
+
   isEditMode = signal(false);
   isFormVisible = signal(false);
   currentAssessmentId = signal<number | null>(null);
@@ -117,10 +117,10 @@ export class Assessment implements OnInit {
 
     // Handle initial option count for non-MCQ types if needed
     questionForm.get('question_type')?.valueChanges.subscribe(type => {
-        const options = questionForm.get('options') as FormArray;
-        if (type && ['fill_in_the_blank', 'audio_type_text'].includes(type) && options.length === 0) {
-            options.push(this.createOption(true));
-        }
+      const options = questionForm.get('options') as FormArray;
+      if (type && ['fill_in_the_blank', 'audio_type_text'].includes(type) && options.length === 0) {
+        options.push(this.createOption(true));
+      }
     });
 
     this.questions.push(questionForm);
@@ -199,7 +199,7 @@ export class Assessment implements OnInit {
   editAssessment(assessment: AssessmentData): void {
     this.isEditMode.set(true);
     this.currentAssessmentId.set(assessment.id!);
-    
+
     while (this.questions.length !== 0) {
       this.questions.removeAt(0);
     }
@@ -265,10 +265,10 @@ export class Assessment implements OnInit {
   }
 
   resetForm(): void {
-    this.assessmentForm.reset({ 
-      is_active: true, 
-      pass_percentage: 70, 
-      is_mandatory: true, 
+    this.assessmentForm.reset({
+      is_active: true,
+      pass_percentage: 70,
+      is_mandatory: true,
       allow_restart: true,
       review_mode: 'after_completion',
       activity_type: 'plain'

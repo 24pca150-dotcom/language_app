@@ -1,16 +1,21 @@
 <div class="container">
   <!-- Feedback Message -->
   @if (feedbackMessage(); as msg) {
-    <div [class]="'feedback ' + msg.type">
-      {{ msg.text }}
-    </div>
+  <div [class]="'feedback ' + msg.type">
+    {{ msg.text }}
+  </div>
   }
 
   <!-- List View -->
   @if (!isFormVisible()) {
   <div class="action-bar">
     <button class="btn btn-primary" (click)="showCreateForm()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right: 8px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"
+        style="display:inline-block; vertical-align:middle; margin-right: 8px;">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
       {{ 'TENANT.CREATE_BTN' | translate }}
     </button>
   </div>
@@ -29,31 +34,43 @@
       </thead>
       <tbody>
         @for (tenant of tenants(); track tenant.id) {
-          <tr>
-            <td><strong>{{ tenant.tenant_code }}</strong></td>
-            <td>{{ tenant.tenant_name }}</td>
-            <td>{{ tenant.contact_person || '-' }}</td>
-            <td>{{ tenant.email || '-' }}</td>
-            <td>
-              <span [class]="'badge ' + (tenant.is_active ? 'badge-success' : 'badge-error')">
-                {{ tenant.is_active ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
-              </span>
-            </td>
-            <td>
-              <div class="action-btns">
-                <button class="btn-icon btn-edit" (click)="editTenant(tenant)" [title]="'COMMON.EDIT' | translate">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                </button>
-                <button class="btn-icon btn-delete" (click)="deleteTenant(tenant.id!)" [title]="'COMMON.DELETE' | translate">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                </button>
-              </div>
-            </td>
-          </tr>
+        <tr>
+          <td><strong>{{ tenant.tenant_code }}</strong></td>
+          <td>{{ tenant.tenant_name }}</td>
+          <td>{{ tenant.contact_person || '-' }}</td>
+          <td>{{ tenant.email || '-' }}</td>
+          <td>
+            <span [class]="'badge ' + (tenant.is_active ? 'badge-success' : 'badge-error')">
+              {{ tenant.is_active ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
+            </span>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="btn-icon btn-edit" (click)="editTenant(tenant)" [title]="'COMMON.EDIT' | translate">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+              <button class="btn-icon btn-delete" (click)="deleteTenant(tenant.id!)"
+                [title]="'COMMON.DELETE' | translate">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
         } @empty {
-          <tr>
-            <td colspan="6" style="text-align: center; padding: 2rem; color: #64748b;">{{ 'TENANT.EMPTY' | translate }}</td>
-          </tr>
+        <tr>
+          <td colspan="6" style="text-align: center; padding: 2rem; color: #64748b;">{{ 'TENANT.EMPTY' | translate }}
+          </td>
+        </tr>
         }
       </tbody>
     </table>
@@ -66,69 +83,54 @@
     <div class="card-header">
       <h3>{{ isEditMode() ? ('TENANT.EDIT_TITLE' | translate) : ('TENANT.CREATE_TITLE' | translate) }}</h3>
       <button class="btn-close" (click)="cancelForm()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
       </button>
     </div>
 
     <form [formGroup]="tenantForm" (ngSubmit)="onSubmit()">
       <div class="form-grid">
         <div style="position: relative;">
-          <mcv-input-field 
-            [label]="'TENANT.CODE' | translate" 
-            formControlName="tenant_code" 
-            placeholder="e.g. TC001"
+          <mcv-input-field [label]="'TENANT.CODE' | translate" formControlName="tenant_code" placeholder="e.g. TC001"
             [required]="true">
           </mcv-input-field>
-          <button type="button" (click)="generateCode()" [title]="'COMMON.GENERATE' | translate" 
+          <button type="button" (click)="generateCode()" [title]="'COMMON.GENERATE' | translate"
             style="position: absolute; right: 0; top: 0; background: none; border: none; color: var(--color-primary, #3b82f6); cursor: pointer; padding: 4px; display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
             {{ 'COMMON.GENERATE' | translate }}
           </button>
         </div>
 
-        <mcv-input-field 
-          [label]="'TENANT.NAME' | translate" 
-          formControlName="tenant_name" 
-          placeholder="Full Company Name"
-          [required]="true">
+        <mcv-input-field [label]="'TENANT.NAME' | translate" formControlName="tenant_name"
+          placeholder="Full Company Name" [required]="true">
         </mcv-input-field>
 
-        <mcv-input-field 
-          [label]="'TENANT.CONTACT_PERSON' | translate" 
-          formControlName="contact_person" 
+        <mcv-input-field [label]="'TENANT.CONTACT_PERSON' | translate" formControlName="contact_person"
           placeholder="John Doe">
         </mcv-input-field>
 
-        <mcv-email-field 
-          [label]="'TENANT.EMAIL_ADDRESS' | translate" 
-          formControlName="email" 
-          placeholder="contact@example.com"
-          [required]="true">
+        <mcv-email-field [label]="'TENANT.EMAIL_ADDRESS' | translate" formControlName="email"
+          placeholder="contact@example.com" [required]="true">
         </mcv-email-field>
 
-        <mcv-phone-field 
-          #phoneField
-          [label]="'TENANT.PHONE' | translate" 
-          formControlName="phone" 
-          placeholder="+1 234 567 890"
-          [showCountryCode]="true"
-          defaultCountryCode="+91">
+        <mcv-phone-field #phoneField [label]="'TENANT.PHONE' | translate" formControlName="phone"
+          placeholder="+1 234 567 890" [showCountryCode]="true" defaultCountryCode="+91">
         </mcv-phone-field>
 
         <div class="full-width">
-          <mcv-text-area 
-            [label]="'TENANT.ADDRESS' | translate" 
-            formControlName="address" 
-            [rows]="3" 
-            placeholder="Full Postal Address"> 
+          <mcv-text-area [label]="'TENANT.ADDRESS' | translate" formControlName="address" [rows]="3"
+            placeholder="Full Postal Address">
           </mcv-text-area>
         </div>
 
-        <mcv-toggle-field 
-          [label]="'COMMON.STATUS' | translate" 
-          formControlName="is_active"
-          [onLabel]="'COMMON.ACTIVE' | translate"
-          [offLabel]="'COMMON.INACTIVE' | translate">
+        <mcv-toggle-field [label]="'COMMON.STATUS' | translate" formControlName="is_active"
+          [onLabel]="'COMMON.ACTIVE' | translate" [offLabel]="'COMMON.INACTIVE' | translate">
         </mcv-toggle-field>
       </div>
 

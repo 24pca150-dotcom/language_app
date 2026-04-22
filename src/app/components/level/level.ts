@@ -82,9 +82,9 @@ export class Level implements OnInit {
     let nextCode = 'LV001';
     if (levelsList.length > 0) {
       const codes = levelsList
-          .map(l => l.code)
-          .filter(code => code && /^LV\d{3}$/.test(code))
-          .map(code => parseInt(code.slice(2), 10));
+        .map(l => l.code)
+        .filter(code => code && /^LV\d{3}$/.test(code))
+        .map(code => parseInt(code.slice(2), 10));
       const max = codes.length ? Math.max(...codes) : 0;
       nextCode = 'LV' + ('' + (max + 1)).padStart(3, '0');
     }

@@ -41,24 +41,21 @@
           <td>
             <span class="type-icon">
               @if (sc.content_type === 'text') {
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2">
-                  <path d="M4 7V4h16v3M9 20h6M12 4v16"></path>
-                </svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 7V4h16v3M9 20h6M12 4v16"></path>
+              </svg>
               }
               @if (sc.content_type === 'video') {
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2">
-                  <polygon points="23 7 16 12 23 17 23 7"></polygon>
-                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
-                </svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+              </svg>
               }
               @if (sc.content_type === 'file') {
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2">
-                  <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
-                  <polyline points="13 2 13 9 20 9"></polyline>
-                </svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                <polyline points="13 2 13 9 20 9"></polyline>
+              </svg>
               }
               {{ sc.content_type | titlecase }}
             </span>
@@ -127,7 +124,7 @@
           <select formControlName="chapter_id" class="form-select">
             <option value="" disabled>{{ 'SUBCHAPTER.SELECT_CHAPTER' | translate }}</option>
             @for (chapter of chapters(); track chapter.id) {
-              <option [value]="chapter.id">{{ chapter.name }} ({{ chapter.level?.name }})</option>
+            <option [value]="chapter.id">{{ chapter.name }} ({{ chapter.level?.name }})</option>
             }
           </select>
           @if (subChapterForm.get('chapter_id')?.touched && subChapterForm.get('chapter_id')?.invalid) {
@@ -158,31 +155,29 @@
 
         <div class="full-width">
           @switch (subChapterForm.get('content_type')?.value) {
-            @case ('text') {
-              <mcv-text-area [label]="'SUBCHAPTER.CONTENT' | translate" formControlName="content" [rows]="10"
-                placeholder="Paste article text or markdown here...">
-              </mcv-text-area>
-            }
-            @case ('video') {
-              <mcv-input-field [label]="'SUBCHAPTER.VIDEO_URL' | translate" formControlName="content"
-                placeholder="https://www.youtube.com/watch?v=...">
-              </mcv-input-field>
-            }
-            @case ('image') {
-              <mcv-input-field [label]="'Image URL'" formControlName="content"
-                placeholder="https://example.com/image.jpg">
-              </mcv-input-field>
-            }
-            @case ('file') {
-              <mcv-input-field [label]="'File URL'" formControlName="content"
-                placeholder="https://example.com/handout.pdf">
-              </mcv-input-field>
-            }
-            @case ('slide_view') {
-              <mcv-text-area [label]="'Slide Metadata (JSON)'" formControlName="content_meta" [rows]="5"
-                placeholder='[{"image": "...", "caption": "..."}, ...]'>
-              </mcv-text-area>
-            }
+          @case ('text') {
+          <mcv-text-area [label]="'SUBCHAPTER.CONTENT' | translate" formControlName="content" [rows]="10"
+            placeholder="Paste article text or markdown here...">
+          </mcv-text-area>
+          }
+          @case ('video') {
+          <mcv-input-field [label]="'SUBCHAPTER.VIDEO_URL' | translate" formControlName="content"
+            placeholder="https://www.youtube.com/watch?v=...">
+          </mcv-input-field>
+          }
+          @case ('image') {
+          <mcv-input-field [label]="'Image URL'" formControlName="content" placeholder="https://example.com/image.jpg">
+          </mcv-input-field>
+          }
+          @case ('file') {
+          <mcv-input-field [label]="'File URL'" formControlName="content" placeholder="https://example.com/handout.pdf">
+          </mcv-input-field>
+          }
+          @case ('slide_view') {
+          <mcv-text-area [label]="'Slide Metadata (JSON)'" formControlName="content_meta" [rows]="5"
+            placeholder='[{"image": "...", "caption": "..."}, ...]'>
+          </mcv-text-area>
+          }
           }
 
           <mcv-toggle-field [label]="'COMMON.STATUS' | translate" formControlName="is_active"

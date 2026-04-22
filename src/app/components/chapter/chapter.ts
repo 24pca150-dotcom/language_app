@@ -80,9 +80,9 @@ export class Chapter implements OnInit {
     let nextCode = 'CH001';
     if (chaptersList.length > 0) {
       const codes = chaptersList
-          .map(c => c.code)
-          .filter(code => code && /^CH\d{3}$/.test(code))
-          .map(code => parseInt(code.slice(2), 10));
+        .map(c => c.code)
+        .filter(code => code && /^CH\d{3}$/.test(code))
+        .map(code => parseInt(code.slice(2), 10));
       const max = codes.length ? Math.max(...codes) : 0;
       nextCode = 'CH' + ('' + (max + 1)).padStart(3, '0');
     }

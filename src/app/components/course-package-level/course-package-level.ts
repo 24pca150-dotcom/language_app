@@ -28,7 +28,7 @@ export class CoursePackageLevel implements OnInit {
   mappedLevels = signal<any[]>([]);
   availableLevels = signal<LevelData[]>([]);
   sourceCourseId = signal<number | null>(null);
-  
+
   feedbackMessage = signal<{ type: 'success' | 'error', text: string } | null>(null);
 
   ngOnInit(): void {
@@ -68,7 +68,7 @@ export class CoursePackageLevel implements OnInit {
     const sourceId = this.sourceCourseId();
     const pkgId = this.selectedPackageId();
     const targetCourseId = this.selectedCourseId();
-    
+
     if (sourceId && pkgId && targetCourseId) {
       this.loadMappings(pkgId, targetCourseId);
     }

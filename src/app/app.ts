@@ -11,7 +11,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 })
 export class App implements OnInit {
   protected readonly title = signal('Language Management System');
-  
+
   private translate = inject(TranslateService);
   currentLang = signal('en');
 

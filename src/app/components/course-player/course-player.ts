@@ -51,11 +51,11 @@ export class CoursePlayer implements OnInit {
 
   levelId = signal<number>(1); // From route params
   userId = signal<number>(1);
-  
+
   chapters = signal<Chapter[]>([]);
   activeChapterId = signal<number | null>(null);
   activeSubChapterId = signal<number | null>(null);
-  
+
   // Computed values
   activeChapter = computed(() => {
     const id = this.activeChapterId();
@@ -91,12 +91,12 @@ export class CoursePlayer implements OnInit {
 
   loadProgress(): void {
     const url = `http://localhost:8000/api/users/${this.userId()}/levels/${this.levelId()}/chapters/progress`;
-    this.http.get<{chapters: ChapterProgress[]}>(url).subscribe({
+    this.http.get<{ chapters: ChapterProgress[] }>(url).subscribe({
       next: (res) => {
         // Merge progress data with chapter data
         const progressMap = new Map(res.chapters.map(c => [c.chapter_id, c]));
-        
-        this.chapters.update(chapters => 
+
+        this.chapters.update(chapters =>
           chapters.map(ch => ({
             ...ch,
             is_unlocked: progressMap.get(ch.id)?.is_unlocked ?? true,
@@ -122,7 +122,7 @@ export class CoursePlayer implements OnInit {
         // Sort chapters by sort_order
         const sorted = chapters.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
         this.chapters.set(sorted);
-        
+
         // Load progress after chapters are loaded
         this.loadProgress();
       },

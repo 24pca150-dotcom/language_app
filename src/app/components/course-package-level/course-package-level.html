@@ -18,7 +18,7 @@
         <select [(ngModel)]="selectedCourseId" (change)="onSelectionChange()" class="form-select">
           <option [ngValue]="null" disabled>Select Course</option>
           @for (course of courses(); track course.id) {
-            <option [ngValue]="course.id">{{ course.name }}</option>
+          <option [ngValue]="course.id">{{ course.name }}</option>
           }
         </select>
       </div>
@@ -29,7 +29,7 @@
         <select [(ngModel)]="selectedPackageId" (change)="onSelectionChange()" class="form-select">
           <option [ngValue]="null" disabled>Select Package</option>
           @for (pkg of packages(); track pkg.id) {
-            <option [ngValue]="pkg.id">{{ pkg.name }} ({{ pkg.code }})</option>
+          <option [ngValue]="pkg.id">{{ pkg.name }} ({{ pkg.code }})</option>
           }
         </select>
       </div>
@@ -48,7 +48,7 @@
             <span class="selector-label">From:</span>
             <select [(ngModel)]="sourceCourseId" (change)="onSourceCourseChange()" class="form-select-sm">
               @for (course of courses(); track course.id) {
-                <option [ngValue]="course.id">{{ course.name }}</option>
+              <option [ngValue]="course.id">{{ course.name }}</option>
               }
             </select>
           </div>

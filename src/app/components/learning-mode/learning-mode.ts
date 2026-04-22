@@ -3,9 +3,9 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { LearningModeService, LearningModeData } from '../../services/learning-mode';
-import { 
-  McvInputField, 
-  McvTextArea, 
+import {
+  McvInputField,
+  McvTextArea,
   McvToggleField
 } from 'mcv-ui-toolkit';
 

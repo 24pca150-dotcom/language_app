@@ -152,7 +152,7 @@ export class Property implements OnInit {
         .map((pkg: any) => {
           const startDate = pkg.date_range?.start ? this.formatDate(pkg.date_range.start) : null;
           const endDate = pkg.date_range?.end ? this.formatDate(pkg.date_range.end) : null;
-          
+
           return {
             id: pkg.id,
             start_date: startDate,

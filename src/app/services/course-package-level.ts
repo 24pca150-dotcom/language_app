@@ -25,9 +25,9 @@ export class CoursePackageLevelService {
   }
 
   mapLevels(packageId: number, courseId: number, levelIds: number[]): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${packageId}/levels`, { 
-      course_id: courseId, 
-      level_ids: levelIds 
+    return this.http.post(`${this.apiUrl}/${packageId}/levels`, {
+      course_id: courseId,
+      level_ids: levelIds
     });
   }
 
