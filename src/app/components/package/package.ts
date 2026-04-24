@@ -3,7 +3,6 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { PackageService, PackageData } from '../../services/package';
-import { LearningModeService, LearningModeData } from '../../services/learning-mode';
 import {
   McvInputField,
   McvTextArea,
@@ -27,11 +26,9 @@ import {
 export class Package implements OnInit {
   private fb = inject(FormBuilder);
   private packageService = inject(PackageService);
-  private learningModeService = inject(LearningModeService);
 
   packageForm: FormGroup;
   packages = signal<PackageData[]>([]);
-  learningModes = signal<LearningModeData[]>([]);
   isEditMode = signal(false);
   isFormVisible = signal(false); // Default to table view
   currentPackageId = signal<number | null>(null);
@@ -42,21 +39,12 @@ export class Package implements OnInit {
       name: ['', Validators.required],
       code: ['', Validators.required],
       description: [''],
-      learning_mode_id: [null],
       is_active: [true],
     });
   }
 
   ngOnInit(): void {
     this.loadPackages();
-    this.loadLearningModes();
-  }
-
-  loadLearningModes(): void {
-    this.learningModeService.getAll().subscribe({
-      next: (data) => this.learningModes.set(data),
-      error: (err) => console.error('Failed to load learning modes', err)
-    });
   }
 
   loadPackages(): void {
@@ -125,7 +113,6 @@ export class Package implements OnInit {
       name: pkg.name,
       code: pkg.code,
       description: pkg.description,
-      learning_mode_id: pkg.learning_mode_id || null,
       is_active: pkg.is_active,
     });
     this.isFormVisible.set(true);
@@ -145,13 +132,7 @@ export class Package implements OnInit {
   }
 
   resetForm(): void {
-    let defaultModeId = null;
-    const strictMode = this.learningModes().find(m => m.code === 'STRICT_MODE_LEARNING');
-    if (strictMode) {
-      defaultModeId = strictMode.id;
-    }
-
-    this.packageForm.reset({ is_active: true, learning_mode_id: defaultModeId });
+    this.packageForm.reset({ is_active: true });
     this.isEditMode.set(false);
     this.currentPackageId.set(null);
   }

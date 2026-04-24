@@ -11,15 +11,9 @@ class Package extends Model
         'code',
         'description',
         'is_active',
-        'learning_mode_id',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
     ];
-
-    public function learningMode()
-    {
-        return $this->belongsTo(LearningMode::class);
-    }
 }

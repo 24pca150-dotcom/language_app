@@ -147,6 +147,231 @@ textarea:focus {
   margin-top: 0.25rem;
 }
 
+/* Dynamic Mapping Table */
+.package-mapping-container {
+  margin-top: 3rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  /* overflow: hidden; */ /* REMOVED to allow popups to show */
+}
+
+.package-mapping-container .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.btn-add-package {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+  transition: all 0.2s;
+}
+
+.btn-add-package:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px -2px rgba(37, 99, 235, 0.3);
+}
+
+/* Two-Level Mapping Card Layout */
+.mapping-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.mapping-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+  overflow: visible;
+}
+
+.mapping-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.card-row {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.card-row.second-row {
+  margin-bottom: 0;
+  padding-top: 1.25rem;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field-group label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.flex-1 { flex: 1; }
+.flex-2 { flex: 2; }
+.flex-shrink { flex-shrink: 0; }
+.center { align-items: center; text-align: center; }
+
+/* Unified Input Styling for Card Layout */
+.mapping-card .dropdown-select,
+.mapping-card mcv-date-range-picker ::ng-deep .mcv-input-wrapper {
+  height: 45px !important;
+  min-height: 45px !important;
+  display: flex !important;
+  align-items: center !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 0.75rem !important;
+  background-color: #fff !important;
+  box-sizing: border-box !important;
+}
+
+.mapping-card .dropdown-select:focus,
+.mapping-card mcv-date-range-picker ::ng-deep .mcv-input-wrapper:focus-within {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+  outline: none !important;
+}
+
+/* Specific Date Picker Internal Fixes */
+.mapping-card mcv-date-range-picker ::ng-deep .mcv-date-range-input-container {
+  border: none !important;
+  padding: 0 1rem !important;
+  width: 100% !important;
+}
+
+.mapping-card mcv-date-range-picker ::ng-deep input {
+  font-size: 0.875rem !important;
+  color: #334155 !important;
+}
+
+.mapping-card mcv-date-range-picker ::ng-deep .calendar-icon {
+  right: 15px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+}
+
+.table-responsive {
+  overflow: visible !important;
+  margin-bottom: 2rem;
+}
+
+.mapping-table select,
+.mapping-table input[type="date"] {
+  width: 100%;
+  padding: 0.625rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  background-color: #fff;
+}
+
+.dropdown-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  background-color: #fff;
+  color: #334155;
+  cursor: pointer;
+  appearance: none; /* Custom arrow */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  transition: all 0.2s;
+}
+
+.dropdown-select:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.btn-delete-row {
+  background: #fff;
+  color: #94a3b8;
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-delete-row:hover:not(:disabled) {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.btn-delete-row:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider.round {
+  border-radius: 20px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+}
+
+input:checked + .slider {
+  background-color: #2563eb;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
 /* Package Mapping Grid */
 .packages-grid {
   display: grid;

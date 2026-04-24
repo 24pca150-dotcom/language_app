@@ -5,12 +5,13 @@ import { TranslateModule } from '@ngx-translate/core';
 import { PropertyService, PropertyData } from '../../services/property';
 import { TenantService, TenantData } from '../../services/tenant';
 import { PackageService, PackageData } from '../../services/package';
+import { CourseService, CourseData } from '../../services/course';
+import { LearningModeService, LearningModeData } from '../../services/learning-mode';
 import {
   McvInputField,
   McvTextArea,
   McvToggleField,
-  McvDateRangePicker,
-  McvCheckbox
+  McvDateRangePicker
 } from 'mcv-ui-toolkit';
 
 @Component({
@@ -24,7 +25,6 @@ import {
     McvTextArea,
     McvToggleField,
     McvDateRangePicker,
-    McvCheckbox,
     TranslateModule
   ],
   templateUrl: './property.html',
@@ -35,16 +35,21 @@ export class Property implements OnInit {
   private propertyService = inject(PropertyService);
   private tenantService = inject(TenantService);
   private packageService = inject(PackageService);
+  private courseService = inject(CourseService);
+  private learningModeService = inject(LearningModeService);
   private cdr = inject(ChangeDetectorRef);
 
   propertyForm: FormGroup;
   properties = signal<PropertyData[]>([]);
   tenants = signal<TenantData[]>([]);
   availablePackages = signal<PackageData[]>([]);
+  courses = signal<CourseData[]>([]);
+  learningModes = signal<LearningModeData[]>([]);
   isEditMode = signal(false);
-  isFormVisible = signal(false); // Default to table view
+  isFormVisible = signal(false);
   currentPropertyId = signal<number | null>(null);
   feedbackMessage = signal<{ type: 'success' | 'error', text: string } | null>(null);
+  today = new Date();
 
   constructor() {
     this.propertyForm = this.fb.group({
@@ -79,40 +84,48 @@ export class Property implements OnInit {
     });
 
     this.packageService.getAll().subscribe({
-      next: (data) => {
-        this.availablePackages.set(data);
-        this.initPackageFormArray(data);
-      },
+      next: (data) => this.availablePackages.set(data),
       error: () => this.showFeedback('error', 'Failed to load packages')
+    });
+
+    this.courseService.getAll().subscribe({
+      next: (data) => this.courses.set(data),
+      error: () => this.showFeedback('error', 'Failed to load courses')
+    });
+
+    this.learningModeService.getAll().subscribe({
+      next: (data) => this.learningModes.set(data),
+      error: () => this.showFeedback('error', 'Failed to load learning modes')
     });
 
     this.cdr.detectChanges();
   }
 
-  initPackageFormArray(packages: PackageData[]) {
-    this.packagesFormArray.clear();
-    packages.forEach((pkg, index) => {
-      const group = this.fb.group({
-        id: [pkg.id],
-        name: [pkg.name],
-        selected: [false],
-        date_range: [null],
-        is_active: [true]
-      });
-
-      // Add dynamic validators for date_range based on selected status
-      group.get('selected')?.valueChanges.subscribe(selected => {
-        const dateRangeControl = group.get('date_range');
-        if (selected) {
-          dateRangeControl?.setValidators([Validators.required]);
-        } else {
-          dateRangeControl?.clearValidators();
-        }
-        dateRangeControl?.updateValueAndValidity();
-      });
-
-      this.packagesFormArray.push(group);
+  createPackageRow(): FormGroup {
+    return this.fb.group({
+      course_id: ['', Validators.required],
+      package_id: ['', Validators.required],
+      date_range: [null], // Combined start/end
+      is_active: [true],
+      learning_modes: [[]]
     });
+  }
+
+  addPackageRow() {
+    this.packagesFormArray.push(this.createPackageRow());
+  }
+
+  removePackageRow(index: number) {
+    this.packagesFormArray.removeAt(index);
+  }
+
+  dateRangeValidator(group: FormGroup): any {
+    const start = group.get('start_date')?.value;
+    const end = group.get('end_date')?.value;
+    if (start && end && new Date(start) > new Date(end)) {
+      return { invalidDateRange: true };
+    }
+    return null;
   }
 
   showCreateForm(): void {
@@ -147,19 +160,14 @@ export class Property implements OnInit {
       tenant_id: Number(formValue.tenant_id),
       max_users: Number(formValue.max_users),
       is_active: !!formValue.is_active,
-      packages: formValue.packages
-        .filter((pkg: any) => pkg.selected)
-        .map((pkg: any) => {
-          const startDate = pkg.date_range?.start ? this.formatDate(pkg.date_range.start) : null;
-          const endDate = pkg.date_range?.end ? this.formatDate(pkg.date_range.end) : null;
-
-          return {
-            id: pkg.id,
-            start_date: startDate,
-            end_date: endDate,
-            is_active: !!pkg.is_active
-          };
-        })
+      packages: formValue.packages.map((pkg: any) => ({
+        id: Number(pkg.package_id),
+        course_id: pkg.course_id ? Number(pkg.course_id) : null,
+        start_date: pkg.date_range?.start ? this.formatDate(pkg.date_range.start) : null,
+        end_date: pkg.date_range?.end ? this.formatDate(pkg.date_range.end) : null,
+        is_active: !!pkg.is_active,
+        learning_mode_ids: pkg.learning_modes || []
+      }))
     };
 
     if (this.isEditMode()) {
@@ -200,29 +208,25 @@ export class Property implements OnInit {
       is_active: property.is_active
     });
 
-    // Handle package selections
-    this.packagesFormArray.controls.forEach(control => {
-      const pkgId = control.get('id')?.value;
-      const pkgMap = property.packages?.find(p => p.id === pkgId);
-      const pivot = pkgMap?.pivot;
-
-      if (pivot) {
-        control.patchValue({
-          selected: true,
-          date_range: {
-            start: pivot.start_date ? new Date(pivot.start_date) : null,
-            end: pivot.end_date ? new Date(pivot.end_date) : null
-          },
-          is_active: pivot.is_active
+    this.packagesFormArray.clear();
+    if (property.packages && property.packages.length > 0) {
+      property.packages.forEach((pkg: any) => {
+        const pivot = pkg.pivot;
+        const row = this.fb.group({
+          course_id: [pivot?.course_id || '', Validators.required],
+          package_id: [pkg.id, Validators.required],
+          date_range: [{
+            start: pivot?.start_date ? new Date(pivot.start_date) : null,
+            end: pivot?.end_date ? new Date(pivot.end_date) : null
+          }],
+          is_active: [pivot?.is_active ?? true],
+          learning_modes: [pivot?.learning_mode_ids ? JSON.parse(pivot.learning_mode_ids) : []]
         });
-      } else {
-        control.patchValue({
-          selected: false,
-          date_range: null,
-          is_active: true
-        });
-      }
-    });
+        this.packagesFormArray.push(row);
+      });
+    } else {
+      this.addPackageRow(); // At least one empty row
+    }
 
     this.isFormVisible.set(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -242,7 +246,8 @@ export class Property implements OnInit {
 
   resetForm(): void {
     this.propertyForm.reset({ max_users: 1, is_active: true });
-    this.initPackageFormArray(this.availablePackages());
+    this.packagesFormArray.clear();
+    this.addPackageRow();
     this.isEditMode.set(false);
     this.currentPropertyId.set(null);
   }

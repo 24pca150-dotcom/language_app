@@ -27,7 +27,6 @@
         <tr>
           <th>{{ 'COMMON.NAME' | translate }}</th>
           <th>{{ 'COMMON.CODE' | translate }}</th>
-          <th>{{'LEARNING_MODE.TITLE' | translate}}</th>
           <th>{{ 'COMMON.STATUS' | translate }}</th>
           <th>{{ 'COMMON.ACTIONS' | translate }}</th>
         </tr>
@@ -37,7 +36,6 @@
         <tr>
           <td><strong>{{ pkg.name }}</strong></td>
           <td><code>{{ pkg.code }}</code></td>
-          <td>{{ pkg.learning_mode?.name || 'N/A' }}</td>
           <td>
             <span [class]="'badge ' + (pkg.is_active ? 'badge-success' : 'badge-error')">
               {{ pkg.is_active ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
@@ -116,17 +114,6 @@
           <mcv-text-area [label]="'COMMON.DESCRIPTION' | translate" formControlName="description" [rows]="3"
             placeholder="Additional details...">
           </mcv-text-area>
-        </div>
-
-        <div class="form-group">
-          <label>Learning Mode</label>
-          <select formControlName="learning_mode_id" class="form-select"
-            style="padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 1rem; background-color: #ffffff; width: 100%;">
-            <option [ngValue]="null">None</option>
-            @for (mode of learningModes(); track mode.id) {
-            <option [value]="mode.id">{{ mode.name }}</option>
-            }
-          </select>
         </div>
 
         <mcv-toggle-field [label]="'COMMON.STATUS' | translate" formControlName="is_active"

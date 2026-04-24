@@ -31,7 +31,7 @@ class Property extends Model
     public function packages(): BelongsToMany
     {
         return $this->belongsToMany(Package::class, 'property_packages')
-            ->withPivot(['id', 'start_date', 'end_date', 'is_active'])
+            ->withPivot(['id', 'course_id', 'start_date', 'end_date', 'is_active', 'learning_mode_ids'])
             ->withTimestamps();
     }
 }

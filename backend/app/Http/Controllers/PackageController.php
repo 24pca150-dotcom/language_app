@@ -13,7 +13,7 @@ class PackageController extends Controller
      */
     public function index()
     {
-        return response()->json(Package::with('learningMode')->latest()->get());
+        return response()->json(Package::latest()->get());
     }
 
     /**
@@ -26,12 +26,11 @@ class PackageController extends Controller
             'code' => 'required|string|max:255|unique:packages,code',
             'description' => 'nullable|string',
             'is_active' => 'required|boolean',
-            'learning_mode_id' => 'nullable|exists:learning_modes,id',
         ]);
 
         $package = Package::create($validated);
 
-        return response()->json($package->load('learningMode'), 201);
+        return response()->json($package, 201);
     }
 
     /**
@@ -39,7 +38,7 @@ class PackageController extends Controller
      */
     public function show(Package $package)
     {
-        return response()->json($package->load('learningMode'));
+        return response()->json($package);
     }
 
     /**
@@ -52,12 +51,11 @@ class PackageController extends Controller
             'code' => 'required|string|max:255|unique:packages,code,' . $package->id,
             'description' => 'nullable|string',
             'is_active' => 'required|boolean',
-            'learning_mode_id' => 'nullable|exists:learning_modes,id',
         ]);
 
         $package->update($validated);
 
-        return response()->json($package->load('learningMode'));
+        return response()->json($package);
     }
 
     /**

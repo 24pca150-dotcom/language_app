@@ -155,35 +155,76 @@
         </div>
       </div>
 
-      <!-- Package Mapping Section -->
-      <div class="section-divider">
-        <h4>{{ 'PROPERTY.PKG_MAPPING' | translate }}</h4>
-        <p class="section-subtitle">{{ 'PROPERTY.PKG_SUBTITLE' | translate }}</p>
-      </div>
+      <div class="package-mapping-container">
+        <div class="section-header">
+          <h4>{{ 'PROPERTY.PKG_MAPPING' | translate }}</h4>
+          <button type="button" class="btn-add-package" (click)="addPackageRow()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            {{ 'PROPERTY.ADD_PACKAGE' | translate }}
+          </button>
+        </div>
 
-      <div class="packages-grid" formArrayName="packages">
-        @for (pkgControl of packagesFormArray.controls; track $index; let i = $index) {
-        <div [formGroupName]="i" class="package-card" [class.selected]="pkgControl.get('selected')?.value">
-          <div class="package-header">
-            <mcv-checkbox [label]="pkgControl.get('name')?.value" formControlName="selected">
-            </mcv-checkbox>
-          </div>
+        <div class="mapping-grid" formArrayName="packages">
+          <!-- Custom Rows -->
+          @for (row of packagesFormArray.controls; track $index; let i = $index) {
+          <div class="mapping-card" [formGroupName]="i">
+            <div class="card-row">
+              <div class="field-group flex-2">
+                <label>{{ 'COURSE.TITLE' | translate }}</label>
+                <select formControlName="course_id" class="dropdown-select">
+                  <option value="">Select Course</option>
+                  @for (course of courses(); track course.id) {
+                  <option [value]="course.id">{{ course.name }}</option>
+                  }
+                </select>
+              </div>
+              <div class="field-group flex-2">
+                <label>{{ 'PACKAGE.TITLE' | translate }}</label>
+                <select formControlName="package_id" class="dropdown-select">
+                  <option value="">Select Package</option>
+                  @for (pkg of availablePackages(); track pkg.id) {
+                  <option [value]="pkg.id">{{ pkg.name }}</option>
+                  }
+                </select>
+              </div>
+              <div class="field-group flex-shrink center">
+                <label>{{ 'COMMON.STATUS' | translate }}</label>
+                <label class="switch">
+                  <input type="checkbox" formControlName="is_active">
+                  <span class="slider round"></span>
+                </label>
+              </div>
+              <div class="field-group flex-shrink">
+                <button type="button" class="btn-delete-row" (click)="removePackageRow(i)" [disabled]="packagesFormArray.length <= 1">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
 
-          @if (pkgControl.get('selected')?.value) {
-          <div class="package-details animate-fade-in">
-            <mcv-date-range-picker [label]="'PROPERTY.DURATION' | translate" formControlName="date_range"
-              [required]="true">
-            </mcv-date-range-picker>
-
-            <div class="pkg-status">
-              <mcv-toggle-field [label]="'PROPERTY.ACTIVE_ASSIGN' | translate" formControlName="is_active"
-                [onLabel]="'COMMON.ACTIVE' | translate" [offLabel]="'COMMON.INACTIVE' | translate">
-              </mcv-toggle-field>
+            <div class="card-row second-row">
+              <div class="field-group flex-1">
+                <label>{{ 'PROPERTY.DURATION' | translate }}</label>
+                <mcv-date-range-picker formControlName="date_range" [min]="today"></mcv-date-range-picker>
+              </div>
+              <div class="field-group flex-1">
+                <label>{{ 'LEARNING_MODE.TITLE' | translate }}</label>
+                <select formControlName="learning_modes" class="dropdown-select">
+                  <option value="">Select Mode</option>
+                  @for (mode of learningModes(); track mode.id) {
+                  <option [value]="mode.id">{{ mode.name }}</option>
+                  }
+                </select>
+              </div>
             </div>
           </div>
           }
         </div>
-        }
       </div>
 
       <div class="button-group">

@@ -24,9 +24,11 @@ class PropertyController extends Controller
             'is_active' => 'boolean',
             'packages' => 'nullable|array',
             'packages.*.id' => 'required|exists:packages,id',
+            'packages.*.course_id' => 'nullable|exists:courses,id',
             'packages.*.start_date' => 'nullable|date',
             'packages.*.end_date' => 'nullable|date|after_or_equal:packages.*.start_date',
             'packages.*.is_active' => 'nullable|boolean',
+            'packages.*.learning_mode_ids' => 'nullable|array',
         ]);
 
         $property = Property::create($validated);
@@ -35,9 +37,11 @@ class PropertyController extends Controller
             $syncData = [];
             foreach ($validated['packages'] as $pkg) {
                 $syncData[$pkg['id']] = [
+                    'course_id' => $pkg['course_id'] ?? null,
                     'start_date' => $pkg['start_date'] ?? null,
                     'end_date' => $pkg['end_date'] ?? null,
                     'is_active' => $pkg['is_active'] ?? true,
+                    'learning_mode_ids' => isset($pkg['learning_mode_ids']) ? json_encode($pkg['learning_mode_ids']) : null,
                 ];
             }
             $property->packages()->sync($syncData);
@@ -63,9 +67,11 @@ class PropertyController extends Controller
             'is_active' => 'boolean',
             'packages' => 'nullable|array',
             'packages.*.id' => 'required|exists:packages,id',
+            'packages.*.course_id' => 'nullable|exists:courses,id',
             'packages.*.start_date' => 'nullable|date',
             'packages.*.end_date' => 'nullable|date|after_or_equal:packages.*.start_date',
             'packages.*.is_active' => 'nullable|boolean',
+            'packages.*.learning_mode_ids' => 'nullable|array',
         ]);
 
         $property->update($validated);
@@ -74,9 +80,11 @@ class PropertyController extends Controller
             $syncData = [];
             foreach ($validated['packages'] as $pkg) {
                 $syncData[$pkg['id']] = [
+                    'course_id' => $pkg['course_id'] ?? null,
                     'start_date' => $pkg['start_date'] ?? null,
                     'end_date' => $pkg['end_date'] ?? null,
                     'is_active' => $pkg['is_active'] ?? true,
+                    'learning_mode_ids' => isset($pkg['learning_mode_ids']) ? json_encode($pkg['learning_mode_ids']) : null,
                 ];
             }
             $property->packages()->sync($syncData);

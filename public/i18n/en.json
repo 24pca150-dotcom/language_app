@@ -64,7 +64,8 @@
     "EDIT_TITLE": "Edit Package",
     "CODE": "Package Code",
     "NAME": "Package Name",
-    "EMPTY": "No packages found."
+    "EMPTY": "No packages found.",
+    "TITLE": "Package"
   },
   "PROPERTY": {
     "CREATE_BTN": "Create Property",
@@ -82,7 +83,8 @@
     "PKG_MAPPING": "Package Access Mapping",
     "PKG_SUBTITLE": "Select packages and set assignment duration",
     "DURATION": "Assignment Duration",
-    "ACTIVE_ASSIGN": "Active Assignment"
+    "ACTIVE_ASSIGN": "Active Assignment",
+    "ADD_PACKAGE": "Add Package"
   },
   "COURSE": {
     "CREATE_BTN": "Create Course",
@@ -90,7 +92,8 @@
     "EDIT_TITLE": "Edit Course",
     "CODE": "Course Code",
     "NAME": "Course Name",
-    "EMPTY": "No courses found."
+    "EMPTY": "No courses found.",
+    "TITLE": "Course"
   },
   "LEVEL": {
     "CREATE_BTN": "Create Level",

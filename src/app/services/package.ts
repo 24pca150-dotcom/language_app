@@ -8,8 +8,6 @@ export interface PackageData {
   code: string;
   description: string;
   is_active: boolean;
-  learning_mode_id?: number;
-  learning_mode?: any;
   created_at?: string;
   updated_at?: string;
 }
