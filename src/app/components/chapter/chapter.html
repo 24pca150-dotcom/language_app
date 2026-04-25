@@ -27,8 +27,7 @@
         <tr>
           <th>{{ 'COMMON.NAME' | translate }}</th>
           <th>{{ 'COMMON.CODE' | translate }}</th>
-          <th>{{ 'CHAPTER.LEVEL' | translate }}</th>
-          <th>{{ 'LEVEL.COURSE' | translate }}</th>
+
           <th>{{ 'COMMON.SORT_ORDER' | translate }}</th>
           <th>{{ 'COMMON.STATUS' | translate }}</th>
           <th>{{ 'COMMON.ACTIONS' | translate }}</th>
@@ -39,8 +38,7 @@
         <tr>
           <td><strong>{{ chapter.name }}</strong></td>
           <td><code>{{ chapter.code }}</code></td>
-          <td>{{ chapter.level?.name }}</td>
-          <td>{{ chapter.level?.course?.name }}</td>
+
           <td>{{ chapter.sort_order }}</td>
           <td>
             <span [class]="'badge ' + (chapter.is_active ? 'badge-success' : 'badge-error')">
@@ -72,7 +70,7 @@
         }
         @if (chapters().length === 0) {
         <tr>
-          <td colspan="7" style="text-align: center; color: #94a3b8; padding: 2rem;">
+          <td colspan="5" style="text-align: center; color: #94a3b8; padding: 2rem;">
             {{ 'CHAPTER.EMPTY' | translate }}
           </td>
         </tr>
@@ -98,18 +96,6 @@
 
     <form [formGroup]="chapterForm" (ngSubmit)="onSubmit()">
       <div class="form-grid">
-        <div class="form-group">
-          <label>{{ 'CHAPTER.LEVEL' | translate }}</label>
-          <select formControlName="level_id" class="form-select">
-            <option value="" disabled>{{ 'CHAPTER.SELECT_LEVEL' | translate }}</option>
-            @for (level of levels(); track level.id) {
-            <option [value]="level.id">{{ level.name }} ({{ level.course?.name }})</option>
-            }
-          </select>
-          @if (chapterForm.get('level_id')?.touched && chapterForm.get('level_id')?.invalid) {
-          <div class="error-text">Level is required</div>
-          }
-        </div>
 
         <mcv-input-field [label]="'CHAPTER.NAME' | translate" formControlName="name" placeholder="Enter chapter name"
           [required]="true">
@@ -139,23 +125,6 @@
           </mcv-text-area>
         </div>
 
-        <div class="form-group">
-          <label>Content Type</label>
-          <select formControlName="content_type" class="form-select">
-            <option value="text">Plain Text</option>
-            <option value="video">Video Lesson</option>
-            <option value="image">Image Content</option>
-            <option value="file">Downloadable File</option>
-            <option value="slide_view">Slide View (Carousel)</option>
-          </select>
-        </div>
-
-        @if (['text', 'video'].includes(chapterForm.get('content_type')?.value)) {
-        <div class="full-width">
-          <mcv-text-area [label]="'Chapter Content (Text or Video URL)'" formControlName="content" [rows]="4"
-            placeholder="Enter text or URL..."></mcv-text-area>
-        </div>
-        }
 
         <mcv-toggle-field [label]="'COMMON.STATUS' | translate" formControlName="is_active"
           [onLabel]="'COMMON.ACTIVE' | translate" [offLabel]="'COMMON.INACTIVE' | translate">

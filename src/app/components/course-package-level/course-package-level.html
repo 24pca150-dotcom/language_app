@@ -8,11 +8,12 @@
 
   <div class="card">
     <div class="card-header">
-      <h3>{{ 'MAPPING.TITLE' | translate }}</h3>
+      <h3>{{ selectedCourseName() ? (selectedCourseName() + ' - Mapping') : ('MAPPING.TITLE' | translate) }}</h3>
     </div>
 
     <div class="mapping-selector">
       <!-- Course Selection -->
+      @if (!selectedCourseName()) {
       <div class="form-group">
         <label>Course</label>
         <select [(ngModel)]="selectedCourseId" (change)="onSelectionChange()" class="form-select">
@@ -22,6 +23,7 @@
           }
         </select>
       </div>
+      }
 
       <!-- Package Selection -->
       <div class="form-group">
@@ -33,92 +35,60 @@
           }
         </select>
       </div>
+
+      <!-- Level Selection (Custom Multi-select) -->
+      <div class="form-group">
+        <label>Levels</label>
+        <div class="custom-multi-select" (click)="toggleDropdown($event)">
+          <div class="select-trigger" [class.open]="isDropdownOpen()">
+            <span>{{ getSelectedLevelsLabel() }}</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+          @if (isDropdownOpen()) {
+          <div class="dropdown-content" (click)="$event.stopPropagation()">
+            @for (level of availableLevels(); track level.id) {
+            <label class="checkbox-item">
+              <input type="checkbox" [checked]="isLevelSelected(level.id!)" (change)="toggleLevelSelection(level.id!)">
+              <span class="checkbox-custom"></span>
+              <span class="label-text">{{ level.name }}</span>
+            </label>
+            }
+            @if (availableLevels().length === 0) {
+            <div class="no-options">No more levels available</div>
+            }
+          </div>
+          }
+        </div>
+      </div>
+
+      <div class="form-group button-group-vertical" style="justify-content: flex-end;">
+        <button class="btn btn-primary" [disabled]="selectedLevelIds().length === 0" (click)="mapSelectedLevels()">
+          Map Selected
+        </button>
+      </div>
     </div>
 
     @if (selectedPackageId() && selectedCourseId()) {
-    <!-- Titles Row -->
-    <div class="dual-list-headers">
-      <div class="header-section">
-        <h4>{{ 'MAPPING.MAPPED_LEVELS' | translate }}</h4>
-      </div>
-      <div class="header-section">
-        <div class="section-header-flex">
-          <h4>{{ 'MAPPING.AVAILABLE_LEVELS' | translate }}</h4>
-          <div class="source-selector">
-            <span class="selector-label">From:</span>
-            <select [(ngModel)]="sourceCourseId" (change)="onSourceCourseChange()" class="form-select-sm">
-              @for (course of courses(); track course.id) {
-              <option [ngValue]="course.id">{{ course.name }}</option>
-              }
-            </select>
-          </div>
+    <!-- Mapped Levels Tags -->
+    <div class="mapped-section">
+      <h4>Currently Mapped Levels</h4>
+      <div class="tag-container">
+        @for (level of mappedLevels(); track level.id) {
+        <div class="mapping-tag">
+          <span class="tag-name">{{ level.name }}</span>
+          <button class="tag-remove" (click)="unmapLevel(level.id!)" title="Remove">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
         </div>
-      </div>
-    </div>
-
-    <!-- Lists Row -->
-    <div class="dual-list-container">
-      <!-- Mapped Levels -->
-      <div class="list-section">
-        <div class="list-box">
-          @if (mappedLevels().length === 0) {
-          <div class="empty-list">
-            {{ 'MAPPING.NO_MAPPED' | translate }}
-          </div>
-          }
-          @for (level of mappedLevels(); track level.id) {
-          <div class="list-item">
-            <div class="item-info">
-              <div class="item-header">
-                <span class="item-name">{{ level.name }}</span>
-                <span class="item-course">{{ level.course?.name }}</span>
-              </div>
-              <span class="item-code">{{ level.code }}</span>
-            </div>
-            <button class="btn-remove" (click)="unmapLevel(level.id!)" title="Remove Mapping">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          </div>
-          }
-        </div>
-      </div>
-
-      <!-- Arrow -->
-      <div class="list-spacer">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
-      </div>
-
-      <!-- Available Levels -->
-      <div class="list-section">
-        <div class="list-box">
-          @if (availableLevels().length === 0) {
-          <div class="empty-list">
-            {{ 'MAPPING.ALL_MAPPED' | translate }}
-          </div>
-          }
-          @for (level of availableLevels(); track level.id) {
-          <div class="list-item">
-            <div class="item-info">
-              <div class="item-header">
-                <span class="item-name">{{ level.name }}</span>
-                <span class="item-course">{{ level.course?.name }}</span>
-              </div>
-              <span class="item-code">{{ level.code }}</span>
-            </div>
-            <button class="btn-add" (click)="mapLevel(level.id!)" title="Add Mapping">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </button>
-          </div>
-          }
-        </div>
+        }
+        @if (mappedLevels().length === 0) {
+        <p class="empty-hint">No levels mapped to this package yet.</p>
+        }
       </div>
     </div>
     }

@@ -9,11 +9,7 @@ class LevelController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Level::with('course');
-
-        if ($request->has('course_id')) {
-            $query->where('course_id', $request->course_id);
-        }
+        $query = Level::query();
 
         return response()->json($query->orderBy('sort_order')->get());
     }
@@ -21,7 +17,7 @@ class LevelController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'course_id' => 'required|exists:courses,id',
+
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:50|unique:levels,code',
             'description' => 'nullable|string',
@@ -36,18 +32,18 @@ class LevelController extends Controller
 
         $level = Level::create($validated);
 
-        return response()->json($level->load('course'), 201);
+        return response()->json($level, 201);
     }
 
     public function show(Level $level)
     {
-        return response()->json($level->load(['course', 'chapters.subChapters', 'assessments.questions.options']));
+        return response()->json($level->load(['assessments.questions.options']));
     }
 
     public function update(Request $request, Level $level)
     {
         $validated = $request->validate([
-            'course_id' => 'required|exists:courses,id',
+
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:50|unique:levels,code,' . $level->id,
             'description' => 'nullable|string',
@@ -62,7 +58,7 @@ class LevelController extends Controller
 
         $level->update($validated);
 
-        return response()->json($level->load('course'));
+        return response()->json($level);
     }
 
     public function destroy(Level $level)

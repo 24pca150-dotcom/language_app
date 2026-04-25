@@ -11,7 +11,6 @@ class Assessment extends Model
     protected $fillable = [
         'level_id',
         'chapter_id',
-        'sub_chapter_id',
         'title',
         'description',
         'pass_percentage',
@@ -40,11 +39,6 @@ class Assessment extends Model
     public function chapter(): BelongsTo
     {
         return $this->belongsTo(Chapter::class);
-    }
-
-    public function subChapter(): BelongsTo
-    {
-        return $this->belongsTo(SubChapter::class);
     }
 
     public function questions(): HasMany

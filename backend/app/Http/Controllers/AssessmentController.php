@@ -12,7 +12,7 @@ class AssessmentController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Assessment::with(['level.course', 'chapter', 'subChapter', 'questions.options']);
+        $query = Assessment::with(['level.course', 'chapter', 'questions.options']);
 
         if ($request->has('level_id')) {
             $query->where('level_id', $request->level_id);
@@ -20,9 +20,7 @@ class AssessmentController extends Controller
         if ($request->has('chapter_id')) {
             $query->where('chapter_id', $request->chapter_id);
         }
-        if ($request->has('sub_chapter_id')) {
-            $query->where('sub_chapter_id', $request->sub_chapter_id);
-        }
+
 
         return response()->json($query->latest()->get());
     }
@@ -32,7 +30,6 @@ class AssessmentController extends Controller
         $validated = $request->validate([
             'level_id' => 'nullable|exists:levels,id',
             'chapter_id' => 'nullable|exists:chapters,id',
-            'sub_chapter_id' => 'nullable|exists:sub_chapters,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'pass_percentage' => 'nullable|numeric|min:0|max:100',
@@ -56,7 +53,7 @@ class AssessmentController extends Controller
         ]);
 
         $assessment = Assessment::create($request->only([
-            'level_id', 'chapter_id', 'sub_chapter_id', 'title', 'description', 
+            'level_id', 'chapter_id', 'title', 'description', 
             'pass_percentage', 'is_mandatory', 'duration_minutes', 'allow_restart', 
             'review_mode', 'activity_type', 'prelude_content', 'is_active'
         ]));
@@ -83,12 +80,12 @@ class AssessmentController extends Controller
             }
         }
 
-        return response()->json($assessment->load(['level.course', 'chapter', 'subChapter', 'questions.options']), 201);
+        return response()->json($assessment->load(['level.course', 'chapter', 'questions.options']), 201);
     }
 
     public function show(Assessment $assessment)
     {
-        return response()->json($assessment->load(['level.course', 'chapter', 'subChapter', 'questions.options']));
+        return response()->json($assessment->load(['level.course', 'chapter', 'questions.options']));
     }
 
     public function update(Request $request, Assessment $assessment)
@@ -96,7 +93,6 @@ class AssessmentController extends Controller
         $validated = $request->validate([
             'level_id' => 'nullable|exists:levels,id',
             'chapter_id' => 'nullable|exists:chapters,id',
-            'sub_chapter_id' => 'nullable|exists:sub_chapters,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'pass_percentage' => 'nullable|numeric|min:0|max:100',
@@ -120,7 +116,7 @@ class AssessmentController extends Controller
         ]);
 
         $assessment->update($request->only([
-            'level_id', 'chapter_id', 'sub_chapter_id', 'title', 'description', 
+            'level_id', 'chapter_id', 'title', 'description', 
             'pass_percentage', 'is_mandatory', 'duration_minutes', 'allow_restart', 
             'review_mode', 'activity_type', 'prelude_content', 'is_active'
         ]));
@@ -148,7 +144,7 @@ class AssessmentController extends Controller
             }
         }
 
-        return response()->json($assessment->load(['level.course', 'chapter', 'subChapter', 'questions.options']));
+        return response()->json($assessment->load(['level.course', 'chapter', 'questions.options']));
     }
 
     public function destroy(Assessment $assessment)
@@ -202,7 +198,6 @@ class AssessmentController extends Controller
                     'user_id' => $validated['user_id'],
                     'level_id' => $assessment->level_id,
                     'chapter_id' => $assessment->chapter_id,
-                    'sub_chapter_id' => $assessment->sub_chapter_id,
                 ],
                 [
                     'course_id' => $assessment->level?->course_id ?? 0, // Fallback

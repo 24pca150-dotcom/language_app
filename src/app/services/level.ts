@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 export interface LevelData {
   id?: number;
-  course_id: number;
+
   name: string;
   code: string;
   description?: string;
@@ -15,7 +15,7 @@ export interface LevelData {
   estimated_hours?: number;
   sort_order?: number;
   is_active: boolean;
-  course?: any;
+
   created_at?: string;
   updated_at?: string;
 }

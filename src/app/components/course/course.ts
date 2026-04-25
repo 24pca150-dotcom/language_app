@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { CourseService, CourseData } from '../../services/course';
@@ -18,7 +19,8 @@ import {
     McvInputField,
     McvTextArea,
     McvToggleField,
-    TranslateModule
+    TranslateModule,
+    RouterModule
   ],
   templateUrl: './course.html',
   styleUrls: ['./course.css'],
@@ -37,7 +39,6 @@ export class Course implements OnInit {
   constructor() {
     this.courseForm = this.fb.group({
       name: ['', Validators.required],
-      no_of_levels: [1, [Validators.required, Validators.min(1)]],
       description: [''],
       is_active: [true],
     });
@@ -97,7 +98,6 @@ export class Course implements OnInit {
     this.currentCourseId.set(course.id!);
     this.courseForm.patchValue({
       name: course.name,
-      no_of_levels: course.no_of_levels,
       description: course.description,
       is_active: course.is_active,
     });
@@ -118,7 +118,7 @@ export class Course implements OnInit {
   }
 
   resetForm(): void {
-    this.courseForm.reset({ is_active: true, no_of_levels: 1 });
+    this.courseForm.reset({ is_active: true });
     this.isEditMode.set(false);
     this.currentCourseId.set(null);
   }

@@ -25,7 +25,7 @@ export interface AssessmentData {
   id?: number;
   level_id: number | null;
   chapter_id: number | null;
-  sub_chapter_id: number | null;
+
   title: string;
   description?: string;
   pass_percentage: number;
@@ -38,7 +38,7 @@ export interface AssessmentData {
   is_active: boolean;
   level?: any;
   chapter?: any;
-  sub_chapter?: any;
+
   questions?: AssessmentQuestionData[];
   created_at?: string;
   updated_at?: string;
@@ -65,12 +65,11 @@ export class AssessmentService {
   private http = inject(HttpClient);
   private apiUrl = 'http://127.0.0.1:8000/api/assessments';
 
-  getAll(filters?: { level_id?: number, chapter_id?: number, sub_chapter_id?: number }): Observable<AssessmentData[]> {
+  getAll(filters?: { level_id?: number, chapter_id?: number }): Observable<AssessmentData[]> {
     let params = new HttpParams();
     if (filters) {
       if (filters.level_id) params = params.set('level_id', filters.level_id.toString());
       if (filters.chapter_id) params = params.set('chapter_id', filters.chapter_id.toString());
-      if (filters.sub_chapter_id) params = params.set('sub_chapter_id', filters.sub_chapter_id.toString());
     }
     return this.http.get<AssessmentData[]>(this.apiUrl, { params });
   }

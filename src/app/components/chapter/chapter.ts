@@ -3,7 +3,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ChapterService, ChapterData } from '../../services/chapter';
-import { LevelService, LevelData } from '../../services/level';
+
 import {
   McvInputField,
   McvTextArea,
@@ -27,11 +27,11 @@ import {
 export class Chapter implements OnInit {
   private fb = inject(FormBuilder);
   private chapterService = inject(ChapterService);
-  private levelService = inject(LevelService);
+
 
   chapterForm: FormGroup;
   chapters = signal<ChapterData[]>([]);
-  levels = signal<LevelData[]>([]);
+
   isEditMode = signal(false);
   isFormVisible = signal(false);
   currentChapterId = signal<number | null>(null);
@@ -39,13 +39,10 @@ export class Chapter implements OnInit {
 
   constructor() {
     this.chapterForm = this.fb.group({
-      level_id: ['', Validators.required],
+
       name: ['', Validators.required],
       code: ['', Validators.required],
       description: [''],
-      content_type: ['text'],
-      content: [''],
-      content_meta: [null],
       sort_order: [0],
       is_active: [true],
     });
@@ -53,7 +50,6 @@ export class Chapter implements OnInit {
 
   ngOnInit(): void {
     this.loadChapters();
-    this.loadLevels();
   }
 
   loadChapters(): void {
@@ -63,12 +59,7 @@ export class Chapter implements OnInit {
     });
   }
 
-  loadLevels(): void {
-    this.levelService.getAll().subscribe({
-      next: (data) => this.levels.set(data),
-      error: () => this.showFeedback('error', 'Failed to load levels for selection'),
-    });
-  }
+
 
   showCreateForm(): void {
     this.resetForm();
@@ -126,13 +117,10 @@ export class Chapter implements OnInit {
     this.isEditMode.set(true);
     this.currentChapterId.set(chapter.id!);
     this.chapterForm.patchValue({
-      level_id: chapter.level_id,
+
       name: chapter.name,
       code: chapter.code,
       description: chapter.description,
-      content_type: chapter.content_type,
-      content: chapter.content,
-      content_meta: chapter.content_meta,
       sort_order: chapter.sort_order,
       is_active: chapter.is_active,
     });

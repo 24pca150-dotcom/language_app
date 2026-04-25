@@ -10,7 +10,6 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\CoursePackageLevelController;
 use App\Http\Controllers\ChapterController;
-use App\Http\Controllers\SubChapterController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\LearningProgressController;
 use App\Http\Controllers\LearningModeController;
@@ -24,7 +23,6 @@ Route::apiResource('properties', PropertyController::class);
 Route::apiResource('courses', CourseController::class);
 Route::apiResource('levels', LevelController::class);
 Route::apiResource('chapters', ChapterController::class);
-Route::apiResource('sub-chapters', SubChapterController::class);
 Route::apiResource('assessments', AssessmentController::class);
 Route::apiResource('learning-modes', LearningModeController::class);
 

@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -15,6 +16,7 @@ import { CourseService, CourseData } from '../../services/course';
   styleUrls: ['./course-package-level.css'],
 })
 export class CoursePackageLevel implements OnInit {
+  private route = inject(ActivatedRoute);
   private packageService = inject(PackageService);
   private levelService = inject(LevelService);
   private courseService = inject(CourseService);
@@ -28,6 +30,10 @@ export class CoursePackageLevel implements OnInit {
   mappedLevels = signal<any[]>([]);
   availableLevels = signal<LevelData[]>([]);
   sourceCourseId = signal<number | null>(null);
+  selectedLevelIds = signal<number[]>([]);
+  selectedCourseName = signal<string | null>(null);
+  isDropdownOpen = signal(false);
+
 
   feedbackMessage = signal<{ type: 'success' | 'error', text: string } | null>(null);
 
@@ -45,7 +51,19 @@ export class CoursePackageLevel implements OnInit {
 
   loadCourses(): void {
     this.courseService.getAll().subscribe({
-      next: (data) => this.courses.set(data),
+      next: (data) => {
+        this.courses.set(data);
+        const queryCId = this.route.snapshot.queryParamMap.get('course_id');
+        if (queryCId) {
+          const cId = Number(queryCId);
+          this.selectedCourseId.set(cId);
+          const course = data.find(c => c.id === cId);
+          if (course) {
+            this.selectedCourseName.set(course.name);
+          }
+          this.onSelectionChange();
+        }
+      },
       error: () => this.showFeedback('error', 'Failed to load courses'),
     });
   }
@@ -114,6 +132,22 @@ export class CoursePackageLevel implements OnInit {
     }
   }
 
+  mapSelectedLevels(): void {
+    const pkgId = this.selectedPackageId();
+    const courseId = this.selectedCourseId();
+    const levelIds = this.selectedLevelIds();
+    if (pkgId && courseId && levelIds.length > 0) {
+      this.mappingService.mapLevels(pkgId, courseId, levelIds).subscribe({
+        next: () => {
+          this.showFeedback('success', `${levelIds.length} levels mapped successfully`);
+          this.selectedLevelIds.set([]);
+          this.loadMappings(pkgId, courseId);
+        },
+        error: () => this.showFeedback('error', 'Failed to map selected levels'),
+      });
+    }
+  }
+
   unmapLevel(levelId: number): void {
     const pkgId = this.selectedPackageId();
     const courseId = this.selectedCourseId();
@@ -127,6 +161,36 @@ export class CoursePackageLevel implements OnInit {
       });
     }
   }
+
+  toggleDropdown(event: Event): void {
+    event.stopPropagation();
+    this.isDropdownOpen.update(v => !v);
+  }
+
+  isLevelSelected(id: number): boolean {
+    return this.selectedLevelIds().includes(id);
+  }
+
+  toggleLevelSelection(id: number): void {
+    this.selectedLevelIds.update(ids => {
+      if (ids.includes(id)) {
+        return ids.filter(i => i !== id);
+      } else {
+        return [...ids, id];
+      }
+    });
+  }
+
+  getSelectedLevelsLabel(): string {
+    const count = this.selectedLevelIds().length;
+    if (count === 0) return 'Select Levels';
+    if (count === 1) {
+      const level = this.availableLevels().find(l => l.id === this.selectedLevelIds()[0]);
+      return level ? level.name : '1 level selected';
+    }
+    return `${count} levels selected`;
+  }
+
 
   private showFeedback(type: 'success' | 'error', text: string): void {
     this.feedbackMessage.set({ type, text });

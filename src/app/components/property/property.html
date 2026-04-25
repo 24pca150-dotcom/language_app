@@ -209,8 +209,12 @@
 
             <div class="card-row second-row">
               <div class="field-group flex-1">
-                <label>{{ 'PROPERTY.DURATION' | translate }}</label>
-                <mcv-date-range-picker formControlName="date_range" [min]="today"></mcv-date-range-picker>
+                <label>Start Date</label>
+                <input type="date" formControlName="start_date" class="form-input">
+              </div>
+              <div class="field-group flex-1">
+                <label>End Date</label>
+                <input type="date" formControlName="end_date" class="form-input">
               </div>
               <div class="field-group flex-1">
                 <label>{{ 'LEARNING_MODE.TITLE' | translate }}</label>

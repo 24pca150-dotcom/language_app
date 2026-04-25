@@ -9,15 +9,12 @@ class Course extends Model
 {
     protected $fillable = [
         'name',
-        'code',
-        'no_of_levels',
         'description',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'no_of_levels' => 'integer',
     ];
 
     /**
@@ -36,8 +33,5 @@ class Course extends Model
         });
     }
 
-    public function levels(): HasMany
-    {
-        return $this->hasMany(Level::class)->orderBy('sort_order');
-    }
+
 }

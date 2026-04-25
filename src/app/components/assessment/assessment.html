@@ -37,7 +37,7 @@
         @for (assessment of assessments(); track assessment.id) {
         <tr>
           <td><strong>{{ assessment.title }}</strong></td>
-          <td>{{ assessment.level?.name }} ({{ assessment.level?.course?.name }})</td>
+          <td>{{ assessment.level?.name }}</td>
           <td>{{ assessment.pass_percentage }}%</td>
           <td>{{ assessment.questions?.length || 0 }}</td>
           <td>
@@ -114,16 +114,6 @@
             <option [ngValue]="null">None</option>
             @for (chapter of chapters(); track chapter.id) {
             <option [value]="chapter.id">{{ chapter.name }}</option>
-            }
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>{{ 'ASSESSMENT.MAP_SUBCHAPTER' | translate }}</label>
-          <select formControlName="sub_chapter_id" class="form-select">
-            <option [ngValue]="null">None</option>
-            @for (sc of subChapters(); track sc.id) {
-            <option [value]="sc.id">{{ sc.name }}</option>
             }
           </select>
         </div>

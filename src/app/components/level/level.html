@@ -27,7 +27,7 @@
         <tr>
           <th>{{ 'COMMON.NAME' | translate }}</th>
           <th>{{ 'COMMON.CODE' | translate }}</th>
-          <th>{{ 'LEVEL.COURSE' | translate }}</th>
+
           <th>{{ 'COMMON.EST_HOURS' | translate }}</th>
           <th>{{ 'COMMON.SORT_ORDER' | translate }}</th>
           <th>{{ 'COMMON.STATUS' | translate }}</th>
@@ -39,7 +39,7 @@
         <tr>
           <td><strong>{{ level.name }}</strong></td>
           <td><code>{{ level.code }}</code></td>
-          <td>{{ level.course?.name }}</td>
+
           <td>{{ level.estimated_hours }}</td>
           <td>{{ level.sort_order }}</td>
           <td>
@@ -72,7 +72,7 @@
         }
         @if (levels().length === 0) {
         <tr>
-          <td colspan="7" style="text-align: center; color: #94a3b8; padding: 2rem;">
+          <td colspan="6" style="text-align: center; color: #94a3b8; padding: 2rem;">
             {{ 'LEVEL.EMPTY' | translate }}
           </td>
         </tr>
@@ -98,20 +98,6 @@
 
     <form [formGroup]="levelForm" (ngSubmit)="onSubmit()">
       <div class="form-grid">
-        <div class="form-group">
-          <label>{{ 'LEVEL.COURSE' | translate }}</label>
-          <select formControlName="course_id" class="form-select">
-            <option value="" disabled>{{ 'LEVEL.SELECT_COURSE' | translate }}</option>
-            @for (course of courses(); track course.id) {
-            <option [value]="course.id">{{ course.name }}</option>
-            }
-          </select>
-          @if (levelForm.get('course_id')?.touched && levelForm.get('course_id')?.invalid) {
-          <div class="error-text">
-            Course is required
-          </div>
-          }
-        </div>
 
         <mcv-input-field [label]="'LEVEL.NAME' | translate" formControlName="name" placeholder="Enter level name"
           [required]="true">

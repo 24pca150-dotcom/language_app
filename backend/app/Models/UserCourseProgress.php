@@ -13,7 +13,6 @@ class UserCourseProgress extends Model
         'course_id',
         'level_id',
         'chapter_id',
-        'sub_chapter_id',
         'status',
         'score',
         'completed_at',
@@ -34,7 +33,4 @@ class UserCourseProgress extends Model
         return $this->belongsTo(Chapter::class);
     }
 
-    public function subChapter()
-    {
-        return $this->belongsTo(SubChapter::class);
-    }}
+}

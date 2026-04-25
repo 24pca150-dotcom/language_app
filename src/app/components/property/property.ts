@@ -10,8 +10,7 @@ import { LearningModeService, LearningModeData } from '../../services/learning-m
 import {
   McvInputField,
   McvTextArea,
-  McvToggleField,
-  McvDateRangePicker
+  McvToggleField
 } from 'mcv-ui-toolkit';
 
 @Component({
@@ -24,7 +23,6 @@ import {
     McvInputField,
     McvTextArea,
     McvToggleField,
-    McvDateRangePicker,
     TranslateModule
   ],
   templateUrl: './property.html',
@@ -105,7 +103,8 @@ export class Property implements OnInit {
     return this.fb.group({
       course_id: ['', Validators.required],
       package_id: ['', Validators.required],
-      date_range: [null], // Combined start/end
+      start_date: [null],
+      end_date: [null],
       is_active: [true],
       learning_modes: [[]]
     });
@@ -163,8 +162,8 @@ export class Property implements OnInit {
       packages: formValue.packages.map((pkg: any) => ({
         id: Number(pkg.package_id),
         course_id: pkg.course_id ? Number(pkg.course_id) : null,
-        start_date: pkg.date_range?.start ? this.formatDate(pkg.date_range.start) : null,
-        end_date: pkg.date_range?.end ? this.formatDate(pkg.date_range.end) : null,
+        start_date: pkg.start_date,
+        end_date: pkg.end_date,
         is_active: !!pkg.is_active,
         learning_mode_ids: pkg.learning_modes || []
       }))
@@ -215,10 +214,8 @@ export class Property implements OnInit {
         const row = this.fb.group({
           course_id: [pivot?.course_id || '', Validators.required],
           package_id: [pkg.id, Validators.required],
-          date_range: [{
-            start: pivot?.start_date ? new Date(pivot.start_date) : null,
-            end: pivot?.end_date ? new Date(pivot.end_date) : null
-          }],
+          start_date: [pivot?.start_date || null],
+          end_date: [pivot?.end_date || null],
           is_active: [pivot?.is_active ?? true],
           learning_modes: [pivot?.learning_mode_ids ? JSON.parse(pivot.learning_mode_ids) : []]
         });

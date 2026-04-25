@@ -6,7 +6,6 @@ export interface CourseData {
   id?: number;
   name: string;
   code?: string;
-  no_of_levels: number;
   description?: string;
   is_active: boolean;
   levels?: any[];

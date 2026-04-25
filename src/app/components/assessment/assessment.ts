@@ -5,7 +5,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { AssessmentService, AssessmentData } from '../../services/assessment';
 import { LevelService, LevelData } from '../../services/level';
 import { ChapterService, ChapterData } from '../../services/chapter';
-import { SubChapterService, SubChapterData } from '../../services/sub-chapter';
 import {
   McvInputField,
   McvTextArea,
@@ -31,13 +30,11 @@ export class Assessment implements OnInit {
   private assessmentService = inject(AssessmentService);
   private levelService = inject(LevelService);
   private chapterService = inject(ChapterService);
-  private subChapterService = inject(SubChapterService);
 
   assessmentForm: FormGroup;
   assessments = signal<AssessmentData[]>([]);
   levels = signal<LevelData[]>([]);
   chapters = signal<ChapterData[]>([]);
-  subChapters = signal<SubChapterData[]>([]);
 
   isEditMode = signal(false);
   isFormVisible = signal(false);
@@ -48,7 +45,6 @@ export class Assessment implements OnInit {
     this.assessmentForm = this.fb.group({
       level_id: [null],
       chapter_id: [null],
-      sub_chapter_id: [null],
       title: ['', Validators.required],
       description: [''],
       pass_percentage: [70, [Validators.required, Validators.min(0), Validators.max(100)]],
@@ -71,7 +67,6 @@ export class Assessment implements OnInit {
     this.loadAssessments();
     this.loadLevels();
     this.loadChapters();
-    this.loadSubChapters();
   }
 
   loadAssessments(): void {
@@ -92,13 +87,6 @@ export class Assessment implements OnInit {
     this.chapterService.getAll().subscribe({
       next: (data) => this.chapters.set(data),
       error: () => this.showFeedback('error', 'Failed to load chapters'),
-    });
-  }
-
-  loadSubChapters(): void {
-    this.subChapterService.getAll().subscribe({
-      next: (data) => this.subChapters.set(data),
-      error: () => this.showFeedback('error', 'Failed to load sub-chapters'),
     });
   }
 
@@ -207,7 +195,6 @@ export class Assessment implements OnInit {
     this.assessmentForm.patchValue({
       level_id: assessment.level_id,
       chapter_id: assessment.chapter_id,
-      sub_chapter_id: assessment.sub_chapter_id,
       title: assessment.title,
       description: assessment.description,
       pass_percentage: assessment.pass_percentage,

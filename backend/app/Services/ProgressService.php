@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Assessment;
 use App\Models\Chapter;
-use App\Models\SubChapter;
 use App\Models\UserAssessmentAttempt;
 use App\Models\UserCourseProgress;
 use App\Models\Package;

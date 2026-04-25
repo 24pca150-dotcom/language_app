@@ -21,7 +21,7 @@ class CoursePackageLevelController extends Controller
 
         $levelIds = $query->pluck('level_id');
 
-        $levels = Level::with('course')
+        $levels = Level::query()
             ->whereIn('id', $levelIds)
             ->orderBy('sort_order')
             ->get();

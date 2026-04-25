@@ -4,17 +4,11 @@ import { Observable } from 'rxjs';
 
 export interface ChapterData {
   id?: number;
-  level_id: number;
   name: string;
   code: string;
   description?: string;
-  content_type?: string;
-  content?: string;
-  content_meta?: any;
   sort_order?: number;
   is_active: boolean;
-  level?: any;
-  sub_chapters?: any[];
   assessments?: any[];
   created_at?: string;
   updated_at?: string;

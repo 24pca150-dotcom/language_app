@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Level extends Model
 {
     protected $fillable = [
-        'course_id',
+
         'name',
         'code',
         'description',
@@ -30,15 +30,8 @@ class Level extends Model
         'sort_order' => 'integer',
     ];
 
-    public function course(): BelongsTo
-    {
-        return $this->belongsTo(Course::class);
-    }
 
-    public function chapters(): HasMany
-    {
-        return $this->hasMany(Chapter::class)->orderBy('sort_order');
-    }
+
 
     public function assessments(): HasMany
     {

@@ -3,7 +3,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { LevelService, LevelData } from '../../services/level';
-import { CourseService, CourseData } from '../../services/course';
+
 import {
   McvInputField,
   McvTextArea,
@@ -27,11 +27,11 @@ import {
 export class Level implements OnInit {
   private fb = inject(FormBuilder);
   private levelService = inject(LevelService);
-  private courseService = inject(CourseService);
+
 
   levelForm: FormGroup;
   levels = signal<LevelData[]>([]);
-  courses = signal<CourseData[]>([]);
+
   isEditMode = signal(false);
   isFormVisible = signal(false);
   currentLevelId = signal<number | null>(null);
@@ -39,7 +39,7 @@ export class Level implements OnInit {
 
   constructor() {
     this.levelForm = this.fb.group({
-      course_id: ['', Validators.required],
+
       name: ['', Validators.required],
       code: ['', Validators.required],
       description: [''],
@@ -55,7 +55,6 @@ export class Level implements OnInit {
 
   ngOnInit(): void {
     this.loadLevels();
-    this.loadCourses();
   }
 
   loadLevels(): void {
@@ -65,12 +64,6 @@ export class Level implements OnInit {
     });
   }
 
-  loadCourses(): void {
-    this.courseService.getAll().subscribe({
-      next: (data) => this.courses.set(data),
-      error: () => this.showFeedback('error', 'Failed to load courses for selection'),
-    });
-  }
 
   showCreateForm(): void {
     this.resetForm();
@@ -128,7 +121,7 @@ export class Level implements OnInit {
     this.isEditMode.set(true);
     this.currentLevelId.set(level.id!);
     this.levelForm.patchValue({
-      course_id: level.course_id,
+
       name: level.name,
       code: level.code,
       description: level.description,
