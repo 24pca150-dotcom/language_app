@@ -38,6 +38,13 @@ class Level extends Model
         return $this->hasMany(Assessment::class);
     }
 
+    public function chapters(): BelongsToMany
+    {
+        return $this->belongsToMany(Chapter::class, 'level_chapter')
+            ->withPivot(['sort_order', 'is_active'])
+            ->withTimestamps();
+    }
+
     public function packages(): BelongsToMany
     {
         return $this->belongsToMany(Package::class, 'course_package_levels')

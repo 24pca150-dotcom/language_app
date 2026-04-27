@@ -17,7 +17,9 @@ class ChapterController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:50|unique:chapters,code',
+            'description' => 'nullable|string',
             'sort_order' => 'nullable|integer|min:0',
             'is_active' => 'boolean',
         ]);
@@ -35,7 +37,9 @@ class ChapterController extends Controller
     public function update(Request $request, Chapter $chapter)
     {
         $validated = $request->validate([
-
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:50|unique:chapters,code,' . $chapter->id,
+            'description' => 'nullable|string',
             'sort_order' => 'nullable|integer|min:0',
             'is_active' => 'boolean',
         ]);

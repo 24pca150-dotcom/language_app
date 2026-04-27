@@ -41,6 +41,15 @@ Route::get('users/{userId}/courses/{courseId}/progress', [LearningProgressContro
 Route::get('users/{userId}/levels/{levelId}/access', [LearningProgressController::class, 'getLevelAccess']);
 Route::get('users/{userId}/levels/{levelId}/chapters/progress', [LearningProgressController::class, 'getChapterProgress']);
 
+// Level-Chapter mapping
+use App\Http\Controllers\LevelChapterController;
+Route::get('levels/{levelId}/chapters', [LevelChapterController::class, 'index']);
+Route::post('levels/{levelId}/chapters', [LevelChapterController::class, 'store']);
+Route::get('chapters/{chapterId}/levels', [LevelChapterController::class, 'getLevelsByChapter']);
+Route::post('chapters/{chapterId}/levels', [LevelChapterController::class, 'syncLevels']);
+Route::delete('levels/{levelId}/chapters/{chapterId}', [LevelChapterController::class, 'destroy']);
+Route::post('levels/{levelId}/chapters/reorder', [LevelChapterController::class, 'updateOrder']);
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');

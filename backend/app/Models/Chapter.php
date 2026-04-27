@@ -9,7 +9,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Chapter extends Model
 {
     protected $fillable = [
-
+        'name',
+        'code',
+        'description',
         'sort_order',
         'is_active',
     ];
@@ -22,6 +24,11 @@ class Chapter extends Model
 
 
 
+
+    public function levels(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Level::class, 'level_chapter');
+    }
 
     public function assessments(): HasMany
     {

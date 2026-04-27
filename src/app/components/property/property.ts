@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectorRef, computed, HostListener } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -48,6 +48,24 @@ export class Property implements OnInit {
   currentPropertyId = signal<number | null>(null);
   feedbackMessage = signal<{ type: 'success' | 'error', text: string } | null>(null);
   today = new Date();
+  
+  // Multi-select state for learning modes
+  learningModeSearchQuery = signal('');
+  activeDropdownIndex = signal<number | null>(null);
+
+  filteredLearningModes = computed(() => {
+    const query = this.learningModeSearchQuery().toLowerCase().trim();
+    if (!query) return this.learningModes();
+    return this.learningModes().filter(m => 
+      m.name.toLowerCase().includes(query) || 
+      m.code.toLowerCase().includes(query)
+    );
+  });
+
+  @HostListener('document:click')
+  onDocumentClick() {
+    this.activeDropdownIndex.set(null);
+  }
 
   constructor() {
     this.propertyForm = this.fb.group({
@@ -106,7 +124,7 @@ export class Property implements OnInit {
       start_date: [null],
       end_date: [null],
       is_active: [true],
-      learning_modes: [[]]
+      learning_modes: ['']
     });
   }
 
@@ -165,7 +183,7 @@ export class Property implements OnInit {
         start_date: pkg.start_date,
         end_date: pkg.end_date,
         is_active: !!pkg.is_active,
-        learning_mode_ids: pkg.learning_modes || []
+        learning_mode_ids: Array.isArray(pkg.learning_modes) ? pkg.learning_modes : (pkg.learning_modes ? [Number(pkg.learning_modes)] : [])
       }))
     };
 
@@ -217,7 +235,7 @@ export class Property implements OnInit {
           start_date: [pivot?.start_date || null],
           end_date: [pivot?.end_date || null],
           is_active: [pivot?.is_active ?? true],
-          learning_modes: [pivot?.learning_mode_ids ? JSON.parse(pivot.learning_mode_ids) : []]
+          learning_modes: pivot?.learning_mode_ids ? (JSON.parse(pivot.learning_mode_ids)[0] || '') : ''
         });
         this.packagesFormArray.push(row);
       });
@@ -252,6 +270,37 @@ export class Property implements OnInit {
   cancelForm(): void {
     this.resetForm();
     this.isFormVisible.set(false);
+  }
+
+  toggleModeDropdown(index: number, event: Event): void {
+    event.stopPropagation();
+    if (this.activeDropdownIndex() === index) {
+      this.activeDropdownIndex.set(null);
+    } else {
+      this.activeDropdownIndex.set(index);
+      this.learningModeSearchQuery.set('');
+    }
+  }
+
+  isModeSelected(packageIndex: number, modeId: number): boolean {
+    const modes = this.packagesFormArray.at(packageIndex).get('learning_modes')?.value || [];
+    return modes.includes(modeId);
+  }
+
+  toggleModeSelection(packageIndex: number, modeId: number): void {
+    const control = this.packagesFormArray.at(packageIndex).get('learning_modes');
+    // For single select, we just put the new ID in an array
+    control?.setValue([modeId]);
+    this.activeDropdownIndex.set(null); // Close dropdown after selection
+  }
+
+  getModeById(id: number): LearningModeData | undefined {
+    return this.learningModes().find(m => m.id === id);
+  }
+
+  onModeSearch(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.learningModeSearchQuery.set(target.value);
   }
 
   private formatDate(date: any): string | null {
