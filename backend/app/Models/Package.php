@@ -16,4 +16,9 @@ class Package extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    public function courses()
+    {
+        return $this->belongsToMany(Course::class, 'course_package_levels', 'package_id', 'course_id')->distinct();
+    }
 }

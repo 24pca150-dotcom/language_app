@@ -13,7 +13,7 @@ class PackageController extends Controller
      */
     public function index()
     {
-        return response()->json(Package::latest()->get());
+        return response()->json(Package::with('courses')->latest()->get());
     }
 
     /**
