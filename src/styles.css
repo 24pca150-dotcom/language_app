@@ -1,13 +1,13 @@
-/* You can add global styles to this file, and also import other style files */
+@import "bootstrap/dist/css/bootstrap.min.css";
+@import "bootstrap-icons/font/bootstrap-icons.css";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700;900&display=swap');
 
-/* MCV UI Toolkit Theme Variables */
 :root {
-  --form-border: #e2e8f0;
-  --form-text: #1e293b;
-  --form-bg: #ffffff;
-  --color-primary: #3b82f6;
-  --color-success: #10b981;
-  --color-error: #ef4444;
+  --bs-primary: #3b82f6;
+  --bs-primary-rgb: 59, 130, 246;
+  --sidebar-bg: #111827;
+  --sidebar-text: #94a3b8;
+  --sidebar-active: #3b82f6;
 }
 
 * {
@@ -15,9 +15,8 @@
 }
 
 body {
-  margin: 0;
-  padding: 0;
   background-color: #f8fafc;
+  color: #1e293b;
 }
 
 /* Fix for MCV Date Range Picker Layout */

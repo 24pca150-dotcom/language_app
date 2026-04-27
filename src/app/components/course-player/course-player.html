@@ -1,91 +1,94 @@
-<div class="player-layout">
-  <!-- Sidebar Chapters List -->
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <h3>Chapters & Content</h3>
-    </div>
-    <div class="chapter-list">
-      @for (chapter of chapters(); track chapter.id) {
-      <div class="chapter-item-wrapper">
-        <!-- Chapter Item -->
-        <div class="chapter-item" [class.active]="activeChapterId() === chapter.id"
-          [class.locked]="!chapter.is_unlocked" [class.completed]="chapter.is_completed"
-          (click)="selectChapter(chapter.id)">
-          <div class="status-icon">
+<div class="container-fluid p-0 overflow-hidden" style="height: calc(100vh - 100px);">
+  <div class="row g-0 h-100">
+    <!-- Sidebar Chapters List -->
+    <aside class="col-md-3 col-lg-2 bg-white border-end h-100 overflow-y-auto shadow-sm">
+      <div class="p-4 border-bottom bg-light">
+        <h6 class="fw-bold mb-0 text-secondary text-uppercase tracking-wider small">Chapters & Content</h6>
+      </div>
+      <div class="list-group list-group-flush">
+        @for (chapter of chapters(); track chapter.id) {
+        <button type="button" 
+                class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3 border-0 transition-all"
+                [class.active]="activeChapterId() === chapter.id"
+                [class.bg-primary-subtle]="activeChapterId() === chapter.id"
+                [class.opacity-50]="!chapter.is_unlocked"
+                [disabled]="!chapter.is_unlocked"
+                (click)="selectChapter(chapter.id)">
+          <div class="d-flex align-items-center justify-content-center rounded-circle border" 
+               style="width: 28px; height: 28px; flex-shrink: 0;"
+               [class.bg-success]="chapter.is_completed"
+               [class.text-white]="chapter.is_completed"
+               [class.border-success]="chapter.is_completed">
             @if (!chapter.is_unlocked) {
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
+            <i class="bi bi-lock-fill small"></i>
             } @else if (chapter.is_completed) {
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
+            <i class="bi bi-check-lg small"></i>
             } @else {
-            <div class="dot"></div>
+            <div class="bg-primary rounded-circle" style="width: 8px; height: 8px;"></div>
             }
           </div>
-          <span class="chapter-name">{{ chapter.name }}</span>
-        </div>
-
-
-      </div>
-      }
-    </div>
-  </aside>
-
-  <!-- Main Content Area -->
-  <main class="content-area">
-    @if (activeChapter(); as chapter) {
-    <div class="content-wrapper">
-      <!-- Chapter Header -->
-      <div class="content-header">
-        <h1>{{ chapter.name }}</h1>
-        @if (chapter.description) {
-        <p class="chapter-description">{{ chapter.description }}</p>
+          <span class="fw-medium small text-truncate">{{ chapter.name }}</span>
+        </button>
         }
       </div>
+    </aside>
 
-
-      <!-- Chapter Content (when no sub-chapter selected) -->
-      <div class="chapter-content">
-        <div class="prose">
-          <p>{{ chapter.description || 'No content available for this chapter.' }}</p>
-        </div>
-      </div>
-
-      <!-- Assessments Section -->
-      @if (chapter.assessments && chapter.assessments.length > 0) {
-      <div class="assessment-section">
-        <h2>Assessments</h2>
-        <div class="assessment-list">
-          @for (assessment of chapter.assessments; track assessment.id) {
-          <div class="assessment-card">
-            <h3>{{ assessment.name }}</h3>
-            <p>{{ assessment.description || 'Take this assessment to test your knowledge.' }}</p>
-            <button class="btn-primary">Start Assessment</button>
-          </div>
+    <!-- Main Content Area -->
+    <main class="col h-100 overflow-y-auto bg-light">
+      @if (activeChapter(); as chapter) {
+      <div class="p-4 p-lg-5 max-w-4xl mx-auto">
+        <!-- Chapter Header -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-lg-5 mb-4 bg-white">
+          <h1 class="display-5 fw-bold text-dark mb-3">{{ chapter.name }}</h1>
+          @if (chapter.description) {
+          <p class="lead text-secondary mb-0">{{ chapter.description }}</p>
           }
+        </div>
+
+        <!-- Chapter Content -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-lg-5 mb-4 bg-white">
+          <div class="prose max-w-none text-dark fs-5">
+            <p>{{ chapter.description || 'No content available for this chapter.' }}</p>
+          </div>
+        </div>
+
+        <!-- Assessments Section -->
+        <div class="mt-5">
+          <h3 class="fw-bold mb-4">
+            <i class="bi bi-check2-square text-primary me-2"></i>
+            Assessments
+          </h3>
+          <div class="row g-4">
+            @for (assessment of chapter.assessments; track assessment.id) {
+            <div class="col-md-6">
+              <div class="card border-0 shadow-sm rounded-4 h-100 p-4 transition-all hover-scale bg-white">
+                <h5 class="fw-bold mb-2">{{ assessment.name }}</h5>
+                <p class="text-secondary small mb-4 flex-grow-1">{{ assessment.description || 'Take this assessment to test your knowledge.' }}</p>
+                <button class="btn btn-primary w-100 rounded-3 py-2 fw-bold">
+                  Start Assessment
+                  <i class="bi bi-arrow-right ms-2"></i>
+                </button>
+              </div>
+            </div>
+            }
+            @if (!chapter.assessments || chapter.assessments.length === 0) {
+            <div class="col-12 text-center py-5 bg-white rounded-4 shadow-sm border border-dashed">
+              <i class="bi bi-info-circle fs-1 text-secondary opacity-25 d-block mb-2"></i>
+              <p class="text-secondary mb-0">No assessments available for this chapter yet.</p>
+            </div>
+            }
+          </div>
         </div>
       </div>
       } @else {
-      <div class="assessment-teaser">
-        <h3>Assessments</h3>
-        <p>No assessments available for this chapter yet.</p>
+      <div class="d-flex flex-column align-items-center justify-content-center h-100 p-5 text-center">
+        <div class="p-5 bg-white rounded-circle shadow-sm mb-4">
+          <i class="bi bi-book fs-1 text-primary"></i>
+        </div>
+        <h2 class="fw-bold text-dark mb-2">Select a Chapter</h2>
+        <p class="text-secondary opacity-75 max-w-sm">Choose a chapter from the sidebar to begin your learning journey.</p>
       </div>
       }
-    </div>
-    } @else {
-    <div class="content-wrapper">
-      <div class="empty-state">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-        </svg>
-        <h2>Select a Chapter</h2>
-        <p>Choose a chapter from the sidebar to begin learning.</p>
-      </div>
-    </div>
-    }
-  </main>
+    </main>
+  </div>
 </div>

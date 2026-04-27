@@ -1,107 +1,119 @@
-<div class="container">
+<div class="container-fluid py-4">
   <!-- Feedback Messages -->
   @if (feedbackMessage(); as msg) {
-  <div [class]="'feedback ' + msg.type">
-    <span>{{ msg.text }}</span>
+  <div class="alert alert-dismissible fade show shadow-sm border-0 mb-4 animate-in slide-in-from-top-4" 
+       [class.alert-success]="msg.type === 'success'" 
+       [class.alert-danger]="msg.type === 'error'">
+    {{ msg.text }}
+    <button type="button" class="btn-close shadow-none" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
   }
 
-  <div class="card">
-    <div class="card-header">
-      <h3>{{ selectedCourseName() ? (selectedCourseName() + ' - Mapping') : ('MAPPING.TITLE' | translate) }}</h3>
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-white border-bottom border-light p-4">
+      <h4 class="mb-0 fw-bold text-dark">
+        <i class="bi bi-diagram-3 me-2 text-primary"></i>
+        {{ selectedCourseName() ? (selectedCourseName() + ' - Mapping') : ('MAPPING.TITLE' | translate) }}
+      </h4>
     </div>
 
-    <div class="mapping-selector">
-      <!-- Course Selection -->
-      @if (!selectedCourseName()) {
-      <div class="form-group">
-        <label>Course</label>
-        <select [(ngModel)]="selectedCourseId" (change)="onSelectionChange()" class="form-select">
-          <option [ngValue]="null" disabled>Select Course</option>
-          @for (course of courses(); track course.id) {
-          <option [ngValue]="course.id">{{ course.name }}</option>
+    <div class="card-body p-4 p-lg-5">
+      <div class="row g-4 mb-5">
+        <!-- Course Selection -->
+        @if (!selectedCourseName()) {
+        <div class="col-md-4">
+          <label class="form-label small fw-bold text-secondary">Course</label>
+          <select [(ngModel)]="selectedCourseId" (change)="onSelectionChange()" class="form-select border-light bg-light shadow-none cursor-pointer">
+            <option [ngValue]="null" disabled>Select Course</option>
+            @for (course of courses(); track course.id) {
+            <option [ngValue]="course.id">{{ course.name }}</option>
+            }
+          </select>
+        </div>
+        }
+
+        <!-- Package Selection -->
+        <div class="col-md-4">
+          <label class="form-label small fw-bold text-secondary">Package</label>
+          <select [(ngModel)]="selectedPackageId" (change)="onSelectionChange()" class="form-select border-light bg-light shadow-none cursor-pointer">
+            <option [ngValue]="null" disabled>Select Package</option>
+            @for (pkg of packages(); track pkg.id) {
+            <option [ngValue]="pkg.id">{{ pkg.name }} ({{ pkg.code }})</option>
+            }
+          </select>
+        </div>
+
+        <!-- Level Selection (Custom Multi-select) -->
+        <div class="col-md-4">
+          <label class="form-label small fw-bold text-secondary">Levels</label>
+          <div class="dropdown position-relative">
+            <div class="form-select border-light bg-light shadow-none cursor-pointer d-flex justify-content-between align-items-center h-auto py-2 px-3" 
+                 (click)="toggleDropdown($event)" [class.show]="isDropdownOpen()">
+              <span class="text-truncate">{{ getSelectedLevelsLabel() }}</span>
+            </div>
+            
+            @if (isDropdownOpen()) {
+            <div class="dropdown-menu show w-100 border-light shadow-lg rounded-3 p-2 animate-in fade-in" 
+                 (click)="$event.stopPropagation()" style="max-height: 250px; overflow-y: auto;">
+              @for (level of availableLevels(); track level.id) {
+              <div class="dropdown-item px-2 py-1 rounded-2">
+                <div class="form-check m-0">
+                  <input class="form-check-input shadow-none cursor-pointer" type="checkbox" 
+                         [id]="'level-' + level.id"
+                         [checked]="isLevelSelected(level.id!)" 
+                         (change)="toggleLevelSelection(level.id!)">
+                  <label class="form-check-label ms-2 cursor-pointer w-100" [for]="'level-' + level.id">
+                    {{ level.name }}
+                  </label>
+                </div>
+              </div>
+              }
+              @if (availableLevels().length === 0) {
+              <div class="text-center p-3 text-secondary small italic">No more levels available</div>
+              }
+            </div>
+            }
+          </div>
+        </div>
+
+        <div class="col-12 text-end">
+          <button class="btn btn-primary px-4 py-2 fw-bold shadow-sm rounded-3" 
+                  [disabled]="selectedLevelIds().length === 0" (click)="mapSelectedLevels()">
+            Map Selected Levels
+          </button>
+        </div>
+      </div>
+
+      @if (selectedPackageId() && selectedCourseId()) {
+      <!-- Mapped Levels Section -->
+      <div class="p-4 bg-light rounded-4 border border-light">
+        <h6 class="fw-bold text-secondary text-uppercase mb-4 tracking-wider" style="font-size: 0.75rem;">Currently Mapped Levels</h6>
+        <div class="d-flex flex-wrap gap-2">
+          @for (level of mappedLevels(); track level.id) {
+          <div class="badge bg-white text-dark border shadow-sm px-3 py-2 rounded-3 d-flex align-items-center gap-2">
+            <span class="fw-medium text-primary">Level</span>
+            <span class="fw-bold">{{ level.name }}</span>
+            <button class="btn btn-link btn-sm p-0 ms-1 text-danger border-0 shadow-none" (click)="unmapLevel(level.id!)" title="Remove">
+              <i class="bi bi-x-circle-fill fs-6"></i>
+            </button>
+          </div>
           }
-        </select>
+          @if (mappedLevels().length === 0) {
+          <div class="text-center py-4 w-100 text-secondary opacity-50 italic">
+            <i class="bi bi-link-45deg fs-2 d-block mb-1"></i>
+            No levels mapped to this package yet.
+          </div>
+          }
+        </div>
       </div>
       }
 
-      <!-- Package Selection -->
-      <div class="form-group">
-        <label>Package</label>
-        <select [(ngModel)]="selectedPackageId" (change)="onSelectionChange()" class="form-select">
-          <option [ngValue]="null" disabled>Select Package</option>
-          @for (pkg of packages(); track pkg.id) {
-          <option [ngValue]="pkg.id">{{ pkg.name }} ({{ pkg.code }})</option>
-          }
-        </select>
+      @if (!selectedPackageId() || !selectedCourseId()) {
+      <div class="text-center py-5 bg-light rounded-4 border border-dashed border-2">
+        <i class="bi bi-layers fs-1 text-secondary opacity-25 d-block mb-3"></i>
+        <p class="text-secondary fw-medium mb-0">Please select both a Course and a Package to start mapping levels.</p>
       </div>
-
-      <!-- Level Selection (Custom Multi-select) -->
-      <div class="form-group">
-        <label>Levels</label>
-        <div class="custom-multi-select" (click)="toggleDropdown($event)">
-          <div class="select-trigger" [class.open]="isDropdownOpen()">
-            <span>{{ getSelectedLevelsLabel() }}</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </div>
-          @if (isDropdownOpen()) {
-          <div class="dropdown-content" (click)="$event.stopPropagation()">
-            @for (level of availableLevels(); track level.id) {
-            <label class="checkbox-item">
-              <input type="checkbox" [checked]="isLevelSelected(level.id!)" (change)="toggleLevelSelection(level.id!)">
-              <span class="checkbox-custom"></span>
-              <span class="label-text">{{ level.name }}</span>
-            </label>
-            }
-            @if (availableLevels().length === 0) {
-            <div class="no-options">No more levels available</div>
-            }
-          </div>
-          }
-        </div>
-      </div>
-
-      <div class="form-group button-group-vertical" style="justify-content: flex-end;">
-        <button class="btn btn-primary" [disabled]="selectedLevelIds().length === 0" (click)="mapSelectedLevels()">
-          Map Selected
-        </button>
-      </div>
+      }
     </div>
-
-    @if (selectedPackageId() && selectedCourseId()) {
-    <!-- Mapped Levels Tags -->
-    <div class="mapped-section">
-      <h4>Currently Mapped Levels</h4>
-      <div class="tag-container">
-        @for (level of mappedLevels(); track level.id) {
-        <div class="mapping-tag">
-          <span class="tag-name">{{ level.name }}</span>
-          <button class="tag-remove" (click)="unmapLevel(level.id!)" title="Remove">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-        </div>
-        }
-        @if (mappedLevels().length === 0) {
-        <p class="empty-hint">No levels mapped to this package yet.</p>
-        }
-      </div>
-    </div>
-    }
-
-    @if (!selectedPackageId() || !selectedCourseId()) {
-    <div class="selection-prompt">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5">
-        <path
-          d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
-        </path>
-      </svg>
-      <p>Please select both a Course and a Package to start mapping levels.</p>
-    </div>
-    }
   </div>
 </div>
