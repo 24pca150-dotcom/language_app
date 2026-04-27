@@ -1,8 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, HostListener, computed } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ChapterService, ChapterData } from '../../services/chapter';
+import { LevelService, LevelData } from '../../services/level';
+import { LevelChapterService } from '../../services/level-chapter';
 
 import {
   McvInputField,
@@ -27,19 +29,43 @@ import {
 export class Chapter implements OnInit {
   private fb = inject(FormBuilder);
   private chapterService = inject(ChapterService);
-
+  private levelService = inject(LevelService);
+  private levelChapterService = inject(LevelChapterService);
 
   chapterForm: FormGroup;
   chapters = signal<ChapterData[]>([]);
+  allLevels = signal<LevelData[]>([]);
+  selectedLevelIds = signal<number[]>([]);
+  isLevelDropdownOpen = signal(false);
 
   isEditMode = signal(false);
   isFormVisible = signal(false);
   currentChapterId = signal<number | null>(null);
   feedbackMessage = signal<{ type: 'success' | 'error', text: string } | null>(null);
+  levelSearchQuery = signal('');
+
+  filteredLevels = computed(() => {
+    const query = this.levelSearchQuery().toLowerCase().trim();
+    if (!query) return this.allLevels();
+    return this.allLevels().filter(l => 
+      l.name.toLowerCase().includes(query) || 
+      l.code.toLowerCase().includes(query)
+    );
+  });
+
+  allLevelsSelected = computed(() => {
+    const levels = this.allLevels();
+    return levels.length > 0 && this.selectedLevelIds().length === levels.length;
+  });
+
+  @HostListener('document:click')
+  onDocumentClick() {
+    this.isLevelDropdownOpen.set(false);
+  }
 
   constructor() {
-    this.chapterForm = this.fb.group({
 
+    this.chapterForm = this.fb.group({
       name: ['', Validators.required],
       code: ['', Validators.required],
       description: [''],
@@ -50,6 +76,7 @@ export class Chapter implements OnInit {
 
   ngOnInit(): void {
     this.loadChapters();
+    this.loadLevels();
   }
 
   loadChapters(): void {
@@ -59,7 +86,12 @@ export class Chapter implements OnInit {
     });
   }
 
-
+  loadLevels(): void {
+    this.levelService.getAll().subscribe({
+      next: (data) => this.allLevels.set(data),
+      error: () => this.showFeedback('error', 'Failed to load levels'),
+    });
+  }
 
   showCreateForm(): void {
     this.resetForm();
@@ -88,12 +120,14 @@ export class Chapter implements OnInit {
     }
 
     const chapterData: ChapterData = this.chapterForm.value;
+    const levelIds = this.selectedLevelIds();
 
     if (this.isEditMode()) {
       const id = this.currentChapterId();
       if (id) {
         this.chapterService.update(id, chapterData).subscribe({
           next: () => {
+            this.syncLevelMappings(id, levelIds);
             this.showFeedback('success', 'Chapter updated successfully');
             this.isFormVisible.set(false);
             this.loadChapters();
@@ -103,7 +137,10 @@ export class Chapter implements OnInit {
       }
     } else {
       this.chapterService.create(chapterData).subscribe({
-        next: () => {
+        next: (newChapter) => {
+          if (newChapter.id) {
+            this.syncLevelMappings(newChapter.id, levelIds);
+          }
           this.showFeedback('success', 'Chapter created successfully');
           this.isFormVisible.set(false);
           this.loadChapters();
@@ -113,17 +150,30 @@ export class Chapter implements OnInit {
     }
   }
 
+  syncLevelMappings(chapterId: number, levelIds: number[]): void {
+    this.levelChapterService.syncLevels(chapterId, levelIds).subscribe({
+      error: () => this.showFeedback('error', 'Failed to sync level mappings'),
+    });
+  }
+
   editChapter(chapter: ChapterData): void {
     this.isEditMode.set(true);
     this.currentChapterId.set(chapter.id!);
     this.chapterForm.patchValue({
-
       name: chapter.name,
       code: chapter.code,
       description: chapter.description,
       sort_order: chapter.sort_order,
       is_active: chapter.is_active,
     });
+
+    // Load mapped levels
+    this.levelChapterService.getMappedLevels(chapter.id!).subscribe({
+      next: (levels) => {
+        this.selectedLevelIds.set(levels.map(l => l.id!));
+      }
+    });
+
     this.isFormVisible.set(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -142,6 +192,7 @@ export class Chapter implements OnInit {
 
   resetForm(): void {
     this.chapterForm.reset({ is_active: true, sort_order: 0 });
+    this.selectedLevelIds.set([]);
     this.isEditMode.set(false);
     this.currentChapterId.set(null);
   }
@@ -149,6 +200,52 @@ export class Chapter implements OnInit {
   cancelForm(): void {
     this.resetForm();
     this.isFormVisible.set(false);
+  }
+
+  toggleLevelDropdown(event: Event): void {
+    event.stopPropagation();
+    this.isLevelDropdownOpen.update(v => !v);
+  }
+
+  isLevelSelected(id: number): boolean {
+    return this.selectedLevelIds().includes(id);
+  }
+
+  toggleLevelSelection(id: number): void {
+    this.selectedLevelIds.update(ids => {
+      if (ids.includes(id)) {
+        return ids.filter(i => i !== id);
+      } else {
+        return [...ids, id];
+      }
+    });
+  }
+
+  getSelectedLevelsLabel(): string {
+    const count = this.selectedLevelIds().length;
+    if (count === 0) return 'Select Levels';
+    if (count === 1) {
+      const level = this.getLevelById(this.selectedLevelIds()[0]);
+      return level ? level.name : '1 level selected';
+    }
+    return `${count} levels selected`;
+  }
+
+  getLevelById(id: number): LevelData | undefined {
+    return this.allLevels().find(l => l.id === id);
+  }
+
+  onLevelSearch(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.levelSearchQuery.set(target.value);
+  }
+
+  toggleAllLevels(): void {
+    if (this.allLevelsSelected()) {
+      this.selectedLevelIds.set([]);
+    } else {
+      this.selectedLevelIds.set(this.allLevels().map(l => l.id!));
+    }
   }
 
   private showFeedback(type: 'success' | 'error', text: string): void {

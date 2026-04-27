@@ -6,6 +6,7 @@ import { Course } from './components/course/course';
 import { Level } from './components/level/level';
 import { CoursePackageLevel } from './components/course-package-level/course-package-level';
 import { Chapter } from './components/chapter/chapter';
+import { Content } from './components/content/content';
 import { Assessment } from './components/assessment/assessment';
 
 import { LearningMode } from './components/learning-mode/learning-mode';
@@ -20,8 +21,9 @@ export const routes: Routes = [
   { path: 'levels', component: Level },
   { path: 'course-package-levels', component: CoursePackageLevel },
   { path: 'chapters', component: Chapter },
+  { path: 'contents', component: Content },
   { path: 'assessments', component: Assessment },
   { path: 'learning-modes', component: LearningMode },
   { path: 'learn', component: CoursePlayer }, // For query params: ?id=5
   { path: 'learn/:levelId', component: CoursePlayer }, // For path params: /learn/5
-];
+];

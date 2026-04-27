@@ -84,7 +84,7 @@
 
   <!-- Form View -->
   @if (isFormVisible()) {
-  <div class="card border-0 shadow rounded-4 animate-in slide-in-from-bottom-8 duration-500 overflow-hidden">
+  <div class="card border-0 shadow rounded-4 animate-in slide-in-from-bottom-8 duration-500">
     <div class="card-header bg-white border-bottom border-light p-4 d-flex justify-content-between align-items-center">
       <h4 class="mb-0 fw-bold text-dark">
         {{ isEditMode() ? ('CHAPTER.EDIT_TITLE' | translate) : ('CHAPTER.CREATE_TITLE' | translate) }}
@@ -121,6 +121,90 @@
 
           <div class="col-12">
             <mcv-text-area [label]="'COMMON.DESCRIPTION' | translate" formControlName="description" [rows]="3" placeholder="Chapter details..."></mcv-text-area>
+          </div>
+
+          <!-- Chapter Level Mapping Section -->
+          <div class="col-12 mt-4">
+            <div class="card border-0 shadow-sm rounded-4" style="border-left: 4px solid #0d6efd !important;">
+              <div class="card-body p-4">
+                <h5 class="fw-bold text-dark mb-1">Chapter Level Mapping</h5>
+                <p class="text-secondary small mb-4">Map this chapter to one or more educational levels</p>
+                
+                <div class="mb-3">
+                  <label class="form-label fw-semibold small text-secondary">Levels</label>
+                  <div class="dropdown" (click)="$event.stopPropagation()">
+                    <div class="form-control d-flex flex-wrap gap-2 align-items-center bg-white cursor-pointer" 
+                         (click)="toggleLevelDropdown($event)"
+                         style="min-height: 45px;">
+                      
+                      @if (selectedLevelIds().length === 0) {
+                        <span class="text-muted">Select Levels...</span>
+                      }
+                      
+                      @for (levelId of selectedLevelIds(); track levelId) {
+                        @let level = getLevelById(levelId);
+                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 d-flex align-items-center gap-2 py-2 px-3 rounded-pill animate-in zoom-in-95 duration-200">
+                          {{ level?.name || 'Unknown' }}
+                          <i class="bi bi-x-lg cursor-pointer hover-scale" (click)="toggleLevelSelection(levelId); $event.stopPropagation()"></i>
+                        </span>
+                      }
+                      
+                      <i class="bi bi-chevron-down ms-auto text-secondary small"></i>
+                    </div>
+                    
+                    <ul class="dropdown-menu w-100 shadow-lg border-0 mt-1 py-0 custom-scrollbar" 
+                        [class.show]="isLevelDropdownOpen()"
+                        style="max-height: 240px; overflow-y: auto; z-index: 2000; position: absolute; top: 100%; left: 0; display: block; visibility: hidden;"
+                        [style.visibility]="isLevelDropdownOpen() ? 'visible' : 'hidden'">
+
+                      <li class="bg-light p-2 sticky-top border-bottom d-flex align-items-center gap-2">
+                        <i class="bi bi-search text-secondary ms-2 small"></i>
+                        <input type="text" class="form-control form-control-sm border-0 shadow-none bg-transparent" 
+                               [placeholder]="'Search levels...'"
+                               (input)="onLevelSearch($event)"
+                               (click)="$event.stopPropagation()">
+                      </li>
+                      <li class="border-bottom">
+                        <div class="dropdown-item d-flex align-items-center py-2 px-3 fw-bold text-primary bg-primary bg-opacity-10" 
+                             (click)="toggleAllLevels()" 
+                             style="cursor: pointer;">
+                          <div class="form-check mb-0">
+                            <input class="form-check-input" type="checkbox" 
+                                   [checked]="allLevelsSelected()" 
+                                   (change)="toggleAllLevels()"
+                                   (click)="$event.stopPropagation()">
+                            <label class="form-check-label ms-2 small">Select All Levels</label>
+                          </div>
+                        </div>
+                      </li>
+                      @for (level of filteredLevels(); track level.id) {
+                      <li>
+                        <div class="dropdown-item d-flex align-items-center py-1 px-3 border-bottom border-light border-opacity-50" 
+                             (click)="toggleLevelSelection(level.id!)" 
+                             style="cursor: pointer;">
+                          <div class="form-check mb-0">
+                            <input class="form-check-input mt-1" type="checkbox" 
+                                   [checked]="isLevelSelected(level.id!)" 
+                                   (change)="toggleLevelSelection(level.id!)"
+                                   (click)="$event.stopPropagation()">
+                            <label class="form-check-label ms-2 text-dark d-flex flex-column">
+                              <span class="fw-bold small">{{ level.name }}</span>
+                              <span class="text-secondary smaller opacity-75" style="font-size: 0.7rem;">{{ level.code }}</span>
+                            </label>
+                          </div>
+                        </div>
+                      </li>
+                      } @empty {
+                      <li class="p-4 text-center text-muted">
+                        <i class="bi bi-search fs-2 d-block mb-2 opacity-25"></i>
+                        No levels found.
+                      </li>
+                      }
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

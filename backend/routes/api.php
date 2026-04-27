@@ -13,6 +13,7 @@ use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\LearningProgressController;
 use App\Http\Controllers\LearningModeController;
+use App\Http\Controllers\Api\ContentController;
 
 // Existing resources
 Route::apiResource('packages', PackageController::class);
@@ -23,6 +24,7 @@ Route::apiResource('properties', PropertyController::class);
 Route::apiResource('courses', CourseController::class);
 Route::apiResource('levels', LevelController::class);
 Route::apiResource('chapters', ChapterController::class);
+Route::apiResource('contents', ContentController::class);
 Route::apiResource('assessments', AssessmentController::class);
 Route::apiResource('learning-modes', LearningModeController::class);
 

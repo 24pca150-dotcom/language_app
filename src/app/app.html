@@ -1,9 +1,12 @@
 <div class="container-fluid p-0 d-flex min-vh-100 position-relative">
-  
+
   <!-- Mobile Header (Visible only on small screens) -->
-  <header class="mobile-header d-lg-none w-100 bg-dark text-light p-3 d-flex justify-content-between align-items-center position-fixed top-0 start-0 shadow-sm" style="z-index: 1100; background-color: var(--sidebar-bg) !important;">
+  <header
+    class="mobile-header d-lg-none w-100 bg-dark text-light p-3 d-flex justify-content-between align-items-center position-fixed top-0 start-0 shadow-sm"
+    style="z-index: 1100; background-color: var(--sidebar-bg) !important;">
     <div class="d-flex align-items-center gap-2">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--bs-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--bs-primary)" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
         <path d="M2 17l10 5 10-5"></path>
         <path d="M2 12l10 5 10-5"></path>
@@ -17,14 +20,13 @@
 
   <!-- Sidebar Overlay (Visible only on mobile when sidebar is open) -->
   @if (isSidebarOpen()) {
-    <div class="sidebar-overlay d-lg-none" (click)="closeSidebar()"></div>
+  <div class="sidebar-overlay d-lg-none" (click)="closeSidebar()"></div>
   }
 
   <!-- Sidebar -->
-  <aside class="sidebar bg-dark text-light d-flex flex-column shadow" 
-         [class.show]="isSidebarOpen()"
-         style="width: 280px; z-index: 1050; background-color: var(--sidebar-bg) !important;">
-    
+  <aside class="sidebar bg-dark text-light d-flex flex-column shadow" [class.show]="isSidebarOpen()"
+    style="width: 280px; z-index: 1050; background-color: var(--sidebar-bg) !important;">
+
     <div class="p-4 border-bottom border-secondary border-opacity-25 d-none d-lg-block">
       <div class="d-flex align-items-center gap-3">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--bs-primary)" stroke-width="2.5"
@@ -38,8 +40,10 @@
     </div>
 
     <!-- Language Switcher -->
-    <div class="px-3 py-2 mx-3 mt-3 mb-2 rounded-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
-      <label class="small text-secondary fw-bold mb-1 d-block" style="font-size: 0.65rem; text-uppercase; letter-spacing: 0.05em;">Language</label>
+    <div class="px-3 py-2 mx-3 mt-3 mb-2 rounded-3"
+      style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
+      <label class="small text-secondary fw-bold mb-1 d-block"
+        style="font-size: 0.65rem; text-uppercase; letter-spacing: 0.05em;">Language</label>
       <div class="d-flex align-items-center gap-2">
         <i class="bi bi-translate text-primary"></i>
         <select (change)="switchLanguage($event)" [value]="currentLang()"
@@ -52,49 +56,66 @@
 
     <hr class="my-2 mx-3 border-white opacity-100">
 
-    <nav class="nav flex-column gap-2 p-3 overflow-y-auto flex-grow-1">
-      <a routerLink="/learning-modes" routerLinkActive="active" (click)="closeSidebar()" class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all mb-1">
-        <i class="bi bi-book"></i>
-        <span>{{ 'SIDEBAR.LEARNING_MODE' | translate }}</span>
-      </a>
-      <a routerLink="/courses" routerLinkActive="active" (click)="closeSidebar()" class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all mb-1">
-        <i class="bi bi-journal-bookmark"></i>
-        <span>{{ 'SIDEBAR.COURSES' | translate }}</span>
-      </a>
-      <a routerLink="/levels" routerLinkActive="active" (click)="closeSidebar()" class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all mb-1">
-        <i class="bi bi-layers"></i>
-        <span>{{ 'SIDEBAR.LEVELS' | translate }}</span>
-      </a>
-      <a routerLink="/course-package-levels" routerLinkActive="active" (click)="closeSidebar()" class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all mb-1">
-        <i class="bi bi-diagram-3"></i>
-        <span>{{ 'SIDEBAR.MAPPING' | translate }}</span>
-      </a>
-      <a routerLink="/chapters" routerLinkActive="active" (click)="closeSidebar()" class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all mb-1">
-        <i class="bi bi-journal-text"></i>
-        <span>{{ 'SIDEBAR.CHAPTERS' | translate }}</span>
-      </a>
-      <a routerLink="/assessments" routerLinkActive="active" (click)="closeSidebar()" class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all mb-1">
-        <i class="bi bi-check2-square"></i>
-        <span>{{ 'SIDEBAR.ASSESSMENTS' | translate }}</span>
-      </a>
-      
-      <hr class="my-2 border-white opacity-100">
-      
-      <a routerLink="/tenants" routerLinkActive="active" (click)="closeSidebar()" class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all mb-1">
+    <!-- Main Scrollable Navigation Area -->
+    <div class="flex-grow-1 overflow-y-auto p-3 custom-scrollbar">
+      <div class="d-flex flex-column gap-2">
+        <a routerLink="/learning-modes" routerLinkActive="active" (click)="closeSidebar()"
+          class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
+          <i class="bi bi-book"></i>
+          <span>{{ 'SIDEBAR.LEARNING_MODE' | translate }}</span>
+        </a>
+        <a routerLink="/courses" routerLinkActive="active" (click)="closeSidebar()"
+          class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
+          <i class="bi bi-journal-bookmark"></i>
+          <span>{{ 'SIDEBAR.COURSES' | translate }}</span>
+        </a>
+        <a routerLink="/levels" routerLinkActive="active" (click)="closeSidebar()"
+          class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
+          <i class="bi bi-layers"></i>
+          <span>{{ 'SIDEBAR.LEVELS' | translate }}</span>
+        </a>
+        <a routerLink="/course-package-levels" routerLinkActive="active" (click)="closeSidebar()"
+          class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
+          <i class="bi bi-diagram-3"></i>
+          <span>{{ 'SIDEBAR.MAPPING' | translate }}</span>
+        </a>
+        <a routerLink="/chapters" routerLinkActive="active" (click)="closeSidebar()"
+          class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
+          <i class="bi bi-journal-text"></i>
+          <span>{{ 'SIDEBAR.CHAPTERS' | translate }}</span>
+        </a>
+        <a routerLink="/contents" routerLinkActive="active" (click)="closeSidebar()"
+          class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
+          <i class="bi bi-file-earmark-text"></i>
+          <span>{{ 'SIDEBAR.CONTENTS' | translate }}</span>
+        </a>
+        <a routerLink="/assessments" routerLinkActive="active" (click)="closeSidebar()"
+          class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
+          <i class="bi bi-check2-square"></i>
+          <span>{{ 'SIDEBAR.ASSESSMENTS' | translate }}</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Pinned Bottom Section -->
+    <div class="mt-auto p-3 border-top border-secondary border-opacity-25 d-flex flex-column gap-2">
+      <a routerLink="/tenants" routerLinkActive="active" (click)="closeSidebar()"
+        class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
         <i class="bi bi-people"></i>
         <span>{{ 'SIDEBAR.TENANTS' | translate }}</span>
       </a>
-      <a routerLink="/properties" routerLinkActive="active" (click)="closeSidebar()" class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all mb-1">
+      <a routerLink="/properties" routerLinkActive="active" (click)="closeSidebar()"
+        class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
         <i class="bi bi-building"></i>
         <span>{{ 'SIDEBAR.PROPERTIES' | translate }}</span>
       </a>
-      <a routerLink="/packages" routerLinkActive="active" (click)="closeSidebar()" class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all mb-1">
+      <a routerLink="/packages" routerLinkActive="active" (click)="closeSidebar()"
+        class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
         <i class="bi bi-box-seam"></i>
         <span>{{ 'SIDEBAR.PACKAGES' | translate }}</span>
       </a>
-    </nav>
+    </div>
   </aside>
-
   <!-- Content Area -->
   <main class="main-content flex-grow-1 bg-light min-vh-100">
     <div class="p-3 p-md-4 p-lg-5 mt-5 mt-lg-0">

@@ -8,6 +8,7 @@
     "LEVELS": "நிலைகள்",
     "MAPPING": "வரைபடமாக்கல்",
     "CHAPTERS": "அத்தியாயங்கள்",
+    "CONTENTS": "உள்ளடக்கங்கள்",
     "SUB_CHAPTERS": "துணை அத்தியாயங்கள்",
     "ASSESSMENTS": "மதிப்பீடுகள்",
     "LANGUAGE": "மொழி",
@@ -172,5 +173,24 @@
     "MATCH": "பொருத்துக",
     "TF": "சரியா தவறா",
     "ORAL": "வாய்மொழி தேர்வு"
+  },
+  "CONTENT": {
+    "CREATE_BTN": "உள்ளடக்கத்தை உருவாக்கு",
+    "CREATE_TITLE": "புதிய உள்ளடக்கத்தை உருவாக்கு",
+    "EDIT_TITLE": "உள்ளடக்கத்தைத் திருத்து",
+    "NAME": "உள்ளடக்கப் பெயர்",
+    "EMPTY": "உள்ளடக்கங்கள் எதுவும் இல்லை.",
+    "CHAPTER": "அத்தியாயம்",
+    "SELECT_CHAPTER": "அத்தியாயத்தைத் தேர்ந்தெடு",
+    "SORT_ORDER": "வரிசை எண்",
+    "TEXT_CONTENT": "உரை உள்ளடக்கம்",
+    "ATTACHMENTS": "இணைப்புகள்",
+    "UPLOAD_IMAGE": "படத்தைப் பதிவேற்றவும்",
+    "UPLOAD_VIDEO": "வீடியோவைப் பதிவேற்றவும்",
+    "UPLOAD_PDF": "PDF பதிவேற்றவும்",
+    "UPLOAD_DOC": "DOC (Word) பதிவேற்றவும்",
+    "UPLOAD_XLSX": "XLSX (Excel) பதிவேற்றவும்",
+    "UPLOAD_PPT": "PPT (PowerPoint) பதிவேற்றவும்",
+    "EXTERNAL_URL": "வெளிப்புற URL"
   }
 }

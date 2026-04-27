@@ -8,6 +8,7 @@
     "LEVELS": "Levels",
     "MAPPING": "Mapping",
     "CHAPTERS": "Chapters",
+    "CONTENTS": "Contents",
     "SUB_CHAPTERS": "Sub-Chapters",
     "ASSESSMENTS": "Assessments",
     "LANGUAGE": "Language",
@@ -175,5 +176,24 @@
     "MATCH": "Match Sides",
     "TF": "True/False",
     "ORAL": "Oral Test"
+  },
+  "CONTENT": {
+    "CREATE_BTN": "Create Content",
+    "CREATE_TITLE": "Create New Content",
+    "EDIT_TITLE": "Edit Content",
+    "NAME": "Content Name",
+    "EMPTY": "No contents found.",
+    "CHAPTER": "Chapter",
+    "SELECT_CHAPTER": "Select Chapter",
+    "SORT_ORDER": "Sort Order",
+    "TEXT_CONTENT": "Text Content",
+    "ATTACHMENTS": "Attachments",
+    "UPLOAD_IMAGE": "Upload Image",
+    "UPLOAD_VIDEO": "Upload Video",
+    "UPLOAD_PDF": "Upload PDF",
+    "UPLOAD_DOC": "Upload DOC (Word)",
+    "UPLOAD_XLSX": "Upload XLSX (Excel)",
+    "UPLOAD_PPT": "Upload PPT (PowerPoint)",
+    "EXTERNAL_URL": "External URL"
   }
 }
