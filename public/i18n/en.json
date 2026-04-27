@@ -12,7 +12,8 @@
     "SUB_CHAPTERS": "Sub-Chapters",
     "ASSESSMENTS": "Assessments",
     "LANGUAGE": "Language",
-    "LEARNING_MODE": "Learning Mode"
+    "LEARNING_MODE": "Learning Mode",
+    "ADMIN_SECTION": "Administration"
   },
   "LEARNING_MODE": {
     "CREATE_BTN": "Create Learning Mode",

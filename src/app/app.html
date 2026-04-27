@@ -54,51 +54,52 @@
       </div>
     </div>
 
-    <hr class="my-2 mx-3 border-white opacity-100">
+    <hr class="my-2 mx-3 border-white opacity-25">
 
     <!-- Main Scrollable Navigation Area -->
-    <div class="flex-grow-1 overflow-y-auto p-3 custom-scrollbar">
-      <div class="d-flex flex-column gap-2">
-        <a routerLink="/learning-modes" routerLinkActive="active" (click)="closeSidebar()"
-          class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
-          <i class="bi bi-book"></i>
-          <span>{{ 'SIDEBAR.LEARNING_MODE' | translate }}</span>
-        </a>
-        <a routerLink="/courses" routerLinkActive="active" (click)="closeSidebar()"
-          class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
-          <i class="bi bi-journal-bookmark"></i>
-          <span>{{ 'SIDEBAR.COURSES' | translate }}</span>
-        </a>
-        <a routerLink="/levels" routerLinkActive="active" (click)="closeSidebar()"
-          class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
-          <i class="bi bi-layers"></i>
-          <span>{{ 'SIDEBAR.LEVELS' | translate }}</span>
-        </a>
-        <a routerLink="/course-package-levels" routerLinkActive="active" (click)="closeSidebar()"
-          class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
-          <i class="bi bi-diagram-3"></i>
-          <span>{{ 'SIDEBAR.MAPPING' | translate }}</span>
-        </a>
-        <a routerLink="/chapters" routerLinkActive="active" (click)="closeSidebar()"
-          class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
-          <i class="bi bi-journal-text"></i>
-          <span>{{ 'SIDEBAR.CHAPTERS' | translate }}</span>
-        </a>
-        <a routerLink="/contents" routerLinkActive="active" (click)="closeSidebar()"
-          class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
-          <i class="bi bi-file-earmark-text"></i>
-          <span>{{ 'SIDEBAR.CONTENTS' | translate }}</span>
-        </a>
-        <a routerLink="/assessments" routerLinkActive="active" (click)="closeSidebar()"
-          class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
-          <i class="bi bi-check2-square"></i>
-          <span>{{ 'SIDEBAR.ASSESSMENTS' | translate }}</span>
-        </a>
-      </div>
-    </div>
+    <nav class="flex-grow-1 overflow-y-auto custom-scrollbar p-3 d-flex flex-column gap-2">
+      <a routerLink="/learning-modes" routerLinkActive="active" (click)="closeSidebar()"
+        class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
+        <i class="bi bi-book"></i>
+        <span>{{ 'SIDEBAR.LEARNING_MODE' | translate }}</span>
+      </a>
+      <a routerLink="/courses" routerLinkActive="active" (click)="closeSidebar()"
+        class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
+        <i class="bi bi-journal-bookmark"></i>
+        <span>{{ 'SIDEBAR.COURSES' | translate }}</span>
+      </a>
+      <a routerLink="/levels" routerLinkActive="active" (click)="closeSidebar()"
+        class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
+        <i class="bi bi-layers"></i>
+        <span>{{ 'SIDEBAR.LEVELS' | translate }}</span>
+      </a>
+      <a routerLink="/course-package-levels" routerLinkActive="active" (click)="closeSidebar()"
+        class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
+        <i class="bi bi-diagram-3"></i>
+        <span>{{ 'SIDEBAR.MAPPING' | translate }}</span>
+      </a>
+      <a routerLink="/chapters" routerLinkActive="active" (click)="closeSidebar()"
+        class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
+        <i class="bi bi-journal-text"></i>
+        <span>{{ 'SIDEBAR.CHAPTERS' | translate }}</span>
+      </a>
+      <a routerLink="/contents" routerLinkActive="active" (click)="closeSidebar()"
+        class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
+        <i class="bi bi-file-earmark-text"></i>
+        <span>{{ 'SIDEBAR.CONTENTS' | translate }}</span>
+      </a>
+      <a routerLink="/assessments" routerLinkActive="active" (click)="closeSidebar()"
+        class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
+        <i class="bi bi-check2-square"></i>
+        <span>{{ 'SIDEBAR.ASSESSMENTS' | translate }}</span>
+      </a>
 
-    <!-- Pinned Bottom Section -->
-    <div class="mt-auto p-3 border-top border-secondary border-opacity-25 d-flex flex-column gap-2">
+      <!-- Admin Section -->
+      <div class="mt-4 mb-2 px-3 small text-uppercase fw-bold text-secondary opacity-50"
+        style="font-size: 0.65rem; letter-spacing: 0.05em;">
+        {{ 'SIDEBAR.ADMIN_SECTION' | translate }}
+      </div>
+
       <a routerLink="/tenants" routerLinkActive="active" (click)="closeSidebar()"
         class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-secondary transition-all w-100">
         <i class="bi bi-people"></i>
@@ -114,7 +115,7 @@
         <i class="bi bi-box-seam"></i>
         <span>{{ 'SIDEBAR.PACKAGES' | translate }}</span>
       </a>
-    </div>
+    </nav>
   </aside>
   <!-- Content Area -->
   <main class="main-content flex-grow-1 bg-light min-vh-100">
