@@ -136,6 +136,20 @@ export class Property implements OnInit {
     this.packagesFormArray.removeAt(index);
   }
 
+  onCourseChange(index: number) {
+    const row = this.packagesFormArray.at(index);
+    row.get('package_id')?.setValue('');
+  }
+
+  getFilteredPackages(index: number): PackageData[] {
+    const courseId = this.packagesFormArray.at(index).get('course_id')?.value;
+    if (!courseId) return [];
+    
+    return this.availablePackages().filter(pkg => 
+      pkg.courses?.some(c => c.id === Number(courseId))
+    );
+  }
+
   dateRangeValidator(group: FormGroup): any {
     const start = group.get('start_date')?.value;
     const end = group.get('end_date')?.value;

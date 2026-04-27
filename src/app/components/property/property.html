@@ -178,7 +178,7 @@
                 <div class="row g-3">
                   <div class="col-md-4">
                     <label class="form-label small fw-bold text-secondary">{{ 'COURSE.TITLE' | translate }}</label>
-                    <select formControlName="course_id" class="form-select border-light shadow-none cursor-pointer">
+                    <select formControlName="course_id" class="form-select border-light shadow-none cursor-pointer" (change)="onCourseChange(i)">
                       <option value="">Select Course</option>
                       @for (course of courses(); track course.id) {
                       <option [value]="course.id">{{ course.name }}</option>
@@ -187,9 +187,9 @@
                   </div>
                   <div class="col-md-4">
                     <label class="form-label small fw-bold text-secondary">{{ 'PACKAGE.TITLE' | translate }}</label>
-                    <select formControlName="package_id" class="form-select border-light shadow-none cursor-pointer">
-                      <option value="">Select Package</option>
-                      @for (pkg of availablePackages(); track pkg.id) {
+                    <select formControlName="package_id" class="form-select border-light shadow-none cursor-pointer" [disabled]="!row.get('course_id')?.value">
+                      <option value="">{{ row.get('course_id')?.value ? 'Select Package' : 'First Select Course' }}</option>
+                      @for (pkg of getFilteredPackages(i); track pkg.id) {
                       <option [value]="pkg.id">{{ pkg.name }}</option>
                       }
                     </select>

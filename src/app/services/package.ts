@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { CourseData } from './course';
 
 export interface PackageData {
   id?: number;
@@ -8,6 +9,7 @@ export interface PackageData {
   code: string;
   description: string;
   is_active: boolean;
+  courses?: CourseData[];
   created_at?: string;
   updated_at?: string;
 }
