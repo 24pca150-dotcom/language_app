@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, HostListener, computed } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ContentService, ContentData } from '../../services/content';
@@ -10,7 +10,7 @@ import {
   McvTextArea,
   McvToggleField
 } from 'mcv-ui-toolkit';
-
+import { QuillModule } from 'ngx-quill';
 @Component({
   selector: 'app-content',
   standalone: true,
@@ -18,9 +18,9 @@ import {
     CommonModule,
     ReactiveFormsModule,
     McvInputField,
-    McvTextArea,
     McvToggleField,
-    TranslateModule
+    TranslateModule,
+    QuillModule
   ],
   templateUrl: './content.html',
   styleUrls: ['./content.css'],
@@ -30,15 +30,17 @@ export class Content implements OnInit {
   private contentService = inject(ContentService);
   private chapterService = inject(ChapterService);
 
+
+
   contentForm: FormGroup;
   contents = signal<ContentData[]>([]);
   chapters = signal<ChapterData[]>([]);
-  
+
   isEditMode = signal(false);
   isFormVisible = signal(false);
   currentContentId = signal<number | null>(null);
   feedbackMessage = signal<{ type: 'success' | 'error', text: string } | null>(null);
-  
+
   chapterSearchQuery = signal('');
   isChapterDropdownOpen = signal(false);
   selectedChapterIds = signal<number[]>([]);
@@ -46,8 +48,8 @@ export class Content implements OnInit {
   filteredChapters = computed(() => {
     const query = this.chapterSearchQuery().toLowerCase().trim();
     if (!query) return this.chapters();
-    return this.chapters().filter(c => 
-      c.name.toLowerCase().includes(query) || 
+    return this.chapters().filter(c =>
+      c.name.toLowerCase().includes(query) ||
       c.code.toLowerCase().includes(query)
     );
   });
@@ -63,14 +65,7 @@ export class Content implements OnInit {
   }
 
   // File states
-  selectedFiles: { [key: string]: File | null } = {
-    image: null,
-    video: null,
-    pdf: null,
-    doc: null,
-    xlsx: null,
-    ppt: null
-  };
+  uploadedFiles = signal<{file: File, url: string, name: string}[]>([]);
 
   constructor() {
     this.contentForm = this.fb.group({
@@ -78,8 +73,25 @@ export class Content implements OnInit {
       sort_order: [0],
       is_active: [true],
       text_content: [''],
-      external_url: ['']
+      urls: this.fb.array([this.fb.control('')])
     });
+  }
+
+  get urlControls() {
+    return (this.contentForm.get('urls') as FormArray).controls;
+  }
+
+  addUrlField() {
+    (this.contentForm.get('urls') as FormArray).push(this.fb.control(''));
+  }
+
+  removeUrlField(index: number) {
+    const urls = this.contentForm.get('urls') as FormArray;
+    if (urls.length > 1) {
+      urls.removeAt(index);
+    } else {
+      urls.at(0).setValue('');
+    }
   }
 
   ngOnInit(): void {
@@ -108,11 +120,30 @@ export class Content implements OnInit {
     this.isFormVisible.set(true);
   }
 
-  onFileChange(event: any, type: string): void {
-    const file = event.target.files[0];
-    if (file) {
-      this.selectedFiles[type] = file;
+  onMultipleFileChange(event: any): void {
+    const files = event.target.files as FileList;
+    if (files && files.length > 0) {
+      const newFiles = Array.from(files).map(file => ({
+        file,
+        url: URL.createObjectURL(file),
+        name: file.name
+      }));
+      this.uploadedFiles.update(curr => [...curr, ...newFiles]);
     }
+    event.target.value = '';
+  }
+
+  removeFile(index: number): void {
+    this.uploadedFiles.update(curr => {
+      const updated = [...curr];
+      URL.revokeObjectURL(updated[index].url);
+      updated.splice(index, 1);
+      return updated;
+    });
+  }
+
+  viewFile(url: string): void {
+    window.open(url, '_blank');
   }
 
   onSubmit(): void {
@@ -122,11 +153,11 @@ export class Content implements OnInit {
       return;
     }
 
-    const contentData = { 
+    const contentData = {
       ...this.contentForm.value,
       chapter_ids: this.selectedChapterIds()
     };
-    
+
     // In a real app, you'd upload files first then send URLs
     // For now, let's assume we send them or the service handles it.
     // If I had file upload endpoints, I'd call them here.
@@ -163,8 +194,14 @@ export class Content implements OnInit {
       sort_order: content.sort_order,
       is_active: content.is_active,
       text_content: content.text_content,
-      external_url: content.external_url
     });
+    
+    // Patch URLs
+    const urlArray = this.contentForm.get('urls') as FormArray;
+    urlArray.clear();
+    const urls = (content as any).urls || (content.external_url ? [content.external_url] : ['']);
+    urls.forEach((url: string) => urlArray.push(this.fb.control(url)));
+
     this.selectedChapterIds.set((content as any).chapters ? (content as any).chapters.map((c: any) => c.id) : []);
     this.isFormVisible.set(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -184,15 +221,16 @@ export class Content implements OnInit {
 
   resetForm(): void {
     this.contentForm.reset({ is_active: true, sort_order: 0 });
+    const urlArray = this.contentForm.get('urls') as FormArray;
+    urlArray.clear();
+    urlArray.push(this.fb.control(''));
+    
     this.selectedChapterIds.set([]);
-    this.selectedFiles = {
-      image: null,
-      video: null,
-      pdf: null,
-      doc: null,
-      xlsx: null,
-      ppt: null
-    };
+    
+    // Revoke object URLs to free memory
+    this.uploadedFiles().forEach(f => URL.revokeObjectURL(f.url));
+    this.uploadedFiles.set([]);
+    
     this.isEditMode.set(false);
     this.currentContentId.set(null);
   }
