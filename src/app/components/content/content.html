@@ -48,6 +48,11 @@
             <td class="px-4 py-3 text-end">
               <div class="d-flex justify-content-end gap-2">
                 <button
+                  class="btn btn-light btn-sm rounded-3 p-2 shadow-none border-0 text-info bg-info bg-opacity-10 hover-bg-info hover-text-white transition-all"
+                  (click)="showPreview(content)" [title]="'COMMON.PREVIEW' | translate">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button
                   class="btn btn-light btn-sm rounded-3 p-2 shadow-none border-0 text-primary bg-primary bg-opacity-10 hover-bg-primary hover-text-white transition-all"
                   (click)="editContent(content)" [title]="'COMMON.EDIT' | translate">
                   <i class="bi bi-pencil-square"></i>
@@ -107,7 +112,7 @@
 
           <div class="col-12">
             <label class="form-label small text-secondary fw-semibold">{{ 'CONTENT.TEXT_CONTENT' | translate }}</label>
-            <quill-editor formControlName="text_content" [styles]="{height: '500px'}"></quill-editor>
+            <editor formControlName="text_content" [init]="editorConfig"></editor>
           </div>
 
           <!-- Attachments Section -->
@@ -286,4 +291,37 @@
   </div>
   }
 
-</div>
+  <!-- Preview Modal -->
+  @if (previewContent(); as content) {
+  <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5); z-index: 1060;">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="modal-header bg-white border-bottom border-light px-4 py-3">
+          <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2">
+            <i class="bi bi-eye text-primary"></i>
+            {{ content.name }}
+          </h5>
+          <button type="button" class="btn-close shadow-none" (click)="closePreview()"></button>
+        </div>
+        <div class="modal-body p-4 p-lg-5 bg-white">
+          <div class="content-render" [innerHTML]="content.text_content | safeHtml"></div>
+          
+          @if (content.external_url) {
+            <div class="mt-4 p-3 bg-light rounded-3 border border-light">
+              <h6 class="fw-bold text-dark small mb-2">Reference URL:</h6>
+              <a [href]="content.external_url" target="_blank" class="text-primary text-decoration-none small d-flex align-items-center gap-2">
+                <i class="bi bi-link-45deg"></i>
+                {{ content.external_url }}
+              </a>
+            </div>
+          }
+        </div>
+        <div class="modal-footer bg-light border-0 px-4 py-3">
+          <button type="button" class="btn btn-secondary px-4 py-2 fw-semibold rounded-3" (click)="closePreview()">Close Preview</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+</div>

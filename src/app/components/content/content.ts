@@ -1,7 +1,21 @@
-import { Component, OnInit, inject, signal, HostListener, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, HostListener, computed, Pipe, PipeTransform } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { DomSanitizer } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+
+@Pipe({
+  name: 'safeHtml',
+  standalone: true
+})
+export class SafeHtmlPipe implements PipeTransform {
+  private sanitizer = inject(DomSanitizer);
+  transform(value: any) {
+    return this.sanitizer.bypassSecurityTrustHtml(value);
+  }
+}
+
+
 import { ContentService, ContentData } from '../../services/content';
 import { ChapterService, ChapterData } from '../../services/chapter';
 
@@ -10,7 +24,7 @@ import {
   McvTextArea,
   McvToggleField
 } from 'mcv-ui-toolkit';
-import { QuillModule } from 'ngx-quill';
+import { EditorModule } from '@tinymce/tinymce-angular';
 @Component({
   selector: 'app-content',
   standalone: true,
@@ -20,7 +34,8 @@ import { QuillModule } from 'ngx-quill';
     McvInputField,
     McvToggleField,
     TranslateModule,
-    QuillModule
+    EditorModule,
+    SafeHtmlPipe
   ],
   templateUrl: './content.html',
   styleUrls: ['./content.css'],
@@ -40,6 +55,27 @@ export class Content implements OnInit {
   isFormVisible = signal(false);
   currentContentId = signal<number | null>(null);
   feedbackMessage = signal<{ type: 'success' | 'error', text: string } | null>(null);
+  previewContent = signal<ContentData | null>(null);
+
+  editorConfig = {
+    base_url: '/tinymce',
+    suffix: '.min',
+    height: 500,
+    menubar: 'file edit view insert format tools table help',
+    plugins: [
+      'advlist autolink lists link image charmap print preview anchor',
+      'searchreplace visualblocks code fullscreen',
+      'insertdatetime media table paste code help wordcount'
+    ],
+    toolbar:
+      'undo redo | formatselect | bold italic backcolor | ' +
+      'alignleft aligncenter alignright alignjustify | ' +
+      'bullist numlist outdent indent | removeformat | help',
+    skin: 'oxide',
+    content_css: 'default'
+  };
+
+
 
   chapterSearchQuery = signal('');
   isChapterDropdownOpen = signal(false);
@@ -234,6 +270,15 @@ export class Content implements OnInit {
     this.isEditMode.set(false);
     this.currentContentId.set(null);
   }
+
+  showPreview(content: ContentData): void {
+    this.previewContent.set(content);
+  }
+
+  closePreview(): void {
+    this.previewContent.set(null);
+  }
+
 
   cancelForm(): void {
     this.resetForm();
