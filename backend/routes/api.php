@@ -24,6 +24,7 @@ Route::apiResource('properties', PropertyController::class);
 Route::apiResource('courses', CourseController::class);
 Route::apiResource('levels', LevelController::class);
 Route::apiResource('chapters', ChapterController::class);
+Route::post('contents/upload', [ContentController::class, 'upload']);
 Route::apiResource('contents', ContentController::class);
 Route::apiResource('assessments', AssessmentController::class);
 Route::apiResource('learning-modes', LearningModeController::class);

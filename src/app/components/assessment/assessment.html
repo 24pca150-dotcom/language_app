@@ -149,7 +149,8 @@
           </div>
 
           <div class="col-12">
-            <mcv-text-area [label]="'ASSESSMENT.PRELUDE' | translate" formControlName="prelude_content" [rows]="3" [placeholder]="'ASSESSMENT.PRELUDE_HINT' | translate"></mcv-text-area>
+            <label class="form-label small fw-bold text-secondary">{{ 'ASSESSMENT.PRELUDE' | translate }}</label>
+            <editor formControlName="prelude_content" [init]="editorConfig"></editor>
           </div>
 
           <div class="col-12">
@@ -192,7 +193,8 @@
 
                 <div class="row g-4">
                   <div class="col-md-8">
-                    <mcv-text-area [label]="''" formControlName="question_text" [rows]="2" [required]="true"></mcv-text-area>
+                    <label class="form-label small fw-bold text-secondary">{{ 'ASSESSMENT.QUESTION_TEXT' | translate }}</label>
+                    <editor formControlName="question_text" [init]="{ ...editorConfig, height: 200 }"></editor>
                   </div>
                   <div class="col-md-4">
                     <label class="form-label small fw-bold text-secondary">{{ 'ASSESSMENT.QUESTION_TYPE' | translate }}</label>

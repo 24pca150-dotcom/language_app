@@ -120,7 +120,8 @@
           </div>
 
           <div class="col-12">
-            <mcv-text-area [label]="'COMMON.DESCRIPTION' | translate" formControlName="description" [rows]="3" placeholder="Chapter details..."></mcv-text-area>
+            <label class="form-label small fw-bold text-secondary">{{ 'COMMON.DESCRIPTION' | translate }}</label>
+            <editor formControlName="description" [init]="editorConfig"></editor>
           </div>
 
           <!-- Chapter Level Mapping Section -->

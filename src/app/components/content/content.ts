@@ -21,10 +21,9 @@ import { ChapterService, ChapterData } from '../../services/chapter';
 
 import {
   McvInputField,
-  McvTextArea,
   McvToggleField
 } from 'mcv-ui-toolkit';
-import { EditorModule } from '@tinymce/tinymce-angular';
+import { EditorComponent } from '@tinymce/tinymce-angular';
 @Component({
   selector: 'app-content',
   standalone: true,
@@ -34,7 +33,7 @@ import { EditorModule } from '@tinymce/tinymce-angular';
     McvInputField,
     McvToggleField,
     TranslateModule,
-    EditorModule,
+    EditorComponent,
     SafeHtmlPipe
   ],
   templateUrl: './content.html',

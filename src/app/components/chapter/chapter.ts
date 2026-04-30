@@ -8,10 +8,9 @@ import { LevelChapterService } from '../../services/level-chapter';
 
 import {
   McvInputField,
-  McvTextArea,
   McvToggleField
 } from 'mcv-ui-toolkit';
-
+import { EditorComponent } from '@tinymce/tinymce-angular';
 @Component({
   selector: 'app-chapter',
   standalone: true,
@@ -19,9 +18,9 @@ import {
     CommonModule,
     ReactiveFormsModule,
     McvInputField,
-    McvTextArea,
     McvToggleField,
-    TranslateModule
+    TranslateModule,
+    EditorComponent
   ],
   templateUrl: './chapter.html',
   styleUrls: ['./chapter.css'],
@@ -43,6 +42,25 @@ export class Chapter implements OnInit {
   currentChapterId = signal<number | null>(null);
   feedbackMessage = signal<{ type: 'success' | 'error', text: string } | null>(null);
   levelSearchQuery = signal('');
+
+  editorConfig = {
+    base_url: '/tinymce',
+    suffix: '.min',
+    height: 300,
+    menubar: 'file edit view insert format tools table help',
+    plugins: [
+      'advlist autolink lists link image charmap print preview anchor',
+      'searchreplace visualblocks code fullscreen',
+      'insertdatetime media table paste code help wordcount'
+    ],
+    toolbar:
+      'undo redo | formatselect | bold italic backcolor | ' +
+      'alignleft aligncenter alignright alignjustify | ' +
+      'bullist numlist outdent indent | removeformat | help',
+    skin: 'oxide',
+    content_css: 'default'
+  };
+
 
   filteredLevels = computed(() => {
     const query = this.levelSearchQuery().toLowerCase().trim();

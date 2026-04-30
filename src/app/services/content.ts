@@ -6,6 +6,7 @@ export interface ContentData {
   id?: number;
   name: string;
   chapters?: any[];
+  urls?: string[];           // decoded array from backend (appended attribute)
   sort_order?: number;
   is_active: boolean;
   text_content?: string;
@@ -15,7 +16,7 @@ export interface ContentData {
   doc_url?: string;
   xlsx_url?: string;
   ppt_url?: string;
-  external_url?: string;
+  external_url?: string | string[];
   created_at?: string;
   updated_at?: string;
 }
@@ -51,9 +52,11 @@ export class ContentService {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
-  uploadFile(file: File): Observable<{ url: string }> {
+  uploadFile(file: File): Observable<{ url: string; name: string; extension: string; type: string }> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<{ url: string }>(`${this.apiUrl}/upload`, formData);
+    return this.http.post<{ url: string; name: string; extension: string; type: string }>(
+      `${this.apiUrl}/upload`, formData
+    );
   }
 }
