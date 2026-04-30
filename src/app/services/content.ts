@@ -16,6 +16,12 @@ export interface ContentData {
   doc_url?: string;
   xlsx_url?: string;
   ppt_url?: string;
+  image_list?: any[];
+  video_list?: any[];
+  pdf_list?: any[];
+  doc_list?: any[];
+  xlsx_list?: any[];
+  ppt_list?: any[];
   external_url?: string | string[];
   created_at?: string;
   updated_at?: string;

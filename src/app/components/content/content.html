@@ -304,15 +304,61 @@
           <button type="button" class="btn-close shadow-none" (click)="closePreview()"></button>
         </div>
         <div class="modal-body p-4 p-lg-5 bg-white">
-          <div class="content-render" [innerHTML]="content.text_content | safeHtml"></div>
+          <div class="content-render mb-4" [innerHTML]="content.text_content | safeHtml"></div>
           
-          @if (content.external_url) {
-            <div class="mt-4 p-3 bg-light rounded-3 border border-light">
-              <h6 class="fw-bold text-dark small mb-2">Reference URL:</h6>
-              <a [href]="content.external_url" target="_blank" class="text-primary text-decoration-none small d-flex align-items-center gap-2">
-                <i class="bi bi-link-45deg"></i>
-                {{ content.external_url }}
-              </a>
+          <!-- Attachments Preview -->
+          @if ((content.pdf_list?.length || 0) > 0 || (content.doc_list?.length || 0) > 0 || (content.image_list?.length || 0) > 0 || (content.video_list?.length || 0) > 0) {
+            <div class="mt-5 pt-4 border-top">
+              <h6 class="fw-bold text-dark mb-3">Attachments</h6>
+              <div class="row g-3">
+                @for (pdf of content.pdf_list; track pdf.url) {
+                  <div class="col-md-4">
+                    <a [href]="pdf.url" target="_blank" class="text-decoration-none">
+                      <div class="d-flex align-items-center p-2 border rounded-3 bg-light hover-bg-white transition-all">
+                        <i class="bi bi-file-pdf text-danger fs-4 me-2"></i>
+                        <span class="text-dark small text-truncate">{{ pdf.name }}</span>
+                      </div>
+                    </a>
+                  </div>
+                }
+                @for (doc of content.doc_list; track doc.url) {
+                  <div class="col-md-4">
+                    <a [href]="doc.url" target="_blank" class="text-decoration-none">
+                      <div class="d-flex align-items-center p-2 border rounded-3 bg-light hover-bg-white transition-all">
+                        <i class="bi bi-file-word text-primary fs-4 me-2"></i>
+                        <span class="text-dark small text-truncate">{{ doc.name }}</span>
+                      </div>
+                    </a>
+                  </div>
+                }
+                @for (img of content.image_list; track img.url) {
+                  <div class="col-md-4">
+                    <a [href]="img.url" target="_blank" class="text-decoration-none">
+                      <div class="d-flex align-items-center p-2 border rounded-3 bg-light hover-bg-white transition-all">
+                        <i class="bi bi-image text-success fs-4 me-2"></i>
+                        <span class="text-dark small text-truncate">{{ img.name }}</span>
+                      </div>
+                    </a>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- External URLs Preview -->
+          @if (content.urls && content.urls.length > 0) {
+            <div class="mt-4 p-3 bg-light rounded-4 border border-light">
+              <h6 class="fw-bold text-dark small mb-2">Reference URLs:</h6>
+              <div class="d-flex flex-column gap-2">
+                @for (url of content.urls; track url) {
+                  @if (url) {
+                    <a [href]="url" target="_blank" class="text-primary text-decoration-none small d-flex align-items-center gap-2 hover-underline">
+                      <i class="bi bi-link-45deg fs-5"></i>
+                      <span class="text-truncate">{{ url }}</span>
+                    </a>
+                  }
+                }
+              </div>
             </div>
           }
         </div>

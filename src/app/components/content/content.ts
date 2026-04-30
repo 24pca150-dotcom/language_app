@@ -3,6 +3,8 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } fr
 import { DomSanitizer } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Pipe({
   name: 'safeHtml',
@@ -188,14 +190,64 @@ export class Content implements OnInit {
       return;
     }
 
+    const filesToUpload = this.uploadedFiles();
+    
+    if (filesToUpload.length > 0) {
+      this.showFeedback('success', 'Uploading files...');
+      const uploadObservables = filesToUpload.map(f => 
+        this.contentService.uploadFile(f.file).pipe(
+          catchError(err => {
+            console.error('Upload failed for', f.name, err);
+            return of(null);
+          })
+        )
+      );
+
+      forkJoin(uploadObservables).subscribe(results => {
+        const uploadedData: any = {
+          image: [],
+          video: [],
+          pdf: [],
+          doc: [],
+          xlsx: [],
+          ppt: []
+        };
+
+        const typeMap: any = {
+          'images': 'image',
+          'videos': 'video',
+          'pdfs': 'pdf',
+          'docs': 'doc',
+          'xlsx': 'xlsx',
+          'ppts': 'ppt'
+        };
+
+        results.forEach(res => {
+          if (res) {
+            const field = typeMap[res.type];
+            if (field && uploadedData[field]) {
+              uploadedData[field].push({
+                url: res.url,
+                name: res.name,
+                extension: res.extension
+              });
+            }
+          }
+        });
+
+        this.saveContent(uploadedData);
+      });
+    } else {
+      this.saveContent({});
+    }
+  }
+
+  private saveContent(fileData: any): void {
     const contentData = {
       ...this.contentForm.value,
+      ...fileData,
       chapter_ids: this.selectedChapterIds()
     };
-
-    // In a real app, you'd upload files first then send URLs
-    // For now, let's assume we send them or the service handles it.
-    // If I had file upload endpoints, I'd call them here.
 
     if (this.isEditMode()) {
       const id = this.currentContentId();
@@ -205,6 +257,7 @@ export class Content implements OnInit {
             this.showFeedback('success', 'Content updated successfully');
             this.isFormVisible.set(false);
             this.loadContents();
+            this.resetForm();
           },
           error: (err) => this.showFeedback('error', err.error?.message || 'Failed to update content'),
         });
@@ -215,6 +268,7 @@ export class Content implements OnInit {
           this.showFeedback('success', 'Content created successfully');
           this.isFormVisible.set(false);
           this.loadContents();
+          this.resetForm();
         },
         error: (err) => this.showFeedback('error', err.error?.message || 'Failed to create content'),
       });
