@@ -131,14 +131,46 @@
               </div>
             </div>
 
-            <!-- Uploaded Files List -->
-            @if (uploadedFiles().length > 0) {
+            <!-- Uploaded & Existing Files List -->
+            @if (uploadedFiles().length > 0 || existingFiles().length > 0) {
               <div class="row g-3 mt-2">
+                <!-- Existing Files -->
+                @for (file of existingFiles(); track file.url; let i = $index) {
+                  <div class="col-md-6 col-lg-4">
+                    <div class="d-flex align-items-center p-3 bg-white border rounded-4 shadow-sm h-100 transition-all hover-scale" style="border-color: #f1f5f9 !important;">
+                      <div class="bg-success bg-opacity-10 text-success rounded-3 d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 45px; height: 45px;">
+                        @switch (file.type) {
+                          @case ('image') { <i class="bi bi-image fs-5"></i> }
+                          @case ('video') { <i class="bi bi-play-circle fs-5"></i> }
+                          @case ('pdf') { <i class="bi bi-file-pdf fs-5"></i> }
+                          @case ('doc') { <i class="bi bi-file-word fs-5"></i> }
+                          @case ('xlsx') { <i class="bi bi-file-excel fs-5"></i> }
+                          @case ('ppt') { <i class="bi bi-file-ppt fs-5"></i> }
+                          @default { <i class="bi bi-file-earmark-text fs-5"></i> }
+                        }
+                      </div>
+                      <div class="flex-grow-1 text-truncate pe-2">
+                        <div class="text-dark fw-bold small text-truncate mb-1">{{ file.name }}</div>
+                        <div class="text-success text-truncate" style="font-size: 0.7rem;">Saved</div>
+                      </div>
+                      <div class="d-flex gap-1 flex-shrink-0 ms-auto">
+                        <button type="button" class="btn btn-sm btn-light text-secondary hover-text-primary p-2 rounded-circle border-0 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" (click)="viewFile(file.url)" title="View File">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-light text-danger hover-text-danger p-2 rounded-circle border-0 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" (click)="removeExistingFile(i)" title="Remove File">
+                          <i class="bi bi-trash3"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                }
+
+                <!-- New Uploads -->
                 @for (file of uploadedFiles(); track file.name; let i = $index) {
                   <div class="col-md-6 col-lg-4">
                     <div class="d-flex align-items-center p-3 bg-white border rounded-4 shadow-sm h-100 transition-all hover-scale" style="border-color: #f1f5f9 !important;">
                       <div class="bg-primary bg-opacity-10 text-primary rounded-3 d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 45px; height: 45px;">
-                        <i class="bi bi-file-earmark-text fs-5"></i>
+                        <i class="bi bi-cloud-arrow-up fs-5"></i>
                       </div>
                       <div class="flex-grow-1 text-truncate pe-2">
                         <div class="text-dark fw-bold small text-truncate mb-1">{{ file.name }}</div>
@@ -307,10 +339,30 @@
           <div class="content-render mb-4" [innerHTML]="content.text_content | safeHtml"></div>
           
           <!-- Attachments Preview -->
-          @if ((content.pdf_list?.length || 0) > 0 || (content.doc_list?.length || 0) > 0 || (content.image_list?.length || 0) > 0 || (content.video_list?.length || 0) > 0) {
+          @if ((content.pdf_list?.length || 0) > 0 || (content.doc_list?.length || 0) > 0 || (content.image_list?.length || 0) > 0 || (content.video_list?.length || 0) > 0 || (content.xlsx_list?.length || 0) > 0 || (content.ppt_list?.length || 0) > 0) {
             <div class="mt-5 pt-4 border-top">
               <h6 class="fw-bold text-dark mb-3">Attachments</h6>
               <div class="row g-3">
+                @for (img of content.image_list; track img.url) {
+                  <div class="col-md-4">
+                    <a [href]="img.url" target="_blank" class="text-decoration-none">
+                      <div class="d-flex align-items-center p-2 border rounded-3 bg-light hover-bg-white transition-all">
+                        <i class="bi bi-image text-success fs-4 me-2"></i>
+                        <span class="text-dark small text-truncate">{{ img.name }}</span>
+                      </div>
+                    </a>
+                  </div>
+                }
+                @for (video of content.video_list; track video.url) {
+                  <div class="col-md-4">
+                    <a [href]="video.url" target="_blank" class="text-decoration-none">
+                      <div class="d-flex align-items-center p-2 border rounded-3 bg-light hover-bg-white transition-all">
+                        <i class="bi bi-play-circle text-info fs-4 me-2"></i>
+                        <span class="text-dark small text-truncate">{{ video.name }}</span>
+                      </div>
+                    </a>
+                  </div>
+                }
                 @for (pdf of content.pdf_list; track pdf.url) {
                   <div class="col-md-4">
                     <a [href]="pdf.url" target="_blank" class="text-decoration-none">
@@ -331,12 +383,22 @@
                     </a>
                   </div>
                 }
-                @for (img of content.image_list; track img.url) {
+                @for (xlsx of content.xlsx_list; track xlsx.url) {
                   <div class="col-md-4">
-                    <a [href]="img.url" target="_blank" class="text-decoration-none">
+                    <a [href]="xlsx.url" target="_blank" class="text-decoration-none">
                       <div class="d-flex align-items-center p-2 border rounded-3 bg-light hover-bg-white transition-all">
-                        <i class="bi bi-image text-success fs-4 me-2"></i>
-                        <span class="text-dark small text-truncate">{{ img.name }}</span>
+                        <i class="bi bi-file-excel text-success fs-4 me-2"></i>
+                        <span class="text-dark small text-truncate">{{ xlsx.name }}</span>
+                      </div>
+                    </a>
+                  </div>
+                }
+                @for (ppt of content.ppt_list; track ppt.url) {
+                  <div class="col-md-4">
+                    <a [href]="ppt.url" target="_blank" class="text-decoration-none">
+                      <div class="d-flex align-items-center p-2 border rounded-3 bg-light hover-bg-white transition-all">
+                        <i class="bi bi-file-ppt text-warning fs-4 me-2"></i>
+                        <span class="text-dark small text-truncate">{{ ppt.name }}</span>
                       </div>
                     </a>
                   </div>

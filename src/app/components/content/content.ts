@@ -103,6 +103,7 @@ export class Content implements OnInit {
 
   // File states
   uploadedFiles = signal<{file: File, url: string, name: string}[]>([]);
+  existingFiles = signal<{url: string, name: string, type: string}[]>([]);
 
   constructor() {
     this.contentForm = this.fb.group({
@@ -179,6 +180,14 @@ export class Content implements OnInit {
     });
   }
 
+  removeExistingFile(index: number): void {
+    this.existingFiles.update(curr => {
+      const updated = [...curr];
+      updated.splice(index, 1);
+      return updated;
+    });
+  }
+
   viewFile(url: string): void {
     window.open(url, '_blank');
   }
@@ -243,9 +252,33 @@ export class Content implements OnInit {
   }
 
   private saveContent(fileData: any): void {
+    // Collect all existing files by type
+    const finalFileData: any = { ...fileData };
+    
+    // Initialize collections for existing files if not already in finalFileData
+    const typeMap: any = {
+      'image': 'image',
+      'video': 'video',
+      'pdf': 'pdf',
+      'doc': 'doc',
+      'xlsx': 'xlsx',
+      'ppt': 'ppt'
+    };
+
+    // If we are in edit mode, we need to include remaining existing files
+    if (this.isEditMode()) {
+      this.existingFiles().forEach(file => {
+        const field = typeMap[file.type];
+        if (field) {
+          if (!finalFileData[field]) finalFileData[field] = [];
+          finalFileData[field].push(file);
+        }
+      });
+    }
+
     const contentData = {
       ...this.contentForm.value,
-      ...fileData,
+      ...finalFileData,
       chapter_ids: this.selectedChapterIds()
     };
 
@@ -291,6 +324,16 @@ export class Content implements OnInit {
     const urls = (content as any).urls || (content.external_url ? [content.external_url] : ['']);
     urls.forEach((url: string) => urlArray.push(this.fb.control(url)));
 
+    // Load existing files
+    const existing: {url: string, name: string, type: string}[] = [];
+    if (content.image_list) content.image_list.forEach(f => existing.push({ ...f, type: 'image' }));
+    if (content.video_list) content.video_list.forEach(f => existing.push({ ...f, type: 'video' }));
+    if (content.pdf_list) content.pdf_list.forEach(f => existing.push({ ...f, type: 'pdf' }));
+    if (content.doc_list) content.doc_list.forEach(f => existing.push({ ...f, type: 'doc' }));
+    if (content.xlsx_list) content.xlsx_list.forEach(f => existing.push({ ...f, type: 'xlsx' }));
+    if (content.ppt_list) content.ppt_list.forEach(f => existing.push({ ...f, type: 'ppt' }));
+    this.existingFiles.set(existing);
+
     this.selectedChapterIds.set((content as any).chapters ? (content as any).chapters.map((c: any) => c.id) : []);
     this.isFormVisible.set(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -319,6 +362,7 @@ export class Content implements OnInit {
     // Revoke object URLs to free memory
     this.uploadedFiles().forEach(f => URL.revokeObjectURL(f.url));
     this.uploadedFiles.set([]);
+    this.existingFiles.set([]);
     
     this.isEditMode.set(false);
     this.currentContentId.set(null);
