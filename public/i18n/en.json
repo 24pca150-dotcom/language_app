@@ -46,7 +46,9 @@
     "LOCATION": "Location",
     "SORT_ORDER": "Sort Order",
     "EST_HOURS": "Est. Hours",
-    "TITLE": "Title"
+    "TITLE": "Title",
+    "PREVIEW": "Preview",
+    "EXTERNAL_URL": "External URL"
   },
   "TENANT": {
     "CREATE_BTN": "Create Tenant",

@@ -2,6 +2,17 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface Attachment {
+  id?: number;
+  unique_id: string;
+  original_name: string;
+  alias_name: string;
+  file_size: string;
+  file_extension: string;
+  url?: string;
+  type?: string;
+}
+
 export interface ContentData {
   id?: number;
   name: string;
@@ -10,18 +21,7 @@ export interface ContentData {
   sort_order?: number;
   is_active: boolean;
   text_content?: string;
-  image_url?: string;
-  video_url?: string;
-  pdf_url?: string;
-  doc_url?: string;
-  xlsx_url?: string;
-  ppt_url?: string;
-  image_list?: any[];
-  video_list?: any[];
-  pdf_list?: any[];
-  doc_list?: any[];
-  xlsx_list?: any[];
-  ppt_list?: any[];
+  attachments?: Attachment[];
   external_url?: string | string[];
   created_at?: string;
   updated_at?: string;
@@ -58,10 +58,10 @@ export class ContentService {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
-  uploadFile(file: File): Observable<{ url: string; name: string; extension: string; type: string }> {
+  uploadFile(file: File): Observable<Attachment> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<{ url: string; name: string; extension: string; type: string }>(
+    return this.http.post<Attachment>(
       `${this.apiUrl}/upload`, formData
     );
   }

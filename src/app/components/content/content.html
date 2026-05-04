@@ -121,72 +121,67 @@
             
             <!-- Upload Area -->
             <div class="mb-4">
-              <div class="position-relative d-flex flex-column align-items-center justify-content-center p-5 text-center bg-light rounded-4 transition-all shadow-sm" style="border: 2px dashed #dee2e6 !important; cursor: pointer;">
-                <div class="bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                  <i class="bi bi-cloud-arrow-up text-primary fs-3"></i>
-                </div>
-                <h6 class="fw-bold text-dark mb-1">Click to browse or drag & drop files</h6>
-                <p class="text-secondary small mb-0">Supported formats: PDF, DOC, XLS, PPT, Images, Video (Max: 2MB)</p>
-                <input type="file" class="position-absolute top-0 start-0 w-100 h-100 opacity-0 cursor-pointer" multiple (change)="onMultipleFileChange($event)" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx">
+              <div class="position-relative d-flex flex-column align-items-center justify-content-center p-5 text-center bg-light rounded-4 transition-all shadow-sm" [class.opacity-50]="isUploading()" style="border: 2px dashed #dee2e6 !important; cursor: pointer;">
+                @if (isUploading()) {
+                  <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                  <h6 class="fw-bold text-dark mb-1">Uploading...</h6>
+                } @else {
+                  <div class="bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                    <i class="bi bi-cloud-arrow-up text-primary fs-3"></i>
+                  </div>
+                  <h6 class="fw-bold text-dark mb-1">Click to browse or drag & drop files</h6>
+                  <p class="text-secondary small mb-0">Only .docx, .xlsx, .pptx, .pdf, .txt; File Size less than 1 MB</p>
+                  <input type="file" class="position-absolute top-0 start-0 w-100 h-100 opacity-0 cursor-pointer" multiple (change)="onMultipleFileChange($event)" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt">
+                }
               </div>
             </div>
 
-            <!-- Uploaded & Existing Files List -->
-            @if (uploadedFiles().length > 0 || existingFiles().length > 0) {
-              <div class="row g-3 mt-2">
-                <!-- Existing Files -->
-                @for (file of existingFiles(); track file.url; let i = $index) {
-                  <div class="col-md-6 col-lg-4">
-                    <div class="d-flex align-items-center p-3 bg-white border rounded-4 shadow-sm h-100 transition-all hover-scale" style="border-color: #f1f5f9 !important;">
-                      <div class="bg-success bg-opacity-10 text-success rounded-3 d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 45px; height: 45px;">
-                        @switch (file.type) {
-                          @case ('image') { <i class="bi bi-image fs-5"></i> }
-                          @case ('video') { <i class="bi bi-play-circle fs-5"></i> }
-                          @case ('pdf') { <i class="bi bi-file-pdf fs-5"></i> }
-                          @case ('doc') { <i class="bi bi-file-word fs-5"></i> }
-                          @case ('xlsx') { <i class="bi bi-file-excel fs-5"></i> }
-                          @case ('ppt') { <i class="bi bi-file-ppt fs-5"></i> }
-                          @default { <i class="bi bi-file-earmark-text fs-5"></i> }
-                        }
-                      </div>
-                      <div class="flex-grow-1 text-truncate pe-2">
-                        <div class="text-dark fw-bold small text-truncate mb-1">{{ file.name }}</div>
-                        <div class="text-success text-truncate" style="font-size: 0.7rem;">Saved</div>
-                      </div>
-                      <div class="d-flex gap-1 flex-shrink-0 ms-auto">
-                        <button type="button" class="btn btn-sm btn-light text-secondary hover-text-primary p-2 rounded-circle border-0 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" (click)="viewFile(file.url)" title="View File">
-                          <i class="bi bi-eye"></i>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-light text-danger hover-text-danger p-2 rounded-circle border-0 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" (click)="removeExistingFile(i)" title="Remove File">
-                          <i class="bi bi-trash3"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                }
-
-                <!-- New Uploads -->
-                @for (file of uploadedFiles(); track file.name; let i = $index) {
-                  <div class="col-md-6 col-lg-4">
-                    <div class="d-flex align-items-center p-3 bg-white border rounded-4 shadow-sm h-100 transition-all hover-scale" style="border-color: #f1f5f9 !important;">
-                      <div class="bg-primary bg-opacity-10 text-primary rounded-3 d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 45px; height: 45px;">
-                        <i class="bi bi-cloud-arrow-up fs-5"></i>
-                      </div>
-                      <div class="flex-grow-1 text-truncate pe-2">
-                        <div class="text-dark fw-bold small text-truncate mb-1">{{ file.name }}</div>
-                        <div class="text-secondary text-truncate" style="font-size: 0.7rem;">Ready to upload</div>
-                      </div>
-                      <div class="d-flex gap-1 flex-shrink-0 ms-auto">
-                        <button type="button" class="btn btn-sm btn-light text-secondary hover-text-primary p-2 rounded-circle border-0 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" (click)="viewFile(file.url)" title="View File">
-                          <i class="bi bi-eye"></i>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-light text-danger hover-text-danger p-2 rounded-circle border-0 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" (click)="removeFile(i)" title="Remove File">
-                          <i class="bi bi-trash3"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                }
+            <!-- Attachments Table (From Diagram) -->
+            @if (attachmentsToSave().length > 0) {
+              <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-secondary small text-uppercase fw-bold">
+                      <tr>
+                        <th class="px-3 py-3" style="width: 60px;">No</th>
+                        <th class="py-3">Unique ID</th>
+                        <th class="py-3">Name (Alias Name)</th>
+                        <th class="px-3 py-3 text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody class="border-top-0">
+                      @for (item of attachmentsToSave(); track item.unique_id; let i = $index) {
+                        <tr>
+                          <td class="px-3 py-3 text-secondary">{{ i + 1 }}</td>
+                          <td class="py-3">
+                            <code class="text-primary small">{{ item.unique_id }}</code>
+                          </td>
+                          <td class="py-3">
+                            <input type="text" class="form-control form-control-sm border-0 bg-light rounded-3 px-3 fw-semibold shadow-none" 
+                                   [(ngModel)]="item.alias_name" [ngModelOptions]="{standalone: true}" 
+                                   placeholder="Enter display name">
+                          </td>
+                          <td class="px-3 py-3 text-center">
+                            <div class="d-flex justify-content-center gap-2">
+                              @if (item.url) {
+                                <button type="button" class="btn btn-light btn-sm rounded-circle p-2 shadow-none border-0 text-info bg-info bg-opacity-10 hover-bg-info hover-text-white transition-all" 
+                                        (click)="viewFile(item.url)" title="Preview">
+                                  <i class="bi bi-eye"></i>
+                                </button>
+                              }
+                              <button type="button" class="btn btn-light btn-sm rounded-circle p-2 shadow-none border-0 text-danger bg-danger bg-opacity-10 hover-bg-danger hover-text-white transition-all" 
+                                      (click)="removeAttachment(i)" title="Delete">
+                                <i class="bi bi-trash3"></i>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
               </div>
             }
           </div>
@@ -339,66 +334,25 @@
           <div class="content-render mb-4" [innerHTML]="content.text_content | safeHtml"></div>
           
           <!-- Attachments Preview -->
-          @if ((content.pdf_list?.length || 0) > 0 || (content.doc_list?.length || 0) > 0 || (content.image_list?.length || 0) > 0 || (content.video_list?.length || 0) > 0 || (content.xlsx_list?.length || 0) > 0 || (content.ppt_list?.length || 0) > 0) {
+          @if (content.attachments && content.attachments.length > 0) {
             <div class="mt-5 pt-4 border-top">
               <h6 class="fw-bold text-dark mb-3">Attachments</h6>
               <div class="row g-3">
-                @for (img of content.image_list; track img.url) {
+                @for (attachment of content.attachments; track attachment.unique_id) {
                   <div class="col-md-4">
-                    <a [href]="img.url" target="_blank" class="text-decoration-none">
+                    <a [href]="attachment.url" target="_blank" class="text-decoration-none">
                       <div class="d-flex align-items-center p-2 border rounded-3 bg-light hover-bg-white transition-all">
-                        <i class="bi bi-image text-success fs-4 me-2"></i>
-                        <span class="text-dark small text-truncate">{{ img.name }}</span>
-                      </div>
-                    </a>
-                  </div>
-                }
-                @for (video of content.video_list; track video.url) {
-                  <div class="col-md-4">
-                    <a [href]="video.url" target="_blank" class="text-decoration-none">
-                      <div class="d-flex align-items-center p-2 border rounded-3 bg-light hover-bg-white transition-all">
-                        <i class="bi bi-play-circle text-info fs-4 me-2"></i>
-                        <span class="text-dark small text-truncate">{{ video.name }}</span>
-                      </div>
-                    </a>
-                  </div>
-                }
-                @for (pdf of content.pdf_list; track pdf.url) {
-                  <div class="col-md-4">
-                    <a [href]="pdf.url" target="_blank" class="text-decoration-none">
-                      <div class="d-flex align-items-center p-2 border rounded-3 bg-light hover-bg-white transition-all">
-                        <i class="bi bi-file-pdf text-danger fs-4 me-2"></i>
-                        <span class="text-dark small text-truncate">{{ pdf.name }}</span>
-                      </div>
-                    </a>
-                  </div>
-                }
-                @for (doc of content.doc_list; track doc.url) {
-                  <div class="col-md-4">
-                    <a [href]="doc.url" target="_blank" class="text-decoration-none">
-                      <div class="d-flex align-items-center p-2 border rounded-3 bg-light hover-bg-white transition-all">
-                        <i class="bi bi-file-word text-primary fs-4 me-2"></i>
-                        <span class="text-dark small text-truncate">{{ doc.name }}</span>
-                      </div>
-                    </a>
-                  </div>
-                }
-                @for (xlsx of content.xlsx_list; track xlsx.url) {
-                  <div class="col-md-4">
-                    <a [href]="xlsx.url" target="_blank" class="text-decoration-none">
-                      <div class="d-flex align-items-center p-2 border rounded-3 bg-light hover-bg-white transition-all">
-                        <i class="bi bi-file-excel text-success fs-4 me-2"></i>
-                        <span class="text-dark small text-truncate">{{ xlsx.name }}</span>
-                      </div>
-                    </a>
-                  </div>
-                }
-                @for (ppt of content.ppt_list; track ppt.url) {
-                  <div class="col-md-4">
-                    <a [href]="ppt.url" target="_blank" class="text-decoration-none">
-                      <div class="d-flex align-items-center p-2 border rounded-3 bg-light hover-bg-white transition-all">
-                        <i class="bi bi-file-ppt text-warning fs-4 me-2"></i>
-                        <span class="text-dark small text-truncate">{{ ppt.name }}</span>
+                        @switch (attachment.file_extension) {
+                            @case ('pdf') { <i class="bi bi-file-pdf text-danger fs-4 me-2"></i> }
+                            @case ('doc') { <i class="bi bi-file-word text-primary fs-4 me-2"></i> }
+                            @case ('docx') { <i class="bi bi-file-word text-primary fs-4 me-2"></i> }
+                            @case ('xls') { <i class="bi bi-file-excel text-success fs-4 me-2"></i> }
+                            @case ('xlsx') { <i class="bi bi-file-excel text-success fs-4 me-2"></i> }
+                            @case ('ppt') { <i class="bi bi-file-ppt text-warning fs-4 me-2"></i> }
+                            @case ('pptx') { <i class="bi bi-file-ppt text-warning fs-4 me-2"></i> }
+                            @default { <i class="bi bi-file-earmark-text text-secondary fs-4 me-2"></i> }
+                        }
+                        <span class="text-dark small text-truncate">{{ attachment.alias_name || attachment.original_name }}</span>
                       </div>
                     </a>
                   </div>

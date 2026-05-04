@@ -10,10 +10,12 @@ return new class extends Migration
     {
         Schema::create('course_package_levels', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('course_id')->constrained('courses')->onDelete('cascade');
             $table->foreignId('package_id')->constrained('packages')->onDelete('cascade');
             $table->foreignId('level_id')->constrained('levels')->onDelete('cascade');
-            $table->boolean('is_active')->default(1);
-            $table->unique(['package_id', 'level_id'], 'unique_package_level');
+            $table->boolean('is_mandatory')->default(true);
+            $table->boolean('is_active')->default(true);
+            $table->unique(['course_id', 'package_id', 'level_id'], 'cp_level_unique');
             $table->timestamps();
         });
     }

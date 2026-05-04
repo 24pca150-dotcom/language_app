@@ -14,6 +14,10 @@ return new class extends Migration
             $table->string('title', 255);
             $table->text('description')->nullable();
             $table->decimal('pass_percentage', 5, 2)->default(70.00);
+            $table->integer('total_marks')->default(100);
+            $table->integer('passing_marks')->default(70);
+            $table->integer('time_limit_minutes')->nullable();
+            $table->boolean('is_mandatory')->default(true);
             $table->boolean('is_active')->default(1);
             $table->timestamps();
         });

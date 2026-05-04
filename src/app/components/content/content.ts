@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, HostListener, computed, Pipe, PipeTransform } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -18,7 +18,7 @@ export class SafeHtmlPipe implements PipeTransform {
 }
 
 
-import { ContentService, ContentData } from '../../services/content';
+import { ContentService, ContentData, Attachment } from '../../services/content';
 import { ChapterService, ChapterData } from '../../services/chapter';
 
 import {
@@ -32,6 +32,7 @@ import { EditorComponent } from '@tinymce/tinymce-angular';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     McvInputField,
     McvToggleField,
     TranslateModule,
@@ -102,8 +103,8 @@ export class Content implements OnInit {
   }
 
   // File states
-  uploadedFiles = signal<{file: File, url: string, name: string}[]>([]);
-  existingFiles = signal<{url: string, name: string, type: string}[]>([]);
+  attachmentsToSave = signal<Attachment[]>([]);
+  isUploading = signal(false);
 
   constructor() {
     this.contentForm = this.fb.group({
@@ -161,27 +162,29 @@ export class Content implements OnInit {
   onMultipleFileChange(event: any): void {
     const files = event.target.files as FileList;
     if (files && files.length > 0) {
-      const newFiles = Array.from(files).map(file => ({
-        file,
-        url: URL.createObjectURL(file),
-        name: file.name
-      }));
-      this.uploadedFiles.update(curr => [...curr, ...newFiles]);
+      this.isUploading.set(true);
+      const uploadObservables = Array.from(files).map(file => 
+        this.contentService.uploadFile(file).pipe(
+          catchError(err => {
+            console.error('Upload failed for', file.name, err);
+            this.showFeedback('error', `Failed to upload ${file.name}`);
+            return of(null);
+          })
+        )
+      );
+
+      forkJoin(uploadObservables).subscribe(results => {
+        const successfulUploads = results.filter(res => res !== null) as Attachment[];
+        this.attachmentsToSave.update(curr => [...curr, ...successfulUploads]);
+        this.isUploading.set(false);
+        this.showFeedback('success', 'Files uploaded successfully. You can now set alias names.');
+      });
     }
     event.target.value = '';
   }
 
-  removeFile(index: number): void {
-    this.uploadedFiles.update(curr => {
-      const updated = [...curr];
-      URL.revokeObjectURL(updated[index].url);
-      updated.splice(index, 1);
-      return updated;
-    });
-  }
-
-  removeExistingFile(index: number): void {
-    this.existingFiles.update(curr => {
+  removeAttachment(index: number): void {
+    this.attachmentsToSave.update(curr => {
       const updated = [...curr];
       updated.splice(index, 1);
       return updated;
@@ -199,86 +202,9 @@ export class Content implements OnInit {
       return;
     }
 
-    const filesToUpload = this.uploadedFiles();
-    
-    if (filesToUpload.length > 0) {
-      this.showFeedback('success', 'Uploading files...');
-      const uploadObservables = filesToUpload.map(f => 
-        this.contentService.uploadFile(f.file).pipe(
-          catchError(err => {
-            console.error('Upload failed for', f.name, err);
-            return of(null);
-          })
-        )
-      );
-
-      forkJoin(uploadObservables).subscribe(results => {
-        const uploadedData: any = {
-          image: [],
-          video: [],
-          pdf: [],
-          doc: [],
-          xlsx: [],
-          ppt: []
-        };
-
-        const typeMap: any = {
-          'images': 'image',
-          'videos': 'video',
-          'pdfs': 'pdf',
-          'docs': 'doc',
-          'xlsx': 'xlsx',
-          'ppts': 'ppt'
-        };
-
-        results.forEach(res => {
-          if (res) {
-            const field = typeMap[res.type];
-            if (field && uploadedData[field]) {
-              uploadedData[field].push({
-                url: res.url,
-                name: res.name,
-                extension: res.extension
-              });
-            }
-          }
-        });
-
-        this.saveContent(uploadedData);
-      });
-    } else {
-      this.saveContent({});
-    }
-  }
-
-  private saveContent(fileData: any): void {
-    // Collect all existing files by type
-    const finalFileData: any = { ...fileData };
-    
-    // Initialize collections for existing files if not already in finalFileData
-    const typeMap: any = {
-      'image': 'image',
-      'video': 'video',
-      'pdf': 'pdf',
-      'doc': 'doc',
-      'xlsx': 'xlsx',
-      'ppt': 'ppt'
-    };
-
-    // If we are in edit mode, we need to include remaining existing files
-    if (this.isEditMode()) {
-      this.existingFiles().forEach(file => {
-        const field = typeMap[file.type];
-        if (field) {
-          if (!finalFileData[field]) finalFileData[field] = [];
-          finalFileData[field].push(file);
-        }
-      });
-    }
-
     const contentData = {
       ...this.contentForm.value,
-      ...finalFileData,
+      attachments: this.attachmentsToSave(),
       chapter_ids: this.selectedChapterIds()
     };
 
@@ -308,6 +234,8 @@ export class Content implements OnInit {
     }
   }
 
+
+
   editContent(content: ContentData): void {
     this.isEditMode.set(true);
     this.currentContentId.set(content.id!);
@@ -321,18 +249,15 @@ export class Content implements OnInit {
     // Patch URLs
     const urlArray = this.contentForm.get('urls') as FormArray;
     urlArray.clear();
-    const urls = (content as any).urls || (content.external_url ? [content.external_url] : ['']);
+    const urls = content.urls || (content.external_url ? (Array.isArray(content.external_url) ? content.external_url : [content.external_url]) : ['']);
     urls.forEach((url: string) => urlArray.push(this.fb.control(url)));
 
-    // Load existing files
-    const existing: {url: string, name: string, type: string}[] = [];
-    if (content.image_list) content.image_list.forEach(f => existing.push({ ...f, type: 'image' }));
-    if (content.video_list) content.video_list.forEach(f => existing.push({ ...f, type: 'video' }));
-    if (content.pdf_list) content.pdf_list.forEach(f => existing.push({ ...f, type: 'pdf' }));
-    if (content.doc_list) content.doc_list.forEach(f => existing.push({ ...f, type: 'doc' }));
-    if (content.xlsx_list) content.xlsx_list.forEach(f => existing.push({ ...f, type: 'xlsx' }));
-    if (content.ppt_list) content.ppt_list.forEach(f => existing.push({ ...f, type: 'ppt' }));
-    this.existingFiles.set(existing);
+    // Load existing attachments
+    if (content.attachments) {
+      this.attachmentsToSave.set([...content.attachments]);
+    } else {
+      this.attachmentsToSave.set([]);
+    }
 
     this.selectedChapterIds.set((content as any).chapters ? (content as any).chapters.map((c: any) => c.id) : []);
     this.isFormVisible.set(true);
@@ -358,11 +283,7 @@ export class Content implements OnInit {
     urlArray.push(this.fb.control(''));
     
     this.selectedChapterIds.set([]);
-    
-    // Revoke object URLs to free memory
-    this.uploadedFiles().forEach(f => URL.revokeObjectURL(f.url));
-    this.uploadedFiles.set([]);
-    this.existingFiles.set([]);
+    this.attachmentsToSave.set([]);
     
     this.isEditMode.set(false);
     this.currentContentId.set(null);

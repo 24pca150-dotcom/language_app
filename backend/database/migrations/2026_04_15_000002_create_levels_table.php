@@ -10,11 +10,14 @@ return new class extends Migration
     {
         Schema::create('levels', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('course_id')->constrained('courses')->onDelete('cascade');
             $table->string('name', 255);
             $table->string('code', 50)->unique();
             $table->text('description')->nullable();
-            $table->decimal('estimated_hours', 6, 2)->default(0);
+            $table->text('objective_listening')->nullable();
+            $table->text('objective_speaking')->nullable();
+            $table->text('objective_reading')->nullable();
+            $table->text('objective_writing')->nullable();
+            $table->decimal('estimated_hours', 5, 2)->nullable();
             $table->integer('sort_order')->default(0);
             $table->boolean('is_active')->default(1);
             $table->timestamps();

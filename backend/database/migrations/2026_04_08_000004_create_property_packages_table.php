@@ -12,6 +12,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('property_id')->constrained('properties')->onDelete('cascade');
             $table->foreignId('package_id')->constrained('packages')->onDelete('cascade');
+            $table->foreignId('course_id')->nullable()->constrained('courses')->onDelete('set null');
+            $table->json('allowed_learning_modes')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->boolean('is_active')->default(1);

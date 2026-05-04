@@ -37,7 +37,9 @@
     "LOCATION": "இடம்",
     "SORT_ORDER": "வரிசை எண்",
     "EST_HOURS": "நேரம்",
-    "TITLE": "தலைப்பு"
+    "TITLE": "தலைப்பு",
+    "PREVIEW": "முன்னோட்டம்",
+    "EXTERNAL_URL": "வெளிப்புற URL"
   },
   "TENANT": {
     "CREATE_BTN": "வாடகைதாரரை உருவாக்கு",
