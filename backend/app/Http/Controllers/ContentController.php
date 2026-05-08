@@ -125,7 +125,7 @@ class ContentController extends Controller
      */
     public function show(Content $content)
     {
-        return $content->load('chapters');
+        return $content->load(['chapters', 'attachments']);
     }
 
     /**

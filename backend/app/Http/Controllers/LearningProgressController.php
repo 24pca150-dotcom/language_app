@@ -55,8 +55,9 @@ class LearningProgressController extends Controller
      */
     public function getChapterProgress($userId, $levelId)
     {
-        $chapters = Chapter::where('level_id', $levelId)
-            ->orderBy('sort_order')
+        $level = Level::findOrFail($levelId);
+        $chapters = $level->chapters()
+            ->orderBy('level_chapter.sort_order')
             ->get();
 
         $data = [];
@@ -64,7 +65,7 @@ class LearningProgressController extends Controller
             $data[] = [
                 'chapter_id' => $chapter->id,
                 'name' => $chapter->name,
-                'is_unlocked' => $this->progressService->canAccessChapter($userId, $chapter->id),
+                'is_unlocked' => $this->progressService->canAccessChapter($userId, $chapter->id, $levelId),
                 'is_completed' => $this->progressService->isChapterCompleted($userId, $chapter->id),
             ];
         }

@@ -21,6 +21,7 @@ Route::apiResource('properties', PropertyController::class);
 
 // New resources
 Route::apiResource('courses', CourseController::class);
+Route::get('courses/{course}/player-structure', [CourseController::class, 'getPlayerStructure']);
 Route::apiResource('levels', LevelController::class);
 Route::apiResource('chapters', ChapterController::class);
 Route::post('contents/upload', [ContentController::class, 'upload']);
@@ -46,6 +47,10 @@ Route::get('levels/{levelId}/chapters', [LevelController::class, 'getChapters'])
 Route::post('levels/{levelId}/chapters', [LevelController::class, 'mapChapters']);
 Route::delete('levels/{levelId}/chapters/{chapterId}', [LevelController::class, 'unmapChapter']);
 Route::post('levels/{levelId}/chapters/reorder', [LevelController::class, 'reorderChapters']);
+
+// Chapter-Level mapping (Consolidated in ChapterController)
+Route::get('chapters/{chapterId}/levels', [ChapterController::class, 'getLevels']);
+Route::post('chapters/{chapterId}/levels', [ChapterController::class, 'mapLevels']);
 
 Route::get('/user', function (Request $request) {
     return $request->user();

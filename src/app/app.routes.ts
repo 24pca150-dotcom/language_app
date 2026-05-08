@@ -25,5 +25,5 @@ export const routes: Routes = [
   { path: 'assessments', component: Assessment },
   { path: 'learning-modes', component: LearningMode },
   { path: 'learn', component: CoursePlayer }, // For query params: ?id=5
-  { path: 'learn/:levelId', component: CoursePlayer }, // For path params: /learn/5
+  { path: 'learn/:courseId', component: CoursePlayer }, // For path params: /learn/5
 ];

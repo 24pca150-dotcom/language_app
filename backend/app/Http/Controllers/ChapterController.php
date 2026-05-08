@@ -11,7 +11,16 @@ class ChapterController extends Controller
     {
         $query = Chapter::query();
 
-        return response()->json($query->orderBy('sort_order')->get());
+        if ($request->has('level_id')) {
+            $levelId = $request->level_id;
+            $query->whereHas('levels', function ($q) use ($levelId) {
+                $q->where('levels.id', $levelId);
+            })->with(['levels' => function ($q) use ($levelId) {
+                $q->where('levels.id', $levelId);
+            }]);
+        }
+
+        return response()->json($query->with(['contents.attachments', 'assessments'])->orderBy('sort_order')->get());
     }
 
     public function store(Request $request)
@@ -26,12 +35,12 @@ class ChapterController extends Controller
 
         $chapter = Chapter::create($validated);
 
-        return response()->json($chapter->load(['assessments']), 201);
+        return response()->json($chapter->load(['contents.attachments', 'assessments']), 201);
     }
 
     public function show(Chapter $chapter)
     {
-        return response()->json($chapter->load(['assessments']));
+        return response()->json($chapter->load(['contents.attachments', 'assessments']));
     }
 
     public function update(Request $request, Chapter $chapter)
@@ -53,5 +62,40 @@ class ChapterController extends Controller
     {
         $chapter->delete();
         return response()->noContent();
+    }
+
+    /**
+     * List all levels mapped to a chapter.
+     */
+    public function getLevels($chapterId)
+    {
+        $chapter = Chapter::findOrFail($chapterId);
+        $levels = $chapter->levels()->orderBy('level_chapter.sort_order')->get();
+        return response()->json($levels);
+    }
+
+    /**
+     * Map level(s) to a chapter.
+     */
+    public function mapLevels(Request $request, $chapterId)
+    {
+        $validated = $request->validate([
+            'level_ids' => 'nullable|array',
+            'level_ids.*' => 'required|exists:levels,id',
+        ]);
+
+        $chapter = Chapter::findOrFail($chapterId);
+        
+        $syncData = [];
+        foreach ($validated['level_ids'] as $index => $levelId) {
+            $syncData[$levelId] = [
+                'sort_order' => $index,
+                'is_active' => true
+            ];
+        }
+
+        $chapter->levels()->sync($syncData);
+
+        return response()->json(['message' => 'Levels mapped successfully'], 201);
     }
 }

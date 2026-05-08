@@ -109,6 +109,7 @@ export class Content implements OnInit {
   constructor() {
     this.contentForm = this.fb.group({
       name: ['', Validators.required],
+      title: [''],
       sort_order: [0],
       is_active: [true],
       text_content: [''],
@@ -241,6 +242,7 @@ export class Content implements OnInit {
     this.currentContentId.set(content.id!);
     this.contentForm.patchValue({
       name: content.name,
+      title: content.title,
       sort_order: content.sort_order,
       is_active: content.is_active,
       text_content: content.text_content,

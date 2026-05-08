@@ -11,17 +11,13 @@ use App\Models\Package;
 class ProgressService
 {
     /**
-     * Check if a user can access a specific chapter.
+     * Check if a user can access a specific chapter within a level.
      */
-    public function canAccessChapter($userId, $chapterId)
+    public function canAccessChapter($userId, $chapterId, $levelId = null)
     {
-        $chapter = Chapter::with('level.course')->find($chapterId);
+        $chapter = Chapter::find($chapterId);
         if (!$chapter) return false;
 
-        // Find user's package and learning mode
-        // For now, we assume user_id is linked to a package somehow.
-        // In a real app, we'd check enrollments.
-        // Let's assume a simple lookup for this demo.
         $learningMode = $this->getUserLearningMode($userId);
 
         if ($learningMode === 'FREE_STYLE') {
@@ -29,15 +25,23 @@ class ProgressService
         }
 
         // Strict Mode Logic:
-        // Check if previous chapter is completed
-        $previousChapter = Chapter::where('level_id', $chapter->level_id)
-            ->where('sort_order', '<', $chapter->sort_order)
-            ->orderBy('sort_order', 'desc')
-            ->first();
+        // Check if previous chapter in this level is completed
+        if ($levelId) {
+            $currentSortOrder = \DB::table('level_chapter')
+                ->where('level_id', $levelId)
+                ->where('chapter_id', $chapterId)
+                ->value('sort_order') ?? 0;
 
-        if ($previousChapter) {
-            if (!$this->isChapterCompleted($userId, $previousChapter->id)) {
-                return false;
+            $previousChapterId = \DB::table('level_chapter')
+                ->where('level_id', $levelId)
+                ->where('sort_order', '<', $currentSortOrder)
+                ->orderBy('sort_order', 'desc')
+                ->value('chapter_id');
+
+            if ($previousChapterId) {
+                if (!$this->isChapterCompleted($userId, $previousChapterId)) {
+                    return false;
+                }
             }
         }
 

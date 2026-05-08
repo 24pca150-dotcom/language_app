@@ -83,7 +83,7 @@ class LevelController extends Controller
     public function mapChapters(Request $request, $levelId)
     {
         $validated = $request->validate([
-            'chapter_ids' => 'required|array|min:1',
+            'chapter_ids' => 'nullable|array',
             'chapter_ids.*' => 'required|exists:chapters,id',
         ]);
 
@@ -97,7 +97,7 @@ class LevelController extends Controller
             ];
         }
 
-        $level->chapters()->syncWithoutDetaching($syncData);
+        $level->chapters()->sync($syncData);
 
         return response()->json(['message' => 'Chapters mapped successfully'], 201);
     }

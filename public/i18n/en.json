@@ -185,6 +185,7 @@
     "CREATE_TITLE": "Create New Content",
     "EDIT_TITLE": "Edit Content",
     "NAME": "Content Name",
+    "TITLE": "Topic Title (for sidebar)",
     "EMPTY": "No contents found.",
     "CHAPTER": "Chapter",
     "SELECT_CHAPTER": "Select Chapter",

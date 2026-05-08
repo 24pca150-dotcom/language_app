@@ -14,8 +14,10 @@ class Assessment extends Model
         'title',
         'description',
         'pass_percentage',
-        'is_mandatory',
+        'total_marks',
+        'passing_marks',
         'duration_minutes',
+        'is_mandatory',
         'allow_restart',
         'review_mode',
         'activity_type',
@@ -28,6 +30,8 @@ class Assessment extends Model
         'is_mandatory' => 'boolean',
         'allow_restart' => 'boolean',
         'pass_percentage' => 'decimal:2',
+        'total_marks' => 'integer',
+        'passing_marks' => 'integer',
         'duration_minutes' => 'integer',
     ];
 

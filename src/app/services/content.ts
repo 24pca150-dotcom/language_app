@@ -16,12 +16,14 @@ export interface Attachment {
 export interface ContentData {
   id?: number;
   name: string;
+  title?: string;
   chapters?: any[];
   urls?: string[];           // decoded array from backend (appended attribute)
   sort_order?: number;
   is_active: boolean;
   text_content?: string;
   attachments?: Attachment[];
+  assessments?: any[];
   external_url?: string | string[];
   created_at?: string;
   updated_at?: string;

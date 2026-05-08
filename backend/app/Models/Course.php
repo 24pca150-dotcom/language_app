@@ -33,5 +33,10 @@ class Course extends Model
         });
     }
 
-
+    public function levels(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Level::class, 'course_package_levels')
+            ->withPivot(['package_id', 'is_mandatory', 'is_active'])
+            ->withTimestamps();
+    }
 }

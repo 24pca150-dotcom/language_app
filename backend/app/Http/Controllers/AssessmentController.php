@@ -53,9 +53,18 @@ class AssessmentController extends Controller
         ]);
 
         $assessment = Assessment::create($request->only([
-            'level_id', 'chapter_id', 'title', 'description', 
-            'pass_percentage', 'is_mandatory', 'duration_minutes', 'allow_restart', 
-            'review_mode', 'activity_type', 'prelude_content', 'is_active'
+            'level_id',
+            'chapter_id',
+            'title',
+            'description',
+            'pass_percentage',
+            'is_mandatory',
+            'duration_minutes',
+            'allow_restart',
+            'review_mode',
+            'activity_type',
+            'prelude_content',
+            'is_active'
         ]));
 
         if (isset($validated['questions'])) {
@@ -116,9 +125,18 @@ class AssessmentController extends Controller
         ]);
 
         $assessment->update($request->only([
-            'level_id', 'chapter_id', 'title', 'description', 
-            'pass_percentage', 'is_mandatory', 'duration_minutes', 'allow_restart', 
-            'review_mode', 'activity_type', 'prelude_content', 'is_active'
+            'level_id',
+            'chapter_id',
+            'title',
+            'description',
+            'pass_percentage',
+            'is_mandatory',
+            'duration_minutes',
+            'allow_restart',
+            'review_mode',
+            'activity_type',
+            'prelude_content',
+            'is_active'
         ]));
 
         if (isset($validated['questions'])) {

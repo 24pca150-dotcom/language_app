@@ -3,27 +3,38 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 
-interface Chapter {
+interface Content {
   id: number;
-  chapter_id?: number;
   name: string;
-  code?: string;
-  description?: string;
-  content_type?: string;
-  content?: string;
-  content_meta?: any;
+  title?: string;
+  text_content?: string;
+  attachments?: any[];
+  external_url?: any[];
+  assessments?: any[];
   sort_order?: number;
   is_active?: boolean;
-  is_unlocked?: boolean;
-  is_completed?: boolean;
-  assessments?: any[];
 }
 
-interface ChapterProgress {
-  chapter_id: number;
+interface Chapter {
+  id: number;
   name: string;
-  is_unlocked: boolean;
-  is_completed: boolean;
+  contents: Content[];
+  assessments?: any[];
+  is_expanded?: boolean;
+}
+
+interface Level {
+  id: number;
+  name: string;
+  chapters: Chapter[];
+  is_expanded?: boolean;
+}
+
+interface CourseStructure {
+  id: number;
+  name: string;
+  description?: string;
+  levels: Level[];
 }
 
 @Component({
@@ -37,87 +48,105 @@ export class CoursePlayer implements OnInit {
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
 
-  levelId = signal<number>(1); // From route params
+  courseId = signal<number | null>(null);
   userId = signal<number>(1);
 
-  chapters = signal<Chapter[]>([]);
-  activeChapterId = signal<number | null>(null);
+  courseStructure = signal<CourseStructure | null>(null);
+  activeContentId = signal<number | null>(null);
+  fullContent = signal<Content | null>(null);
 
   // Computed values
-  activeChapter = computed(() => {
-    const id = this.activeChapterId();
-    return id ? this.chapters().find(c => c.id === id) : null;
+  activeContent = computed(() => {
+    const id = this.activeContentId();
+    const full = this.fullContent();
+    
+    if (!id || !this.courseStructure()) return null;
+
+    // If we have full content and its ID matches the active ID, return it
+    if (full && full.id === id) {
+      // Find chapter assessments to append
+      for (const level of this.courseStructure()!.levels) {
+        for (const chapter of level.chapters) {
+          const topic = chapter.contents.find(c => c.id === id);
+          if (topic) {
+            return { ...full, assessments: chapter.assessments };
+          }
+        }
+      }
+      return full;
+    }
+
+    // Fallback to sidebar structure (titles only) while loading
+    for (const level of this.courseStructure()!.levels) {
+      for (const chapter of level.chapters) {
+        const content = chapter.contents.find(c => c.id === id);
+        if (content) {
+          return { ...content, assessments: chapter.assessments };
+        }
+      }
+    }
+    return null;
   });
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
-      if (params['levelId']) {
-        this.levelId.set(+params['levelId']);
-        this.loadProgress();
-        this.loadChapters();
+      if (params['courseId']) {
+        this.courseId.set(+params['courseId']);
+        this.loadStructure();
       }
     });
 
-    // Also support query params
     this.route.queryParams.subscribe(params => {
       if (params['id']) {
-        this.levelId.set(+params['id']);
-        this.loadProgress();
-        this.loadChapters();
+        this.courseId.set(+params['id']);
+        this.loadStructure();
       }
     });
   }
 
-  loadProgress(): void {
-    const url = `http://localhost:8000/api/users/${this.userId()}/levels/${this.levelId()}/chapters/progress`;
-    this.http.get<{ chapters: ChapterProgress[] }>(url).subscribe({
-      next: (res) => {
-        // Merge progress data with chapter data
-        const progressMap = new Map(res.chapters.map(c => [c.chapter_id, c]));
+  loadStructure(): void {
+    if (!this.courseId()) return;
 
-        this.chapters.update(chapters =>
-          chapters.map(ch => ({
-            ...ch,
-            is_unlocked: progressMap.get(ch.id)?.is_unlocked ?? true,
-            is_completed: progressMap.get(ch.id)?.is_completed ?? false,
-          }))
-        );
+    const url = `http://localhost:8000/api/courses/${this.courseId()}/player-structure`;
+    this.http.get<CourseStructure>(url).subscribe({
+      next: (structure) => {
+        // Initialize expansion states
+        structure.levels.forEach((l, idx) => {
+          l.is_expanded = idx === 0; 
+          l.chapters.forEach((c, cidx) => {
+            c.is_expanded = idx === 0 && cidx === 0;
+          });
+        });
+        this.courseStructure.set(structure);
 
-        // Auto-select first unlocked chapter
-        if (!this.activeChapterId()) {
-          const firstUnlocked = this.chapters().find(c => c.is_unlocked);
-          if (firstUnlocked) {
-            this.selectChapter(firstUnlocked.id);
-          }
+        // Auto-select first topic
+        if (structure.levels[0]?.chapters[0]?.contents[0]) {
+          this.selectTopic(structure.levels[0].chapters[0].contents[0].id);
         }
-      }
-    });
-  }
-
-  loadChapters(): void {
-    const url = `http://localhost:8000/api/chapters?level_id=${this.levelId()}`;
-    this.http.get<Chapter[]>(url).subscribe({
-      next: (chapters) => {
-        // Sort chapters by sort_order
-        const sorted = chapters.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-        this.chapters.set(sorted);
-
-        // Load progress after chapters are loaded
-        this.loadProgress();
       },
-      error: (err) => console.error('Failed to load chapters:', err)
+      error: (err) => console.error('Failed to load course structure:', err)
     });
   }
 
-  selectChapter(id: number): void {
-    const chapter = this.chapters().find(c => c.id === id);
-    if (chapter && !chapter.is_unlocked) {
-      alert('This chapter is locked! Please complete the previous chapter assessments.');
-      return;
-    }
-    this.activeChapterId.set(id);
+  selectTopic(id: number): void {
+    this.activeContentId.set(id);
+    this.fullContent.set(null); // Reset while loading
 
+    // Fetch full content details
+    const url = `http://localhost:8000/api/contents/${id}`;
+    this.http.get<Content>(url).subscribe({
+      next: (content) => {
+        this.fullContent.set(content);
+      },
+      error: (err) => console.error('Failed to load topic content:', err)
+    });
   }
 
+  toggleLevel(level: Level): void {
+    level.is_expanded = !level.is_expanded;
+  }
 
+  toggleChapter(chapter: Chapter): void {
+    chapter.is_expanded = !chapter.is_expanded;
+  }
 }

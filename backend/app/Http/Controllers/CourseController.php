@@ -48,4 +48,24 @@ class CourseController extends Controller
         $course->delete();
         return response()->noContent();
     }
+    public function getPlayerStructure(Course $course)
+    {
+        $structure = $course->load([
+            'levels' => function ($query) {
+                $query->where('course_package_levels.is_active', true)
+                    ->orderBy('levels.sort_order');
+            },
+            'levels.chapters' => function ($query) {
+                $query->where('level_chapter.is_active', true)
+                    ->orderBy('level_chapter.sort_order');
+            },
+            'levels.chapters.contents' => function ($query) {
+                $query->select('contents.id', 'contents.name', 'contents.title', 'contents.sort_order', 'contents.is_active')
+                    ->where('contents.is_active', true)
+                    ->orderBy('contents.sort_order');
+            }
+        ]);
+
+        return response()->json($structure);
+    }
 }

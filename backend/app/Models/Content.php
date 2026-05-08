@@ -11,6 +11,7 @@ class Content extends Model
 
     protected $fillable = [
         'name',
+        'title',
         'sort_order',
         'is_active',
         'text_content',

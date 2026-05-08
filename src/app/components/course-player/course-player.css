@@ -6,3 +6,23 @@
 .transition-all { transition: all 0.2s ease-in-out; }
 .hover-scale:hover { transform: translateY(-3px); }
 .border-dashed { border-style: dashed !important; border-width: 2px !important; }
+.cursor-pointer { cursor: pointer; }
+.hover-bg:hover { background-color: rgba(0, 123, 255, 0.05); }
+.topic-btn {
+  background: transparent;
+  color: #495057;
+  border-left: 3px solid transparent;
+}
+.topic-btn:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+  color: #0d6efd;
+}
+.active-topic {
+  background-color: #e7f1ff !important;
+  color: #0d6efd !important;
+  border-left-color: #0d6efd !important;
+  font-weight: 500;
+}
+.sidebar-scroll::-webkit-scrollbar { width: 4px; }
+.sidebar-scroll::-webkit-scrollbar-thumb { background: #dee2e6; border-radius: 10px; }
+.sidebar-scroll::-webkit-scrollbar-track { background: transparent; }

@@ -34,4 +34,9 @@ class Chapter extends Model
     {
         return $this->hasMany(Assessment::class);
     }
+
+    public function contents(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Content::class, 'content_chapters');
+    }
 }
