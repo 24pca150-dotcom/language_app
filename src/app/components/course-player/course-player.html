@@ -7,49 +7,23 @@
         <div class="small text-muted mt-1" *ngIf="courseStructure()">{{ courseStructure()?.name }}</div>
       </div>
 
+      <div class="tree-container">
+        <mcv-datatree 
+          [data]="treeData()" 
+          [readOnly]="true"
+          [showHeader]="false"
+          [showIcons]="true"
+          [expandIcon]="'bi bi-chevron-right'"
+          [collapseIcon]="'bi bi-chevron-down'"
+          (onNodeClick)="handleNodeClick($event)">
+        </mcv-datatree>
+      </div>
+      <!-- Old Manual Structure (Commented for Backup)
       <div class="accordion-structure">
         @for (level of courseStructure()?.levels; track level.id) {
-          <div class="level-item">
-            <div class="d-flex align-items-center justify-content-between p-3 bg-light-subtle border-bottom cursor-pointer hover-bg" (click)="toggleLevel(level)">
-              <div class="d-flex align-items-center gap-2">
-                <i class="bi" [ngClass]="level.is_expanded ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
-                <span class="fw-bold small text-uppercase">{{ level.name }}</span>
-              </div>
-            </div>
-
-            @if (level.is_expanded) {
-              <div class="chapters-list">
-                @for (chapter of level.chapters; track chapter.id) {
-                  <div class="chapter-item">
-                    <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom cursor-pointer hover-bg bg-white" (click)="toggleChapter(chapter)">
-                      <div class="d-flex align-items-center gap-2 ps-2">
-                        <i class="bi" [ngClass]="chapter.is_expanded ? 'bi-folder2-open' : 'bi-folder2'"></i>
-                        <span class="fw-medium small">{{ chapter.name }}</span>
-                      </div>
-                    </div>
-
-                    @if (chapter.is_expanded) {
-                      <div class="topics-list bg-light bg-opacity-10">
-                        @for (topic of chapter.contents; track topic.id) {
-                          <button type="button" 
-                                  class="w-100 text-start border-0 py-2 ps-5 pe-3 small transition-all topic-btn"
-                                  [class.active-topic]="activeContentId() === topic.id"
-                                  (click)="selectTopic(topic.id)">
-                            <div class="d-flex align-items-center gap-2">
-                              <i class="bi bi-file-text text-secondary"></i>
-                              <span class="text-truncate">{{ topic.title || topic.name }}</span>
-                            </div>
-                          </button>
-                        }
-                      </div>
-                    }
-                  </div>
-                }
-              </div>
-            }
-          </div>
-        }
+          ... (rest of the code)
       </div>
+      -->
     </aside>
 
     <!-- Main Content Area -->

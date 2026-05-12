@@ -37,10 +37,12 @@ interface CourseStructure {
   levels: Level[];
 }
 
+import { McvDatatree, McvDatatreeNode } from 'mcv-ui-toolkit';
+
 @Component({
   selector: 'app-course-player',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, McvDatatree],
   templateUrl: './course-player.html',
   styleUrls: ['./course-player.css']
 })
@@ -52,6 +54,7 @@ export class CoursePlayer implements OnInit {
   userId = signal<number>(1);
 
   courseStructure = signal<CourseStructure | null>(null);
+  treeData = signal<McvDatatreeNode[]>([]);
   activeContentId = signal<number | null>(null);
   fullContent = signal<Content | null>(null);
 
@@ -118,6 +121,7 @@ export class CoursePlayer implements OnInit {
           });
         });
         this.courseStructure.set(structure);
+        this.treeData.set(this.mapStructureToTree(structure));
 
         // Auto-select first topic
         if (structure.levels[0]?.chapters[0]?.contents[0]) {
@@ -148,5 +152,29 @@ export class CoursePlayer implements OnInit {
 
   toggleChapter(chapter: Chapter): void {
     chapter.is_expanded = !chapter.is_expanded;
+  }
+
+  mapStructureToTree(structure: CourseStructure): McvDatatreeNode[] {
+    return structure.levels.map((level) => ({
+      id: `level-${level.id}`,
+      label: level.name,
+      expanded: level.is_expanded,
+      children: level.chapters.map((chapter) => ({
+        id: `chapter-${chapter.id}`,
+        label: chapter.name,
+        expanded: chapter.is_expanded,
+        children: chapter.contents.map((topic) => ({
+          id: `topic-${topic.id}`,
+          label: topic.title || topic.name,
+        })),
+      })),
+    }));
+  }
+
+  handleNodeClick(node: McvDatatreeNode): void {
+    if (node.id.startsWith('topic-')) {
+      const topicId = parseInt(node.id.replace('topic-', ''), 10);
+      this.selectTopic(topicId);
+    }
   }
 }

@@ -26,3 +26,76 @@
 .sidebar-scroll::-webkit-scrollbar { width: 4px; }
 .sidebar-scroll::-webkit-scrollbar-thumb { background: #dee2e6; border-radius: 10px; }
 .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+
+/* Tree Component Overrides */
+.tree-container {
+  min-height: 100%;
+}
+
+:host ::ng-deep mcv-datatree .tree-wrapper {
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+:host ::ng-deep mcv-datatree .tree-node {
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+:host ::ng-deep mcv-datatree .tree-node-content {
+  padding: 10px 15px !important;
+  border: none !important;
+  border-bottom: 1px solid #f8f9fa !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  cursor: pointer !important;
+}
+
+:host ::ng-deep mcv-datatree .tree-node-content i,
+:host ::ng-deep mcv-datatree .tree-node-content span,
+:host ::ng-deep mcv-datatree .tree-node-content div,
+:host ::ng-deep mcv-datatree .tree-node-content button {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+:host ::ng-deep mcv-datatree .tree-node-content {
+  padding: 8px 12px !important;
+  border-bottom: 1px solid #f8f9fa !important;
+}
+
+:host ::ng-deep mcv-datatree .tree-node-content i {
+  color: #adb5bd !important;
+  font-size: 0.85rem !important;
+  margin-right: 10px !important;
+}
+
+:host ::ng-deep mcv-datatree .tree-node-label {
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+  color: #495057 !important;
+}
+
+:host ::ng-deep mcv-datatree .tree-children {
+  padding-left: 20px !important;
+  border-left: 1px dashed #dee2e6 !important;
+  margin-left: 15px !important;
+}
+
+:host ::ng-deep mcv-datatree .active-node {
+  background-color: #e7f1ff !important;
+  color: #0d6efd !important;
+}
+
+/* Hide the toolkit's default header/buttons area if still present */
+:host ::ng-deep mcv-datatree .tree-header {
+  display: none !important;
+}
