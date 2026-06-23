@@ -2,6 +2,8 @@ import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { LoaderService } from './services/loader.service';
+import { NotificationService } from './services/notification.service';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +16,8 @@ export class App implements OnInit {
   protected readonly title = signal('Language Management System');
 
   private translate = inject(TranslateService);
+  public loaderService = inject(LoaderService);
+  public notificationService = inject(NotificationService);
   currentLang = signal('en');
   isSidebarOpen = signal(false);
 

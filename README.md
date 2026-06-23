@@ -1,59 +1,104 @@
-# LanguageApp
+# Language App — Monorepo
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.2.
+A full-stack language learning application built with **Angular** (frontend) and **Laravel** (backend).
 
-## Development server
+## 📁 Project Structure
 
-To start a local development server, run:
+```
+language_app/
+├── frontend/          ← Angular 21 (TypeScript)
+│   ├── src/
+│   ├── angular.json
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── backend/           ← Laravel 11 (PHP)
+│   ├── app/
+│   ├── routes/
+│   ├── database/
+│   └── composer.json
+│
+└── README.md
+```
+
+---
+
+## 🚀 Getting Started
+
+### Frontend (Angular)
 
 ```bash
+cd frontend
+npm install
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Navigate to `http://localhost:4200/`
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### Backend (Laravel)
 
 ```bash
+cd backend
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan serve
+```
+
+API runs at `http://localhost:8000/`
+
+---
+
+## 🛠 Development
+
+### Frontend Commands
+
+```bash
+cd frontend
+
+# Serve (dev)
+ng serve
+
+# Build (production)
+ng build
+
+# Run tests
+ng test
+
+# Generate component
 ng generate component component-name
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### Backend Commands
 
 ```bash
-ng generate --help
+cd backend
+
+# Start dev server
+php artisan serve
+
+# Run migrations
+php artisan migrate
+
+# Generate model/controller
+php artisan make:model ModelName -mcr
 ```
 
-## Building
+---
 
-To build the project run:
+## 📦 Tech Stack
 
-```bash
-ng build
-```
+| Layer | Technology |
+|---|---|
+| Frontend | Angular 21, TypeScript, Bootstrap 5 |
+| Backend | Laravel 11, PHP |
+| Database | MySQL |
+| Editor | EditorJS |
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+---
 
-## Running unit tests
+## 🔗 Additional Resources
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- [Angular CLI Docs](https://angular.dev/tools/cli)
+- [Laravel Docs](https://laravel.com/docs)

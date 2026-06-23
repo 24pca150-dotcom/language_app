@@ -183,9 +183,9 @@ export const ACTIVITY_BLOCK_STYLES = `
 .activity-modal-content {
   background: white;
   border-radius: 1rem;
-  width: 90%;
-  max-width: 650px;
-  max-height: 85vh;
+  width: 95%;
+  max-width: 1000px;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);

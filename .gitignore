@@ -1,7 +1,7 @@
 # ==========================================
 # 1. COMPILED OUTPUT & BUILD ARTIFACTS
 # ==========================================
-/dist/
+/frontend/dist/
 /tmp/
 /out-tsc/
 /bazel-out/
@@ -14,7 +14,7 @@
 # ==========================================
 # 2. DEPENDENCY FOLDERS
 # ==========================================
-/node_modules/
+/frontend/node_modules/
 /backend/node_modules/
 /backend/vendor/
 
@@ -45,7 +45,7 @@
 # 4. LOGS, CACHE & TEMPORARY FILES
 # ==========================================
 # Angular CLI & compiler caches
-/.angular/
+/frontend/.angular/
 .sass-cache/
 
 # Lock files that shouldn't be tracked (if any)

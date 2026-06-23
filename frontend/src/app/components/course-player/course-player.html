@@ -1,8 +1,8 @@
-<div class="container-fluid p-0 overflow-hidden" style="height: calc(100vh - 100px);">
+<div class="container-fluid p-0 overflow-hidden premium-gradient-bg" style="height: calc(100vh - 100px);">
   <div class="row g-0 h-100">
     <!-- Sidebar: Hierarchical View -->
-    <aside class="col-md-3 col-lg-2 bg-white border-end h-100 overflow-y-auto shadow-sm sidebar-scroll">
-      <div class="p-4 border-bottom bg-light">
+    <aside class="col-md-4 col-lg-3 glass-panel border-end border-opacity-25 h-100 overflow-y-auto sidebar-scroll">
+      <div class="p-4 border-bottom border-opacity-25 border-light">
         <h6 class="fw-bold mb-0 text-secondary text-uppercase tracking-wider small">Course Content</h6>
         <div class="small text-muted mt-1" *ngIf="courseStructure()">{{ courseStructure()?.name }}</div>
       </div>
@@ -27,16 +27,17 @@
     </aside>
 
     <!-- Main Content Area -->
-    <main class="col h-100 overflow-y-auto bg-light">
+    <main class="col h-100 overflow-y-auto position-relative">
       @if (activeContent(); as content) {
-      <div class="p-4 p-lg-5 max-w-4xl mx-auto">
+      <div class="p-4 p-lg-5 max-w-4xl mx-auto animate-slide-up">
         <!-- Content Header -->
-        <div class="card border-0 shadow-sm rounded-4 p-4 p-lg-5 mb-4 bg-white">
-          <h1 class="display-5 fw-bold text-dark mb-3">{{ content.title || content.name }}</h1>
+        <div class="premium-card p-4 p-lg-5 mb-4">
+          <h1 class="display-5 fw-bold text-dark mb-2" style="letter-spacing: -1px;">{{ content.title || content.name }}</h1>
+          <div class="w-25 rounded-pill bg-primary mt-3" style="height: 4px;"></div>
         </div>
 
         <!-- Full Content Body -->
-        <div class="card border-0 shadow-sm rounded-4 p-4 p-lg-5 mb-4 bg-white">
+        <div class="premium-card p-4 p-lg-5 mb-4">
           <!-- Text Content -->
           @if (isJsonContent()) {
             <div class="editorjs-blocks">

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Content;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreContentRequest;
+use App\Http\Requests\UpdateContentRequest;
 use Illuminate\Support\Facades\Storage;
 
 class ContentController extends Controller
@@ -48,6 +50,10 @@ class ContentController extends Controller
         $url  = Storage::disk('public')->url($path);
 
         return response()->json([
+            'success'       => 1,
+            'file'          => [
+                'url' => $url
+            ],
             'url'           => $url,
             'unique_id'     => $uniqueId,
             'original_name' => $originalName,
@@ -77,20 +83,9 @@ class ContentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreContentRequest $request)
     {
-        $validated = $request->validate([
-            'name'           => 'required|string|max:255',
-            'chapter_ids'    => 'nullable|array',
-            'chapter_ids.*'  => 'exists:chapters,id',
-            'sort_order'     => 'integer',
-            'is_active'      => 'boolean',
-            'text_content'   => 'nullable|string',
-            'urls'           => 'nullable|array',
-            'urls.*'         => 'nullable|string',
-            'attachments'    => 'nullable|array',
-            'attachments.*'  => 'nullable|array',
-        ]);
+        $validated = $request->validated();
 
         $validated['external_url'] = !empty($validated['urls'])
             ? array_values(array_filter($validated['urls']))
@@ -131,20 +126,9 @@ class ContentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Content $content)
+    public function update(UpdateContentRequest $request, Content $content)
     {
-        $validated = $request->validate([
-            'name'           => 'required|string|max:255',
-            'chapter_ids'    => 'nullable|array',
-            'chapter_ids.*'  => 'exists:chapters,id',
-            'sort_order'     => 'integer',
-            'is_active'      => 'boolean',
-            'text_content'   => 'nullable|string',
-            'urls'           => 'nullable|array',
-            'urls.*'         => 'nullable|string',
-            'attachments'    => 'nullable|array',
-            'attachments.*'  => 'nullable|array',
-        ]);
+        $validated = $request->validated();
 
         $validated['external_url'] = !empty($validated['urls'])
             ? array_values(array_filter($validated['urls']))

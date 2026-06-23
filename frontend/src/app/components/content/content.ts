@@ -21,10 +21,11 @@ export class SafeHtmlPipe implements PipeTransform {
 import { ContentService, ContentData, Attachment } from '../../services/content';
 import { ChapterService, ChapterData } from '../../services/chapter';
 import EditorJS from '@editorjs/editorjs';
-import { ActivityBlock } from '../../editor-plugins/activity-block';
+import ImageTool from '@editorjs/image';
 import { CustomList as List } from '../../editor-plugins/custom-list';
 import Table from '@editorjs/table';
 import { ActivityRenderer } from '../activity-engine/activity-renderer/activity-renderer';
+import { NotificationService } from '../../services/notification.service';
 
 import {
   McvInputField,
@@ -51,6 +52,7 @@ export class Content implements OnInit {
   private fb = inject(FormBuilder);
   private contentService = inject(ContentService);
   private chapterService = inject(ChapterService);
+  private notificationService = inject(NotificationService);
 
   contentForm: FormGroup;
   contents = signal<ContentData[]>([]);
@@ -156,6 +158,14 @@ export class Content implements OnInit {
           activity: {
             class: ActivityBlock,
             inlineToolbar: true
+          },
+          image: {
+            class: ImageTool,
+            config: {
+              endpoints: {
+                byFile: 'http://127.0.0.1:8000/api/contents/upload',
+              }
+            }
           },
           list: {
             class: List as any,
@@ -418,7 +428,6 @@ export class Content implements OnInit {
   }
 
   private showFeedback(type: 'success' | 'error', text: string): void {
-    this.feedbackMessage.set({ type, text });
-    setTimeout(() => this.feedbackMessage.set(null), 5000);
+    this.notificationService.show(type, text);
   }
 }
