@@ -24,6 +24,7 @@ import EditorJS from '@editorjs/editorjs';
 import ImageTool from '@editorjs/image';
 import { CustomList as List } from '../../editor-plugins/custom-list';
 import Table from '@editorjs/table';
+import { ActivityBlock } from '../../editor-plugins/activity-block';
 import { ActivityRenderer } from '../activity-engine/activity-renderer/activity-renderer';
 import { NotificationService } from '../../services/notification.service';
 
