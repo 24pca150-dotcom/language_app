@@ -11,6 +11,7 @@ import { Assessment } from './components/assessment/assessment';
 
 import { LearningMode } from './components/learning-mode/learning-mode';
 import { AssessmentPlayerComponent } from './components/activity-engine/assessment-player/assessment-player';
+import { CoursePlayer } from './components/course-player/course-player';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'tenants', pathMatch: 'full' },
@@ -25,6 +26,6 @@ export const routes: Routes = [
   { path: 'assessments', component: Assessment },
   { path: 'assessments/play/:assessmentId', component: AssessmentPlayerComponent },
   { path: 'learning-modes', component: LearningMode },
-  { path: 'learn', component: AdventurePlayer }, // For query params: ?id=5
-  { path: 'learn/:courseId', component: AdventurePlayer }, // For path params: /learn/5
+  { path: 'learn', component: CoursePlayer }, // For query params: ?id=5
+  { path: 'learn/:courseId', component: CoursePlayer }, // For path params: /learn/5
 ];
