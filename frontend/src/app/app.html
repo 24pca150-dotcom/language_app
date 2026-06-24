@@ -1,6 +1,7 @@
 <div class="container-fluid p-0 d-flex min-vh-100 position-relative">
 
   <!-- Mobile Header (Visible only on small screens) -->
+  @if (!isAdventureView()) {
   <header
     class="mobile-header d-lg-none w-100 bg-dark text-light p-3 d-flex justify-content-between align-items-center position-fixed top-0 start-0 shadow-sm"
     style="z-index: 1100; background-color: var(--sidebar-bg) !important;">
@@ -17,13 +18,15 @@
       <i class="bi bi-list fs-2"></i>
     </button>
   </header>
+  }
 
   <!-- Sidebar Overlay (Visible only on mobile when sidebar is open) -->
-  @if (isSidebarOpen()) {
+  @if (!isAdventureView() && isSidebarOpen()) {
   <div class="sidebar-overlay d-lg-none" (click)="closeSidebar()"></div>
   }
 
   <!-- Sidebar -->
+  @if (!isAdventureView()) {
   <aside class="sidebar bg-dark text-light d-flex flex-column shadow" [class.show]="isSidebarOpen()"
     style="width: 280px; z-index: 1050; background-color: var(--sidebar-bg) !important;">
 
@@ -117,9 +120,10 @@
       </a>
     </nav>
   </aside>
+  }
   <!-- Content Area -->
-  <main class="main-content flex-grow-1 bg-light min-vh-100">
-    <div class="p-3 p-md-4 p-lg-5 mt-5 mt-lg-0">
+  <main [class.main-content]="!isAdventureView()" class="flex-grow-1 bg-light min-vh-100">
+    <div [class.p-3]="!isAdventureView()" [class.p-md-4]="!isAdventureView()" [class.p-lg-5]="!isAdventureView()" [class.mt-5]="!isAdventureView()" [class.mt-lg-0]="!isAdventureView()" [class.h-100]="isAdventureView()">
       <router-outlet></router-outlet>
     </div>
   </main>
@@ -127,7 +131,8 @@
 
 <!-- Global Loader -->
 @if (loaderService.isLoading()) {
-<div class="global-loader position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" style="background: rgba(0,0,0,0.5); z-index: 9999;">
+<div class="global-loader position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+  style="background: rgba(0,0,0,0.5); z-index: 9999;">
   <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
     <span class="visually-hidden">Loading...</span>
   </div>
@@ -137,13 +142,16 @@
 <!-- Toast Notifications Container -->
 <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">
   @for (toast of notificationService.toasts(); track toast.id) {
-    <div class="toast show align-items-center text-bg-{{ toast.type === 'error' ? 'danger' : toast.type === 'success' ? 'success' : toast.type === 'warning' ? 'warning' : 'info' }} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="d-flex">
-        <div class="toast-body">
-          {{ toast.message }}
-        </div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="notificationService.remove(toast.id)" aria-label="Close"></button>
+  <div
+    class="toast show align-items-center text-bg-{{ toast.type === 'error' ? 'danger' : toast.type === 'success' ? 'success' : toast.type === 'warning' ? 'warning' : 'info' }} border-0 mb-2"
+    role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        {{ toast.message }}
       </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="notificationService.remove(toast.id)"
+        aria-label="Close"></button>
     </div>
+  </div>
   }
-</div>
+</div>

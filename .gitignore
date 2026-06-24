@@ -88,7 +88,6 @@ testem.log
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-!.vscode/mcp.json
 
 # System specific files
 .DS_Store

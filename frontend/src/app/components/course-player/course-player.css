@@ -14,53 +14,106 @@
 .premium-card {
   background: #ffffff;
   border-radius: 20px;
-  box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  border: 1px solid rgba(0,0,0,0.02);
+  border: 1px solid rgba(0, 0, 0, 0.02);
 }
+
 .premium-card:hover {
-  box-shadow: 0 15px 50px -10px rgba(0,0,0,0.12);
+  box-shadow: 0 15px 50px -10px rgba(0, 0, 0, 0.12);
   transform: translateY(-2px);
 }
 
 /* Animations */
 @keyframes slideUpFade {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
 .animate-slide-up {
   animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* Course Player styles using Bootstrap utilities */
-.tracking-wider { letter-spacing: 0.05em; }
-.max-w-4xl { max-width: 900px; }
-.max-w-sm { max-width: 400px; }
-.mx-auto { margin-left: auto; margin-right: auto; }
-.transition-all { transition: all 0.3s ease; }
-.hover-scale:hover { transform: translateY(-3px) scale(1.02); }
-.border-dashed { border-style: dashed !important; border-width: 2px !important; }
-.cursor-pointer { cursor: pointer; }
-.hover-bg:hover { background-color: rgba(0, 123, 255, 0.05); }
+.tracking-wider {
+  letter-spacing: 0.05em;
+}
+
+.max-w-4xl {
+  max-width: 900px;
+}
+
+.max-w-sm {
+  max-width: 400px;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+.hover-scale:hover {
+  transform: translateY(-3px) scale(1.02);
+}
+
+.border-dashed {
+  border-style: dashed !important;
+  border-width: 2px !important;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.hover-bg:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
 .topic-btn {
   background: transparent;
   color: #495057;
   border-left: 3px solid transparent;
 }
+
 .topic-btn:hover {
   background-color: rgba(0, 123, 255, 0.05);
   color: #0d6efd;
 }
+
 .active-topic {
   background-color: #e7f1ff !important;
   color: #0d6efd !important;
   border-left-color: #0d6efd !important;
   font-weight: 500;
 }
-.sidebar-scroll::-webkit-scrollbar { width: 6px; }
-.sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
-.sidebar-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
-.sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+
+.sidebar-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
 
 /* Tree Component Overrides */
 .tree-container {
@@ -140,4 +193,124 @@
 /* Hide the toolkit's default header/buttons area if still present */
 :host ::ng-deep mcv-datatree .tree-header {
   display: none !important;
+}
+
+/* ── V3 ECOSYSTEM CSS ── */
+
+/* Floating XP Micro-interaction */
+.floating-xp {
+  position: fixed;
+  z-index: 9999;
+  font-size: 2rem;
+  pointer-events: none;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  transition: transform 0.1s;
+}
+
+/* World Evolution: Locked */
+.world-card.locked {
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.05), 0 5px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+.world-card.locked .locked-overlay {
+  backdrop-filter: grayscale(100%) blur(2px);
+}
+
+.grayscale {
+  filter: grayscale(100%) opacity(0.5);
+}
+
+/* World Evolution: Completed Mastered Crown */
+.mastered-badge {
+  font-size: 2.5rem;
+  z-index: 10;
+  filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.8));
+  animation: float 3s infinite ease-in-out;
+}
+
+.world-card.completed {
+  border: 2px solid #fbbf24 !important;
+  box-shadow: inset 0 0 0 2px rgba(251, 191, 36, 0.3), 0 10px 40px rgba(251, 191, 36, 0.2) !important;
+}
+
+/* Shimmer Effect for Completed Worlds */
+.world-shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transform: skewX(-20deg);
+  animation: shimmer 4s infinite;
+  pointer-events: none;
+  z-index: 5;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+
+  20% {
+    left: 200%;
+  }
+
+  100% {
+    left: 200%;
+  }
+}
+
+/* ── V5 ADVENTURE MAP & SCENE CSS ── */
+
+/* Path Node Styles */
+.path-node {
+  width: 90px;
+  height: 90px;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.path-node:hover:not(.locked) {
+  transform: scale(1.1);
+}
+
+.path-node.locked {
+  cursor: not-allowed;
+}
+
+.node-circle {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 4px solid white;
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.2), inset 0 -4px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+.path-node:active:not(.locked) .node-circle {
+  transform: translateY(6px);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2), inset 0 -2px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+.path-node.completed .node-circle {
+  border-color: #fbbf24;
+}
+
+/* Scene Styles */
+.scene-bubble {
+  border-bottom: 6px solid #e2e8f0;
+}
+
+.scene-bubble-tail {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-bottom: 15px solid white;
 }

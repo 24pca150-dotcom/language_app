@@ -64,7 +64,7 @@ export class CoursePlayer implements OnInit {
   activeContent = computed(() => {
     const id = this.activeContentId();
     const full = this.fullContent();
-    
+
     if (!id || !this.courseStructure()) return null;
 
     // If we have full content and its ID matches the active ID, return it
@@ -136,7 +136,7 @@ export class CoursePlayer implements OnInit {
       next: (structure) => {
         // Initialize expansion states
         structure.levels.forEach((l, idx) => {
-          l.is_expanded = idx === 0; 
+          l.is_expanded = idx === 0;
           l.chapters.forEach((c, cidx) => {
             c.is_expanded = idx === 0 && cidx === 0;
           });

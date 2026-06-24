@@ -45,7 +45,7 @@ export class AssessmentPlayerComponent implements OnInit, OnDestroy {
 
   currentQuestionIdx = signal<number>(0);
   answersMap = new Map<number, number>(); // questionId -> selectedOptionId
-  
+
   // Timer States
   timeLeft = signal<number>(0); // in seconds
   timerInterval: any = null;
