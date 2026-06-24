@@ -41,9 +41,11 @@ export class App implements OnInit {
   }
 
   private checkRoute(url: string) {
+    const path = url.split('?')[0];
     this.isAdventureView.set(
-      url.startsWith('/learn') || 
-      url.startsWith('/assessments/play')
+      path === '/learn' || 
+      path.startsWith('/learn/') || 
+      path.startsWith('/assessments/play')
     );
   }
 

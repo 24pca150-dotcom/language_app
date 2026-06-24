@@ -62,7 +62,6 @@ export class Content implements OnInit {
   isEditMode = signal(false);
   isFormVisible = signal(false);
   currentContentId = signal<number | null>(null);
-  feedbackMessage = signal<{ type: 'success' | 'error', text: string } | null>(null);
   previewContent = signal<ContentData | null>(null);
 
   private editorjsInstance: EditorJS | null = null;
@@ -326,7 +325,7 @@ export class Content implements OnInit {
     if (confirm('Are you sure you want to delete this content?')) {
       this.contentService.delete(id).subscribe({
         next: () => {
-          this.showFeedback('success', 'Content deleted successfully');
+          this.showFeedback('error', 'Content deleted successfully');
           this.loadContents();
         },
         error: () => this.showFeedback('error', 'Failed to delete content'),

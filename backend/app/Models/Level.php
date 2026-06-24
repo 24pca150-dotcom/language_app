@@ -51,4 +51,11 @@ class Level extends Model
             ->withPivot(['id', 'is_active'])
             ->withTimestamps();
     }
+
+    public function course(): BelongsToMany
+    {
+        return $this->belongsToMany(Course::class, 'course_package_levels')
+            ->withPivot(['package_id', 'is_mandatory', 'is_active'])
+            ->withTimestamps();
+    }
 }

@@ -218,7 +218,7 @@ class AssessmentController extends Controller
                     'chapter_id' => $assessment->chapter_id,
                 ],
                 [
-                    'course_id' => $assessment->level?->course_id ?? 0, // Fallback
+                    'course_id' => $assessment->level?->course()->first()?->id ?? 0,
                     'status' => 'completed',
                     'score' => $score,
                     'completed_at' => now(),
