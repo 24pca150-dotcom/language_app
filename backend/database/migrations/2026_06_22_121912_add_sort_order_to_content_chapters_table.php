@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('content_chapters', function (Blueprint $table) {
-            //
+            $table->integer('sort_order')->default(0);
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('content_chapters', function (Blueprint $table) {
-            //
+            $table->dropColumn('sort_order');
         });
     }
 };

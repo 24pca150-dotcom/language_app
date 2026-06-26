@@ -37,6 +37,8 @@ class Chapter extends Model
 
     public function contents(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsToMany(Content::class, 'content_chapters');
+        return $this->belongsToMany(Content::class, 'content_chapters')
+            ->withPivot('sort_order')
+            ->withTimestamps();
     }
 }
