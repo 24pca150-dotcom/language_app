@@ -3,6 +3,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { provideLottieOptions } from 'ngx-lottie';
 
 import { routes } from './app.routes';
 import { loaderInterceptor } from './services/loader.interceptor';
@@ -18,6 +19,9 @@ export const appConfig: ApplicationConfig = {
     provideTranslateHttpLoader({
       prefix: './i18n/',
       suffix: '.json'
+    }),
+    provideLottieOptions({
+      player: () => import('lottie-web')
     })
   ]
 };

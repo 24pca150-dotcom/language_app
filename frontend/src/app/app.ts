@@ -45,7 +45,9 @@ export class App implements OnInit {
     this.isAdventureView.set(
       path === '/learn' || 
       path.startsWith('/learn/') || 
-      path.startsWith('/assessments/play')
+      path.startsWith('/assessments/play') ||
+      path === '/dashboard' ||
+      path.startsWith('/dashboard')
     );
   }
 

@@ -12,8 +12,10 @@ import { Assessment } from './components/assessment/assessment';
 import { LearningMode } from './components/learning-mode/learning-mode';
 import { AssessmentPlayerComponent } from './components/activity-engine/assessment-player/assessment-player';
 import { CoursePlayer } from './components/course-player/course-player';
+import { LearnerDashboard } from './components/learner-dashboard/learner-dashboard';
 
 export const routes: Routes = [
+  { path: 'dashboard', component: LearnerDashboard },
   { path: '', redirectTo: 'tenants', pathMatch: 'full' },
   { path: 'packages', component: Package },
   { path: 'tenants', component: Tenant },

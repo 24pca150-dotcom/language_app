@@ -44,6 +44,7 @@
     "gsap": "^3.15.0",
     "howler": "^2.2.4",
     "lottie-web": "^5.13.0",
+    "lucide-angular": "^1.0.0",
     "mcv-ui-toolkit": "github:gsailappanskarthikkumaran-sys/mcv-ui-toolkit",
     "ngx-lottie": "^21.2.0",
     "ngx-quill": "^30.1.3",

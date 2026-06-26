@@ -19,6 +19,7 @@ export interface CourseData {
 export class CourseService {
   private http = inject(HttpClient);
   private apiUrl = 'http://127.0.0.1:8000/api/courses';
+  cachedStructure: any = null;
 
   getAll(): Observable<CourseData[]> {
     return this.http.get<CourseData[]>(this.apiUrl);

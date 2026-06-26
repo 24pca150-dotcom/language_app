@@ -1,0 +1,208 @@
+<div class="dashboard-container w-100 position-relative overflow-hidden" style="height: 100vh;">
+  
+  <!-- Top HUD (Heads Up Display) -->
+  <header class="game-hud d-flex justify-content-end align-items-center w-100 p-3 position-absolute top-0 start-0 z-3 pointer-events-none">
+
+    <!-- Stats & Actions -->
+    <div class="hud-stats d-flex gap-2 pointer-events-auto">
+      <!-- Achievements button -->
+      <button class="btn btn-warning rounded-pill px-3 shadow-sm border border-2 border-white text-dark fw-bold d-flex align-items-center gap-2 hover-lift" (click)="triggerAchievement()">
+        <i class="bi bi-trophy-fill text-dark"></i>
+        <span>Badges</span>
+      </button>
+
+      <div class="stat-badge d-flex align-items-center bg-white rounded-pill px-3 py-2 shadow-sm border border-2 border-warning">
+        <i class="bi bi-star-fill text-warning me-2 fs-5"></i>
+        <span class="fw-bold text-dark">1250</span>
+      </div>
+      <div class="stat-badge d-flex align-items-center bg-white rounded-pill px-3 py-2 shadow-sm border border-2 border-primary">
+        <i class="bi bi-gem text-primary me-2 fs-5"></i>
+        <span class="fw-bold text-dark">85</span>
+      </div>
+      <div class="stat-badge d-flex align-items-center bg-white rounded-pill px-3 py-2 shadow-sm border border-2 border-danger">
+        <i class="bi bi-heart-fill text-danger me-2 fs-5"></i>
+        <span class="fw-bold text-dark">5</span>
+      </div>
+      <button class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center ms-2" 
+              style="width: 45px; height: 45px; border: 2px solid white;"
+              (click)="toggleFullscreen()">
+        <i class="bi" [ngClass]="isFullscreen() ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'" style="font-size: 1.1rem;"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Sunny Sparkles & Floating Pollen (Drifting in the sunlight) -->
+  <div class="sparkles-container pointer-events-none">
+    <div class="sparkle"></div>
+    <div class="sparkle"></div>
+    <div class="sparkle"></div>
+    <div class="sparkle"></div>
+    <div class="sparkle"></div>
+    <div class="sparkle"></div>
+    <div class="sparkle"></div>
+    <div class="sparkle font-sparkle">✨</div>
+    <div class="sparkle font-sparkle">✨</div>
+  </div>
+
+  <!-- Animated Falling Leaves -->
+  <div class="leaves-container pointer-events-none">
+    <div class="leaf-particle">🍃</div>
+    <div class="leaf-particle">🍁</div>
+    <div class="leaf-particle">🍃</div>
+    <div class="leaf-particle">🍂</div>
+    <div class="leaf-particle">🍃</div>
+    <div class="leaf-particle">🍁</div>
+    <div class="leaf-particle">🍂</div>
+  </div>
+
+  <!-- Background Scenery (Hills, Trees, Fireflies) -->
+  <div class="hill-bg-3"></div>
+  <div class="hill-bg-2"></div>
+  
+  <div class="hill-bg-1">
+    <!-- Swaying Grass Clumps & Flowers on the hills -->
+    <div class="css-grass-clump" style="left: 10%; bottom: 60px;">
+      <div class="blade"></div><div class="blade"></div><div class="blade"></div>
+    </div>
+    <div class="css-grass-clump" style="left: 45%; bottom: 80px; transform: scale(1.2);">
+      <div class="blade"></div><div class="blade"></div><div class="blade"></div>
+    </div>
+    <div class="css-grass-clump" style="right: 15%; bottom: 50px;">
+      <div class="blade"></div><div class="blade"></div><div class="blade"></div>
+    </div>
+    <div class="css-flower" style="left: 25%; bottom: 70px;">
+      <div class="stem"></div><div class="petals"></div><div class="center"></div>
+    </div>
+    <div class="css-flower" style="right: 35%; bottom: 75px; transform: scale(1.15);">
+      <div class="stem"></div><div class="petals"></div><div class="center"></div>
+    </div>
+  </div>
+
+  <!-- CSS Pine Trees scattered on the hills -->
+  <div class="css-pine-tree" style="left: 8%; bottom: 18vh; transform: scale(0.75);">
+    <div class="leaf-1"></div><div class="leaf-2"></div><div class="leaf-3"></div><div class="trunk"></div>
+  </div>
+  <div class="css-pine-tree" style="left: 18%; bottom: 25vh; transform: scale(0.9) rotate(-3deg);">
+    <div class="leaf-1"></div><div class="leaf-2"></div><div class="leaf-3"></div><div class="trunk"></div>
+  </div>
+  <div class="css-pine-tree" style="right: 12%; bottom: 15vh; transform: scale(0.85) rotate(2deg);">
+    <div class="leaf-1"></div><div class="leaf-2"></div><div class="leaf-3"></div><div class="trunk"></div>
+  </div>
+  <div class="css-pine-tree" style="right: 22%; bottom: 22vh; transform: scale(1.15);">
+    <div class="leaf-1"></div><div class="leaf-2"></div><div class="leaf-3"></div><div class="trunk"></div>
+  </div>
+
+  <!-- Floating Animated Fireflies -->
+  <div class="fireflies">
+    <div class="firefly"></div>
+    <div class="firefly"></div>
+    <div class="firefly"></div>
+    <div class="firefly"></div>
+    <div class="firefly"></div>
+    <div class="firefly"></div>
+  </div>
+
+  <!-- Clouds Container -->
+  <div class="clouds-container position-fixed top-0 start-0 w-100 h-100 pointer-events-none z-0">
+    <i class="bi bi-cloud-fill text-white opacity-50 position-absolute cloud-1" style="font-size: 4rem; top: 10%; left: -10%;"></i>
+    <i class="bi bi-cloud-fill text-white opacity-25 position-absolute cloud-2" style="font-size: 6rem; top: 25%; left: -20%;"></i>
+    <i class="bi bi-cloud-fill text-white opacity-50 position-absolute cloud-3" style="font-size: 3rem; top: 15%; left: -15%;"></i>
+  </div>
+
+  <div class="container max-w-5xl h-100 d-flex flex-column justify-content-start position-relative z-2" style="padding-top: 6vh;">
+    <!-- Header -->
+    <div class="text-center mb-5 mt-5 pt-3 animate-slide-down">
+      <h1 class="display-3 fw-bold mb-2 text-white" style="text-shadow: 3px 3px 0 #1b5e20, -3px -3px 0 #1b5e20, 3px -3px 0 #1b5e20, -3px 3px 0 #1b5e20, 0 8px 15px rgba(0,0,0,0.4); letter-spacing: 1px;">
+        What would you like to learn today?
+      </h1>
+      <p class="lead fw-bold text-white fs-4" style="text-shadow: 2px 2px 0 #1b5e20, -2px -2px 0 #1b5e20, 2px -2px 0 #1b5e20, -2px 2px 0 #1b5e20, 0 4px 10px rgba(0,0,0,0.5);">
+        Choose a language course and start your journey.
+      </p>
+    </div>
+
+
+
+    <!-- Courses Carousels -->
+    <div class="courses-carousels-container w-100 z-2 position-relative">
+      @for (cat of groupedCourses(); track cat.title; let catIdx = $index) {
+        <div class="category-lane mb-5 animate-slide-down" [style.animation-delay]="catIdx * 0.15 + 's'">
+          <h2 class="category-title text-white fw-bold mb-3 fs-3 text-shadow-sm d-flex align-items-center gap-2" style="text-shadow: 2px 2px 0 #1b5e20;">
+            <span>{{ cat.title }}</span>
+            <span class="badge bg-success rounded-pill fs-6 py-1 px-2" style="border: 2px solid white;">{{ cat.courses.length }}</span>
+          </h2>
+          
+          <!-- Carousel scroll wrapper -->
+          <div class="row flex-nowrap overflow-x-auto g-4 pb-3 custom-scrollbar px-1" style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scroll-behavior: smooth;">
+            @for (course of cat.courses; track course.id; let i = $index) {
+              <div class="col-12 col-sm-6 col-md-4 col-lg-3" style="scroll-snap-align: start; flex: 0 0 auto;">
+                <div class="text-decoration-none" style="cursor: pointer;" (click)="playCourse(course, $event)">
+                  <div class="course-card card border-0 h-100 position-relative text-center">
+                    
+                    <!-- Colorful Header graphic (Forest style) -->
+                    <div class="course-card-header text-center text-white py-4 position-relative">
+                      <i class="bi course-icon" [ngClass]="course.name.toLowerCase().includes('tamil') ? 'bi-compass-fill' : (course.name.toLowerCase().includes('french') ? 'bi-journal-richtext' : 'bi-tree-fill')"></i>
+                    </div>
+                    
+                    <div class="card-body p-4 d-flex flex-column">
+                      <h3 class="card-title fw-bold mb-2 fs-5" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">{{ course.name }}</h3>
+                      <p class="card-text mb-3 flex-grow-1 small" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 38px;">
+                        {{ course.description || 'Embark on a new adventure and master this language step-by-step.' }}
+                      </p>
+                      
+                      <!-- Grassy Progress Bar -->
+                      <div class="course-progress-container mb-3">
+                        <div class="progress-wood-border">
+                          <div class="progress-grassy-fill" [style.width.%]="i === 0 && catIdx === 0 ? 50 : (i === 1 ? 25 : 0)"></div>
+                        </div>
+                        <div class="progress-text-label d-flex justify-content-between small mt-1 fw-bold">
+                          <span>Progress</span>
+                          <span>{{ i === 0 && catIdx === 0 ? 50 : (i === 1 ? 25 : 0) }}%</span>
+                        </div>
+                      </div>
+
+                      <div class="d-flex align-items-center justify-content-between mt-auto">
+                        <span class="badge badge-level rounded-pill px-3 py-1 fw-bold">
+                          Beginner
+                        </span>
+                        <div class="btn-play-bouncy" style="width: 42px !important; height: 42px !important; box-shadow: 0 4px 0 #ff6f00 !important;">
+                          <i class="bi bi-play-fill" style="font-size: 1.3rem !important;"></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (!isLoading() && groupedCourses().length === 0) {
+        <div class="text-center py-5 w-100">
+          <div class="p-4 rounded-4 d-inline-block border border-3 border-success" style="background: #FFF9C4 !important; box-shadow: 0 8px 16px rgba(0,0,0,0.15);">
+            <i class="bi bi-journal-x display-1 text-success mb-3 d-block" style="filter: drop-shadow(0 4px 0 #2e7d32);"></i>
+            <h3 class="fw-bold text-dark">No Adventures Found</h3>
+            <p class="text-secondary mb-0">Try adjusting your search query or language filter.</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+
+
+  <!-- Selective Lottie Achievement Modal -->
+  @if (showAchievementModal()) {
+    <div class="achievement-modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center z-5" style="background: rgba(0,0,0,0.65); backdrop-filter: blur(6px);">
+      <div class="achievement-card text-center p-5 animate-bounce-in" style="background: #FFF9C4; border: 8px solid #FBC02D; border-radius: 28px; width: 90%; max-width: 450px; box-shadow: 0 20px 0 rgba(251, 192, 45, 0.4);">
+        <ng-lottie [options]="achievementLottieOptions" style="width: 180px; height: 180px; margin: 0 auto;"></ng-lottie>
+        <h2 class="fw-bold text-dark mb-3 mt-4" style="font-family: 'Fredoka', sans-serif;">Adventure Unlocked!</h2>
+        <p class="fs-5 text-secondary mb-4">You have achieved greatness in your forest journey! Keep it up!</p>
+        <button class="btn btn-success btn-lg rounded-pill px-5 py-3 fw-bold border border-3 border-white shadow hover-lift" (click)="showAchievementModal.set(false)">
+          AWESOME!
+        </button>
+      </div>
+    </div>
+  }
+
+</div>

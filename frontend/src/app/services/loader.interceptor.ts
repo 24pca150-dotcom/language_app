@@ -6,12 +6,18 @@ import { finalize } from 'rxjs/operators';
 export const loaderInterceptor: HttpInterceptorFn = (req, next) => {
   const loaderService = inject(LoaderService);
   
-  // Don't show loader for background requests like chat streams if they exist
-  loaderService.show();
+  // Don't show global loader for course structure or content loading to keep page transitions seamless
+  const skipLoader = req.url.includes('/player-structure') || req.url.includes('/api/contents/') || req.url.includes('/api/courses');
+  
+  if (!skipLoader) {
+    loaderService.show();
+  }
   
   return next(req).pipe(
     finalize(() => {
-      loaderService.hide();
+      if (!skipLoader) {
+        loaderService.hide();
+      }
     })
   );
 };
