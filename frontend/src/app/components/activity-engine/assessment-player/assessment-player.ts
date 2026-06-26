@@ -41,7 +41,8 @@ export class AssessmentPlayerComponent implements OnInit, OnDestroy {
 
   assessmentId = signal<number | null>(null);
   assessment = signal<AssessmentData | null>(null);
-  gameState = signal<'start' | 'active' | 'results'>('start');
+  gameState = signal<'start' | 'active' | 'results' | 'error'>('start');
+  errorMessage = signal<string | null>(null);
 
   currentQuestionIdx = signal<number>(0);
   answersMap = new Map<number, number>(); // questionId -> selectedOptionId
@@ -79,13 +80,18 @@ export class AssessmentPlayerComponent implements OnInit, OnDestroy {
 
   loadAssessmentDetails(): void {
     if (!this.assessmentId()) return;
+    this.errorMessage.set(null);
 
     const url = `http://localhost:8000/api/assessments/${this.assessmentId()}`;
     this.http.get<AssessmentData>(url).subscribe({
       next: (data) => {
         this.assessment.set(data);
       },
-      error: (err) => console.error('Failed to fetch assessment details:', err)
+      error: (err) => {
+        console.error('Failed to fetch assessment details:', err);
+        this.errorMessage.set(err.status === 404 ? 'Assessment not found.' : 'Failed to load assessment details. Please try again.');
+        this.gameState.set('error');
+      }
     });
   }
 
