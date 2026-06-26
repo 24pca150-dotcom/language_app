@@ -8,6 +8,14 @@
   --sidebar-bg: #111827;
   --sidebar-text: #94a3b8;
   --sidebar-active: #3b82f6;
+
+  /* Nature Adventure Theme */
+  --na-primary: #2E7D32;
+  --na-secondary: #66BB6A;
+  --na-accent: #FFD54F;
+  --na-bg: #F4FFF4;
+  --na-sky: #DFF6FF;
+  --na-text: #1e293b;
 }
 
 * {
