@@ -96,6 +96,12 @@
         <i class="bi bi-check2-square"></i>
         <span>{{ 'SIDEBAR.ASSESSMENTS' | translate }}</span>
       </a>
+      
+      <a routerLink="/activity-builder" routerLinkActive="active" (click)="closeSidebar()"
+        class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-warning transition-all w-100 bg-dark bg-opacity-50 border border-warning border-opacity-25">
+        <i class="bi bi-tools text-warning"></i>
+        <span>Activity Builder</span>
+      </a>
 
       <!-- Admin Section -->
       <div class="mt-4 mb-2 px-3 small text-uppercase fw-bold text-light opacity-75"

@@ -42,13 +42,22 @@ export class App implements OnInit {
 
   private checkRoute(url: string) {
     const path = url.split('?')[0];
-    this.isAdventureView.set(
+    const isAdv = (
       path === '/learn' || 
       path.startsWith('/learn/') || 
       path.startsWith('/assessments/play') ||
       path === '/dashboard' ||
       path.startsWith('/dashboard')
     );
+    this.isAdventureView.set(isAdv);
+    
+    if (typeof document !== 'undefined') {
+      if (isAdv) {
+        document.body.classList.add('adventure-view');
+      } else {
+        document.body.classList.remove('adventure-view');
+      }
+    }
   }
 
   toggleSidebar() {

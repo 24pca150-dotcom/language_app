@@ -1,19 +1,13 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
-import { gsap } from 'gsap';
+import { forkJoin } from 'rxjs';
 
-interface Content {
-  id: number;
-  name: string;
-  title?: string;
-  text_content?: string;
-  attachments?: any[];
-  external_url?: any[];
-  assessments?: any[];
-  sort_order?: number;
-  is_active?: boolean;
+export interface LessonStep {
+  type: 'video' | 'pdf' | 'reading' | 'activity' | 'assessment';
+  title: string;
+  data: any;
 }
 
 interface Chapter {
@@ -41,19 +35,37 @@ interface CourseStructure {
 import { RouterModule, Router } from '@angular/router';
 import { ActivityRenderer } from '../activity-engine/activity-renderer/activity-renderer';
 import { CourseService } from '../../services/course';
+import { KidsDashboard } from '../kids-dashboard/kids-dashboard';
+import { StudentDashboard } from '../student-dashboard/student-dashboard';
+import confetti from 'canvas-confetti';
+import { gsap } from 'gsap';
+import { AudioService } from '../../services/audio.service';
+
+interface Content {
+  id: number;
+  name: string;
+  title?: string;
+  text_content?: string;
+  attachments?: any[];
+  external_url?: any[];
+  assessments?: any[];
+  sort_order?: number;
+  is_active?: boolean;
+}
 
 @Component({
   selector: 'app-course-player',
   standalone: true,
-  imports: [CommonModule, RouterModule, ActivityRenderer],
+  imports: [CommonModule, RouterModule, ActivityRenderer, KidsDashboard, StudentDashboard],
   templateUrl: './course-player.html',
   styleUrls: ['./course-player.css']
 })
-export class CoursePlayer implements OnInit {
+export class CoursePlayer implements OnInit, OnDestroy {
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private courseService = inject(CourseService);
+  private audioService = inject(AudioService);
 
   courseId = signal<number | null>(null);
   userId = signal<number>(1);
@@ -63,6 +75,7 @@ export class CoursePlayer implements OnInit {
   fullContent = signal<Content | null>(null);
   isFullscreen = signal(false);
   currentView = signal<'levels' | 'map' | 'content' | 'activity'>('levels');
+  theme = signal<'kids' | 'student'>('kids'); // New theme signal
   currentActivityIndex = signal<number>(0);
   activeLevelId = signal<number | null>(null);
   activeChapterId = signal<number | null>(null);
@@ -71,7 +84,15 @@ export class CoursePlayer implements OnInit {
   completedLevelIds = signal<number[]>([]);
   completedChapterIds = signal<number[]>([]);
 
-  // Slide pagination for reading blocks
+  // Interactive Lesson State
+  lessonSequence = signal<LessonStep[]>([]);
+  currentStepIndex = signal<number>(0);
+  learningMode = signal<'strict' | 'easy'>('easy'); // Strict mode prevents skipping activities
+  isStepCompleted = signal<boolean>(false);
+  isVideoCompleted = signal<boolean>(false);
+  lessonFinished = signal<boolean>(false);
+
+  // Slide pagination for reading blocks (inside reading step)
   currentContentPage = signal<number>(0);
   pageSize = 2;
 
@@ -82,6 +103,40 @@ export class CoursePlayer implements OnInit {
   showGameOver = signal<boolean>(false);
   showCorrectSplash = signal<boolean>(false);
   showIncorrectSplash = signal<boolean>(false);
+  activityFeedbackState = signal<'correct' | 'incorrect' | null>(null);
+
+  // Typewriter State for Reading
+  typedContent = signal<string>('');
+  typingTimeout: any;
+
+  rawReadingHtml = computed(() => {
+     const step = this.currentStep();
+     if (step && step.type === 'reading') {
+       if (step.data.isJson) {
+         const block = step.data.blocks[this.currentContentPage()];
+         if (!block) return '';
+         if (block.type === 'paragraph') return `<div class="fw-bold opacity-75">${block.data.text}</div>`;
+         else if (block.type === 'header') return `<h3 class="fw-bold text-primary mb-0" style="font-size: 2.5rem;">${block.data.text}</h3>`;
+         else if (block.type === 'list') {
+            return `<ul class="mb-0 ps-4 fw-bold opacity-75 text-start d-inline-block">` + block.data.items.map((i:any) => `<li class="mb-3">${i}</li>`).join('') + `</ul>`;
+         }
+       } else {
+         return `<div class="fw-bold opacity-75" style="font-size: 1.8rem; line-height: 1.6; font-family: 'Nunito', 'Comic Sans MS', sans-serif;">${step.data.text}</div>`;
+       }
+     }
+     return '';
+  });
+
+  constructor() {
+    effect(() => {
+      const html = this.rawReadingHtml();
+      if (html) {
+         this.startTypewriter(html);
+      } else {
+         this.typedContent.set('');
+      }
+    }, { allowSignalWrites: true });
+  }
 
   // Mascot warning notifications
   mascotWarning = signal<string | null>(null);
@@ -109,25 +164,6 @@ export class CoursePlayer implements OnInit {
     const chapId = this.activeChapterId();
     if (!level || !chapId) return null;
     return level.chapters.find(c => c.id === chapId) || null;
-  });
-
-  // Flat chapters mapping for the selected level (roadmap layout)
-  levelChaptersMap = computed(() => {
-    const level = this.selectedLevel();
-    const map = new Map<number, { globalNumber: number; globalIndex: number; xOffset: number }>();
-    if (!level) return map;
-
-    const pattern = [-100, -40, 40, 100, 40, -40];
-    level.chapters.forEach((chapter, idx) => {
-      const xOffset = pattern[idx % pattern.length];
-      map.set(chapter.id, {
-        globalNumber: idx + 1,
-        globalIndex: idx,
-        xOffset
-      });
-    });
-
-    return map;
   });
 
   activeContent = computed(() => {
@@ -201,6 +237,16 @@ export class CoursePlayer implements OnInit {
 
   activityBlocks = computed(() => {
     return this.parsedBlocks().filter((b: any) => b.type === 'activity');
+  });
+
+  // Computed properties for the new Lesson Player
+  currentStep = computed(() => {
+    const seq = this.lessonSequence();
+    const idx = this.currentStepIndex();
+    if (seq.length > 0 && idx >= 0 && idx < seq.length) {
+      return seq[idx];
+    }
+    return null;
   });
 
   ngOnInit(): void {
@@ -348,9 +394,173 @@ export class CoursePlayer implements OnInit {
       this.triggerMascotWarning('🔒 Chapter is locked! Complete preceding chapters to unlock.');
       return;
     }
-    this.activeChapterId.set(id);
-    this.activeContentId.set(null);
-    this.currentView.set('content');
+    this.startLesson(id);
+  }
+
+  startLesson(chapterId: number) {
+    this.activeChapterId.set(chapterId);
+    this.currentView.set('content'); // Using 'content' view for the new Full-Screen Lesson Player
+    this.lessonSequence.set([]);
+    this.currentStepIndex.set(0);
+    this.isVideoCompleted.set(false);
+    this.hearts.set(5);
+    this.showGameOver.set(false);
+    this.lessonFinished.set(false);
+    this.activityFeedbackState.set(null);
+    
+    const chapter = this.selectedChapter();
+    if (!chapter) return;
+
+    const contentIds = chapter.contents.map(c => c.id);
+    if (contentIds.length === 0) {
+      this.generateLessonSequence([], chapter.assessments || []);
+      return;
+    }
+
+    const requests = contentIds.map(id => this.http.get<Content>(`http://localhost:8000/api/contents/${id}`));
+    forkJoin(requests).subscribe({
+      next: (fullContents) => {
+        this.generateLessonSequence(fullContents, chapter.assessments || []);
+      },
+      error: (err) => console.error('Failed to load chapter contents', err)
+    });
+  }
+
+  generateLessonSequence(contents: Content[], chapterAssessments: any[]) {
+    const steps: LessonStep[] = [];
+    
+    contents.forEach(content => {
+      // Temporary Fix: Inject Homophones Video if it's content ID 1
+      if (content.id === 1) {
+        steps.push({
+          type: 'video',
+          title: 'Homophones Lesson',
+          data: 'assets/Homophones video .mp4'
+        });
+      }
+
+      // 1. External Media (Video)
+      if (content.external_url && content.external_url.length > 0) {
+        steps.push({
+          type: 'video',
+          title: content.title || content.name,
+          data: content.external_url[0] // Assume first URL is the video link
+        });
+      }
+
+      // 2. Document (PDF)
+      if (content.attachments && content.attachments.length > 0) {
+        steps.push({
+          type: 'pdf',
+          title: content.title || content.name + ' - Document',
+          data: content.attachments
+        });
+      }
+
+      // 3. Text Content (Reading & Activities)
+      if (content.text_content) {
+        let isJson = false;
+        let blocks = [];
+        const trimmed = content.text_content.trim();
+        if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+           try {
+             const data = JSON.parse(trimmed);
+             blocks = data.blocks || [];
+             isJson = true;
+           } catch (e) {}
+        }
+        
+        if (isJson) {
+          const videoBlocks = blocks.filter((b: any) => b.type === 'video' || b.type === 'embed');
+          const readingBlocks = blocks.filter((b: any) => b.type !== 'activity' && b.type !== 'video' && b.type !== 'embed');
+          const activityBlocks = blocks.filter((b: any) => b.type === 'activity');
+          
+          if (videoBlocks.length > 0) {
+             videoBlocks.forEach((block: any, idx: number) => {
+                steps.push({
+                  type: 'video',
+                  title: (content.title || content.name) + (videoBlocks.length > 1 ? ` - Video ${idx + 1}` : ' - Video'),
+                  data: block.data.url || block.data.embed
+                });
+             });
+          }
+
+          if (readingBlocks.length > 0) {
+             steps.push({
+               type: 'reading',
+               title: content.title || content.name,
+               data: { isJson: true, blocks: readingBlocks }
+             });
+          }
+          if (activityBlocks.length > 0) {
+             activityBlocks.forEach((block: any, idx: number) => {
+               let actName = 'Unknown';
+               if (block.data && block.data.type) {
+                 actName = block.data.type.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                 if (block.data.type === 'mcq') actName = 'Multiple Choice';
+               }
+
+               steps.push({
+                 type: 'activity',
+                 title: `${idx + 1}. Activity - ${actName}`,
+                 data: block
+               });
+             });
+          }
+        } else {
+           steps.push({
+             type: 'reading',
+             title: content.title || content.name,
+             data: { isJson: false, text: content.text_content }
+           });
+        }
+      }
+      
+      // 4. Content Assessments
+      if (content.assessments && content.assessments.length > 0) {
+        steps.push({
+          type: 'assessment',
+          title: content.title || content.name + ' - Quiz',
+          data: content.assessments
+        });
+      }
+    });
+
+    if (chapterAssessments.length > 0) {
+       steps.push({
+          type: 'assessment',
+          title: 'Chapter Quiz',
+          data: chapterAssessments
+       });
+    }
+
+    this.lessonSequence.set(steps);
+    this.evaluateStepCompletion();
+  }
+
+  evaluateStepCompletion() {
+    const step = this.currentStep();
+    if (!step) return;
+    
+    if (this.learningMode() === 'easy') {
+      this.isStepCompleted.set(true); // Easy mode allows skipping anything
+      return;
+    }
+
+    if (step.type === 'pdf') {
+       this.isStepCompleted.set(true); 
+    } else if (step.type === 'reading') {
+       if (step.data.isJson && step.data.blocks && step.data.blocks.length > 0) {
+         this.isStepCompleted.set(this.currentContentPage() >= step.data.blocks.length - 1);
+       } else {
+         this.isStepCompleted.set(true);
+       }
+    } else if (step.type === 'video') {
+       this.isStepCompleted.set(this.isVideoCompleted());
+    } else {
+       // Activities and assessments MUST be completed
+       this.isStepCompleted.set(false);
+    }
   }
 
   goToLevels() {
@@ -385,26 +595,65 @@ export class CoursePlayer implements OnInit {
   }
 
   nextContentPage() {
-    if (this.currentContentPage() < this.totalPages() - 1) {
-      this.currentContentPage.update(p => p + 1);
+    const step = this.currentStep();
+    if (step && step.type === 'reading' && step.data.isJson && step.data.blocks) {
+      if (this.currentContentPage() < step.data.blocks.length - 1) {
+        this.currentContentPage.update(p => p + 1);
+        this.evaluateStepCompletion();
+      }
     }
   }
 
   prevContentPage() {
     this.currentContentPage.update(p => Math.max(0, p - 1));
+    this.evaluateStepCompletion();
   }
 
   onActivityAnswered(event: any) {
     if (event && event.isCorrect !== undefined) {
+      this.activityFeedbackState.set(event.isCorrect ? 'correct' : 'incorrect');
       if (event.isCorrect) {
+        this.audioService.playSuccess();
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.8 },
+          colors: ['#4ade80', '#fcd34d', '#3b82f6']
+        });
+        
         this.coins.update(c => c + 5);
         this.xp.update(x => x + 10);
-        this.showCorrectSplash.set(true);
-        setTimeout(() => this.showCorrectSplash.set(false), 1200);
+        this.isStepCompleted.set(true);
+        
+        // GSAP Micro-interaction: Pop the stats in the HUD & Animate Mascot
+        setTimeout(() => {
+          gsap.fromTo('.stat-badge', 
+            { scale: 1.3, boxShadow: '0 0 20px #fcd34d' }, 
+            { scale: 1, boxShadow: 'none', duration: 0.8, ease: 'elastic.out(1, 0.3)', stagger: 0.1 }
+          );
+
+          // Joyful mascot jump
+          gsap.fromTo('.mascot-happy', 
+            { y: 50, scaleY: 0.7, rotation: -15 }, 
+            { y: 0, scaleY: 1.1, rotation: 10, duration: 0.6, ease: 'back.out(1.7)' }
+          );
+          // Continuous floating joy
+          gsap.to('.mascot-happy', {
+             y: -8, rotation: 0, scaleY: 1, duration: 1.5, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.6 
+          });
+        }, 50);
       } else {
+        this.audioService.playError();
         this.hearts.update(h => Math.max(0, h - 1));
-        this.showIncorrectSplash.set(true);
-        setTimeout(() => this.showIncorrectSplash.set(false), 1200);
+        
+        // GSAP Mascot Shake & Dizzy
+        setTimeout(() => {
+          gsap.fromTo('.mascot-sad', 
+            { x: -15, rotation: -20 }, 
+            { x: 15, rotation: 20, duration: 0.1, repeat: 5, yoyo: true, ease: 'sine.inOut' }
+          );
+          gsap.to('.mascot-sad', { x: 0, rotation: 0, duration: 0.3, delay: 0.6 });
+        }, 50);
         if (this.hearts() === 0) {
           this.showGameOver.set(true);
         }
@@ -412,18 +661,153 @@ export class CoursePlayer implements OnInit {
     }
   }
 
+  continueFromFeedback() {
+    const state = this.activityFeedbackState();
+    this.activityFeedbackState.set(null);
+    
+    if (state === 'correct') {
+       this.nextLessonStep();
+    }
+  }
+
   retryActivity() {
     this.hearts.set(5);
     this.showGameOver.set(false);
-    this.currentActivityIndex.set(0);
+    this.activityFeedbackState.set(null);
+    // Restart current step
+    this.evaluateStepCompletion();
+  }
+
+  onVideoEnded() {
+    this.isVideoCompleted.set(true);
+    this.isStepCompleted.set(true);
+    // Auto progress to next step
+    this.nextLessonStep();
+  }
+
+  nextLessonStep() {
+    const currentIdx = this.currentStepIndex();
+    if (currentIdx < this.lessonSequence().length - 1) {
+      this.currentStepIndex.set(currentIdx + 1);
+      this.isVideoCompleted.set(false);
+      this.evaluateStepCompletion();
+      this.currentContentPage.set(0);
+      this.activityFeedbackState.set(null);
+      // Cancel speech if they move to next step
+      window.speechSynthesis.cancel();
+    } else {
+      this.lessonFinished.set(true);
+    }
+  }
+
+  prevLessonStep() {
+    const currentIdx = this.currentStepIndex();
+    if (currentIdx > 0) {
+      this.currentStepIndex.set(currentIdx - 1);
+      this.evaluateStepCompletion();
+      this.currentContentPage.set(0);
+      this.lessonFinished.set(false);
+      this.activityFeedbackState.set(null);
+      window.speechSynthesis.cancel();
+    }
+  }
+
+  speakText(text: string) {
+    if (!text) return;
+    
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+    
+    // Remove HTML tags for clean speech
+    const cleanText = text.replace(/<[^>]*>?/gm, '');
+    
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'en-US';
+    // Slightly slower rate for kids
+    utterance.rate = 0.9;
+    utterance.pitch = 1.1; // Slightly higher pitch
+    
+    window.speechSynthesis.speak(utterance);
+  }
+
+  ngOnDestroy() {
+    window.speechSynthesis.cancel();
+    clearTimeout(this.typingTimeout);
+  }
+
+  startTypewriter(htmlContent: string) {
+    this.typedContent.set('');
+    clearTimeout(this.typingTimeout);
+    
+    let i = 0;
+    let isTag = false;
+    let currentText = '';
+
+    const type = () => {
+      if (i < htmlContent.length) {
+        let char = htmlContent.charAt(i);
+        if (char === '<') isTag = true;
+        
+        currentText += char;
+        i++;
+        
+        if (isTag) {
+          while (i < htmlContent.length && htmlContent.charAt(i - 1) !== '>') {
+             currentText += htmlContent.charAt(i);
+             i++;
+          }
+          isTag = false;
+          this.typedContent.set(currentText);
+          this.typingTimeout = setTimeout(type, 0);
+        } else {
+          this.typedContent.set(currentText);
+          const delay = char === '.' || char === '!' || char === '?' ? 200 : (char === ',' ? 100 : Math.random() * 20 + 20);
+          this.typingTimeout = setTimeout(type, delay);
+        }
+      }
+    };
+    
+    type();
   }
 
   finishLesson() {
+    this.audioService.playSuccess();
+    
+    // Mega Confetti Burst!
+    const duration = 3 * 1000;
+    const end = Date.now() + duration;
+
+    const frame = () => {
+      confetti({
+        particleCount: 5,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 },
+        colors: ['#4ade80', '#fcd34d', '#3b82f6', '#ec4899', '#8b5cf6']
+      });
+      confetti({
+        particleCount: 5,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 },
+        colors: ['#4ade80', '#fcd34d', '#3b82f6', '#ec4899', '#8b5cf6']
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    };
+    frame();
+
     const activeChapId = this.activeChapterId();
     if (activeChapId) {
       this.completeChapter(activeChapId);
     }
-    this.goBack();
+    
+    // Wait for confetti to finish before navigating away
+    setTimeout(() => {
+      this.goToMap();
+    }, 3500);
   }
 
   completeActiveChapterAndGoToMap() {

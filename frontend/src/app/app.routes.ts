@@ -13,6 +13,8 @@ import { LearningMode } from './components/learning-mode/learning-mode';
 import { AssessmentPlayerComponent } from './components/activity-engine/assessment-player/assessment-player';
 import { CoursePlayer } from './components/course-player/course-player';
 import { LearnerDashboard } from './components/learner-dashboard/learner-dashboard';
+import { ActivityBuilder } from './components/activity-builder/activity-builder';
+
 
 export const routes: Routes = [
   { path: 'dashboard', component: LearnerDashboard },
@@ -30,4 +32,5 @@ export const routes: Routes = [
   { path: 'learning-modes', component: LearningMode },
   { path: 'learn', component: CoursePlayer }, // For query params: ?id=5
   { path: 'learn/:courseId', component: CoursePlayer }, // For path params: /learn/5
+  { path: 'activity-builder', component: ActivityBuilder },
 ];
