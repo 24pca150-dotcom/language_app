@@ -761,7 +761,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
           this.typingTimeout = setTimeout(type, 0);
         } else {
           this.typedContent.set(currentText);
-          const delay = char === '.' || char === '!' || char === '?' ? 200 : (char === ',' ? 100 : Math.random() * 20 + 20);
+          const delay = char === '.' || char === '!' || char === '?' ? 600 : (char === ',' ? 300 : Math.random() * 30 + 40);
           this.typingTimeout = setTimeout(type, delay);
         }
       }

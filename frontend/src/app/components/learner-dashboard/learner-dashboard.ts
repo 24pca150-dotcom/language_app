@@ -29,43 +29,7 @@ export class LearnerDashboard implements OnInit {
   isLoading = signal(true);
   isFullscreen = signal(false);
 
-  // Search & Filtering Signals
-  searchQuery = signal<string>('');
-  selectedLanguage = signal<string>('All');
 
-  groupedCourses = computed(() => {
-    const query = this.searchQuery().toLowerCase().trim();
-    const lang = this.selectedLanguage();
-    const all = this.courses();
-
-    const filtered = all.filter(c => {
-      const matchesQuery = c.name.toLowerCase().includes(query) || (c.description && c.description.toLowerCase().includes(query));
-      if (lang === 'All') return matchesQuery;
-      return matchesQuery && c.name.toLowerCase().includes(lang.toLowerCase());
-    });
-
-    const categories: { title: string; courses: Course[] }[] = [];
-    const french = filtered.filter(c => c.name.toLowerCase().includes('french'));
-    const tamil = filtered.filter(c => c.name.toLowerCase().includes('tamil'));
-    const english = filtered.filter(c => c.name.toLowerCase().includes('english'));
-    const general = filtered.filter(c => !c.name.toLowerCase().includes('french') && !c.name.toLowerCase().includes('tamil') && !c.name.toLowerCase().includes('english'));
-
-    if (french.length > 0) categories.push({ title: '🇫🇷 French Adventures', courses: french });
-    if (tamil.length > 0) categories.push({ title: '🇮🇳 Tamil Adventures', courses: tamil });
-    if (english.length > 0) categories.push({ title: '🇬🇧 English Adventures', courses: english });
-    if (general.length > 0) categories.push({ title: '🌍 Global Quests', courses: general });
-
-    return categories;
-  });
-
-  onSearchInput(event: Event) {
-    const target = event.target as HTMLInputElement;
-    this.searchQuery.set(target.value);
-  }
-
-  setLanguage(lang: string) {
-    this.selectedLanguage.set(lang);
-  }
 
   // Mascot Tip Messages
   mascotTip = signal<string>('Welcome back, adventurer! Click "Play" on a course to start your quest!');
