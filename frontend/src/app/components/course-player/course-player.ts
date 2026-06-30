@@ -112,15 +112,41 @@ export class CoursePlayer implements OnInit, OnDestroy {
   rawReadingHtml = computed(() => {
      const step = this.currentStep();
      if (step && step.type === 'reading') {
-       if (step.data.isJson) {
-         const block = step.data.blocks[this.currentContentPage()];
-         if (!block) return '';
-         if (block.type === 'paragraph') return `<div class="fw-bold opacity-75">${block.data.text}</div>`;
-         else if (block.type === 'header') return `<h3 class="fw-bold text-primary mb-0" style="font-size: 2.5rem;">${block.data.text}</h3>`;
-         else if (block.type === 'list') {
-            return `<ul class="mb-0 ps-4 fw-bold opacity-75 text-start d-inline-block">` + block.data.items.map((i:any) => `<li class="mb-3">${i}</li>`).join('') + `</ul>`;
-         }
-       } else {
+        if (step.data.isJson) {
+          const pageData = step.data.blocks[this.currentContentPage()];
+          if (!pageData) return '';
+          
+          const renderBlock = (block: any) => {
+            if (block.type === 'paragraph') return `<div class="opacity-75 mb-4">${block.data.text}</div>`;
+            else if (block.type === 'header') return `<h3 class="fw-bold text-primary mb-3" style="font-size: 1.7rem;">${block.data.text}</h3>`;
+            else if (block.type === 'list') {
+               return `<ul class="mb-4 ps-4 opacity-75 text-start d-inline-block">` + block.data.items.map((i:any) => `<li class="mb-2">${i}</li>`).join('') + `</ul>`;
+            }
+            else if (block.type === 'table') {
+               const withHeadings = block.data.withHeadings;
+               const rows = block.data.content || [];
+               let html = `<div class="table-responsive w-100 mb-4"><table class="table table-bordered shadow-sm" style="border-radius: 12px; overflow: hidden; background: white;">`;
+               rows.forEach((row: string[], index: number) => {
+                  if (index === 0 && withHeadings) {
+                      html += `<thead style="background: #fef08a;"><tr>` + row.map(cell => `<th class="p-2 text-dark fs-5 fw-bold border-bottom-0">${cell}</th>`).join('') + `</tr></thead><tbody>`;
+                  } else {
+                      if (index === 0 && !withHeadings) html += `<tbody>`;
+                      html += `<tr>` + row.map(cell => `<td class="p-2 fs-6 opacity-75">${cell}</td>`).join('') + `</tr>`;
+                  }
+               });
+               if (rows.length > 0) html += `</tbody>`;
+               html += `</table></div>`;
+               return html;
+            }
+            return '';
+          };
+
+          if (Array.isArray(pageData)) {
+            return pageData.map((b: any) => renderBlock(b)).join('');
+          } else {
+            return renderBlock(pageData);
+          }
+        } else {
          return `<div class="fw-bold opacity-75" style="font-size: 1.8rem; line-height: 1.6; font-family: 'Nunito', 'Comic Sans MS', sans-serif;">${step.data.text}</div>`;
        }
      }
@@ -486,10 +512,24 @@ export class CoursePlayer implements OnInit, OnDestroy {
           }
 
           if (readingBlocks.length > 0) {
+             let groupedBlocks = [];
+             let currentGroup = [];
+             for (let i = 0; i < readingBlocks.length; i++) {
+                 let b = readingBlocks[i];
+                 currentGroup.push(b);
+                 if (currentGroup.length >= 3 && b.type !== 'header') {
+                     groupedBlocks.push(currentGroup);
+                     currentGroup = [];
+                 }
+             }
+             if (currentGroup.length > 0) {
+                 groupedBlocks.push(currentGroup);
+             }
+
              steps.push({
                type: 'reading',
                title: content.title || content.name,
-               data: { isJson: true, blocks: readingBlocks }
+               data: { isJson: true, blocks: groupedBlocks }
              });
           }
           if (activityBlocks.length > 0) {
