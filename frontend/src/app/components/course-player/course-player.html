@@ -36,12 +36,14 @@
       <!-- Quit Button (Floating Top Left) -->
       <button
         class="btn btn-light rounded-circle shadow-lg position-absolute d-flex align-items-center justify-content-center border border-2 border-secondary hover-lift pe-auto"
-        style="width: 50px; height: 50px; top: 20px; left: 20px;" (click)="goToMap()">
-        <i class="bi bi-x-lg fw-bold text-secondary"></i>
+        style="width: 45px; height: 45px; top: 15px; left: 15px;"
+        (click)="goToMap()">
+        <i class="bi bi-x-lg fw-bold text-secondary fs-5"></i>
       </button>
 
       <!-- Progress Bar (Floating Top Center) -->
-      <div class="position-absolute pe-auto" style="top: 30px; left: 50%; transform: translateX(-50%); width: 40%; min-width: 200px; max-width: 400px;">
+      <div class="position-absolute pe-auto"
+        style="top: 30px; left: 50%; transform: translateX(-50%); width: 40%; min-width: 200px; max-width: 400px;">
         <div class="progress rounded-pill bg-light border border-2 border-secondary overflow-hidden"
           style="height: 18px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
           <div class="progress-bar bg-success rounded-pill transition-all"
@@ -53,7 +55,9 @@
       </div>
 
       <!-- Hearts (Floating Top Right) -->
-      <div class="position-absolute d-flex align-items-center gap-2 text-danger fw-bold fs-4 pe-auto bg-white rounded-pill px-3 py-1 shadow-sm border border-2 border-danger" style="top: 20px; right: 20px;">
+      <div
+        class="position-absolute d-flex align-items-center gap-2 text-danger fw-bold fs-5 pe-auto bg-white rounded-pill px-3 py-1 shadow-sm border border-2 border-danger"
+        style="top: 15px; right: 15px;">
         <i class="bi bi-suit-heart-fill animate-pulse"></i>
         <span>{{ hearts() }}</span>
       </div>
@@ -62,8 +66,7 @@
     <!-- CENTER STAGE (Main Content Area) -->
     <main
       class="flex-grow-1 overflow-hidden d-flex flex-column align-items-center justify-content-center px-3 px-md-4 w-100 mx-auto"
-      style="padding-top: 100px;"
-      [style.padding-bottom]="currentStep()?.type === 'activity' ? '20px' : '90px'">
+      style="padding-top: 100px;" [style.padding-bottom]="currentStep()?.type === 'activity' ? '20px' : '90px'">
 
       @if (lessonSequence().length === 0) {
       <div class="spinner-border text-warning" style="width: 3rem; height: 3rem;" role="status"></div>
@@ -104,17 +107,17 @@
         </button>
       </div>
       } @else {
-        <!-- DYNAMIC CARDS -->
-        <div class="w-100 h-100 d-flex flex-column animate-pop-in">
-          @if (currentStep(); as step) {
-          @if (step.type !== 'reading') {
-          <div class="position-relative w-100 d-flex justify-content-center align-items-center mb-2">
-            <h3 class="fw-bold text-white text-center m-0"
-              style="font-size: 1.5rem; text-shadow: 0px 4px 10px rgba(0,0,0,0.5); letter-spacing: 1px;">
-              ✨ {{ step.title }}
-            </h3>
-          </div>
-          }
+      <!-- DYNAMIC CARDS -->
+      <div class="w-100 h-100 d-flex flex-column animate-pop-in">
+        @if (currentStep(); as step) {
+        @if (step.type !== 'reading') {
+        <div class="position-relative w-100 d-flex justify-content-center align-items-center mb-2">
+          <h3 class="fw-bold text-white text-center m-0"
+            style="font-size: 1.5rem; text-shadow: 0px 4px 10px rgba(0,0,0,0.5); letter-spacing: 1px;">
+            ✨ {{ step.title }}
+          </h3>
+        </div>
+        }
         @if (step.type === 'video') {
         <!-- Premium Video Player -->
         <div
@@ -165,55 +168,62 @@
         }
 
         @if (step.type === 'reading') {
-        <!-- Reading Content -->
-        <div class="w-100 flex-grow-1 d-flex flex-column gap-4 align-items-center justify-content-center mx-auto"
-          style="max-width: 1000px; padding: 2rem;">
+        <!-- Reading Content (Card Box) -->
+        <div
+          class="w-100 d-flex flex-column align-items-center justify-content-between mx-auto bg-white bg-opacity-75 shadow-lg position-relative"
+          style="max-width: 1200px; height: 75vh; padding: 2rem 3rem; border-radius: 40px; border: 6px solid rgba(255, 255, 255, 0.8); backdrop-filter: blur(5px);">
 
-          <div class="position-relative w-100 d-flex justify-content-center align-items-center mb-5">
-            <h3 class="fw-bold text-dark text-center m-0 px-5 py-3 bg-white bg-opacity-75 rounded-pill shadow-lg"
-              style="font-family: 'Fredoka One', cursive; border: 4px solid white; transform: rotate(-2deg);">
+          <!-- Read Aloud Button (Top Right Corner) -->
+          <button
+            class="btn btn-warning rounded-circle shadow-lg position-absolute d-flex align-items-center justify-content-center hover-lift"
+            style="top: -20px; right: -15px; width: 65px; height: 65px; border: 5px solid white; z-index: 15;"
+            (click)="speakText(rawReadingHtml())">
+            <i class="bi bi-volume-up-fill fs-2 text-dark"></i>
+          </button>
+
+          <!-- Lesson Title (Top Left Corner) -->
+          <div class="position-absolute" style="top: -20px; left: -15px; z-index: 15;">
+            <h3 class="fw-bold text-dark text-center m-0 px-4 py-2 bg-white rounded-pill shadow-sm"
+              style="font-family: 'Fredoka One', cursive; border: 4px solid #fcd34d; font-size: 1.4rem;">
               ✨ {{ currentStepIndex() + 1 }}. {{ step.title }}
             </h3>
           </div>
 
-          <div class="w-100 d-flex gap-4 align-items-center justify-content-center position-relative mt-5">
+          <div
+            class="w-100 flex-grow-1 d-flex gap-4 align-items-center justify-content-center position-relative overflow-hidden"
+            style="min-height: 0;">
             <!-- Mascot Presentation Pose -->
-            <div class="d-none d-lg-block position-relative animate-bounce" style="width: 180px; z-index: 5;">
+            <div class="d-none d-lg-block position-relative animate-bounce align-self-end mb-4"
+              style="width: 180px; z-index: 5;">
               <img src="/assets/images/mascot.png" alt="Mascot" class="w-100"
-                style="filter: drop-shadow(0 15px 25px rgba(0,0,0,0.3));">
+                style="filter: drop-shadow(0 15px 25px rgb">
             </div>
 
-            <!-- Floating Text Area (Box-less) -->
-            <div class="flex-grow-1 position-relative p-4 w-100 d-flex align-items-start justify-content-start"
-              style="min-height: 300px;">
-
-              <!-- Read Aloud Button -->
-              <button
-                class="btn btn-warning rounded-circle shadow-lg position-absolute d-flex align-items-center justify-content-center hover-lift"
-                style="top: -20px; right: 0; width: 60px; height: 60px; border: 4px solid white; z-index: 10;"
-                (click)="speakText(rawReadingHtml())">
-                <i class="bi bi-volume-up-fill fs-3 text-dark"></i>
-              </button>
+            <!-- Floating Text Area -->
+            <div
+              class="flex-grow-1 position-relative p-3 w-100 h-100 d-flex flex-column align-items-center justify-content-center overflow-hidden">
 
               <!-- Huge Floating Typewriter Content Area -->
-              <div class="reading-content w-100 text-start"
-                style="font-size: 2.2rem; line-height: 1.6; color: #1e293b; font-family: 'Nunito', sans-serif; text-shadow: 0px 4px 15px rgba(255,255,255,0.8), 0px 8px 30px rgba(255,255,255,0.9); font-weight: 800; letter-spacing: 0.5px;">
-                <span [innerHTML]="typedContent()"></span>
-                <span class="blinking-cursor"
-                  style="border-right: 5px solid #fcd34d; animation: blink 1s step-end infinite;">&nbsp;</span>
+              <div class="reading-content w-100 text-center px-4 py-3 h-100 d-flex flex-column hide-scrollbar"
+                style="overflow-y: auto; justify-content: flex-start; font-size: 1.3rem; line-height: 1.7; color: #1e293b; font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; text-shadow: 0px 4px 15px rgba(255,255,255,0.8); font-weight: 600; letter-spacing: 0.5px;">
+                <div class="mt-auto mb-auto">
+                  <span [innerHTML]="typedContent()"></span>
+                  <span class="blinking-cursor"
+                    style="border-right: 5px solid #fcd34d; animation: blink 1s step-end infinite;">&nbsp;</span>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Navigation Controls -->
-          <div class="d-flex justify-content-between align-items-center w-100 mt-3 px-2 px-md-5">
+          <div class="d-flex justify-content-between align-items-center w-100 mt-2 px-2 px-md-4">
             <button
               class="btn btn-light rounded-circle shadow-sm hover-lift d-flex align-items-center justify-content-center"
-              style="width: 60px; height: 60px; border: 3px solid #cbd5e1;" (click)="prevContentPage()"
+              style="width: 50px; height: 50px; border: 3px solid #cbd5e1;" (click)="prevContentPage()"
               [disabled]="currentContentPage() === 0">
-              <i class="bi bi-chevron-left fs-3 text-secondary fw-bold"></i>
+              <i class="bi bi-chevron-left fs-4 text-secondary fw-bold"></i>
             </button>
-            <div class="d-flex gap-3 bg-white px-4 py-2 rounded-pill shadow-sm">
+            <div class="d-flex gap-3 bg-white px-4 py-2 rounded-pill shadow-sm border border-2 border-light">
               @if (step.data.isJson) {
               @for (b of step.data.blocks; track $index) {
               <div class="rounded-pill"
@@ -224,10 +234,10 @@
               }
             </div>
             <button
-              class="btn btn-primary rounded-circle shadow-lg hover-lift d-flex align-items-center justify-content-center text-white"
-              style="width: 60px; height: 60px; border: 3px solid white;" (click)="nextContentPage()"
+              class="btn btn-primary rounded-circle shadow-sm hover-lift d-flex align-items-center justify-content-center text-white"
+              style="width: 50px; height: 50px; border: 3px solid white;" (click)="nextContentPage()"
               [disabled]="(step.data.isJson && currentContentPage() === step.data.blocks.length - 1) || !step.data.isJson">
-              <i class="bi bi-chevron-right fs-3 fw-bold"></i>
+              <i class="bi bi-chevron-right fs-4 fw-bold"></i>
             </button>
           </div>
         </div>
@@ -288,7 +298,7 @@
         style="bottom: 30px; width: 90%; max-width: 800px; z-index: 1050;">
         <div class="rounded-pill p-3 px-5 d-flex justify-content-between align-items-center position-relative shadow-lg"
           style="background: #d7ffb8; border: 4px solid #bbf7d0; box-shadow: 0 20px 40px rgba(74, 222, 128, 0.3) !important;">
-          
+
           <!-- Mascot Reaction -->
           <div class="position-absolute" style="bottom: -10px; left: -20px;">
             <img src="/assets/images/mascot.png" alt="Happy Mascot" class="mascot-happy"
@@ -324,7 +334,7 @@
         style="bottom: 30px; width: 90%; max-width: 800px; z-index: 1050;">
         <div class="rounded-pill p-3 px-5 d-flex justify-content-between align-items-center position-relative shadow-lg"
           style="background: #fee2e2; border: 4px solid #fecaca; box-shadow: 0 20px 40px rgba(248, 113, 113, 0.3) !important;">
-          
+
           <!-- Mascot Reaction -->
           <div class="position-absolute" style="bottom: -10px; left: -20px;">
             <img src="/assets/images/mascot.png" alt="Sad Mascot" class="mascot-sad"
@@ -338,7 +348,8 @@
               <i class="bi bi-x-lg" style="font-size: 2.5rem; -webkit-text-stroke: 3px;"></i>
             </div>
             <div>
-              <h2 class="text-danger fw-bold mb-0" style="font-size: 2rem; font-family: 'Nunito', sans-serif;">Not quite right</h2>
+              <h2 class="text-danger fw-bold mb-0" style="font-size: 2rem; font-family: 'Nunito', sans-serif;">Not quite
+                right</h2>
               <p class="text-danger text-opacity-75 mb-0 fw-bold fs-5">Let's try that again!</p>
             </div>
           </div>
@@ -354,13 +365,12 @@
       } @else {
       <!-- Standard Navigation Buttons (Floating, Only if no feedback is active) -->
       <div class="position-absolute w-100 h-100 top-0 start-0 pe-none" style="z-index: 10;">
-        
+
         <!-- Left Side: PREV (Floating Bottom Left) -->
         @if (currentStepIndex() > 0 && !lessonFinished()) {
         <button
-          class="btn btn-light btn-lg rounded-pill px-5 py-3 fw-bold fs-4 text-secondary shadow-lg hover-lift border border-4 border-light transition-all position-absolute pe-auto"
-          style="bottom: 40px; left: 40px; min-width: 180px;"
-          (click)="prevLessonStep()">
+          class="btn btn-light rounded-pill px-4 py-2 fw-bold fs-5 text-secondary shadow-lg hover-lift border border-4 border-light transition-all position-absolute pe-auto"
+          style="bottom: 20px; left: 20px; min-width: 140px;" (click)="prevLessonStep()">
           <i class="bi bi-chevron-left me-2"></i> PREV
         </button>
         }
@@ -368,15 +378,14 @@
         <!-- Right Side: NEXT / FINISH (Floating Bottom Right) -->
         @if (lessonFinished()) {
         <button
-          class="btn btn-success btn-lg rounded-pill px-5 py-3 fw-bold fs-4 text-white shadow-lg hover-lift border-bottom border-4 position-absolute pe-auto"
-          style="bottom: 40px; right: 40px; min-width: 180px;"
-          (click)="finishLesson()">
+          class="btn btn-success rounded-pill px-4 py-2 fw-bold fs-5 text-white shadow-lg hover-lift border-bottom border-4 position-absolute pe-auto"
+          style="bottom: 20px; right: 20px; min-width: 140px;" (click)="finishLesson()">
           FINISH <i class="bi bi-check2-circle ms-2"></i>
         </button>
         } @else if (currentStep()?.type !== 'activity') {
         <button
-          class="btn btn-lg rounded-pill px-5 py-3 fw-bold fs-4 shadow-lg hover-lift transition-all text-white border-bottom border-4 position-absolute pe-auto"
-          style="bottom: 40px; right: 40px; min-width: 180px;"
+          class="btn rounded-pill px-4 py-2 fw-bold fs-5 shadow-lg hover-lift transition-all text-white border-bottom border-4 position-absolute pe-auto"
+          style="bottom: 20px; right: 20px; min-width: 140px;"
           [ngClass]="isStepCompleted() ? 'btn-success border-success' : 'btn-secondary opacity-50 border-secondary'"
           [disabled]="!isStepCompleted()" (click)="nextLessonStep()">
           NEXT <i class="bi bi-chevron-right ms-2"></i>

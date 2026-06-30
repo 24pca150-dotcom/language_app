@@ -500,11 +500,13 @@
   opacity: 0.85;
 }
 
-/* Hide scrollbar for the map view */
-.map-view-container::-webkit-scrollbar {
+/* Hide scrollbar for the map view and other elements */
+.map-view-container::-webkit-scrollbar,
+.hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
-.map-view-container {
+.map-view-container,
+.hide-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
