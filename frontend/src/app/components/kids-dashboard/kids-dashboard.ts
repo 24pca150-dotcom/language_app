@@ -157,12 +157,7 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
   }
 
   isLevelUnlocked(levelId: number): boolean {
-    const struct = this.structure;
-    if (!struct) return false;
-    const index = struct.levels.findIndex((l: any) => l.id === levelId);
-    if (index <= 0) return true;
-    const prevLevel = struct.levels[index - 1];
-    return prevLevel.chapters.every((c: any) => this.isChapterCompleted(c.id));
+    return true;
   }
 
   // Calculate which chapter should be the glowing "active" one (the next to play)
@@ -179,12 +174,7 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
   });
 
   isChapterUnlocked(chapterId: number): boolean {
-    const level = this.selectedLevel();
-    if (!level) return false;
-    const index = level.chapters.findIndex((c: any) => c.id === chapterId);
-    if (index <= 0) return true;
-    const prevChapter = level.chapters[index - 1];
-    return this.isChapterCompleted(prevChapter.id);
+    return true;
   }
 
   isChapterCompleted(chapterId: number): boolean {

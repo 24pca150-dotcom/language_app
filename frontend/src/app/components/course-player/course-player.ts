@@ -120,7 +120,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
             if (block.type === 'paragraph') return `<div class="opacity-75 mb-4">${block.data.text}</div>`;
             else if (block.type === 'header') return `<h3 class="fw-bold text-primary mb-3" style="font-size: 1.7rem;">${block.data.text}</h3>`;
             else if (block.type === 'list') {
-               return `<ul class="mb-4 ps-4 opacity-75 text-start d-inline-block">` + block.data.items.map((i:any) => `<li class="mb-2">${i}</li>`).join('') + `</ul>`;
+               return `<ul class="mb-4 ps-4 opacity-75 text-start d-inline-block">` + block.data.items.map((i:any) => `<li class="mb-2">${typeof i === 'string' ? i : i.content}</li>`).join('') + `</ul>`;
             }
             else if (block.type === 'table') {
                const withHeadings = block.data.withHeadings;
@@ -355,21 +355,11 @@ export class CoursePlayer implements OnInit, OnDestroy {
   }
 
   isLevelUnlocked(levelId: number): boolean {
-    const structure = this.courseStructure();
-    if (!structure) return false;
-    const index = structure.levels.findIndex(l => l.id === levelId);
-    if (index <= 0) return true;
-    const prevLevel = structure.levels[index - 1];
-    return prevLevel.chapters.every(c => this.isChapterCompleted(c.id));
+    return true;
   }
 
   isChapterUnlocked(chapterId: number): boolean {
-    const level = this.selectedLevel();
-    if (!level) return false;
-    const index = level.chapters.findIndex(c => c.id === chapterId);
-    if (index <= 0) return true;
-    const prevChapter = level.chapters[index - 1];
-    return this.isChapterCompleted(prevChapter.id);
+    return true;
   }
 
   isChapterCompleted(chapterId: number): boolean {
@@ -705,7 +695,15 @@ export class CoursePlayer implements OnInit, OnDestroy {
     const state = this.activityFeedbackState();
     this.activityFeedbackState.set(null);
     
-    if (state === 'correct') {
+    if (state === 'incorrect' && this.hearts() > 0) {
+      // Append the failed step to the end of the lesson sequence so it is asked again
+      const currentStep = this.currentStep();
+      if (currentStep) {
+        this.lessonSequence.update(seq => [...seq, currentStep]);
+      }
+    }
+    
+    if (this.hearts() > 0) {
        this.nextLessonStep();
     }
   }
