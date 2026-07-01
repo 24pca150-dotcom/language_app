@@ -94,7 +94,7 @@ export function renderMatchForm(
           <input type="text" class="activity-input-text pair-right" placeholder="Right Word (Text)" value="${pair.right || ''}" style="flex: 1; margin-bottom: 0;">
           <button type="button" class="activity-btn activity-btn-danger pair-del" style="flex-shrink: 0; padding: 0.5rem 0.75rem; margin-bottom: 0;">&times;</button>
         </div>
-        <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+        <div style="margin-top: 0.5rem; display: flex; flex-direction: co  lumn; gap: 0.5rem;">
           <div style="display: flex; align-items: center; gap: 0.75rem;">
             <input type="text" class="activity-input-text pair-right-image" placeholder="Right Image/File URL (E.g. https://example.com/file.jpg)" value="${pair.rightImage || ''}" style="flex: 1; font-size: 0.85rem; margin-bottom: 0;">
             <span style="color: #64748b; font-size: 0.8rem; font-weight: bold;">OR</span>
@@ -131,17 +131,17 @@ export function renderMatchForm(
           const isImg = isImageUrl(url);
           previewImg.src = isImg ? url : '';
           previewImg.style.display = isImg ? 'block' : 'none';
-          
+
           const fileIcon = row.querySelector('.file-icon') as HTMLSpanElement;
           if (fileIcon) {
             fileIcon.style.display = isImg ? 'none' : 'block';
           }
-          
+
           const filenameSpan = row.querySelector('.preview-filename') as HTMLSpanElement;
           if (filenameSpan) {
             filenameSpan.textContent = url.substring(url.lastIndexOf('/') + 1);
           }
-          
+
           previewContainer.style.display = 'flex';
         } else {
           previewContainer.style.display = 'none';
