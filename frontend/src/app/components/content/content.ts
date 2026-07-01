@@ -24,6 +24,7 @@ import EditorJS from '@editorjs/editorjs';
 import ImageTool from '@editorjs/image';
 import { CustomList as List } from '../../editor-plugins/custom-list';
 import Table from '@editorjs/table';
+import Header from '@editorjs/header';
 import { ActivityBlock } from '../../editor-plugins/activity-block';
 import { ActivityRenderer } from '../activity-engine/activity-renderer/activity-renderer';
 import { NotificationService } from '../../services/notification.service';
@@ -157,6 +158,10 @@ export class Content implements OnInit {
         tools: {
           activity: {
             class: ActivityBlock,
+            inlineToolbar: true
+          },
+          header: {
+            class: Header as any,
             inlineToolbar: true
           },
           image: {
@@ -365,6 +370,13 @@ export class Content implements OnInit {
     } catch (e) {
       return [];
     }
+  }
+
+  getItemText(item: any): string {
+    if (typeof item === 'object' && item !== null) {
+      return item.content || '';
+    }
+    return item || '';
   }
 
   showPreview(content: ContentData): void {

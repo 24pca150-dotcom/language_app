@@ -347,16 +347,23 @@
                   @if (block.data.style === 'ordered') {
                     <ol class="mb-3 text-dark fs-5">
                       @for (item of block.data.items; track $index) {
-                        <li [innerHTML]="item"></li>
+                        <li [innerHTML]="getItemText(item)"></li>
                       }
                     </ol>
                   } @else {
                     <ul class="mb-3 text-dark fs-5">
                       @for (item of block.data.items; track $index) {
-                        <li [innerHTML]="item"></li>
+                        <li [innerHTML]="getItemText(item)"></li>
                       }
                     </ul>
                   }
+                } @else if (block.type === 'image') {
+                  <div class="text-center mb-3">
+                    <img [src]="block.data.file?.url || block.data.url || ''" [alt]="block.data.caption || ''" class="img-fluid rounded shadow-sm" style="max-height: 350px; object-fit: contain;">
+                    @if (block.data.caption) {
+                      <div class="text-muted small mt-2" [innerHTML]="block.data.caption"></div>
+                    }
+                  </div>
                 } @else if (block.type === 'table') {
                   <div class="table-responsive mb-3">
                     <table class="table table-bordered align-middle text-dark">

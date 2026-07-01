@@ -108,60 +108,81 @@ export class CoursePlayer implements OnInit, OnDestroy {
   // Typewriter State for Reading
   typedContent = signal<string>('');
   typingTimeout: any;
+  activeUtterances: SpeechSynthesisUtterance[] = [];
+  speechStartTimeout: any;
 
   rawReadingHtml = computed(() => {
-     const step = this.currentStep();
-     if (step && step.type === 'reading') {
-        if (step.data.isJson) {
-          const pageData = step.data.blocks[this.currentContentPage()];
-          if (!pageData) return '';
-          
-          const renderBlock = (block: any) => {
-            if (block.type === 'paragraph') return `<div class="opacity-75 mb-4">${block.data.text}</div>`;
-            else if (block.type === 'header') return `<h3 class="fw-bold text-primary mb-3" style="font-size: 1.7rem;">${block.data.text}</h3>`;
-            else if (block.type === 'list') {
-               return `<ul class="mb-4 ps-4 opacity-75 text-start d-inline-block">` + block.data.items.map((i:any) => `<li class="mb-2">${i}</li>`).join('') + `</ul>`;
-            }
-            else if (block.type === 'table') {
-               const withHeadings = block.data.withHeadings;
-               const rows = block.data.content || [];
-               let html = `<div class="table-responsive w-100 mb-4"><table class="table table-bordered shadow-sm" style="border-radius: 12px; overflow: hidden; background: white;">`;
-               rows.forEach((row: string[], index: number) => {
-                  if (index === 0 && withHeadings) {
-                      html += `<thead style="background: #fef08a;"><tr>` + row.map(cell => `<th class="p-2 text-dark fs-5 fw-bold border-bottom-0">${cell}</th>`).join('') + `</tr></thead><tbody>`;
-                  } else {
-                      if (index === 0 && !withHeadings) html += `<tbody>`;
-                      html += `<tr>` + row.map(cell => `<td class="p-2 fs-6 opacity-75">${cell}</td>`).join('') + `</tr>`;
-                  }
-               });
-               if (rows.length > 0) html += `</tbody>`;
-               html += `</table></div>`;
-               return html;
-            }
-            return '';
-          };
+    const step = this.currentStep();
+    if (step && step.type === 'reading') {
+      if (step.data.isJson) {
+        const pageData = step.data.blocks[this.currentContentPage()];
+        if (!pageData) return '';
 
-          if (Array.isArray(pageData)) {
-            return pageData.map((b: any) => renderBlock(b)).join('');
-          } else {
-            return renderBlock(pageData);
+        const renderBlock = (block: any) => {
+          if (block.type === 'paragraph') return `<div class="opacity-75 mb-4">${block.data.text}</div>`;
+          else if (block.type === 'header') return `<h3 class="fw-bold text-primary mb-3" style="font-size: 1.7rem;">${block.data.text}</h3>`;
+          else if (block.type === 'list') {
+            const tag = block.data.style === 'ordered' ? 'ol' : 'ul';
+            const listItems = block.data.items.map((i: any) => {
+              const text = typeof i === 'object' && i !== null ? (i.content || '') : i;
+              return `<li class="mb-2">${text}</li>`;
+            }).join('');
+            return `<${tag} class="mb-4 ps-4 opacity-75 text-start d-inline-block">${listItems}</${tag}>`;
           }
+          else if (block.type === 'image') {
+            const url = block.data.file?.url || block.data.url || '';
+            const caption = block.data.caption || '';
+            return `<div class="text-center mb-4"><img src="${url}" alt="${caption}" class="img-fluid rounded shadow-sm" style="max-height: 350px; object-fit: contain;">${caption ? `<div class="text-muted small mt-2">${caption}</div>` : ''}</div>`;
+          }
+          else if (block.type === 'table') {
+            const withHeadings = block.data.withHeadings;
+            const rows = block.data.content || [];
+            let html = `<div class="table-responsive w-100 mb-4"><table class="table table-bordered shadow-sm" style="border-radius: 12px; overflow: hidden; background: white;">`;
+            rows.forEach((row: string[], index: number) => {
+              if (index === 0 && withHeadings) {
+                html += `<thead style="background: #fef08a;"><tr>` + row.map(cell => `<th class="p-2 text-dark fs-5 fw-bold border-bottom-0">${cell}</th>`).join('') + `</tr></thead><tbody>`;
+              } else {
+                if (index === 0 && !withHeadings) html += `<tbody>`;
+                html += `<tr>` + row.map(cell => `<td class="p-2 fs-6 opacity-75">${cell}</td>`).join('') + `</tr>`;
+              }
+            });
+            if (rows.length > 0) html += `</tbody>`;
+            html += `</table></div>`;
+            return html;
+          }
+          return '';
+        };
+
+        if (Array.isArray(pageData)) {
+          return pageData.map((b: any) => renderBlock(b)).join('');
         } else {
-         return `<div class="fw-bold opacity-75" style="font-size: 1.8rem; line-height: 1.6; font-family: 'Nunito', 'Comic Sans MS', sans-serif;">${step.data.text}</div>`;
-       }
-     }
-     return '';
+          return renderBlock(pageData);
+        }
+      } else {
+        return `<div class="fw-bold opacity-75" style="font-size: 1.8rem; line-height: 1.6; font-family: 'Nunito', 'Comic Sans MS', sans-serif;">${step.data.text}</div>`;
+      }
+    }
+    return '';
   });
 
   constructor() {
     effect(() => {
       const html = this.rawReadingHtml();
       if (html) {
-         this.startTypewriter(html);
+        this.speakText(html);
       } else {
-         this.typedContent.set('');
+        this.stopSpeech();
+        this.typedContent.set('');
       }
     }, { allowSignalWrites: true });
+
+    // Initialize/warm-up speech synthesis voices
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
   }
 
   // Mascot warning notifications
@@ -433,7 +454,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
     this.showGameOver.set(false);
     this.lessonFinished.set(false);
     this.activityFeedbackState.set(null);
-    
+
     const chapter = this.selectedChapter();
     if (!chapter) return;
 
@@ -454,7 +475,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
 
   generateLessonSequence(contents: Content[], chapterAssessments: any[]) {
     const steps: LessonStep[] = [];
-    
+
     contents.forEach(content => {
       // Temporary Fix: Inject Homophones Video if it's content ID 1
       if (content.id === 1) {
@@ -489,73 +510,73 @@ export class CoursePlayer implements OnInit, OnDestroy {
         let blocks = [];
         const trimmed = content.text_content.trim();
         if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
-           try {
-             const data = JSON.parse(trimmed);
-             blocks = data.blocks || [];
-             isJson = true;
-           } catch (e) {}
+          try {
+            const data = JSON.parse(trimmed);
+            blocks = data.blocks || [];
+            isJson = true;
+          } catch (e) { }
         }
-        
+
         if (isJson) {
           const videoBlocks = blocks.filter((b: any) => b.type === 'video' || b.type === 'embed');
           const readingBlocks = blocks.filter((b: any) => b.type !== 'activity' && b.type !== 'video' && b.type !== 'embed');
           const activityBlocks = blocks.filter((b: any) => b.type === 'activity');
-          
+
           if (videoBlocks.length > 0) {
-             videoBlocks.forEach((block: any, idx: number) => {
-                steps.push({
-                  type: 'video',
-                  title: (content.title || content.name) + (videoBlocks.length > 1 ? ` - Video ${idx + 1}` : ' - Video'),
-                  data: block.data.url || block.data.embed
-                });
-             });
+            videoBlocks.forEach((block: any, idx: number) => {
+              steps.push({
+                type: 'video',
+                title: (content.title || content.name) + (videoBlocks.length > 1 ? ` - Video ${idx + 1}` : ' - Video'),
+                data: block.data.url || block.data.embed
+              });
+            });
           }
 
           if (readingBlocks.length > 0) {
-             let groupedBlocks = [];
-             let currentGroup = [];
-             for (let i = 0; i < readingBlocks.length; i++) {
-                 let b = readingBlocks[i];
-                 currentGroup.push(b);
-                 if (currentGroup.length >= 3 && b.type !== 'header') {
-                     groupedBlocks.push(currentGroup);
-                     currentGroup = [];
-                 }
-             }
-             if (currentGroup.length > 0) {
-                 groupedBlocks.push(currentGroup);
-             }
+            let groupedBlocks = [];
+            let currentGroup = [];
+            for (let i = 0; i < readingBlocks.length; i++) {
+              let b = readingBlocks[i];
+              currentGroup.push(b);
+              if (currentGroup.length >= 3 && b.type !== 'header') {
+                groupedBlocks.push(currentGroup);
+                currentGroup = [];
+              }
+            }
+            if (currentGroup.length > 0) {
+              groupedBlocks.push(currentGroup);
+            }
 
-             steps.push({
-               type: 'reading',
-               title: content.title || content.name,
-               data: { isJson: true, blocks: groupedBlocks }
-             });
+            steps.push({
+              type: 'reading',
+              title: content.title || content.name,
+              data: { isJson: true, blocks: groupedBlocks }
+            });
           }
           if (activityBlocks.length > 0) {
-             activityBlocks.forEach((block: any, idx: number) => {
-               let actName = 'Unknown';
-               if (block.data && block.data.type) {
-                 actName = block.data.type.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-                 if (block.data.type === 'mcq') actName = 'Multiple Choice';
-               }
+            activityBlocks.forEach((block: any, idx: number) => {
+              let actName = 'Unknown';
+              if (block.data && block.data.type) {
+                actName = block.data.type.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                if (block.data.type === 'mcq') actName = 'Multiple Choice';
+              }
 
-               steps.push({
-                 type: 'activity',
-                 title: `${idx + 1}. Activity - ${actName}`,
-                 data: block
-               });
-             });
+              steps.push({
+                type: 'activity',
+                title: `${idx + 1}. Activity - ${actName}`,
+                data: block
+              });
+            });
           }
         } else {
-           steps.push({
-             type: 'reading',
-             title: content.title || content.name,
-             data: { isJson: false, text: content.text_content }
-           });
+          steps.push({
+            type: 'reading',
+            title: content.title || content.name,
+            data: { isJson: false, text: content.text_content }
+          });
         }
       }
-      
+
       // 4. Content Assessments
       if (content.assessments && content.assessments.length > 0) {
         steps.push({
@@ -567,11 +588,11 @@ export class CoursePlayer implements OnInit, OnDestroy {
     });
 
     if (chapterAssessments.length > 0) {
-       steps.push({
-          type: 'assessment',
-          title: 'Chapter Quiz',
-          data: chapterAssessments
-       });
+      steps.push({
+        type: 'assessment',
+        title: 'Chapter Quiz',
+        data: chapterAssessments
+      });
     }
 
     this.lessonSequence.set(steps);
@@ -581,25 +602,25 @@ export class CoursePlayer implements OnInit, OnDestroy {
   evaluateStepCompletion() {
     const step = this.currentStep();
     if (!step) return;
-    
+
     if (this.learningMode() === 'easy') {
       this.isStepCompleted.set(true); // Easy mode allows skipping anything
       return;
     }
 
     if (step.type === 'pdf') {
-       this.isStepCompleted.set(true); 
+      this.isStepCompleted.set(true);
     } else if (step.type === 'reading') {
-       if (step.data.isJson && step.data.blocks && step.data.blocks.length > 0) {
-         this.isStepCompleted.set(this.currentContentPage() >= step.data.blocks.length - 1);
-       } else {
-         this.isStepCompleted.set(true);
-       }
+      if (step.data.isJson && step.data.blocks && step.data.blocks.length > 0) {
+        this.isStepCompleted.set(this.currentContentPage() >= step.data.blocks.length - 1);
+      } else {
+        this.isStepCompleted.set(true);
+      }
     } else if (step.type === 'video') {
-       this.isStepCompleted.set(this.isVideoCompleted());
+      this.isStepCompleted.set(this.isVideoCompleted());
     } else {
-       // Activities and assessments MUST be completed
-       this.isStepCompleted.set(false);
+      // Activities and assessments MUST be completed
+      this.isStepCompleted.set(false);
     }
   }
 
@@ -660,36 +681,36 @@ export class CoursePlayer implements OnInit, OnDestroy {
           origin: { y: 0.8 },
           colors: ['#4ade80', '#fcd34d', '#3b82f6']
         });
-        
+
         this.coins.update(c => c + 5);
         this.xp.update(x => x + 10);
         this.isStepCompleted.set(true);
-        
+
         // GSAP Micro-interaction: Pop the stats in the HUD & Animate Mascot
         setTimeout(() => {
-          gsap.fromTo('.stat-badge', 
-            { scale: 1.3, boxShadow: '0 0 20px #fcd34d' }, 
+          gsap.fromTo('.stat-badge',
+            { scale: 1.3, boxShadow: '0 0 20px #fcd34d' },
             { scale: 1, boxShadow: 'none', duration: 0.8, ease: 'elastic.out(1, 0.3)', stagger: 0.1 }
           );
 
           // Joyful mascot jump
-          gsap.fromTo('.mascot-happy', 
-            { y: 50, scaleY: 0.7, rotation: -15 }, 
+          gsap.fromTo('.mascot-happy',
+            { y: 50, scaleY: 0.7, rotation: -15 },
             { y: 0, scaleY: 1.1, rotation: 10, duration: 0.6, ease: 'back.out(1.7)' }
           );
           // Continuous floating joy
           gsap.to('.mascot-happy', {
-             y: -8, rotation: 0, scaleY: 1, duration: 1.5, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.6 
+            y: -8, rotation: 0, scaleY: 1, duration: 1.5, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.6
           });
         }, 50);
       } else {
         this.audioService.playError();
         this.hearts.update(h => Math.max(0, h - 1));
-        
+
         // GSAP Mascot Shake & Dizzy
         setTimeout(() => {
-          gsap.fromTo('.mascot-sad', 
-            { x: -15, rotation: -20 }, 
+          gsap.fromTo('.mascot-sad',
+            { x: -15, rotation: -20 },
             { x: 15, rotation: 20, duration: 0.1, repeat: 5, yoyo: true, ease: 'sine.inOut' }
           );
           gsap.to('.mascot-sad', { x: 0, rotation: 0, duration: 0.3, delay: 0.6 });
@@ -704,9 +725,9 @@ export class CoursePlayer implements OnInit, OnDestroy {
   continueFromFeedback() {
     const state = this.activityFeedbackState();
     this.activityFeedbackState.set(null);
-    
+
     if (state === 'correct') {
-       this.nextLessonStep();
+      this.nextLessonStep();
     }
   }
 
@@ -734,7 +755,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
       this.currentContentPage.set(0);
       this.activityFeedbackState.set(null);
       // Cancel speech if they move to next step
-      window.speechSynthesis.cancel();
+      this.stopSpeech();
     } else {
       this.lessonFinished.set(true);
     }
@@ -748,71 +769,227 @@ export class CoursePlayer implements OnInit, OnDestroy {
       this.currentContentPage.set(0);
       this.lessonFinished.set(false);
       this.activityFeedbackState.set(null);
+      this.stopSpeech();
+    }
+  }
+
+  stopSpeech() {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
+    this.activeUtterances = [];
+    clearTimeout(this.speechStartTimeout);
   }
 
   speakText(text: string) {
     if (!text) return;
-    
+
     // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-    
-    // Remove HTML tags for clean speech
-    const cleanText = text.replace(/<[^>]*>?/gm, '');
-    
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = 'en-US';
-    // Slightly slower rate for kids
-    utterance.rate = 0.9;
-    utterance.pitch = 1.1; // Slightly higher pitch
-    
-    window.speechSynthesis.speak(utterance);
+    this.stopSpeech();
+
+    // Parse HTML to clean speech text with proper punctuation/pauses
+    let cleanText = '';
+    try {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = text;
+
+      const parts: string[] = [];
+      const traverse = (node: Node) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const content = node.textContent?.trim();
+          if (content) {
+            parts.push(content);
+          }
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          const tagName = (node as Element).tagName.toLowerCase();
+
+          if (tagName === 'li') {
+            parts.push(', ');
+          }
+
+          for (let i = 0; i < node.childNodes.length; i++) {
+            traverse(node.childNodes[i]);
+          }
+
+          if (['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'li', 'tr'].includes(tagName)) {
+            parts.push('. ');
+          }
+        }
+      };
+
+      traverse(tempDiv);
+      cleanText = parts.join(' ')
+        .replace(/\s+/g, ' ')
+        .replace(/\.\s*\./g, '.')
+        .replace(/,\s*\./g, '.')
+        .trim();
+    } catch (e) {
+      // Fallback to regex if DOM parsing fails
+      cleanText = text.replace(/<[^>]*>?/gm, '');
+    }
+
+    if (!cleanText) return;
+
+    // Check if the text is Tamil
+    const isTamil = /[\u0B80-\u0BFF]/.test(cleanText);
+
+    // Setup safe starting logic for the typewriter
+    let typewriterStarted = false;
+    const startTypewriterSafely = () => {
+      if (typewriterStarted) return;
+      typewriterStarted = true;
+      this.startTypewriter(text, isTamil);
+    };
+
+    // Fallback: If voice speech start event is delayed/blocked, start typing after 800ms
+    this.speechStartTimeout = setTimeout(startTypewriterSafely, 800);
+
+    // Split cleanText into sentences for natural rhythm/pauses
+    const rawSentences = cleanText.split(/([.?!:;]+)/);
+    const sentences: string[] = [];
+    for (let i = 0; i < rawSentences.length; i += 2) {
+      const textPart = rawSentences[i]?.trim();
+      const delim = rawSentences[i + 1] || '';
+      if (textPart) {
+        sentences.push(textPart + (delim ? delim + ' ' : ''));
+      }
+    }
+
+    if (sentences.length === 0) return;
+
+    // Helper to score Tamil voices for naturalness, quality, and clarity
+    const getTamilVoiceScore = (name: string): number => {
+      let score = 0;
+      const lower = name.toLowerCase();
+      // Prioritize kid/girl voices
+      if (lower.includes('kid') || lower.includes('child') || lower.includes('junior') || lower.includes('girl') || lower.includes('young')) score += 150;
+      if (lower.includes('natural') || lower.includes('neural')) score += 100;
+      if (lower.includes('online')) score += 50;
+      if (lower.includes('google')) score += 40;
+      if (lower.includes('lekha')) score += 30;
+      if (lower.includes('heera')) score += 25;
+      if (lower.includes('female') || lower.includes('girl') || lower.includes('woman') || lower.includes('pallavi') || lower.includes('kalpana') || lower.includes('siri')) score += 20;
+      if (lower.includes('valluvar')) score += 15;
+      if (lower.includes('microsoft')) score += 10;
+      return score;
+    };
+
+    // Helper to score English voices
+    const getEnglishVoiceScore = (name: string): number => {
+      let score = 0;
+      const lower = name.toLowerCase();
+      // Prioritize kid/girl voices
+      if (lower.includes('kid') || lower.includes('child') || lower.includes('junior') || lower.includes('girl') || lower.includes('young')) score += 150;
+      if (lower.includes('natural') || lower.includes('neural')) score += 100;
+      if (lower.includes('online')) score += 50;
+      if (lower.includes('google')) score += 40;
+      if (lower.includes('female') || lower.includes('girl') || lower.includes('woman') || lower.includes('zira') || lower.includes('samantha') || lower.includes('aria') || lower.includes('jenny') || lower.includes('siri')) score += 30;
+      if (lower.includes('microsoft') || lower.includes('david')) score += 10;
+      return score;
+    };
+
+    // Queue each sentence as a separate utterance for natural pause intervals
+    sentences.forEach((sentence, idx) => {
+      const utterance = new SpeechSynthesisUtterance(sentence);
+
+      if (isTamil) {
+        utterance.lang = 'ta-IN';
+        const voices = window.speechSynthesis.getVoices();
+        const tamilVoices = voices.filter(v => v.lang.startsWith('ta') || v.name.toLowerCase().includes('tamil'));
+        if (tamilVoices.length > 0) {
+          const bestTamilVoice = tamilVoices.reduce((prev, curr) => {
+            return getTamilVoiceScore(curr.name) > getTamilVoiceScore(prev.name) ? curr : prev;
+          });
+          utterance.voice = bestTamilVoice;
+        }
+      } else {
+        utterance.lang = 'en-US';
+        const voices = window.speechSynthesis.getVoices();
+        const englishVoices = voices.filter(v => v.lang.startsWith('en'));
+        if (englishVoices.length > 0) {
+          const bestEnglishVoice = englishVoices.reduce((prev, curr) => {
+            return getEnglishVoiceScore(curr.name) > getEnglishVoiceScore(prev.name) ? curr : prev;
+          });
+          utterance.voice = bestEnglishVoice;
+        }
+      }
+
+      // Extremely natural rates for learning
+      utterance.rate = isTamil ? 0.82 : 0.85;
+      utterance.pitch = 1.35; // Higher pitch simulating a kid female voice
+
+      // Keep reference to prevent garbage collection in Chromium browsers
+      this.activeUtterances.push(utterance);
+
+      // Trigger typewriter only when speech actually starts
+      if (idx === 0) {
+        utterance.onstart = () => {
+          clearTimeout(this.speechStartTimeout);
+          startTypewriterSafely();
+        };
+      }
+
+      utterance.onend = () => {
+        this.activeUtterances = this.activeUtterances.filter(u => u !== utterance);
+      };
+      utterance.onerror = () => {
+        clearTimeout(this.speechStartTimeout);
+        startTypewriterSafely();
+        this.activeUtterances = this.activeUtterances.filter(u => u !== utterance);
+      };
+
+      window.speechSynthesis.speak(utterance);
+    });
   }
 
   ngOnDestroy() {
-    window.speechSynthesis.cancel();
+    this.stopSpeech();
     clearTimeout(this.typingTimeout);
   }
 
-  startTypewriter(htmlContent: string) {
+  startTypewriter(htmlContent: string, isTamil: boolean = false) {
     this.typedContent.set('');
     clearTimeout(this.typingTimeout);
-    
+
     let i = 0;
     let isTag = false;
     let currentText = '';
+
+    // Calculate typing speed to match spoken voice rate
+    const charDelay = isTamil ? Math.random() * 30 + 55 : Math.random() * 20 + 35;
+    const sentenceDelay = isTamil ? 900 : 600;
+    const commaDelay = isTamil ? 450 : 300;
 
     const type = () => {
       if (i < htmlContent.length) {
         let char = htmlContent.charAt(i);
         if (char === '<') isTag = true;
-        
+
         currentText += char;
         i++;
-        
+
         if (isTag) {
           while (i < htmlContent.length && htmlContent.charAt(i - 1) !== '>') {
-             currentText += htmlContent.charAt(i);
-             i++;
+            currentText += htmlContent.charAt(i);
+            i++;
           }
           isTag = false;
           this.typedContent.set(currentText);
           this.typingTimeout = setTimeout(type, 0);
         } else {
           this.typedContent.set(currentText);
-          const delay = char === '.' || char === '!' || char === '?' ? 600 : (char === ',' ? 300 : Math.random() * 30 + 40);
+          const delay = char === '.' || char === '!' || char === '?' ? sentenceDelay : (char === ',' ? commaDelay : charDelay);
           this.typingTimeout = setTimeout(type, delay);
         }
       }
     };
-    
+
     type();
   }
 
   finishLesson() {
     this.audioService.playSuccess();
-    
+
     // Mega Confetti Burst!
     const duration = 3 * 1000;
     const end = Date.now() + duration;
@@ -843,7 +1020,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
     if (activeChapId) {
       this.completeChapter(activeChapId);
     }
-    
+
     // Wait for confetti to finish before navigating away
     setTimeout(() => {
       this.goToMap();

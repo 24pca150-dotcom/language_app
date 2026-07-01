@@ -108,7 +108,10 @@ export class ActivityRenderer implements OnChanges {
         } else if (block.type === 'header') {
           return `<h${block.data.level} class="fw-bold mb-3">${block.data.text || ''}</h${block.data.level}>`;
         } else if (block.type === 'list') {
-          const items = (block.data.items || []).map((item: string) => `<li>${item}</li>`).join('');
+          const items = (block.data.items || []).map((item: any) => {
+            const text = typeof item === 'object' && item !== null ? (item.content || '') : item;
+            return `<li>${text}</li>`;
+          }).join('');
           return block.data.style === 'ordered' ? `<ol>${items}</ol>` : `<ul>${items}</ul>`;
         } else if (block.type === 'table') {
           const withHeadings = !!block.data.withHeadings;
@@ -135,6 +138,10 @@ export class ActivityRenderer implements OnChanges {
           }
           tableHtml += '</table></div>';
           return tableHtml;
+        } else if (block.type === 'image') {
+          const url = block.data.file?.url || block.data.url || '';
+          const caption = block.data.caption || '';
+          return `<div class="text-center mb-3"><img src="${url}" alt="${caption}" class="img-fluid rounded shadow-sm" style="max-height: 350px; object-fit: contain;">${caption ? `<div class="text-muted small mt-2">${caption}</div>` : ''}</div>`;
         }
         return block.data.text || '';
       }).join('\n');

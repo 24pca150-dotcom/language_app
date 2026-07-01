@@ -32,6 +32,7 @@
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
     "@editorjs/editorjs": "^2.31.6",
+    "@editorjs/header": "^2.8.9",
     "@editorjs/image": "^2.10.3",
     "@editorjs/list": "^2.0.9",
     "@editorjs/table": "^2.4.5",
