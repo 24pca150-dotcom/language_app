@@ -1,214 +1,450 @@
-<div class="container-fluid p-0 overflow-hidden premium-gradient-bg" style="height: calc(100vh - 100px);">
-  <div class="row g-0 h-100">
-    <!-- Sidebar: Hierarchical View -->
-    <aside class="col-md-4 col-lg-3 glass-panel border-end border-opacity-25 h-100 overflow-y-auto sidebar-scroll">
-      <div class="p-4 border-bottom border-opacity-25 border-light">
-        <h6 class="fw-bold mb-0 text-secondary text-uppercase tracking-wider small">Course Content</h6>
-        <div class="small text-muted mt-1" *ngIf="courseStructure()">{{ courseStructure()?.name }}</div>
-      </div>
+<div class="w-100 position-relative overflow-hidden bg-light" style="height: 100vh;">
 
-      <div class="tree-container">
-        <mcv-datatree 
-          [data]="treeData()" 
-          [readOnly]="true"
-          [showHeader]="false"
-          [showIcons]="true"
-          [expandIcon]="'bi bi-chevron-right'"
-          [collapseIcon]="'bi bi-chevron-down'"
-          (onNodeClick)="handleNodeClick($event)">
-        </mcv-datatree>
-      </div>
-      <!-- Old Manual Structure (Commented for Backup)
-      <div class="accordion-structure">
-        @for (level of courseStructure()?.levels; track level.id) {
-          ... (rest of the code)
-      </div>
-      -->
-    </aside>
+  <!-- Mascot Progression Warning Bubble -->
+  @if (showMascotWarning()) {
+  <div
+    class="mascot-warning-toast position-fixed top-0 start-50 translate-middle-x mt-5 p-3 rounded-4 shadow-lg border border-3 border-danger d-flex align-items-center gap-3 animate-pop-in z-5"
+    style="background: #FFF9C4; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;">
+    <div style="font-size: 2.2rem;">🦉</div>
+    <div>
+      <p class="mb-0 fw-bold text-dark fs-6" style="line-height: 1.3;">{{ mascotWarning() }}</p>
+    </div>
+  </div>
+  }
 
-    <!-- Main Content Area -->
-    <main class="col h-100 overflow-y-auto position-relative">
-      @if (activeContent(); as content) {
-      <div class="p-4 p-lg-5 max-w-4xl mx-auto animate-slide-up">
-        <!-- Content Header -->
-        <div class="premium-card p-4 p-lg-5 mb-4">
-          <h1 class="display-5 fw-bold text-dark mb-2" style="letter-spacing: -1px;">{{ content.title || content.name }}</h1>
-          <div class="w-25 rounded-pill bg-primary mt-3" style="height: 4px;"></div>
-        </div>
 
-        <!-- Full Content Body -->
-        <div class="premium-card p-4 p-lg-5 mb-4">
-          <!-- Text Content -->
-          @if (isJsonContent()) {
-            <div class="editorjs-blocks">
-              @for (block of parsedBlocks(); track $index) {
-                @if (block.type === 'paragraph') {
-                  <p class="mb-3 fs-5 text-dark" [innerHTML]="block.data.text"></p>
-                } @else if (block.type === 'header') {
-                  @if (block.data.level === 1) {
-                    <h1 class="fw-bold text-dark mb-3" [innerHTML]="block.data.text"></h1>
-                  } @else if (block.data.level === 2) {
-                    <h2 class="fw-bold text-dark mb-3" [innerHTML]="block.data.text"></h2>
-                  } @else {
-                    <h3 class="fw-bold text-dark mb-3" [innerHTML]="block.data.text"></h3>
-                  }
-                } @else if (block.type === 'list') {
-                  @if (block.data.style === 'ordered') {
-                    <ol class="mb-3 fs-5 text-dark">
-                      @for (item of block.data.items; track item) {
-                        <li [innerHTML]="item"></li>
-                      }
-                    </ol>
-                  } @else {
-                    <ul class="mb-3 fs-5 text-dark">
-                      @for (item of block.data.items; track item) {
-                        <li [innerHTML]="item"></li>
-                      }
-                    </ul>
-                  }
-                } @else if (block.type === 'table') {
-                  <div class="table-responsive mb-3">
-                    <table class="table table-bordered table-striped align-middle">
-                      @if (block.data.withHeadings && block.data.content.length > 0) {
-                        <thead>
-                          <tr>
-                            @for (cell of block.data.content[0]; track cell) {
-                              <th [innerHTML]="cell"></th>
-                            }
-                          </tr>
-                        </thead>
-                        <tbody>
-                          @for (row of block.data.content.slice(1); track row) {
-                            <tr>
-                              @for (cell of row; track cell) {
-                                <td [innerHTML]="cell"></td>
-                              }
-                            </tr>
-                          }
-                        </tbody>
-                      } @else {
-                        <tbody>
-                          @for (row of block.data.content; track row) {
-                            <tr>
-                              @for (cell of row; track cell) {
-                                <td [innerHTML]="cell"></td>
-                              }
-                            </tr>
-                          }
-                        </tbody>
-                      }
-                    </table>
-                  </div>
-                } @else if (block.type === 'activity') {
-                  <app-activity-renderer [activity]="block.data" [showFeedback]="true"></app-activity-renderer>
-                } @else {
-                  <div class="mb-3 text-dark" [innerHTML]="block.data.text || ''"></div>
-                }
-              }
-            </div>
-          } @else {
-            <div class="prose max-w-none text-dark fs-5 mb-4" [innerHTML]="content.text_content"></div>
-          }
 
-          <!-- Attachments (Media & Files) -->
-          @if (content.attachments && content.attachments.length > 0) {
-          <div class="mt-4 space-y-4">
-            @for (file of content.attachments; track file.id) {
-              <!-- Image Preview -->
-              @if (['jpg','jpeg','png','gif','webp','svg'].includes(file.file_extension.toLowerCase())) {
-                <div class="rounded-4 overflow-hidden shadow-sm border mb-4">
-                  <img [src]="file.url" class="img-fluid w-100" [alt]="file.alias_name">
-                </div>
-              }
-              <!-- Video Player -->
-              @else if (['mp4','webm','ogg'].includes(file.file_extension.toLowerCase())) {
-                <div class="rounded-4 overflow-hidden shadow-sm border mb-4 bg-black">
-                  <video controls class="w-100" style="max-height: 500px;">
-                    <source [src]="file.url" [type]="'video/' + file.file_extension">
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
-              }
-              <!-- PDF Embed -->
-              @else if (file.file_extension.toLowerCase() === 'pdf') {
-                <div class="rounded-4 overflow-hidden shadow-sm border mb-4" style="height: 600px;">
-                  <embed [src]="file.url" type="application/pdf" width="100%" height="100%" />
-                </div>
-              }
-              <!-- General File Download -->
-              @else {
-                <div class="list-group list-group-flush border rounded-3 mb-3">
-                  <a [href]="file.url" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between py-3">
-                    <div class="d-flex align-items-center gap-3">
-                      <i class="bi bi-file-earmark-arrow-down fs-4 text-primary"></i>
-                      <div>
-                        <div class="fw-medium">{{ file.alias_name || file.original_name }}</div>
-                        <div class="text-secondary small">{{ file.file_extension }} • {{ file.file_size }}</div>
-                      </div>
-                    </div>
-                    <i class="bi bi-download text-secondary"></i>
-                  </a>
-                </div>
-              }
-            }
+  <!-- DASHBOARDS (Navigation View) -->
+  @if (currentView() === 'levels' || currentView() === 'map') {
+  @if (theme() === 'kids') {
+  <app-kids-dashboard [structure]="courseStructure()" [currentView]="currentView()" [activeLevelId]="activeLevelId()"
+    [activeChapterId]="activeChapterId()" [completedLevels]="completedLevelIds()"
+    [completedChapters]="completedChapterIds()" (selectLevel)="selectLevel($event)"
+    (selectChapterNode)="selectChapterNode($event)"></app-kids-dashboard>
+  } @else {
+  <app-student-dashboard></app-student-dashboard>
+  }
+  }
+
+  <!-- LESSON PLAYER OVERLAY -->
+  @if (currentView() === 'content') {
+  <div
+    class="lesson-player w-100 h-100 lesson-bg-pattern d-flex flex-column position-absolute top-0 start-0 z-3 animate-slide-up overflow-hidden">
+
+    <!-- Top HUD (Floating widgets) -->
+    <header class="position-absolute top-0 start-0 w-100 h-100 pe-none" style="z-index: 1000;">
+      <!-- Quit Button (Floating Top Left) -->
+      <button
+        class="btn btn-light rounded-circle shadow-lg position-absolute d-flex align-items-center justify-content-center border border-2 border-secondary hover-lift pe-auto"
+        style="width: 45px; height: 45px; top: 15px; left: 15px;" (click)="goToMap()">
+        <i class="bi bi-x-lg fw-bold text-secondary fs-5"></i>
+      </button>
+
+      <!-- Progress Bar (Floating Top Center) -->
+      <div class="position-absolute pe-auto"
+        style="top: 30px; left: 50%; transform: translateX(-50%); width: 40%; min-width: 200px; max-width: 400px;">
+        <div class="progress rounded-pill bg-light border border-2 border-secondary overflow-hidden"
+          style="height: 18px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
+          <div class="progress-bar bg-success rounded-pill transition-all"
+            [style.width.%]="lessonSequence().length > 0 ? (lessonFinished() ? 100 : ((currentStepIndex() / lessonSequence().length) * 100)) : 0"
+            style="transition: width 0.5s ease-out;">
+            <div class="w-100 h-25 bg-white opacity-25 mt-1 rounded-pill mx-auto" style="max-width: 90%;"></div>
           </div>
-          }
-
-          <!-- External URLs -->
-          @if (content.external_url && content.external_url.length > 0) {
-          <div class="mt-4">
-            <h6 class="fw-bold text-secondary text-uppercase small mb-3">External Resources</h6>
-            <div class="d-flex flex-wrap gap-2">
-              @for (url of content.external_url; track url) {
-                @if (url.toLowerCase().endsWith('.pdf')) {
-                  <div class="w-100 rounded-4 overflow-hidden shadow-sm border mb-3" style="height: 500px;">
-                    <iframe [src]="url" width="100%" height="100%"></iframe>
-                  </div>
-                } @else {
-                  <a [href]="url" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill px-3">
-                    <i class="bi bi-link-45deg me-1"></i>
-                    {{ url }}
-                  </a>
-                }
-              }
-            </div>
-          </div>
-          }
         </div>
+      </div>
 
-        <!-- Assessments Section (Linked to the Chapter containing this Topic) -->
-        @if (content.assessments && content.assessments.length > 0) {
-        <div class="mt-5">
-          <h3 class="fw-bold mb-4">
-            <i class="bi bi-check2-square text-primary me-2"></i>
-            Chapter Assessments
+      <!-- Hearts (Floating Top Right) -->
+      <div
+        class="position-absolute d-flex align-items-center gap-2 text-danger fw-bold fs-5 pe-auto bg-white rounded-pill px-3 py-1 shadow-sm border border-2 border-danger"
+        style="top: 15px; right: 15px;">
+        <i class="bi bi-suit-heart-fill animate-pulse"></i>
+        <span>{{ hearts() }}</span>
+      </div>
+    </header>
+
+    <!-- CENTER STAGE (Main Content Area) -->
+    <main
+      class="flex-grow-1 overflow-hidden d-flex flex-column align-items-center justify-content-center px-3 px-md-4 w-100 mx-auto"
+      style="padding-top: 100px;" [style.padding-bottom]="currentStep()?.type === 'activity' ? '20px' : '90px'">
+
+      @if (lessonSequence().length === 0) {
+      <div class="spinner-border text-warning" style="width: 3rem; height: 3rem;" role="status"></div>
+      <h4 class="mt-3 text-secondary">Loading your adventure...</h4>
+      } @else if (lessonFinished()) {
+      <!-- LESSON COMPLETE SCREEN -->
+      <div class="text-center animate-bounce-in w-100 max-w-lg mx-auto pb-5">
+        <img src="https://cdn-icons-png.flaticon.com/512/3176/3176294.png" alt="Trophy"
+          style="width: 150px; filter: drop-shadow(0 10px 10px rgba(255, 193, 7, 0.4));" class="mb-4">
+        <h1 class="display-4 fw-bold text-warning mb-3" style="text-shadow: 2px 2px 0px #b08d00;">Lesson Complete!</h1>
+        <div class="d-flex justify-content-center gap-3 mb-5">
+          <div class="card premium-card border-0 shadow rounded-4 p-3 text-center" style="min-width: 120px;">
+            <h5 class="text-secondary mb-1">XP Gained</h5>
+            <h3 class="fw-bold text-success">+15</h3>
+          </div>
+          <div class="card premium-card border-0 shadow rounded-4 p-3 text-center" style="min-width: 120px;">
+            <h5 class="text-secondary mb-1">Accuracy</h5>
+            <h3 class="fw-bold text-primary">100%</h3>
+          </div>
+        </div>
+      </div>
+      } @else if (showGameOver()) {
+      <!-- OUT OF HEARTS SCREEN -->
+      <div class="text-center animate-pop-in w-100 max-w-md mx-auto pb-5">
+        <i class="bi bi-heartbreak-fill text-danger mb-4"
+          style="font-size: 6rem; filter: drop-shadow(0 4px 0 #c62828);"></i>
+        <h2 class="fw-bold text-dark mb-3">Out of Hearts!</h2>
+        <p class="fs-5 text-secondary mb-5">You made too many mistakes. Don't worry, refill your hearts and try again!
+        </p>
+
+        <button
+          class="btn btn-warning btn-lg rounded-pill w-100 py-3 fw-bold text-dark shadow-sm border border-2 border-white hover-lift mb-3"
+          (click)="retryActivity()">
+          <i class="bi bi-suit-heart-fill text-danger me-2"></i> Refill Hearts
+        </button>
+        <button class="btn btn-outline-secondary rounded-pill w-100 py-3 fw-bold hover-lift" (click)="goToMap()">
+          Quit to Map
+        </button>
+      </div>
+      } @else {
+      <!-- DYNAMIC CARDS -->
+      <div class="w-100 h-100 d-flex flex-column animate-pop-in">
+        @if (currentStep(); as step) {
+        @if (step.type !== 'reading') {
+        <div class="position-relative w-100 d-flex justify-content-center align-items-center mb-2">
+          <h3 class="fw-bold text-white text-center m-0"
+            style="font-size: 1.5rem; text-shadow: 0px 4px 10px rgba(0,0,0,0.5); letter-spacing: 1px;">
+            ✨ {{ step.title }}
           </h3>
-          <div class="row g-4">
-            @for (assessment of content.assessments; track assessment.id) {
-            <div class="col-md-6">
-              <div class="card border-0 shadow-sm rounded-4 h-100 p-4 transition-all hover-scale bg-white">
-                <h5 class="fw-bold mb-2">{{ assessment.name }}</h5>
-                <p class="text-secondary small mb-4 flex-grow-1">{{ assessment.description || 'Take this assessment to test your knowledge.' }}</p>
-                <a [routerLink]="['/assessments/play', assessment.id]" class="btn btn-primary w-100 rounded-3 py-2 fw-bold text-decoration-none d-block text-center">
-                  Start Assessment
-                  <i class="bi bi-arrow-right ms-2"></i>
-                </a>
-              </div>
+        </div>
+        }
+        @if (step.type === 'video') {
+        <!-- Premium Video Player -->
+        <div
+          class="w-100 rounded-5 shadow-lg overflow-hidden position-relative d-flex flex-column mx-auto mt-auto mb-auto bg-dark border border-4 border-secondary transition-all"
+          style="max-width: 900px; max-height: 60vh; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+          <div class="w-100 position-relative" style="aspect-ratio: 16/9; background: #000;">
+            <video #lessonVideo [src]="step.data" controls class="w-100 h-100" style="object-fit: contain;"
+              (ended)="onVideoEnded()"></video>
+          </div>
+          <div class="p-4 d-flex justify-content-between align-items-center"
+            style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+            <div>
+              <h4 class="mb-1 fw-bold text-white"><i class="bi bi-camera-video me-2 text-warning"></i> {{ step.title }}
+              </h4>
+              <small class="text-white opacity-75">Watch the video to learn the concept!</small>
             </div>
-            }
           </div>
         </div>
         }
-      </div>
-      } @else {
-      <div class="d-flex flex-column align-items-center justify-content-center h-100 p-5 text-center">
-        <div class="p-5 bg-white rounded-circle shadow-sm mb-4">
-          <i class="bi bi-book fs-1 text-primary"></i>
+
+        @if (step.type === 'pdf') {
+        <!-- Premium Document Resource -->
+        <div
+          class="w-100 rounded-5 shadow-lg position-relative d-flex flex-column align-items-center justify-content-center p-5 mx-auto mt-auto mb-auto bg-white transition-all overflow-hidden"
+          style="max-width: 650px; border: 4px solid #fecdd3; transition: transform 0.3s;"
+          onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+          <div
+            class="position-absolute top-0 end-0 bg-danger text-white px-4 py-2 rounded-bottom-start-4 fw-bold shadow-sm z-2">
+            <i class="bi bi-bookmark-star-fill me-1"></i> Resource
+          </div>
+          <!-- Background decorations -->
+          <div class="position-absolute start-0 bottom-0 opacity-10"
+            style="transform: rotate(-15deg); margin-left: -50px; margin-bottom: -50px;">
+            <i class="bi bi-file-earmark-text" style="font-size: 15rem;"></i>
+          </div>
+
+          <i class="bi bi-file-earmark-pdf-fill text-danger mb-4 z-1"
+            style="font-size: 7rem; filter: drop-shadow(0 10px 15px rgba(239,68,68,0.3));"></i>
+          <h3 class="fw-bold text-dark mb-2 z-1" style="font-size: 2rem;">Read the Story</h3>
+          <p class="text-secondary text-center mb-5 fs-5 z-1">Open this magic document to learn something new!</p>
+          <button
+            class="btn btn-danger btn-lg rounded-pill px-5 py-3 shadow-lg fw-bold d-flex align-items-center gap-3 border-bottom border-4 z-1"
+            style="font-size: 1.25rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'"
+            onmouseout="this.style.transform='scale(1)'">
+            <i class="bi bi-cloud-download-fill fs-3"></i> Open Document
+          </button>
         </div>
-        <h2 class="fw-bold text-dark mb-2">Select a Topic</h2>
-        <p class="text-secondary opacity-75 max-w-sm">Choose a topic from the sidebar to begin your learning journey.</p>
+        }
+
+        @if (step.type === 'reading') {
+        <!-- Reading Content (Card Box) -->
+        <div
+          class="w-100 d-flex flex-column align-items-center justify-content-between mx-auto bg-white bg-opacity-75 shadow-lg position-relative"
+          style="max-width: 1200px; height: 75vh; padding: 2rem 3rem; border-radius: 40px; border: 6px solid rgba(255, 255, 255, 0.8); backdrop-filter: blur(5px);">
+
+          <!-- Read Aloud Button (Top Right Corner) -->
+          <button
+            class="btn btn-warning rounded-circle shadow-lg position-absolute d-flex align-items-center justify-content-center hover-lift"
+            style="top: -20px; right: -15px; width: 65px; height: 65px; border: 5px solid white; z-index: 15;"
+            (click)="speakText(rawReadingHtml())">
+            <i class="bi bi-volume-up-fill fs-2 text-dark"></i>
+          </button>
+
+          <!-- Lesson Title (Top Left Corner) -->
+          <div class="position-absolute" style="top: -20px; left: -15px; z-index: 15;">
+            <h3 class="fw-bold text-dark text-center m-0 px-4 py-2 bg-white rounded-pill shadow-sm"
+              style="font-family: 'Fredoka One', cursive; border: 4px solid #fcd34d; font-size: 1.4rem;">
+              ✨ {{ currentStepIndex() + 1 }}. {{ step.title }}
+            </h3>
+          </div>
+
+          <div
+            class="w-100 flex-grow-1 d-flex gap-4 align-items-center justify-content-center position-relative overflow-hidden"
+            style="min-height: 0;">
+            <!-- Mascot Presentation Pose -->
+            <div class="d-none d-lg-block position-relative animate-bounce align-self-end mb-4"
+              style="width: 180px; z-index: 5;">
+              <img src="/assets/images/mascot.png" alt="Mascot" class="w-100"
+                style="filter: drop-shadow(0 15px 25px rgb)">
+            </div>
+
+            <!-- Floating Text Area -->
+            <div
+              class="flex-grow-1 position-relative p-3 w-100 h-100 d-flex flex-column align-items-center justify-content-center overflow-hidden">
+
+              <!-- Huge Floating Typewriter Content Area -->
+              <div class="reading-content w-100 text-center px-4 py-3 h-100 d-flex flex-column hide-scrollbar"
+                style="overflow-y: auto; justify-content: flex-start; font-size: 1.3rem; line-height: 1.7; color: #1e293b; font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; text-shadow: 0px 4px 15px rgba(255,255,255,0.8); font-weight: 600; letter-spacing: 0.5px;">
+                <div class="mt-auto mb-auto">
+                  <span [innerHTML]="typedContent()"></span>
+                  <span class="blinking-cursor"
+                    style="border-right: 5px solid #fcd34d; animation: blink 1s step-end infinite;">&nbsp;</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Navigation Controls -->
+          <div class="d-flex justify-content-between align-items-center w-100 mt-2 px-2 px-md-4">
+            <button
+              class="btn btn-light rounded-circle shadow-sm hover-lift d-flex align-items-center justify-content-center"
+              style="width: 50px; height: 50px; border: 3px solid #cbd5e1;" (click)="prevContentPage()"
+              [disabled]="currentContentPage() === 0">
+              <i class="bi bi-chevron-left fs-4 text-secondary fw-bold"></i>
+            </button>
+            <div class="d-flex gap-3 bg-white px-4 py-2 rounded-pill shadow-sm border border-2 border-light">
+              @if (step.data.isJson) {
+              @for (b of step.data.blocks; track $index) {
+              <div class="rounded-pill"
+                style="height: 12px; transition: all 0.3s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);"
+                [style.width]="$index === currentContentPage() ? '40px' : '12px'"
+                [ngClass]="$index === currentContentPage() ? 'bg-primary' : 'bg-secondary opacity-25'"></div>
+              }
+              }
+            </div>
+            <button
+              class="btn btn-primary rounded-circle shadow-sm hover-lift d-flex align-items-center justify-content-center text-white"
+              style="width: 50px; height: 50px; border: 3px solid white;" (click)="nextContentPage()"
+              [disabled]="(step.data.isJson && currentContentPage() === step.data.blocks.length - 1) || !step.data.isJson">
+              <i class="bi bi-chevron-right fs-4 fw-bold"></i>
+            </button>
+          </div>
+        </div>
+        }
+
+        @if (step.type === 'activity') {
+        <div class="w-100 flex-grow-1 d-flex flex-column align-items-center justify-content-center mx-auto"
+          style="max-width: 1600px; width: 95%;">
+          <app-activity-renderer [activity]="step.data.data" [showFeedback]="true"
+            (answered)="onActivityAnswered($event)" class="w-100 h-100"></app-activity-renderer>
+        </div>
+        }
+
+        @if (step.type === 'assessment') {
+        <!-- Premium Boss Challenge -->
+        <div
+          class="w-100 rounded-5 shadow-lg position-relative d-flex flex-column align-items-center justify-content-center p-5 mx-auto mt-auto mb-auto overflow-hidden transition-all"
+          style="max-width: 700px; background: linear-gradient(135deg, #2e1065 0%, #4c1d95 100%); border: 4px solid #a78bfa;">
+          <!-- Animated glowing background rings -->
+          <div class="position-absolute rounded-circle border border-5 border-white opacity-10"
+            style="width: 400px; height: 400px; animation: ping 3s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+          <div class="position-absolute rounded-circle border border-5 border-white opacity-20"
+            style="width: 300px; height: 300px;"></div>
+
+          <div class="bg-warning rounded-circle p-4 mb-4 shadow-lg z-1 position-relative">
+            <i class="bi bi-joystick text-dark" style="font-size: 6rem;"></i>
+            <div
+              class="position-absolute top-0 end-0 bg-danger rounded-circle d-flex align-items-center justify-content-center shadow"
+              style="width: 35px; height: 35px; margin-top: 5px; margin-right: 5px; animation: bounce 2s infinite;">
+              <i class="bi bi-star-fill text-white fs-5"></i>
+            </div>
+          </div>
+
+          <h2 class="fw-bold text-white mb-3 z-1" style="font-size: 2.5rem; text-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+            Final Challenge!</h2>
+          <p class="text-white opacity-75 text-center mb-5 fs-4 z-1">You've learned so much. Are you ready to win?</p>
+          <button
+            class="btn btn-warning btn-lg rounded-pill px-5 py-3 fw-bold shadow-lg border-bottom border-4 border-dark z-1"
+            style="font-size: 1.5rem; color: #4c1d95; transition: transform 0.2s;"
+            onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"
+            (click)="onActivityAnswered({isCorrect: true})">
+            <i class="bi bi-lightning-charge-fill me-2"></i> Start Assessment
+          </button>
+        </div>
+        }
+        }
       </div>
       }
     </main>
+
+    <!-- BOTTOM ACTION BAR (Floating) -->
+    @if (lessonSequence().length > 0 && !showGameOver()) {
+    <div class="position-absolute bottom-0 start-0 w-100 z-3 pe-none">
+
+      <!-- Floating Feedback Banner -->
+      @if (activityFeedbackState() === 'correct') {
+      <div class="position-absolute start-50 translate-middle-x animate-bounce-in pe-auto"
+        style="bottom: 30px; width: 90%; max-width: 800px; z-index: 1050;">
+        <div class="rounded-pill p-3 px-5 d-flex justify-content-between align-items-center position-relative shadow-lg"
+          style="background: #d7ffb8; border: 4px solid #bbf7d0; box-shadow: 0 20px 40px rgba(74, 222, 128, 0.3) !important;">
+
+          <!-- Mascot Reaction -->
+          <div class="position-absolute" style="bottom: -10px; left: -20px;">
+            <img src="/assets/images/mascot.png" alt="Happy Mascot" class="mascot-happy"
+              style="width: 130px; filter: drop-shadow(0 10px 15px rgba(34, 197, 94, 0.5)); transform-origin: bottom center;">
+            <i class="bi bi-stars text-warning position-absolute mascot-stars"
+              style="top: -10px; right: -20px; font-size: 2.5rem; animation: ping 1s infinite;"></i>
+          </div>
+
+          <!-- Message -->
+          <div class="d-flex align-items-center gap-4" style="margin-left: 130px;">
+            <div class="bg-white text-success rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+              style="width: 60px; height: 60px;">
+              <i class="bi bi-check-lg" style="font-size: 2.5rem; -webkit-text-stroke: 3px;"></i>
+            </div>
+            <div>
+              <h2 class="text-success fw-bold mb-0" style="font-size: 2rem; font-family: 'Nunito', sans-serif;">
+                Awesome!</h2>
+              <p class="text-success text-opacity-75 mb-0 fw-bold fs-5">You got it right. <span
+                  class="text-warning text-shadow">+10 XP</span></p>
+            </div>
+          </div>
+
+          <!-- Continue Action -->
+          <button
+            class="btn btn-success btn-lg rounded-pill px-4 py-2 fw-bold fs-4 text-white shadow-sm hover-lift border-bottom border-4"
+            style="border-color: #16a34a !important; min-width: 180px;" (click)="continueFromFeedback()">
+            CONTINUE <i class="bi bi-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+      } @else if (activityFeedbackState() === 'incorrect') {
+      <div class="position-absolute start-50 translate-middle-x animate-bounce-in pe-auto"
+        style="bottom: 30px; width: 90%; max-width: 800px; z-index: 1050;">
+        <div class="rounded-pill p-3 px-5 d-flex justify-content-between align-items-center position-relative shadow-lg"
+          style="background: #fee2e2; border: 4px solid #fecaca; box-shadow: 0 20px 40px rgba(248, 113, 113, 0.3) !important;">
+
+          <!-- Mascot Reaction -->
+          <div class="position-absolute" style="bottom: -10px; left: -20px;">
+            <img src="/assets/images/mascot.png" alt="Sad Mascot" class="mascot-sad"
+              style="width: 120px; filter: grayscale(70%) sepia(30%) hue-rotate(-50deg) drop-shadow(0 10px 15px rgba(239, 68, 68, 0.3)); transform-origin: bottom center;">
+          </div>
+
+          <!-- Message -->
+          <div class="d-flex align-items-center gap-4" style="margin-left: 120px;">
+            <div class="bg-white text-danger rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+              style="width: 60px; height: 60px;">
+              <i class="bi bi-x-lg" style="font-size: 2.5rem; -webkit-text-stroke: 3px;"></i>
+            </div>
+            <div>
+              <h2 class="text-danger fw-bold mb-0" style="font-size: 2rem; font-family: 'Nunito', sans-serif;">Not quite
+                right</h2>
+              <p class="text-danger text-opacity-75 mb-0 fw-bold fs-5">Let's try that again!</p>
+            </div>
+          </div>
+
+          <!-- Continue Action -->
+          <button
+            class="btn btn-danger btn-lg rounded-pill px-4 py-2 fw-bold fs-4 text-white shadow-sm hover-lift border-bottom border-4"
+            style="border-color: #dc2626 !important; min-width: 180px;" (click)="retryActivity()">
+            GOT IT <i class="bi bi-arrow-repeat"></i>
+          </button>
+        </div>
+      </div>
+      } @else {
+      <!-- Standard Navigation Buttons (Floating, Only if no feedback is active) -->
+      <div class="position-absolute w-100 h-100 top-0 start-0 pe-none" style="z-index: 10;">
+
+        <!-- Left Side: PREV (Floating Bottom Left) -->
+        @if (currentStepIndex() > 0 && !lessonFinished()) {
+        <button
+          class="btn btn-light rounded-pill px-4 py-2 fw-bold fs-5 text-secondary shadow-lg hover-lift border border-4 border-light transition-all position-absolute pe-auto"
+          style="bottom: 20px; left: 20px; min-width: 140px;" (click)="prevLessonStep()">
+          <i class="bi bi-chevron-left me-2"></i> PREV
+        </button>
+        }
+
+        <!-- Right Side: NEXT / FINISH (Floating Bottom Right) -->
+        @if (lessonFinished()) {
+        <button
+          class="btn btn-success rounded-pill px-4 py-2 fw-bold fs-5 text-white shadow-lg hover-lift border-bottom border-4 position-absolute pe-auto"
+          style="bottom: 20px; right: 20px; min-width: 140px;" (click)="finishLesson()">
+          FINISH <i class="bi bi-check2-circle ms-2"></i>
+        </button>
+        } @else if (currentStep()?.type !== 'activity') {
+        <button
+          class="btn rounded-pill px-4 py-2 fw-bold fs-5 shadow-lg hover-lift transition-all text-white border-bottom border-4 position-absolute pe-auto"
+          style="bottom: 20px; right: 20px; min-width: 140px;"
+          [ngClass]="isStepCompleted() ? 'btn-success border-success' : 'btn-secondary opacity-50 border-secondary'"
+          [disabled]="!isStepCompleted()" (click)="nextLessonStep()">
+          NEXT <i class="bi bi-chevron-right ms-2"></i>
+        </button>
+        }
+      </div>
+      }
+    </div>
+    }
   </div>
+  }
+
+  <!-- Top HUD (Floating widgets for Dashboard) -->
+  <header class="position-absolute top-0 start-0 w-100 h-100 pe-none" style="z-index: 1050;"
+    [class.d-none]="currentView() === 'content'">
+    <!-- Left Navigation Actions (Floating Top Left) -->
+    <div class="position-absolute pe-auto" style="top: 20px; left: 20px;">
+      <button
+        class="btn btn-warning rounded-pill px-3 py-2 shadow-lg border border-2 border-white text-dark fw-bold d-flex align-items-center gap-2 hover-lift"
+        (click)="goBack()">
+        <i class="bi bi-arrow-left-circle-fill text-dark"></i>
+        <span>Back</span>
+      </button>
+    </div>
+
+    <!-- Stats & Actions (Floating Top Right) -->
+    <div class="position-absolute d-flex gap-2 pe-auto" style="top: 20px; right: 20px;">
+      @if (currentView() === 'activity') {
+      <div
+        class="stat-badge d-flex align-items-center bg-white rounded-pill px-2 py-1 shadow-sm border border-2 border-danger"
+        style="font-size: 0.85rem;">
+        @for (h of [1,2,3,4,5]; track h) {
+        <i class="bi" [ngClass]="hearts() >= h ? 'bi-heart-fill text-danger' : 'bi-heart text-secondary'"
+          style="font-size: 0.9rem; margin: 0 1px;"></i>
+        }
+      </div>
+      }
+      <div
+        class="stat-badge d-flex align-items-center bg-white rounded-pill px-2 py-1 shadow-sm border border-2 border-warning"
+        style="font-size: 0.85rem;">
+        <i class="bi bi-star-fill text-warning me-1"></i>
+        <span class="fw-bold text-dark">{{ xp() }}</span>
+      </div>
+      <div
+        class="stat-badge d-flex align-items-center bg-white rounded-pill px-2 py-1 shadow-sm border border-2 border-primary"
+        style="font-size: 0.85rem;">
+        <i class="bi bi-gem text-primary me-1"></i>
+        <span class="fw-bold text-dark">{{ coins() }}</span>
+      </div>
+      <button class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+        style="width: 32px; height: 32px; border: 2px solid white; padding: 0;" (click)="toggleFullscreen()">
+        <i class="bi" [ngClass]="isFullscreen() ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'"
+          style="font-size: 0.9rem;"></i>
+      </button>
+      <a routerLink="/dashboard"
+        class="btn btn-danger rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+        style="width: 32px; height: 32px; border: 2px solid white; padding: 0;">
+        <i class="bi bi-x-lg" style="font-size: 0.9rem;"></i>
+      </a>
+    </div>
+  </header>
+
 </div>
