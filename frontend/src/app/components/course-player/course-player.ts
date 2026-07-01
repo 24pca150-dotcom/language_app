@@ -720,7 +720,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
     }
 
     if (this.hearts() > 0) {
-       this.nextLessonStep();
+      this.nextLessonStep();
     }
   }
 

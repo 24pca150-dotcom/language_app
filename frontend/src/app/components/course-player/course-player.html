@@ -36,8 +36,7 @@
       <!-- Quit Button (Floating Top Left) -->
       <button
         class="btn btn-light rounded-circle shadow-lg position-absolute d-flex align-items-center justify-content-center border border-2 border-secondary hover-lift pe-auto"
-        style="width: 45px; height: 45px; top: 15px; left: 15px;"
-        (click)="goToMap()">
+        style="width: 45px; height: 45px; top: 15px; left: 15px;" (click)="goToMap()">
         <i class="bi bi-x-lg fw-bold text-secondary fs-5"></i>
       </button>
 
@@ -196,7 +195,7 @@
             <div class="d-none d-lg-block position-relative animate-bounce align-self-end mb-4"
               style="width: 180px; z-index: 5;">
               <img src="/assets/images/mascot.png" alt="Mascot" class="w-100"
-                style="filter: drop-shadow(0 15px 25px rgb">
+                style="filter: drop-shadow(0 15px 25px rgb)">
             </div>
 
             <!-- Floating Text Area -->
@@ -399,7 +398,8 @@
   }
 
   <!-- Top HUD (Floating widgets for Dashboard) -->
-  <header class="position-absolute top-0 start-0 w-100 h-100 pe-none" style="z-index: 1050;" [class.d-none]="currentView() === 'content'">
+  <header class="position-absolute top-0 start-0 w-100 h-100 pe-none" style="z-index: 1050;"
+    [class.d-none]="currentView() === 'content'">
     <!-- Left Navigation Actions (Floating Top Left) -->
     <div class="position-absolute pe-auto" style="top: 20px; left: 20px;">
       <button

@@ -43,7 +43,7 @@ export class MCQComponent implements OnChanges {
     if (this.showFeedback && this.hasSubmitted()) return;
 
     this.selectedOptionId.set(option.id);
-    
+
     if (this.showFeedback) {
       this.hasSubmitted.set(true);
     }
@@ -66,12 +66,12 @@ export class MCQComponent implements OnChanges {
 
     this.isPlaying.set(true);
     this.currentAudio = new Audio(this.activity.audioUrl);
-    
+
     this.currentAudio.onended = () => {
       this.isPlaying.set(false);
       this.currentAudio = null;
     };
-    
+
     this.currentAudio.onerror = () => {
       this.isPlaying.set(false);
       this.currentAudio = null;
