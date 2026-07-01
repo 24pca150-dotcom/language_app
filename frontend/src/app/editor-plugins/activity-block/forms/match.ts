@@ -1,3 +1,9 @@
+const isImageUrl = (url: string) => {
+  if (!url) return false;
+  const cleanUrl = url.split('?')[0].split('#')[0];
+  return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(cleanUrl);
+};
+
 export function renderMatchForm(
   parent: HTMLDivElement,
   data: any,
@@ -77,6 +83,10 @@ export function renderMatchForm(
       row.style.padding = '1rem';
       row.style.marginBottom = '0.75rem';
 
+      const showImage = pair.rightImage && isImageUrl(pair.rightImage);
+      const showDoc = pair.rightImage && !isImageUrl(pair.rightImage);
+      const fileName = pair.rightImage ? pair.rightImage.substring(pair.rightImage.lastIndexOf('/') + 1) : '';
+
       row.innerHTML = `
         <div style="display: flex; gap: 0.75rem; margin-bottom: 0.5rem; align-items: center;">
           <input type="text" class="activity-input-text pair-left" placeholder="Left Word (Text)" value="${pair.left || ''}" style="flex: 1; margin-bottom: 0;">
@@ -86,17 +96,18 @@ export function renderMatchForm(
         </div>
         <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
           <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <input type="text" class="activity-input-text pair-right-image" placeholder="Right Image URL (E.g. https://example.com/img.jpg)" value="${pair.rightImage || ''}" style="flex: 1; font-size: 0.85rem; margin-bottom: 0;">
+            <input type="text" class="activity-input-text pair-right-image" placeholder="Right Image/File URL (E.g. https://example.com/file.jpg)" value="${pair.rightImage || ''}" style="flex: 1; font-size: 0.85rem; margin-bottom: 0;">
             <span style="color: #64748b; font-size: 0.8rem; font-weight: bold;">OR</span>
             <label class="activity-btn activity-btn-primary" style="margin-bottom: 0; padding: 0.45rem 0.75rem; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0;">
-              📷 Upload File
-              <input type="file" class="pair-image-upload" accept="image/*" style="display: none;">
+              📁 Upload File
+              <input type="file" class="pair-image-upload" style="display: none;">
             </label>
           </div>
           <!-- Preview Container -->
           <div class="image-preview-container" style="display: ${pair.rightImage ? 'flex' : 'none'}; align-items: center; gap: 0.75rem; background: #ffffff; padding: 0.5rem; border-radius: 0.375rem; border: 1px dashed #cbd5e1;">
-            <img src="${pair.rightImage || ''}" style="max-height: 45px; max-width: 80px; border-radius: 0.25rem; object-fit: contain;" class="preview-img">
-            <span class="preview-filename text-muted" style="font-size: 0.75rem; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Selected Image</span>
+            <img src="${pair.rightImage || ''}" style="max-height: 45px; max-width: 80px; border-radius: 0.25rem; object-fit: contain; display: ${showImage ? 'block' : 'none'};" class="preview-img">
+            <span class="file-icon" style="font-size: 1.5rem; display: ${showDoc ? 'block' : 'none'};">📄</span>
+            <span class="preview-filename text-muted" style="font-size: 0.75rem; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${fileName || 'Selected File'}</span>
             <button type="button" class="activity-btn activity-btn-danger clear-img-btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; margin-bottom: 0;">Remove</button>
           </div>
         </div>
@@ -115,21 +126,38 @@ export function renderMatchForm(
       leftVal.addEventListener('input', (e: any) => { pair.left = e.target.value; });
       rightVal.addEventListener('input', (e: any) => { pair.right = e.target.value; });
 
-      rightImgVal.addEventListener('input', (e: any) => {
-        pair.rightImage = e.target.value;
-        if (pair.rightImage) {
-          previewImg.src = pair.rightImage;
+      const updatePreview = (url: string) => {
+        if (url) {
+          const isImg = isImageUrl(url);
+          previewImg.src = isImg ? url : '';
+          previewImg.style.display = isImg ? 'block' : 'none';
+          
+          const fileIcon = row.querySelector('.file-icon') as HTMLSpanElement;
+          if (fileIcon) {
+            fileIcon.style.display = isImg ? 'none' : 'block';
+          }
+          
+          const filenameSpan = row.querySelector('.preview-filename') as HTMLSpanElement;
+          if (filenameSpan) {
+            filenameSpan.textContent = url.substring(url.lastIndexOf('/') + 1);
+          }
+          
           previewContainer.style.display = 'flex';
         } else {
           previewContainer.style.display = 'none';
         }
+      };
+
+      rightImgVal.addEventListener('input', (e: any) => {
+        pair.rightImage = e.target.value;
+        updatePreview(pair.rightImage);
       });
 
       fileInput.addEventListener('change', (e: any) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        rightImgVal.placeholder = "Uploading image...";
+        rightImgVal.placeholder = "Uploading file...";
         rightImgVal.disabled = true;
 
         const formData = new FormData();
@@ -142,20 +170,19 @@ export function renderMatchForm(
           .then(res => res.json())
           .then(uploadResult => {
             rightImgVal.disabled = false;
-            rightImgVal.placeholder = "Right Image URL (E.g. https://example.com/img.jpg)";
+            rightImgVal.placeholder = "Right Image/File URL (E.g. https://example.com/file.jpg)";
 
             if (uploadResult && uploadResult.url) {
               pair.rightImage = uploadResult.url;
               rightImgVal.value = uploadResult.url;
-              previewImg.src = uploadResult.url;
-              previewContainer.style.display = 'flex';
+              updatePreview(uploadResult.url);
             } else {
               alert("Upload failed. Invalid response from server.");
             }
           })
           .catch(err => {
             rightImgVal.disabled = false;
-            rightImgVal.placeholder = "Right Image URL (E.g. https://example.com/img.jpg)";
+            rightImgVal.placeholder = "Right Image/File URL (E.g. https://example.com/file.jpg)";
             console.error("Upload error:", err);
             alert("Upload failed. Could not reach server.");
           });
@@ -164,7 +191,7 @@ export function renderMatchForm(
       clearImgBtn.addEventListener('click', () => {
         pair.rightImage = '';
         rightImgVal.value = '';
-        previewContainer.style.display = 'none';
+        updatePreview('');
       });
 
       delBtn.addEventListener('click', () => {
