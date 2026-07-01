@@ -55,46 +55,46 @@
   <div class="flex-grow-1 overflow-auto map-container custom-scrollbar w-100 d-flex flex-column align-items-center justify-content-start" style="min-height: 100vh; padding-top: 100px; padding-bottom: 50px;">
     
     <!-- Course Title Header -->
-    <div class="text-center mb-5 mt-4 animate-slide-down">
-      <h1 class="display-4 fw-bold text-white mb-2" style="text-shadow: 2px 2px 0 #1b5e20, -2px -2px 0 #1b5e20, 2px -2px 0 #1b5e20, -2px 2px 0 #1b5e20, 0 6px 12px rgba(0,0,0,0.3);">
+    <div class="text-center mb-4 mt-3 animate-slide-down">
+      <h1 class="display-6 fw-bold text-white mb-2" style="text-shadow: 2px 2px 0 #1b5e20, -2px -2px 0 #1b5e20, 2px -2px 0 #1b5e20, -2px 2px 0 #1b5e20, 0 4px 8px rgba(0,0,0,0.3);">
         {{ structure?.name }}
       </h1>
-      <p class="lead fw-bold text-white fs-5" style="text-shadow: 1px 1px 0 #1b5e20, -1px -1px 0 #1b5e20, 1px -1px 0 #1b5e20, -1px 1px 0 #1b5e20;">
+      <p class="lead fw-bold text-white fs-6" style="text-shadow: 1px 1px 0 #1b5e20, -1px -1px 0 #1b5e20, 1px -1px 0 #1b5e20, -1px 1px 0 #1b5e20;">
         Select a Level to enter the map.
       </p>
     </div>
 
     <!-- Levels List -->
     <div class="container-fluid px-4 px-lg-5 z-2">
-      <div class="row g-4 justify-content-center">
+      <div class="row g-4 justify-content-center row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
         @for (level of structure?.levels; track level.id; let idx = $index) {
-          <div class="col-12 col-sm-6 col-md-4 col-xl-3 animate-slide-down" [style.animation-delay]="idx * 0.1 + 's'">
+          <div class="col animate-slide-down" [style.animation-delay]="idx * 0.1 + 's'">
             <div class="chapter-card card border-0 h-100 position-relative text-center" 
                  [ngClass]="{'level-locked-card opacity-75': !isLevelUnlocked(level.id)}"
                  (click)="onLevelClick(level.id)">
               <!-- Card Header -->
-              <div class="chapter-card-header text-center text-white py-3 position-relative"
+              <div class="chapter-card-header text-center text-white py-2 position-relative"
                    [style.background]="!isLevelUnlocked(level.id) ? 'linear-gradient(to bottom, #78909c, #455a64) !important' : ''"
                    [style.border-bottom-color]="!isLevelUnlocked(level.id) ? '#37474f !important' : ''">
-                <i class="bi course-icon" [ngClass]="!isLevelUnlocked(level.id) ? 'bi-lock-fill' : (idx % 3 === 0 ? 'bi-compass-fill' : (idx % 3 === 1 ? 'bi-tree-fill' : 'bi-journal-richtext'))"></i>
+                <i class="bi course-icon" style="font-size: 2rem;" [ngClass]="!isLevelUnlocked(level.id) ? 'bi-lock-fill' : (idx % 3 === 0 ? 'bi-compass-fill' : (idx % 3 === 1 ? 'bi-tree-fill' : 'bi-journal-richtext'))"></i>
               </div>
               <!-- Card Body -->
-              <div class="card-body p-4 d-flex flex-column">
-                <h3 class="card-title fw-bold mb-2">{{ level.name }}</h3>
-                <p class="card-text mb-3 flex-grow-1" style="font-size: 0.95rem;">
+              <div class="card-body p-3 d-flex flex-column flex-grow-1">
+                <h3 class="card-title fw-bold mb-1 fs-5">{{ level.name }}</h3>
+                <p class="card-text mb-2 flex-grow-1" style="font-size: 0.85rem;">
                   {{ level.chapters.length }} Chapters
                 </p>
                 <div class="d-flex align-items-center justify-content-between mt-auto">
-                  <span class="badge badge-level rounded-pill px-3 py-2 fw-bold" [ngClass]="{'bg-secondary text-white border-secondary': !isLevelUnlocked(level.id)}">
+                  <span class="badge badge-level rounded-pill px-2 py-1 fw-bold" style="font-size: 0.75rem;" [ngClass]="{'bg-secondary text-white border-secondary': !isLevelUnlocked(level.id)}">
                     {{ !isLevelUnlocked(level.id) ? 'Locked' : 'Level ' + (idx + 1) }}
                   </span>
                   @if (isLevelUnlocked(level.id)) {
-                    <div class="btn-play-bouncy">
-                      <i class="bi bi-play-fill text-white"></i>
+                    <div class="btn-play-bouncy" style="width: 35px; height: 35px; min-width: 35px; padding: 0;">
+                      <i class="bi bi-play-fill text-white fs-5"></i>
                     </div>
                   } @else {
-                    <div class="btn-locked-bouncy d-flex align-items-center justify-content-center bg-secondary border border-2 border-white rounded-circle shadow-sm" style="width: 50px; height: 50px;">
-                      <i class="bi bi-lock-fill text-white fs-4"></i>
+                    <div class="btn-locked-bouncy d-flex align-items-center justify-content-center bg-secondary border border-2 border-white rounded-circle shadow-sm" style="width: 35px; height: 35px; min-width: 35px;">
+                      <i class="bi bi-lock-fill text-white fs-5"></i>
                     </div>
                   }
                 </div>

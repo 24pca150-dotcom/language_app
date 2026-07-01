@@ -47,7 +47,7 @@
         <div class="progress rounded-pill bg-light border border-2 border-secondary overflow-hidden"
           style="height: 18px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
           <div class="progress-bar bg-success rounded-pill transition-all"
-            [style.width.%]="lessonSequence().length > 0 ? ((currentStepIndex() / lessonSequence().length) * 100) : 0"
+            [style.width.%]="lessonSequence().length > 0 ? (lessonFinished() ? 100 : ((currentStepIndex() / lessonSequence().length) * 100)) : 0"
             style="transition: width 0.5s ease-out;">
             <div class="w-100 h-25 bg-white opacity-25 mt-1 rounded-pill mx-auto" style="max-width: 90%;"></div>
           </div>
@@ -414,32 +414,35 @@
     <div class="position-absolute d-flex gap-2 pe-auto" style="top: 20px; right: 20px;">
       @if (currentView() === 'activity') {
       <div
-        class="stat-badge d-flex align-items-center bg-white rounded-pill px-3 py-2 shadow-sm border border-2 border-danger">
+        class="stat-badge d-flex align-items-center bg-white rounded-pill px-2 py-1 shadow-sm border border-2 border-danger"
+        style="font-size: 0.85rem;">
         @for (h of [1,2,3,4,5]; track h) {
         <i class="bi" [ngClass]="hearts() >= h ? 'bi-heart-fill text-danger' : 'bi-heart text-secondary'"
-          style="font-size: 1.1rem; margin: 0 1px;"></i>
+          style="font-size: 0.9rem; margin: 0 1px;"></i>
         }
       </div>
       }
       <div
-        class="stat-badge d-flex align-items-center bg-white rounded-pill px-3 py-2 shadow-sm border border-2 border-warning">
-        <i class="bi bi-star-fill text-warning me-2 fs-5"></i>
+        class="stat-badge d-flex align-items-center bg-white rounded-pill px-2 py-1 shadow-sm border border-2 border-warning"
+        style="font-size: 0.85rem;">
+        <i class="bi bi-star-fill text-warning me-1"></i>
         <span class="fw-bold text-dark">{{ xp() }}</span>
       </div>
       <div
-        class="stat-badge d-flex align-items-center bg-white rounded-pill px-3 py-2 shadow-sm border border-2 border-primary">
-        <i class="bi bi-gem text-primary me-2 fs-5"></i>
+        class="stat-badge d-flex align-items-center bg-white rounded-pill px-2 py-1 shadow-sm border border-2 border-primary"
+        style="font-size: 0.85rem;">
+        <i class="bi bi-gem text-primary me-1"></i>
         <span class="fw-bold text-dark">{{ coins() }}</span>
       </div>
       <button class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center"
-        style="width: 45px; height: 45px; border: 2px solid white;" (click)="toggleFullscreen()">
+        style="width: 32px; height: 32px; border: 2px solid white; padding: 0;" (click)="toggleFullscreen()">
         <i class="bi" [ngClass]="isFullscreen() ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'"
-          style="font-size: 1.1rem;"></i>
+          style="font-size: 0.9rem;"></i>
       </button>
       <a routerLink="/dashboard"
         class="btn btn-danger rounded-circle shadow-sm d-flex align-items-center justify-content-center"
-        style="width: 45px; height: 45px; border: 2px solid white;">
-        <i class="bi bi-x-lg"></i>
+        style="width: 32px; height: 32px; border: 2px solid white; padding: 0;">
+        <i class="bi bi-x-lg" style="font-size: 0.9rem;"></i>
       </a>
     </div>
   </header>

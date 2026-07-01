@@ -335,18 +335,12 @@
   perspective: 1000px;
 }
 
-/* Course Card - Wooden Signpost Style with 3D Tilt */
+/* Course Card - Clean Style with 3D Tilt */
 .course-card {
-  background: repeating-linear-gradient(
-    90deg,
-    #8d6e63,
-    #8d6e63 20px,
-    #805b50 20px,
-    #805b50 40px
-  ) !important;
-  border: 8px solid #5d4037 !important;
+  background: #e8f5e9 !important;
+  border: 4px solid #a5d6a7 !important;
   border-radius: 24px !important;
-  box-shadow: 0 12px 0 #3e2723, 0 20px 30px rgba(0,0,0,0.3) !important;
+  box-shadow: 0 8px 0 #cbd5e1, 0 15px 25px rgba(0,0,0,0.15) !important;
   margin-bottom: 20px;
   position: relative;
   overflow: visible !important;
@@ -360,14 +354,14 @@
 .course-card:hover {
   transform: translateY(-12px) rotateX(6deg) rotateY(-4deg) translateZ(10px) !important;
   box-shadow: 
-    0 18px 0 #3e2723, 
-    0 25px 45px rgba(0,0,0,0.45), 
-    0 0 25px rgba(76, 175, 80, 0.35) !important;
+    0 12px 0 #cbd5e1, 
+    0 20px 35px rgba(0,0,0,0.2), 
+    0 0 20px rgba(76, 175, 80, 0.2) !important;
 }
 
 .course-card:active {
-  transform: translateY(6px) rotateX(2deg) rotateY(-1deg);
-  box-shadow: 0 4px 0 #3e2723, 0 5px 15px rgba(0,0,0,0.3) !important;
+  transform: translateY(4px) rotateX(2deg) rotateY(-1deg);
+  box-shadow: 0 4px 0 #cbd5e1, 0 5px 15px rgba(0,0,0,0.1) !important;
 }
 
 /* Parallax pops for hover elements */
@@ -412,21 +406,19 @@
 }
 
 .card-body {
-  background: #fcf6e6 !important;
-  border-radius: 0 0 14px 14px;
-  border: 4px solid #5d4037;
-  border-top: none;
+  background: #e8f5e9 !important;
+  border-radius: 0 0 20px 20px;
+  border: none;
   transform-style: preserve-3d;
 }
 
 .card-title {
-  color: #3e2723 !important;
+  color: #1e293b !important;
   font-weight: 800;
-  text-shadow: 1px 1px 0 rgba(255,255,255,0.8);
 }
 
 .card-text {
-  color: #5d4037;
+  color: #64748b;
   font-weight: 600;
 }
 
