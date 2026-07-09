@@ -108,10 +108,7 @@ export class ActivityRenderer implements OnChanges {
         } else if (block.type === 'header') {
           return `<h${block.data.level} class="fw-bold mb-3">${block.data.text || ''}</h${block.data.level}>`;
         } else if (block.type === 'list') {
-          const items = (block.data.items || []).map((item: any) => {
-            const text = typeof item === 'object' && item !== null ? (item.content || '') : item;
-            return `<li>${text}</li>`;
-          }).join('');
+          const items = (block.data.items || []).map((item: string) => `<li>${item}</li>`).join('');
           return block.data.style === 'ordered' ? `<ol>${items}</ol>` : `<ul>${items}</ul>`;
         } else if (block.type === 'table') {
           const withHeadings = !!block.data.withHeadings;
@@ -138,10 +135,6 @@ export class ActivityRenderer implements OnChanges {
           }
           tableHtml += '</table></div>';
           return tableHtml;
-        } else if (block.type === 'image') {
-          const url = block.data.file?.url || block.data.url || '';
-          const caption = block.data.caption || '';
-          return `<div class="text-center mb-3"><img src="${url}" alt="${caption}" class="img-fluid rounded shadow-sm" style="max-height: 350px; object-fit: contain;">${caption ? `<div class="text-muted small mt-2">${caption}</div>` : ''}</div>`;
         }
         return block.data.text || '';
       }).join('\n');
@@ -234,7 +227,24 @@ export class ActivityRenderer implements OnChanges {
       normalized.imageUrl = raw.media_url || additional.imageUrl || '';
     } else if (type === 'role_play') {
       normalized.question = this.convertEditorJsToHtml(raw.question || raw.question_text || '');
-      normalized.dialogue = raw.dialogue || additional.dialogue || [];
+      const rawDialogue = raw.dialogue || additional.dialogue || [];
+      normalized.dialogue = rawDialogue.map((line: any) => {
+        const rawRole = (line.role || 'system').toString().toLowerCase();
+        let mappedRole: 'system' | 'student' = 'system';
+        if (rawRole.includes('student') || rawRole.includes('learner') || rawRole.includes('pupil') || rawRole === 'user') {
+          mappedRole = 'student';
+        }
+        
+        let name = line.name || line.role || '';
+        if (name.toLowerCase() === 'system') name = 'Interviewer';
+        if (name.toLowerCase() === 'student') name = 'Student';
+        
+        return {
+          role: mappedRole,
+          name: name,
+          text: line.text || ''
+        };
+      });
     } else if (type === 'sequencing') {
       normalized.question = this.convertEditorJsToHtml(raw.question || raw.question_text || '');
       normalized.events = raw.events || additional.events || [];

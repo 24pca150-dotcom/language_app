@@ -1,8 +1,10 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { environment } from '../../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
 import { CourseService } from '../../services/course';
+import { AuthService } from '../../services/auth';
 import { LottieComponent, AnimationOptions } from 'ngx-lottie';
 import { gsap } from 'gsap';
 import confetti from 'canvas-confetti';
@@ -25,11 +27,11 @@ export class LearnerDashboard implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
   private courseService = inject(CourseService);
+  private authService = inject(AuthService);
   courses = signal<Course[]>([]);
   isLoading = signal(true);
   isFullscreen = signal(false);
-
-
+  uiTheme = signal<'adventure' | 'classic'>('adventure');
 
   // Mascot Tip Messages
   mascotTip = signal<string>('Welcome back, adventurer! Click "Play" on a course to start your quest!');
@@ -51,14 +53,47 @@ export class LearnerDashboard implements OnInit {
   showAchievementModal = signal(false);
 
   ngOnInit() {
+    // Determine theme based on user's age from DOB
+    const user = this.authService.getUser();
+    console.log('[DEBUG] learner-dashboard ngOnInit user:', user);
+    if (user) {
+      const age = this.getAgeFromDob(user.dob);
+      console.log('[DEBUG] learner-dashboard calculated age:', age);
+      if (age !== null) {
+        this.uiTheme.set(age <= 15 ? 'adventure' : 'classic');
+      } else {
+        // No DOB set — default to classic for non-student roles, adventure for students
+        const role = (user.role || '').toLowerCase();
+        this.uiTheme.set(role === 'student' ? 'adventure' : 'classic');
+      }
+      console.log('[DEBUG] learner-dashboard uiTheme set to:', this.uiTheme());
+    }
     this.fetchCourses();
   }
 
+  getAgeFromDob(dob: string | null | undefined): number | null {
+    if (!dob) return null;
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age >= 0 ? age : null;
+  }
+
   fetchCourses() {
-    this.http.get<Course[]>('http://localhost:8000/api/courses').subscribe({
+    this.http.get<Course[]>(`${environment.apiUrl}/courses`).subscribe({
       next: (data) => {
-        this.courses.set(data.filter(c => c.is_active));
+        const activeCourses = data.filter(c => c.is_active);
+        this.courses.set(activeCourses);
         this.isLoading.set(false);
+
+        // For classic UI (age > 15), skip this page and go directly to the course player
+        if (this.uiTheme() === 'classic' && activeCourses.length > 0) {
+          this.router.navigate(['/learn', activeCourses[0].id]);
+        }
       },
       error: (err) => {
         console.error('Failed to load courses', err);
@@ -71,7 +106,7 @@ export class LearnerDashboard implements OnInit {
     event.preventDefault(); // Prevent immediate navigation
 
     // Pre-fetch the structure in the background
-    const url = `http://localhost:8000/api/courses/${course.id}/player-structure`;
+    const url = `${environment.apiUrl}/courses/${course.id}/player-structure`;
     this.http.get<any>(url).subscribe({
       next: (structure) => {
         // Cache the structure layout in the shared CourseService
@@ -92,6 +127,18 @@ export class LearnerDashboard implements OnInit {
       particleCount: 150,
       spread: 90,
       origin: { y: 0.6 }
+    });
+  }
+
+  logout() {
+    this.authService.logout().subscribe({
+      complete: () => {
+        window.location.href = '/login';
+      },
+      error: () => {
+        this.authService.clearSession();
+        window.location.href = '/login';
+      }
     });
   }
 

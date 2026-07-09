@@ -6,12 +6,13 @@ import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { provideLottieOptions } from 'ngx-lottie';
 
 import { routes } from './app.routes';
+import { authInterceptor } from './interceptors/auth.interceptor';
 import { loaderInterceptor } from './services/loader.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideHttpClient(withInterceptors([loaderInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, loaderInterceptor])),
     provideRouter(routes),
     provideTranslateService({
       fallbackLang: 'en'

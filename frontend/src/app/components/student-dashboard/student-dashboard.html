@@ -1,3 +1,77 @@
-<div>
-  Student dashboard works
+<div class="student-dashboard py-5 px-4 max-w-5xl mx-auto w-100 h-100 overflow-y-auto">
+  <!-- Course Header Banner -->
+  <div class="course-banner rounded-4 p-4 p-md-5 mb-5 text-white position-relative overflow-hidden shadow-lg">
+    <!-- Gradient background -->
+    <div class="banner-gradient position-absolute top-0 start-0 w-100 h-100"></div>
+    
+    <div class="position-relative z-1">
+      <span class="badge bg-white bg-opacity-25 text-white text-uppercase px-3 py-2 rounded-pill fw-bold mb-3" style="font-size: 0.75rem;">
+        Active Curriculum
+      </span>
+      <h1 class="display-5 fw-bold mb-3">{{ structure?.name || 'Loading Course...' }}</h1>
+      <p class="lead opacity-75 mb-0 max-w-2xl">
+        {{ structure?.description || 'Expand your skills step by step with our structured academic learning path.' }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Levels & Chapters -->
+  @if (structure; as struct) {
+    @if (struct.levels && struct.levels.length > 0) {
+      @for (level of struct.levels; track level.id) {
+        <div class="level-section mb-5 animate-slide-up">
+          <!-- Level Header -->
+          <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="level-badge px-4 py-2 rounded-pill text-white fw-bold shadow-sm">
+              {{ level.name }}
+            </div>
+            <div class="flex-grow-1 border-top border-secondary opacity-25"></div>
+          </div>
+
+          <!-- Chapters List -->
+          <div class="row g-4">
+            @for (chapter of level.chapters; track chapter.id) {
+              <div class="col-md-6 col-lg-4">
+                <div class="card chapter-card border-0 h-100 shadow-sm rounded-4 p-4 d-flex flex-column justify-content-between hover-lift">
+                  <div>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                      <div class="chapter-icon-wrapper rounded-3 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-journal-bookmark-fill fs-4"></i>
+                      </div>
+                      @if (isChapterCompleted(chapter.id)) {
+                        <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill fw-bold border border-success-subtle">
+                          Completed <i class="bi bi-check-circle-fill ms-1"></i>
+                        </span>
+                      } @else {
+                        <span class="badge bg-light text-secondary px-3 py-1 rounded-pill fw-bold border">
+                          In Progress
+                        </span>
+                      }
+                    </div>
+
+                    <h3 class="h5 fw-bold text-dark mb-2">{{ chapter.name }}</h3>
+                    
+                    <p class="text-secondary small mb-4">
+                      Contains {{ chapter.contents.length }} lesson sections including reading resources and interactive exercises.
+                    </p>
+                  </div>
+
+                  <button class="btn btn-primary w-100 rounded-pill py-2.5 fw-bold d-flex align-items-center justify-content-center gap-2"
+                          (click)="selectChapter.emit(chapter.id)">
+                    <span>{{ isChapterCompleted(chapter.id) ? 'Review Lesson' : 'Start Lesson' }}</span>
+                    <i class="bi bi-arrow-right"></i>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    }
+  } @else {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="text-secondary mt-3">Loading curriculum structure...</p>
+    </div>
+  }
 </div>

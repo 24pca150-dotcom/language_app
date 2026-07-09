@@ -1,8 +1,10 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
+import { environment } from '../../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of, Observable } from 'rxjs';
+import { switchMap, map, catchError } from 'rxjs/operators';
 
 export interface LessonStep {
   type: 'video' | 'pdf' | 'reading' | 'activity' | 'assessment';
@@ -37,9 +39,12 @@ import { ActivityRenderer } from '../activity-engine/activity-renderer/activity-
 import { CourseService } from '../../services/course';
 import { KidsDashboard } from '../kids-dashboard/kids-dashboard';
 import { StudentDashboard } from '../student-dashboard/student-dashboard';
+import { StudentLessonPlayer } from '../student-lesson-player/student-lesson-player';
+import { KidsLessonPlayer } from '../kids-lesson-player/kids-lesson-player';
 import confetti from 'canvas-confetti';
 import { gsap } from 'gsap';
 import { AudioService } from '../../services/audio.service';
+import { AuthService } from '../../services/auth';
 
 interface Content {
   id: number;
@@ -56,7 +61,7 @@ interface Content {
 @Component({
   selector: 'app-course-player',
   standalone: true,
-  imports: [CommonModule, RouterModule, ActivityRenderer, KidsDashboard, StudentDashboard],
+  imports: [CommonModule, RouterModule, KidsDashboard, StudentDashboard, KidsLessonPlayer, StudentLessonPlayer],
   templateUrl: './course-player.html',
   styleUrls: ['./course-player.css']
 })
@@ -66,6 +71,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
   private router = inject(Router);
   private courseService = inject(CourseService);
   private audioService = inject(AudioService);
+  private authService = inject(AuthService);
 
   courseId = signal<number | null>(null);
   userId = signal<number>(1);
@@ -80,23 +86,17 @@ export class CoursePlayer implements OnInit, OnDestroy {
   activeLevelId = signal<number | null>(null);
   activeChapterId = signal<number | null>(null);
 
-  // Local progress mapping
   completedLevelIds = signal<number[]>([]);
   completedChapterIds = signal<number[]>([]);
 
-  // Interactive Lesson State
   lessonSequence = signal<LessonStep[]>([]);
   currentStepIndex = signal<number>(0);
+  highestStepIndex = signal<number>(0);
   learningMode = signal<'strict' | 'easy'>('easy'); // Strict mode prevents skipping activities
   isStepCompleted = signal<boolean>(false);
   isVideoCompleted = signal<boolean>(false);
   lessonFinished = signal<boolean>(false);
 
-  // Slide pagination for reading blocks (inside reading step)
-  currentContentPage = signal<number>(0);
-  pageSize = 2;
-
-  // Gamification stats
   hearts = signal<number>(5);
   coins = signal<number>(85);
   xp = signal<number>(1250);
@@ -105,82 +105,31 @@ export class CoursePlayer implements OnInit, OnDestroy {
   showIncorrectSplash = signal<boolean>(false);
   activityFeedbackState = signal<'correct' | 'incorrect' | null>(null);
 
-  // Typewriter State for Reading
-  typedContent = signal<string>('');
-  typingTimeout: any;
-  activeUtterances: SpeechSynthesisUtterance[] = [];
-  speechStartTimeout: any;
-
-  rawReadingHtml = computed(() => {
-    const step = this.currentStep();
-    if (step && step.type === 'reading') {
-      if (step.data.isJson) {
-        const pageData = step.data.blocks[this.currentContentPage()];
-        if (!pageData) return '';
-
-        const renderBlock = (block: any) => {
-          if (block.type === 'paragraph') return `<div class="opacity-75 mb-4">${block.data.text}</div>`;
-          else if (block.type === 'header') return `<h3 class="fw-bold text-primary mb-3" style="font-size: 1.7rem;">${block.data.text}</h3>`;
-          else if (block.type === 'list') {
-            return `<ul class="mb-4 ps-4 opacity-75 text-start d-inline-block">` + block.data.items.map((i: any) => `<li class="mb-2">${typeof i === 'string' ? i : (i.content || '')}</li>`).join('') + `</ul>`;
-          }
-          else if (block.type === 'image') {
-            const url = block.data.file?.url || block.data.url || '';
-            const caption = block.data.caption || '';
-            return `<div class="text-center mb-4"><img src="${url}" alt="${caption}" class="img-fluid rounded shadow-sm" style="max-height: 350px; object-fit: contain;">${caption ? `<div class="text-muted small mt-2">${caption}</div>` : ''}</div>`;
-          }
-          else if (block.type === 'table') {
-            const withHeadings = block.data.withHeadings;
-            const rows = block.data.content || [];
-            let html = `<div class="table-responsive w-100 mb-4"><table class="table table-bordered shadow-sm" style="border-radius: 12px; overflow: hidden; background: white;">`;
-            rows.forEach((row: string[], index: number) => {
-              if (index === 0 && withHeadings) {
-                html += `<thead style="background: #fef08a;"><tr>` + row.map(cell => `<th class="p-2 text-dark fs-5 fw-bold border-bottom-0">${cell}</th>`).join('') + `</tr></thead><tbody>`;
-              } else {
-                if (index === 0 && !withHeadings) html += `<tbody>`;
-                html += `<tr>` + row.map(cell => `<td class="p-2 fs-6 opacity-75">${cell}</td>`).join('') + `</tr>`;
-              }
-            });
-            if (rows.length > 0) html += `</tbody>`;
-            html += `</table></div>`;
-            return html;
-          }
-          return '';
-        };
-
-        if (Array.isArray(pageData)) {
-          return pageData.map((b: any) => renderBlock(b)).join('');
-        } else {
-          return renderBlock(pageData);
-        }
-      } else {
-        return `<div class="fw-bold opacity-75" style="font-size: 1.8rem; line-height: 1.6; font-family: 'Nunito', 'Comic Sans MS', sans-serif;">${step.data.text}</div>`;
-      }
-    }
-    return '';
-  });
-
   constructor() {
+    // Keep highestStepIndex synchronized with the maximum reached index
     effect(() => {
-      const html = this.rawReadingHtml();
-      if (html) {
-        this.speakText(html);
-      } else {
-        this.stopSpeech();
-        this.typedContent.set('');
+      const idx = this.currentStepIndex();
+      if (idx > this.highestStepIndex()) {
+        this.highestStepIndex.set(idx);
       }
-    }, { allowSignalWrites: true });
+    });
 
-    // Initialize/warm-up speech synthesis voices
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      window.speechSynthesis.getVoices();
-      window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.getVoices();
-      };
-    }
+    effect(() => {
+      const idx = this.highestStepIndex();
+      const chapterId = this.activeChapterId();
+      const courseId = this.courseId();
+      const userId = this.userId();
+      if (chapterId && courseId) {
+        const resumeKey = `lang_app_resume_step_${userId}_${courseId}_${chapterId}`;
+        if (this.lessonFinished()) {
+          localStorage.removeItem(resumeKey);
+        } else {
+          localStorage.setItem(resumeKey, idx.toString());
+        }
+      }
+    });
   }
 
-  // Mascot warning notifications
   mascotWarning = signal<string | null>(null);
   showMascotWarning = signal<boolean>(false);
 
@@ -192,7 +141,6 @@ export class CoursePlayer implements OnInit, OnDestroy {
     }, 3000);
   }
 
-  // Computed level selection
   selectedLevel = computed(() => {
     const structure = this.courseStructure();
     const levId = this.activeLevelId();
@@ -200,7 +148,6 @@ export class CoursePlayer implements OnInit, OnDestroy {
     return structure.levels.find(l => l.id === levId) || null;
   });
 
-  // Computed chapter selection inside the active level
   selectedChapter = computed(() => {
     const level = this.selectedLevel();
     const chapId = this.activeChapterId();
@@ -214,9 +161,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
 
     if (!id || !this.courseStructure()) return null;
 
-    // If we have full content and its ID matches the active ID, return it
     if (full && full.id === id) {
-      // Find chapter assessments to append and merge with content assessments
       for (const level of this.courseStructure()!.levels) {
         for (const chapter of level.chapters) {
           const topic = chapter.contents.find(c => c.id === id);
@@ -231,7 +176,6 @@ export class CoursePlayer implements OnInit, OnDestroy {
       return full;
     }
 
-    // Fallback to sidebar structure (titles only) while loading
     for (const level of this.courseStructure()!.levels) {
       for (const chapter of level.chapters) {
         const content = chapter.contents.find(c => c.id === id);
@@ -243,45 +187,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
     return null;
   });
 
-  isJsonContent = computed(() => {
-    const content = this.activeContent();
-    if (!content || !content.text_content) return false;
-    const trimmed = content.text_content.trim();
-    return trimmed.startsWith('{') && trimmed.endsWith('}');
-  });
 
-  parsedBlocks = computed(() => {
-    const content = this.activeContent();
-    if (!content || !content.text_content) return [];
-    try {
-      const data = JSON.parse(content.text_content);
-      return data.blocks || [];
-    } catch (e) {
-      console.warn('Failed to parse text_content as JSON blocks, rendering as HTML instead.');
-      return [];
-    }
-  });
-
-  readingBlocks = computed(() => {
-    return this.parsedBlocks().filter((b: any) => b.type !== 'activity');
-  });
-
-  totalPages = computed(() => {
-    return Math.ceil(this.readingBlocks().length / this.pageSize);
-  });
-
-  paginatedReadingBlocks = computed(() => {
-    const page = this.currentContentPage();
-    const blocks = this.readingBlocks();
-    const start = page * this.pageSize;
-    return blocks.slice(start, start + this.pageSize);
-  });
-
-  activityBlocks = computed(() => {
-    return this.parsedBlocks().filter((b: any) => b.type === 'activity');
-  });
-
-  // Computed properties for the new Lesson Player
   currentStep = computed(() => {
     const seq = this.lessonSequence();
     const idx = this.currentStepIndex();
@@ -292,6 +198,22 @@ export class CoursePlayer implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    // Determine theme based on user's age from DOB
+    const user = this.authService.getUser();
+    console.log('[DEBUG] course-player ngOnInit user:', user);
+    if (user) {
+      const age = this.getAgeFromDob(user.dob);
+      console.log('[DEBUG] course-player calculated age:', age);
+      if (age !== null) {
+        this.theme.set(age <= 15 ? 'kids' : 'student');
+      } else {
+        // No DOB set — default to student for non-student roles, kids for students
+        const role = (user.role || '').toLowerCase();
+        this.theme.set(role === 'student' ? 'kids' : 'student');
+      }
+      console.log('[DEBUG] course-player theme set to:', this.theme());
+    }
+
     this.route.params.subscribe(params => {
       const cid = params['courseId'] ? +params['courseId'] : null;
       if (cid && cid !== this.courseId()) {
@@ -309,16 +231,27 @@ export class CoursePlayer implements OnInit, OnDestroy {
     });
   }
 
+  getAgeFromDob(dob: string | null | undefined): number | null {
+    if (!dob) return null;
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age >= 0 ? age : null;
+  }
+
   loadStructure(): void {
     if (!this.courseId()) return;
 
-    // Check if we have pre-fetched structure data in the cache
     if (this.courseService.cachedStructure && this.courseService.cachedStructure.id === this.courseId()) {
       const structure = this.courseService.cachedStructure;
       this.courseService.cachedStructure = null; // Clear from cache
       this.initializeStructure(structure);
     } else {
-      const url = `http://localhost:8000/api/courses/${this.courseId()}/player-structure`;
+      const url = `${environment.apiUrl}/courses/${this.courseId()}/player-structure`;
       this.http.get<CourseStructure>(url).subscribe({
         next: (structure) => {
           this.initializeStructure(structure);
@@ -329,7 +262,6 @@ export class CoursePlayer implements OnInit, OnDestroy {
   }
 
   initializeStructure(structure: CourseStructure): void {
-    // Initialize expansion states
     structure.levels.forEach((l, idx) => {
       l.is_expanded = idx === 0;
       l.chapters.forEach((c, cidx) => {
@@ -429,11 +361,73 @@ export class CoursePlayer implements OnInit, OnDestroy {
     this.startLesson(id);
   }
 
+  resolveActivityReferences(contents: Content[]): Observable<Content[]> {
+    const fetchObservables: Observable<any>[] = [];
+    const referencePositions: Array<{ contentIdx: number, blockIdx: number }> = [];
+
+    contents.forEach((content, contentIdx) => {
+      if (content.text_content) {
+        const trimmed = content.text_content.trim();
+        if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+          try {
+            const parsed = JSON.parse(trimmed);
+            const blocks = parsed.blocks || [];
+            blocks.forEach((block: any, blockIdx: number) => {
+              if (block.type === 'activity' && block.data && block.data.type === 'activity_reference') {
+                const refId = block.data.activityReferenceId;
+                if (refId) {
+                  fetchObservables.push(this.http.get<any>(`${environment.apiUrl}/activities/${refId}`));
+                  referencePositions.push({ contentIdx, blockIdx });
+                }
+              }
+            });
+          } catch (e) {}
+        }
+      }
+    });
+
+    if (fetchObservables.length === 0) {
+      return of(contents);
+    }
+
+    return forkJoin(fetchObservables).pipe(
+      map(activities => {
+        activities.forEach((act, idx) => {
+          const pos = referencePositions[idx];
+          const content = contents[pos.contentIdx];
+          if (!content.text_content) return;
+          const parsed = JSON.parse(content.text_content);
+          const block = parsed.blocks[pos.blockIdx];
+          
+          const realData = typeof act.data_json === 'string' ? JSON.parse(act.data_json) : act.data_json;
+          
+          block.data = {
+            ...realData,
+            type: act.type
+          };
+          
+          content.text_content = JSON.stringify(parsed);
+        });
+        return contents;
+      }),
+      catchError(err => {
+        console.error('Failed to resolve activity references', err);
+        return of(contents);
+      })
+    );
+  }
+
   startLesson(chapterId: number) {
     this.activeChapterId.set(chapterId);
     this.currentView.set('content'); // Using 'content' view for the new Full-Screen Lesson Player
     this.lessonSequence.set([]);
-    this.currentStepIndex.set(0);
+
+    const resumeKey = `lang_app_resume_step_${this.userId()}_${this.courseId()}_${chapterId}`;
+    const savedIndex = localStorage.getItem(resumeKey);
+    const startIndex = savedIndex ? parseInt(savedIndex, 10) : 0;
+    this.currentStepIndex.set(startIndex);
+    this.highestStepIndex.set(startIndex);
+
     this.isVideoCompleted.set(false);
     this.hearts.set(5);
     this.showGameOver.set(false);
@@ -449,10 +443,12 @@ export class CoursePlayer implements OnInit, OnDestroy {
       return;
     }
 
-    const requests = contentIds.map(id => this.http.get<Content>(`http://localhost:8000/api/contents/${id}`));
-    forkJoin(requests).subscribe({
-      next: (fullContents) => {
-        this.generateLessonSequence(fullContents, chapter.assessments || []);
+    const requests = contentIds.map(id => this.http.get<Content>(`${environment.apiUrl}/contents/${id}`));
+    forkJoin(requests).pipe(
+      switchMap(fullContents => this.resolveActivityReferences(fullContents))
+    ).subscribe({
+      next: (resolvedContents) => {
+        this.generateLessonSequence(resolvedContents, chapter.assessments || []);
       },
       error: (err) => console.error('Failed to load chapter contents', err)
     });
@@ -462,7 +458,6 @@ export class CoursePlayer implements OnInit, OnDestroy {
     const steps: LessonStep[] = [];
 
     contents.forEach(content => {
-      // Temporary Fix: Inject Homophones Video if it's content ID 1
       if (content.id === 1) {
         steps.push({
           type: 'video',
@@ -471,7 +466,6 @@ export class CoursePlayer implements OnInit, OnDestroy {
         });
       }
 
-      // 1. External Media (Video)
       if (content.external_url && content.external_url.length > 0) {
         steps.push({
           type: 'video',
@@ -480,7 +474,6 @@ export class CoursePlayer implements OnInit, OnDestroy {
         });
       }
 
-      // 2. Document (PDF)
       if (content.attachments && content.attachments.length > 0) {
         steps.push({
           type: 'pdf',
@@ -489,7 +482,6 @@ export class CoursePlayer implements OnInit, OnDestroy {
         });
       }
 
-      // 3. Text Content (Reading & Activities)
       if (content.text_content) {
         let isJson = false;
         let blocks = [];
@@ -562,7 +554,6 @@ export class CoursePlayer implements OnInit, OnDestroy {
         }
       }
 
-      // 4. Content Assessments
       if (content.assessments && content.assessments.length > 0) {
         steps.push({
           type: 'assessment',
@@ -581,7 +572,14 @@ export class CoursePlayer implements OnInit, OnDestroy {
     }
 
     this.lessonSequence.set(steps);
+    if (this.currentStepIndex() >= steps.length) {
+      this.currentStepIndex.set(0);
+    }
     this.evaluateStepCompletion();
+  }
+
+  handleStepCompleted(isCompleted: boolean) {
+    this.isStepCompleted.set(isCompleted);
   }
 
   evaluateStepCompletion() {
@@ -597,14 +595,13 @@ export class CoursePlayer implements OnInit, OnDestroy {
       this.isStepCompleted.set(true);
     } else if (step.type === 'reading') {
       if (step.data.isJson && step.data.blocks && step.data.blocks.length > 0) {
-        this.isStepCompleted.set(this.currentContentPage() >= step.data.blocks.length - 1);
+        this.isStepCompleted.set(false); // KidsLessonPlayer emits stepCompleted
       } else {
         this.isStepCompleted.set(true);
       }
     } else if (step.type === 'video') {
       this.isStepCompleted.set(this.isVideoCompleted());
     } else {
-      // Activities and assessments MUST be completed
       this.isStepCompleted.set(false);
     }
   }
@@ -616,10 +613,8 @@ export class CoursePlayer implements OnInit, OnDestroy {
   selectTopic(id: number): void {
     this.activeContentId.set(id);
     this.fullContent.set(null); // Reset while loading
-    this.currentContentPage.set(0); // Reset page number on selection
 
-    // Fetch full content details
-    const url = `http://localhost:8000/api/contents/${id}`;
+    const url = `${environment.apiUrl}/contents/${id}`;
     this.http.get<Content>(url).subscribe({
       next: (content) => {
         this.fullContent.set(content);
@@ -640,20 +635,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
     this.currentView.set('activity');
   }
 
-  nextContentPage() {
-    const step = this.currentStep();
-    if (step && step.type === 'reading' && step.data.isJson && step.data.blocks) {
-      if (this.currentContentPage() < step.data.blocks.length - 1) {
-        this.currentContentPage.update(p => p + 1);
-        this.evaluateStepCompletion();
-      }
-    }
-  }
 
-  prevContentPage() {
-    this.currentContentPage.update(p => Math.max(0, p - 1));
-    this.evaluateStepCompletion();
-  }
 
   onActivityAnswered(event: any) {
     if (event && event.isCorrect !== undefined) {
@@ -671,19 +653,16 @@ export class CoursePlayer implements OnInit, OnDestroy {
         this.xp.update(x => x + 10);
         this.isStepCompleted.set(true);
 
-        // GSAP Micro-interaction: Pop the stats in the HUD & Animate Mascot
         setTimeout(() => {
           gsap.fromTo('.stat-badge',
             { scale: 1.3, boxShadow: '0 0 20px #fcd34d' },
             { scale: 1, boxShadow: 'none', duration: 0.8, ease: 'elastic.out(1, 0.3)', stagger: 0.1 }
           );
 
-          // Joyful mascot jump
           gsap.fromTo('.mascot-happy',
             { y: 50, scaleY: 0.7, rotation: -15 },
             { y: 0, scaleY: 1.1, rotation: 10, duration: 0.6, ease: 'back.out(1.7)' }
           );
-          // Continuous floating joy
           gsap.to('.mascot-happy', {
             y: -8, rotation: 0, scaleY: 1, duration: 1.5, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.6
           });
@@ -692,7 +671,6 @@ export class CoursePlayer implements OnInit, OnDestroy {
         this.audioService.playError();
         this.hearts.update(h => Math.max(0, h - 1));
 
-        // GSAP Mascot Shake & Dizzy
         setTimeout(() => {
           gsap.fromTo('.mascot-sad',
             { x: -15, rotation: -20 },
@@ -712,7 +690,6 @@ export class CoursePlayer implements OnInit, OnDestroy {
     this.activityFeedbackState.set(null);
 
     if (state === 'incorrect' && this.hearts() > 0) {
-      // Append the failed step to the end of the lesson sequence so it is asked again
       const currentStep = this.currentStep();
       if (currentStep) {
         this.lessonSequence.update(seq => [...seq, currentStep]);
@@ -728,16 +705,10 @@ export class CoursePlayer implements OnInit, OnDestroy {
     this.hearts.set(5);
     this.showGameOver.set(false);
     this.activityFeedbackState.set(null);
-    // Restart current step
     this.evaluateStepCompletion();
   }
 
-  onVideoEnded() {
-    this.isVideoCompleted.set(true);
-    this.isStepCompleted.set(true);
-    // Auto progress to next step
-    this.nextLessonStep();
-  }
+
 
   nextLessonStep() {
     const currentIdx = this.currentStepIndex();
@@ -745,10 +716,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
       this.currentStepIndex.set(currentIdx + 1);
       this.isVideoCompleted.set(false);
       this.evaluateStepCompletion();
-      this.currentContentPage.set(0);
       this.activityFeedbackState.set(null);
-      // Cancel speech if they move to next step
-      this.stopSpeech();
     } else {
       this.lessonFinished.set(true);
     }
@@ -759,231 +727,29 @@ export class CoursePlayer implements OnInit, OnDestroy {
     if (currentIdx > 0) {
       this.currentStepIndex.set(currentIdx - 1);
       this.evaluateStepCompletion();
-      this.currentContentPage.set(0);
       this.lessonFinished.set(false);
       this.activityFeedbackState.set(null);
-      this.stopSpeech();
     }
   }
 
-  stopSpeech() {
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
-    this.activeUtterances = [];
-    clearTimeout(this.speechStartTimeout);
-  }
-
-  speakText(text: string) {
-    if (!text) return;
-
-    // Cancel any ongoing speech
-    this.stopSpeech();
-
-    // Parse HTML to clean speech text with proper punctuation/pauses
-    let cleanText = '';
-    try {
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = text;
-
-      const parts: string[] = [];
-      const traverse = (node: Node) => {
-        if (node.nodeType === Node.TEXT_NODE) {
-          const content = node.textContent?.trim();
-          if (content) {
-            parts.push(content);
-          }
-        } else if (node.nodeType === Node.ELEMENT_NODE) {
-          const tagName = (node as Element).tagName.toLowerCase();
-
-          if (tagName === 'li') {
-            parts.push(', ');
-          }
-
-          for (let i = 0; i < node.childNodes.length; i++) {
-            traverse(node.childNodes[i]);
-          }
-
-          if (['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'li', 'tr'].includes(tagName)) {
-            parts.push('. ');
-          }
-        }
-      };
-
-      traverse(tempDiv);
-      cleanText = parts.join(' ')
-        .replace(/\s+/g, ' ')
-        .replace(/\.\s*\./g, '.')
-        .replace(/,\s*\./g, '.')
-        .trim();
-    } catch (e) {
-      // Fallback to regex if DOM parsing fails
-      cleanText = text.replace(/<[^>]*>?/gm, '');
-    }
-
-    if (!cleanText) return;
-
-    // Check if the text is Tamil
-    const isTamil = /[\u0B80-\u0BFF]/.test(cleanText);
-
-    // Setup safe starting logic for the typewriter
-    let typewriterStarted = false;
-    const startTypewriterSafely = () => {
-      if (typewriterStarted) return;
-      typewriterStarted = true;
-      this.startTypewriter(text, isTamil);
-    };
-
-    // Fallback: If voice speech start event is delayed/blocked, start typing after 800ms
-    this.speechStartTimeout = setTimeout(startTypewriterSafely, 800);
-
-    // Split cleanText into sentences for natural rhythm/pauses
-    const rawSentences = cleanText.split(/([.?!:;]+)/);
-    const sentences: string[] = [];
-    for (let i = 0; i < rawSentences.length; i += 2) {
-      const textPart = rawSentences[i]?.trim();
-      const delim = rawSentences[i + 1] || '';
-      if (textPart) {
-        sentences.push(textPart + (delim ? delim + ' ' : ''));
+  logout() {
+    this.authService.logout().subscribe({
+      complete: () => {
+        window.location.href = '/login';
+      },
+      error: () => {
+        this.authService.clearSession();
+        window.location.href = '/login';
       }
-    }
-
-    if (sentences.length === 0) return;
-
-    // Helper to score Tamil voices for naturalness, quality, and clarity
-    const getTamilVoiceScore = (name: string): number => {
-      let score = 0;
-      const lower = name.toLowerCase();
-      // Prioritize kid/girl voices
-      if (lower.includes('kid') || lower.includes('child') || lower.includes('junior') || lower.includes('girl') || lower.includes('young')) score += 150;
-      if (lower.includes('natural') || lower.includes('neural')) score += 100;
-      if (lower.includes('online')) score += 50;
-      if (lower.includes('google')) score += 40;
-      if (lower.includes('lekha')) score += 30;
-      if (lower.includes('heera')) score += 25;
-      if (lower.includes('female') || lower.includes('girl') || lower.includes('woman') || lower.includes('pallavi') || lower.includes('kalpana') || lower.includes('siri')) score += 20;
-      if (lower.includes('valluvar')) score += 15;
-      if (lower.includes('microsoft')) score += 10;
-      return score;
-    };
-
-    // Helper to score English voices
-    const getEnglishVoiceScore = (name: string): number => {
-      let score = 0;
-      const lower = name.toLowerCase();
-      // Prioritize kid/girl voices
-      if (lower.includes('kid') || lower.includes('child') || lower.includes('junior') || lower.includes('girl') || lower.includes('young')) score += 150;
-      if (lower.includes('natural') || lower.includes('neural')) score += 100;
-      if (lower.includes('online')) score += 50;
-      if (lower.includes('google')) score += 40;
-      if (lower.includes('female') || lower.includes('girl') || lower.includes('woman') || lower.includes('zira') || lower.includes('samantha') || lower.includes('aria') || lower.includes('jenny') || lower.includes('siri')) score += 30;
-      if (lower.includes('microsoft') || lower.includes('david')) score += 10;
-      return score;
-    };
-
-    // Queue each sentence as a separate utterance for natural pause intervals
-    sentences.forEach((sentence, idx) => {
-      const utterance = new SpeechSynthesisUtterance(sentence);
-
-      if (isTamil) {
-        utterance.lang = 'ta-IN';
-        const voices = window.speechSynthesis.getVoices();
-        const tamilVoices = voices.filter(v => v.lang.startsWith('ta') || v.name.toLowerCase().includes('tamil'));
-        if (tamilVoices.length > 0) {
-          const bestTamilVoice = tamilVoices.reduce((prev, curr) => {
-            return getTamilVoiceScore(curr.name) > getTamilVoiceScore(prev.name) ? curr : prev;
-          });
-          utterance.voice = bestTamilVoice;
-        }
-      } else {
-        utterance.lang = 'en-US';
-        const voices = window.speechSynthesis.getVoices();
-        const englishVoices = voices.filter(v => v.lang.startsWith('en'));
-        if (englishVoices.length > 0) {
-          const bestEnglishVoice = englishVoices.reduce((prev, curr) => {
-            return getEnglishVoiceScore(curr.name) > getEnglishVoiceScore(prev.name) ? curr : prev;
-          });
-          utterance.voice = bestEnglishVoice;
-        }
-      }
-
-      // Extremely natural rates for learning
-      utterance.rate = isTamil ? 0.82 : 0.85;
-      utterance.pitch = 1.35; // Higher pitch simulating a kid female voice
-
-      // Keep reference to prevent garbage collection in Chromium browsers
-      this.activeUtterances.push(utterance);
-
-      // Trigger typewriter only when speech actually starts
-      if (idx === 0) {
-        utterance.onstart = () => {
-          clearTimeout(this.speechStartTimeout);
-          startTypewriterSafely();
-        };
-      }
-
-      utterance.onend = () => {
-        this.activeUtterances = this.activeUtterances.filter(u => u !== utterance);
-      };
-      utterance.onerror = () => {
-        clearTimeout(this.speechStartTimeout);
-        startTypewriterSafely();
-        this.activeUtterances = this.activeUtterances.filter(u => u !== utterance);
-      };
-
-      window.speechSynthesis.speak(utterance);
     });
   }
 
-  ngOnDestroy() {
-    this.stopSpeech();
-    clearTimeout(this.typingTimeout);
-  }
 
-  startTypewriter(htmlContent: string, isTamil: boolean = false) {
-    this.typedContent.set('');
-    clearTimeout(this.typingTimeout);
-
-    let i = 0;
-    let isTag = false;
-    let currentText = '';
-
-    // Calculate typing speed to match spoken voice rate
-    const charDelay = isTamil ? Math.random() * 30 + 55 : Math.random() * 20 + 35;
-    const sentenceDelay = isTamil ? 900 : 600;
-    const commaDelay = isTamil ? 450 : 300;
-
-    const type = () => {
-      if (i < htmlContent.length) {
-        let char = htmlContent.charAt(i);
-        if (char === '<') isTag = true;
-
-        currentText += char;
-        i++;
-
-        if (isTag) {
-          while (i < htmlContent.length && htmlContent.charAt(i - 1) !== '>') {
-            currentText += htmlContent.charAt(i);
-            i++;
-          }
-          isTag = false;
-          this.typedContent.set(currentText);
-          this.typingTimeout = setTimeout(type, 0);
-        } else {
-          this.typedContent.set(currentText);
-          const delay = char === '.' || char === '!' || char === '?' ? sentenceDelay : (char === ',' ? commaDelay : charDelay);
-          this.typingTimeout = setTimeout(type, delay);
-        }
-      }
-    };
-
-    type();
-  }
+  ngOnDestroy() {}
 
   finishLesson() {
     this.audioService.playSuccess();
 
-    // Mega Confetti Burst!
     const duration = 3 * 1000;
     const end = Date.now() + duration;
 
@@ -1014,7 +780,6 @@ export class CoursePlayer implements OnInit, OnDestroy {
       this.completeChapter(activeChapId);
     }
 
-    // Wait for confetti to finish before navigating away
     setTimeout(() => {
       this.goToMap();
     }, 3500);
@@ -1059,4 +824,5 @@ export class CoursePlayer implements OnInit, OnDestroy {
       }
     }
   }
+
 }

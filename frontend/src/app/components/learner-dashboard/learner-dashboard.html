@@ -38,6 +38,11 @@
         <i class="bi" [ngClass]="isFullscreen() ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'"
           style="font-size: 0.9rem;"></i>
       </button>
+      <!-- Logout Button -->
+      <button class="btn btn-danger rounded-circle shadow-sm d-flex align-items-center justify-content-center ms-2"
+        style="width: 32px; height: 32px; border: 2px solid white;" (click)="logout()" title="Logout">
+        <i class="bi bi-box-arrow-right" style="font-size: 0.9rem;"></i>
+      </button>
     </div>
   </header>
 

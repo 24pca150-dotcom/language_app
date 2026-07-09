@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -18,8 +19,8 @@ export interface CourseData {
 })
 export class CourseService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://127.0.0.1:8000/api/courses';
-  cachedStructure: any = null;
+  private apiUrl = `${environment.apiUrl}/courses`;
+  public cachedStructure: any = null;
 
   getAll(): Observable<CourseData[]> {
     return this.http.get<CourseData[]>(this.apiUrl);
@@ -27,6 +28,10 @@ export class CourseService {
 
   getById(id: number): Observable<CourseData> {
     return this.http.get<CourseData>(`${this.apiUrl}/${id}`);
+  }
+
+  getPlayerStructure(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}/player-structure`);
   }
 
   create(data: CourseData): Observable<CourseData> {

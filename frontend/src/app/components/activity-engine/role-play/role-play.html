@@ -19,7 +19,7 @@
             <div class="avatar rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm flex-shrink-0"
                  [class.bg-primary]="bubble.role === 'system'"
                  [class.bg-success]="bubble.role === 'student'">
-              {{ bubble.name.charAt(0) }}
+              {{ bubble.name ? bubble.name.charAt(0) : '?' }}
             </div>
 
             <!-- Bubble Content -->
@@ -34,7 +34,7 @@
                  style="font-size: 0.95rem; line-height: 1.4;">
               
               <div class="fw-bold mb-1 text-uppercase text-secondary" style="font-size: 0.7rem;" [class.text-white-50]="bubble.role === 'student' && !bubble.isPendingSpeech">
-                {{ bubble.name }}
+                {{ bubble.name || 'Speaker' }}
               </div>
 
               @if (bubble.role === 'student') {

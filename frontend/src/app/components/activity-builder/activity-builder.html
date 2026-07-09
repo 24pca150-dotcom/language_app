@@ -1,83 +1,333 @@
 <div class="container-fluid p-4 bg-light min-vh-100">
+  <!-- LIST VIEW -->
+  @if (!isFormVisible()) {
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold mb-0 text-dark">
-      <i class="bi bi-grid-1x2 text-primary me-2"></i>Activity Builder (Dev Mode)
+      <i class="bi bi-grid-1x2 text-primary me-2"></i>Activity Builder
     </h2>
-    <div class="d-flex gap-3 align-items-center">
-      <!-- Preview Toggle -->
-      <div class="form-check form-switch fs-5 mb-0">
-        <input class="form-check-input cursor-pointer shadow-none" type="checkbox" role="switch" id="previewSwitch" [checked]="isPreviewMode()" (change)="togglePreview()">
-        <label class="form-check-label ms-2 fs-6 fw-bold" [class.text-primary]="isPreviewMode()" for="previewSwitch">User Preview</label>
-      </div>
-
-      <div class="vr mx-1"></div>
-
-      <!-- Toolbar (Hidden in Preview Mode) -->
-      @if (!isPreviewMode()) {
-        <button class="btn btn-outline-primary fw-bold" (click)="addContainer()">
-          <i class="bi bi-box me-1"></i> Container
-        </button>
-        <button class="btn btn-outline-secondary" (click)="addBlock('text')" [disabled]="!selectedContainerId()">
-          <i class="bi bi-fonts me-1"></i> Text
-        </button>
-        <button class="btn btn-outline-secondary" (click)="addBlock('audio')" [disabled]="!selectedContainerId()">
-          <i class="bi bi-mic me-1"></i> Audio
-        </button>
-        <button class="btn btn-outline-secondary" (click)="addBlock('image')" [disabled]="!selectedContainerId()">
-          <i class="bi bi-image me-1"></i> Image
-        </button>
-        <button class="btn btn-outline-secondary" (click)="addBlock('video')" [disabled]="!selectedContainerId()">
-          <i class="bi bi-play-btn me-1"></i> Video
-        </button>
-        <button class="btn btn-outline-secondary" (click)="addBlock('link')" [disabled]="!selectedContainerId()">
-          <i class="bi bi-link-45deg me-1"></i> Link
-        </button>
-      }
+    <div class="d-flex gap-2">
+      <!-- Bulk CSV Upload button -->
+      <button class="btn btn-outline-secondary d-flex align-items-center gap-2 px-3 py-2 rounded-3 border-secondary-subtle"
+        (click)="csvFileInput.click()">
+        <i class="bi bi-file-earmark-arrow-up"></i>
+        <span>Bulk Import (CSV)</span>
+      </button>
+      <input type="file" accept=".csv" #csvFileInput style="display: none;" (change)="onCsvFileSelected($event)">
+      
+      <button class="btn btn-primary d-flex align-items-center gap-2 px-4 py-2 shadow-sm rounded-3"
+        (click)="showCreateForm()">
+        <i class="bi bi-plus-lg"></i>
+        <span>Create New Activity</span>
+      </button>
     </div>
   </div>
 
-  <div class="row">
-    <!-- Canvas Area -->
-    <div class="col-12">
-      <div class="card shadow-sm border-0 h-100">
-        <div class="card-header bg-white border-bottom-0 pt-4 pb-2">
-          <h5 class="card-title fw-bold text-secondary mb-0">Editor Canvas</h5>
-          <small class="text-muted">Click a container to select it, then add elements from the toolbar.</small>
+  <!-- Search, Filter & View Toggle Bar -->
+  <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
+    <div class="row g-3 align-items-center">
+      <div class="col-md-5">
+        <div class="input-group">
+          <span class="input-group-text bg-transparent border-end-0 text-muted border-secondary-subtle">
+            <i class="bi bi-search"></i>
+          </span>
+          <input type="text" class="form-control border-start-0 ps-0 shadow-none border-secondary-subtle" 
+                 placeholder="Search activities by title..." [(ngModel)]="searchQuery">
         </div>
-        <div class="card-body p-4 bg-light canvas-area">
-          
-          @if (nodes().length === 0) {
-            <div class="text-center text-muted p-5 border border-2 border-dashed rounded-3">
-              <i class="bi bi-plus-circle fs-1 mb-2 d-block text-primary opacity-50"></i>
-              Add a Container to get started
-            </div>
-          }
+      </div>
+      <div class="col-md-4">
+        <select class="form-select shadow-none border-secondary-subtle" [(ngModel)]="filterType">
+          <option value="all">All Activity Types</option>
+          <option value="mcq">Multiple Choice Question (MCQ)</option>
+          <option value="fill_blanks">Fill in the Blanks</option>
+          <option value="flashcard">3D Vocabulary Flashcard</option>
+          <option value="match">Match It</option>
+          <option value="crossword">Dynamic Crossword Puzzle</option>
+          <option value="word_arrange">Word Arrangement</option>
+          <option value="speaking">Speaking (Voice Record)</option>
+          <option value="role_play">Role Play Conversation Dialogue</option>
+          <option value="sequencing">Sequencing (Event Ordering)</option>
+          <option value="parts_of_speech">Parts of Speech Tagger</option>
+          <option value="mind_map">Mind Mapping Diagram</option>
+          <option value="writing">Paragraph / Story Writing</option>
+          <option value="custom">Custom Canvas Builder</option>
+        </select>
+      </div>
+      <div class="col-md-3 text-md-end">
+        <div class="btn-group shadow-none border rounded-3 p-1 bg-light">
+          <button class="btn btn-sm px-3 rounded-2 shadow-none border-0" 
+                  [class.btn-primary]="viewMode() === 'grid'" 
+                  [class.btn-light]="viewMode() !== 'grid'"
+                  (click)="viewMode.set('grid')">
+            <i class="bi bi-grid-fill me-1"></i> Grid
+          </button>
+          <button class="btn btn-sm px-3 rounded-2 shadow-none border-0" 
+                  [class.btn-primary]="viewMode() === 'list'" 
+                  [class.btn-light]="viewMode() !== 'list'"
+                  (click)="viewMode.set('list')">
+            <i class="bi bi-list-task me-1"></i> Table
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-          <!-- BUILDER MODE -->
-          @if (!isPreviewMode()) {
-            @for (container of nodes(); track container.id) {
-              <div class="activity-container mb-4 position-relative" 
-                   [class.active-container]="selectedContainerId() === container.id"
-                   (click)="selectContainer(container.id)">
-                
-                <div class="container-badge d-flex justify-content-between align-items-center">
-                  <span class="badge bg-primary rounded-pill px-3 py-2">
-                    <i class="bi bi-box me-1"></i> Container
-                  </span>
-                  <button class="btn btn-sm btn-outline-danger border-0" (click)="removeContainer(container.id, $event)">
-                    <i class="bi bi-trash"></i>
+  <!-- Grid View -->
+  @if (viewMode() === 'grid') {
+    <div class="row g-4 mb-4">
+      @for (activity of filteredActivities(); track activity.id) {
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative activity-card transition-all hover-shadow-lg">
+            <div class="card-body p-4 d-flex flex-column">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="icon-wrapper rounded-3 p-3 bg-primary bg-opacity-10 text-primary">
+                  <i class="bi fs-4" [ngClass]="getActivityIcon(activity.type)"></i>
+                </div>
+                <span class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-pill small border text-uppercase">
+                  {{ getActivityTypeName(activity.type) }}
+                </span>
+              </div>
+              <h5 class="fw-bold text-dark mb-2 text-truncate" [title]="activity.title">{{ activity.title }}</h5>
+              <p class="text-muted small mb-4 flex-grow-1">
+                {{ getActivityDetailsSummary(activity) }}
+              </p>
+              <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top border-light">
+                <span class="text-muted small">ID: #{{ activity.id }}</span>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-light btn-sm rounded-3 p-2 text-success bg-success bg-opacity-10 hover-bg-success hover-text-white border-0 transition-all"
+                          (click)="openLinkingModal(activity)" title="Link to Lesson">
+                    <i class="bi bi-link-45deg"></i>
+                  </button>
+                  <button class="btn btn-light btn-sm rounded-3 p-2 text-secondary bg-light-subtle hover-bg-primary hover-text-white border transition-all"
+                          (click)="duplicateActivity(activity)" title="Duplicate / Clone">
+                    <i class="bi bi-files"></i>
+                  </button>
+                  <button class="btn btn-light btn-sm rounded-3 p-2 text-primary bg-primary bg-opacity-10 hover-bg-primary hover-text-white border-0 transition-all"
+                          (click)="editActivity(activity)" title="Edit">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                  <button class="btn btn-light btn-sm rounded-3 p-2 text-danger bg-danger bg-opacity-10 hover-bg-danger hover-text-white border-0 transition-all"
+                          (click)="deleteActivity(activity.id!)" title="Delete">
+                    <i class="bi bi-trash3"></i>
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="col-12 text-center py-5 text-secondary fs-5 opacity-50 bg-white card rounded-4 border-0 shadow-sm">
+          <i class="bi bi-grid-1x2 fs-1 d-block mb-2 text-primary"></i>
+          No activities found matching your criteria.
+        </div>
+      }
+    </div>
+  }
 
-                <div class="container-content p-3 mt-3">
-                  @if (container.contents.length === 0) {
+  <!-- List View Table -->
+  @if (viewMode() === 'list') {
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light text-secondary small text-uppercase fw-bold">
+          <tr>
+            <th class="px-4 py-3">ID</th>
+            <th class="py-3">Activity Title</th>
+            <th class="py-3">Type</th>
+            <th class="px-4 py-3 text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="border-top-0">
+          @for (activity of filteredActivities(); track activity.id) {
+          <tr>
+            <td class="px-4 py-3 text-muted">#{{ activity.id }}</td>
+            <td class="py-3">
+              <div class="fw-bold text-dark">{{ activity.title }}</div>
+            </td>
+            <td class="py-3">
+              <span class="badge bg-secondary opacity-75 px-3 py-2 rounded-pill">{{ activity.type | uppercase }}</span>
+            </td>
+            <td class="px-4 py-3 text-end">
+              <div class="d-flex justify-content-end gap-2">
+                <button
+                  class="btn btn-light btn-sm rounded-3 p-2 shadow-none border-0 text-success bg-success bg-opacity-10 hover-bg-success hover-text-white transition-all"
+                  (click)="openLinkingModal(activity)" title="Link to Lesson">
+                  <i class="bi bi-link-45deg"></i>
+                </button>
+                <button
+                  class="btn btn-light btn-sm rounded-3 p-2 shadow-none border-0 text-secondary bg-secondary bg-opacity-10 hover-bg-secondary hover-text-white transition-all"
+                  (click)="duplicateActivity(activity)" title="Duplicate / Clone">
+                  <i class="bi bi-files"></i>
+                </button>
+                <button
+                  class="btn btn-light btn-sm rounded-3 p-2 shadow-none border-0 text-primary bg-primary bg-opacity-10 hover-bg-primary hover-text-white transition-all"
+                  (click)="editActivity(activity)" title="Edit">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button
+                  class="btn btn-light btn-sm rounded-3 p-2 shadow-none border-0 text-danger bg-danger bg-opacity-10 hover-bg-danger hover-text-white transition-all"
+                  (click)="deleteActivity(activity.id!)" title="Delete">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td colspan="4" class="text-center py-5 text-secondary fs-5 opacity-50">
+              <i class="bi bi-grid-1x2 fs-1 d-block mb-2"></i>
+              No activities found. Create one to get started.
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+  }
+  }
+
+  <!-- FORM VIEW -->
+  @if (isFormVisible()) {
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header bg-white border-bottom border-light p-4 d-flex justify-content-between align-items-center">
+      <h4 class="mb-0 fw-bold text-dark">
+        {{ activityId() ? 'Edit Activity' : 'Create Activity' }}
+      </h4>
+      <div class="d-flex gap-2">
+        <button class="btn btn-primary d-flex align-items-center gap-2 fw-bold shadow-sm" 
+                (click)="saveActivity()" [disabled]="isSaving()">
+          @if (isSaving()) {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Saving...
+          } @else {
+            <i class="bi bi-cloud-arrow-up"></i>
+            Save Activity
+          }
+        </button>
+        <button class="btn btn-light shadow-none border" (click)="cancelForm()">Cancel</button>
+      </div>
+    </div>
+
+    <div class="card-body p-4 p-lg-5">
+      <!-- Top Section: Metadata -->
+      <div class="row g-4 mb-5">
+        <div class="col-md-8">
+          <label class="form-label fw-bold text-secondary small">Activity Title</label>
+          <input type="text" class="form-control border-secondary form-control-lg" 
+                 placeholder="e.g. Tamil Nouns MCQ" [(ngModel)]="activityTitle"
+                 (input)="isTitleManuallyEdited.set(true)">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-bold text-secondary small">Activity Type</label>
+          <select class="form-select border-secondary form-select-lg" [(ngModel)]="activityType">
+            <option value="mcq">Multiple Choice Question (MCQ)</option>
+            <option value="fill_blanks">Fill in the Blanks</option>
+            <option value="flashcard">3D Vocabulary Flashcard</option>
+            <option value="match">Match It</option>
+            <option value="crossword">Dynamic Crossword Puzzle</option>
+            <option value="word_arrange">Word Arrangement</option>
+            <option value="speaking">Speaking (Voice Record)</option>
+            <option value="role_play">Role Play Conversation Dialogue</option>
+            <option value="sequencing">Sequencing (Event Ordering)</option>
+            <option value="parts_of_speech">Parts of Speech Tagger</option>
+            <option value="mind_map">Mind Mapping Diagram</option>
+            <option value="writing">Paragraph / Story Writing</option>
+            <hr>
+            <option value="custom">Custom Canvas Builder</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="content-area mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="fw-bold text-dark mb-0">Configuration</h5>
+          
+          <!-- Global Live Preview Toggle -->
+          <div class="form-check form-switch fs-5 mb-0">
+            <input class="form-check-input cursor-pointer shadow-none" type="checkbox" role="switch" id="previewSwitch"
+              [checked]="isPreviewMode()" (change)="togglePreview()">
+            <label class="form-check-label ms-2 fs-6 fw-bold" [class.text-primary]="isPreviewMode()"
+              for="previewSwitch">Live Preview Mode</label>
+          </div>
+        </div>
+
+        <!-- Standard Engine Renderers -->
+        @if (activityType() !== 'custom') {
+          @if (!isPreviewMode()) {
+            <div class="standard-engine-wrapper border rounded-4 bg-white p-4 shadow-sm" style="min-height: 450px;">
+              <div #standardFormContainer></div>
+            </div>
+          } @else {
+            <div class="standard-preview-wrapper border rounded-4 bg-white p-4 shadow-sm" style="min-height: 450px;">
+              <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-play-circle text-primary me-2"></i>Interactive Activity Preview</h6>
+              <app-activity-renderer [activity]="getPreviewActivityData()"></app-activity-renderer>
+            </div>
+          }
+        }
+
+        <!-- Custom Canvas Builder -->
+        @if (activityType() === 'custom') {
+          <div class="custom-builder-wrapper">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="toolbar">
+                <button class="btn btn-outline-primary fw-bold me-2" (click)="addContainer()">
+                  <i class="bi bi-box me-1"></i> Add Container
+                </button>
+                <div class="btn-group shadow-sm">
+                  <button class="btn btn-outline-secondary" (click)="addBlock('text')" [disabled]="!selectedContainerId()">
+                    <i class="bi bi-fonts"></i> Text
+                  </button>
+                  <button class="btn btn-outline-secondary" (click)="addBlock('audio')" [disabled]="!selectedContainerId()">
+                    <i class="bi bi-mic"></i> Audio
+                  </button>
+                  <button class="btn btn-outline-secondary" (click)="addBlock('image')" [disabled]="!selectedContainerId()">
+                    <i class="bi bi-image"></i> Image
+                  </button>
+                  <button class="btn btn-outline-secondary" (click)="addBlock('video')" [disabled]="!selectedContainerId()">
+                    <i class="bi bi-play-btn"></i> Video
+                  </button>
+                  <button class="btn btn-outline-secondary" (click)="addBlock('link')" [disabled]="!selectedContainerId()">
+                    <i class="bi bi-link-45deg"></i> Link
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card shadow-sm border-0 border-top bg-light">
+              <div class="card-body p-4 canvas-area">
+
+                @if (nodes().length === 0) {
+                <div class="text-center text-muted p-5 border border-2 border-dashed rounded-3">
+                  <i class="bi bi-plus-circle fs-1 mb-2 d-block text-primary opacity-50"></i>
+                  Add a Container to get started
+                </div>
+                }
+
+                <!-- BUILDER MODE -->
+                @if (!isPreviewMode()) {
+                @for (container of nodes(); track container.id) {
+                <div class="activity-container mb-4 position-relative"
+                  [class.active-container]="selectedContainerId() === container.id" (click)="selectContainer(container.id)">
+
+                  <div class="container-badge d-flex justify-content-between align-items-center">
+                    <span class="badge bg-primary rounded-pill px-3 py-2">
+                      <i class="bi bi-box me-1"></i> Container
+                    </span>
+                    <button class="btn btn-sm btn-outline-danger border-0" (click)="removeContainer(container.id, $event)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+
+                  <div class="container-content p-3 mt-3">
+                    @if (container.contents.length === 0) {
                     <div class="text-center text-muted small p-3 opacity-50">Empty Container</div>
-                  }
+                    }
 
-                  @for (block of container.contents; track block.id) {
-                    <div class="activity-block d-flex align-items-start gap-3 mb-2 p-3 bg-white border rounded shadow-sm position-relative">
-                      
-                      <!-- Icon based on type -->
+                    @for (block of container.contents; track block.id) {
+                    <div
+                      class="activity-block d-flex align-items-start gap-3 mb-2 p-3 bg-white border rounded shadow-sm position-relative">
+
                       <div class="block-icon bg-light text-primary rounded p-2 d-flex align-items-center justify-content-center">
                         @if (block.type === 'text') { <i class="bi bi-fonts fs-5"></i> }
                         @if (block.type === 'audio') { <i class="bi bi-mic fs-5"></i> }
@@ -86,77 +336,176 @@
                         @if (block.type === 'link') { <i class="bi bi-link-45deg fs-5"></i> }
                       </div>
 
-                      <!-- Content Editor -->
                       <div class="flex-grow-1">
                         <div class="d-flex justify-content-between mb-1">
                           <span class="text-uppercase fw-bold text-muted small" style="font-size: 0.7rem;">{{ block.type }}</span>
                         </div>
-                        
+
                         @if (block.type === 'text') {
-                          <input type="text" class="form-control form-control-sm" [(ngModel)]="block.content" placeholder="Enter text content...">
+                        <input type="text" class="form-control form-control-sm" [(ngModel)]="block.content"
+                          placeholder="Enter text content...">
                         } @else {
-                          <input type="text" class="form-control form-control-sm" [(ngModel)]="block.url" placeholder="Enter media URL (e.g., assets/audio.wav)">
+                        <input type="text" class="form-control form-control-sm" [(ngModel)]="block.url"
+                          placeholder="Enter media URL (e.g., assets/audio.wav)">
                         }
                       </div>
 
-                      <!-- Remove Block -->
-                      <button class="btn btn-sm text-danger border-0 p-1" (click)="removeBlock(container.id, block.id, $event)">
+                      <button class="btn btn-sm text-danger border-0 p-1"
+                        (click)="removeBlock(container.id, block.id, $event)">
                         <i class="bi bi-x-circle"></i>
                       </button>
                     </div>
-                  }
+                    }
+                  </div>
                 </div>
-              </div>
-            }
-          }
+                }
+                }
 
-          <!-- USER PREVIEW MODE -->
-          @if (isPreviewMode()) {
-            <div class="user-preview-wrapper p-4 rounded-4 bg-white shadow-sm border">
-              @for (container of nodes(); track container.id) {
-                <div class="preview-container mb-4">
-                  @for (block of container.contents; track block.id) {
-                    
+                <!-- USER PREVIEW MODE -->
+                @if (isPreviewMode()) {
+                <div class="user-preview-wrapper p-4 rounded-4 bg-white shadow-sm border">
+                  @for (container of nodes(); track container.id) {
+                  <div class="preview-container mb-4">
+                    @for (block of container.contents; track block.id) {
+
                     @if (block.type === 'text') {
-                      <div class="preview-text">
-                        <span class="fs-5">{{ block.content || '...' }}</span>
-                      </div>
+                    <div class="preview-text">
+                      <span class="fs-5">{{ block.content || '...' }}</span>
+                    </div>
                     }
 
                     @if (block.type === 'audio') {
-                      <div class="preview-audio d-inline-flex align-items-center rounded-pill bg-light border px-2 py-1 mx-1 shadow-sm">
-                        <button class="btn btn-primary rounded-circle p-1 d-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px;">
-                          <i class="bi bi-play-fill fs-6"></i>
-                        </button>
-                        <!-- Hidden actual audio element that a real player would use -->
-                        <!-- <audio [src]="block.url"></audio> -->
-                      </div>
+                    <div class="preview-audio d-inline-flex align-items-center rounded-pill bg-light border px-2 py-1 mx-1 shadow-sm">
+                      <button class="btn btn-primary rounded-circle p-1 d-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px;">
+                        <i class="bi bi-play-fill fs-6"></i>
+                      </button>
+                    </div>
                     }
 
                     @if (block.type === 'image') {
-                      <div class="preview-image mx-2 d-inline-block">
-                        <div class="bg-light border rounded d-flex flex-column align-items-center justify-content-center p-2 text-muted" style="min-height: 80px; min-width: 100px;">
-                          <i class="bi bi-image fs-3 mb-1 opacity-50"></i>
-                        </div>
+                    <div class="preview-image mx-2 d-inline-block">
+                      <div class="bg-light border rounded d-flex flex-column align-items-center justify-content-center p-2 text-muted" style="min-height: 80px; min-width: 100px;">
+                        <i class="bi bi-image fs-3 mb-1 opacity-50"></i>
                       </div>
+                    </div>
                     }
 
                     @if (block.type === 'video') {
-                      <div class="preview-video mx-2 d-inline-block w-100 mt-2">
-                        <div class="bg-dark border rounded d-flex flex-column align-items-center justify-content-center p-4 text-light position-relative">
-                          <i class="bi bi-play-circle fs-2 mb-2 opacity-75"></i>
-                        </div>
+                    <div class="preview-video mx-2 d-inline-block w-100 mt-2">
+                      <div class="bg-dark border rounded d-flex flex-column align-items-center justify-content-center p-4 text-light position-relative">
+                        <i class="bi bi-play-circle fs-2 mb-2 opacity-75"></i>
                       </div>
+                    </div>
                     }
 
+                    }
+                  </div>
                   }
                 </div>
-              }
-            </div>
-          }
+                }
 
-        </div>
+              </div>
+            </div>
+          </div>
+        }
       </div>
     </div>
   </div>
+  }
+  <!-- Linking/Mapping Modal -->
+  @if (linkingActivity(); as activity) {
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5); z-index: 1050;">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+          <div class="modal-header border-bottom border-light p-4">
+            <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2">
+              <i class="bi bi-link-45deg text-primary fs-4"></i>
+              <span>Link Activity to Lesson Content</span>
+            </h5>
+            <button type="button" class="btn-close" (click)="closeLinkingModal()"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="bg-light p-3 rounded-3 mb-4 d-flex justify-content-between align-items-center">
+              <div>
+                <span class="text-secondary small d-block">Target Activity</span>
+                <strong class="text-dark">{{ activity.title }}</strong>
+              </div>
+              <span class="badge bg-secondary-subtle text-secondary text-uppercase px-3 py-2 rounded-pill small border">
+                {{ activity.type }}
+              </span>
+            </div>
+
+            <div class="row g-3 mb-4">
+              <!-- Content Page Selection -->
+              <div class="col-md-12">
+                <label class="form-label fw-semibold text-secondary small">Select Lesson Content Page</label>
+                <select class="form-select border-secondary-subtle shadow-none rounded-3 py-2" 
+                        (change)="onLinkContentSelected($event)">
+                  <option value="">-- Choose Lesson Page --</option>
+                  @for (ct of mappingContents(); track ct.id) {
+                    <option [value]="ct.id">{{ ct.title || ct.name }} (Chapter: {{ ct.chapters?.[0]?.name || 'Unassigned' }})</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <!-- Mapped Activities Status -->
+            @if (selectedLinkContentId()) {
+              <div class="border rounded-4 p-4 bg-white shadow-sm">
+                <h6 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                  <i class="bi bi-list-check text-success fs-5"></i>
+                  <span>Mapped Activities in Selected Lesson</span>
+                </h6>
+
+                @if (isLoadingContentDetails()) {
+                  <div class="text-center py-4">
+                    <span class="spinner-border spinner-border-sm text-secondary" role="status"></span>
+                  </div>
+                } @else {
+                  @if (mappedLessonActivities().length > 0) {
+                    <div class="list-group list-group-flush">
+                      @for (item of mappedLessonActivities(); track $index) {
+                        <div class="list-group-item px-0 d-flex justify-content-between align-items-center bg-transparent border-light py-2">
+                          <div>
+                            <span class="fw-semibold text-dark">{{ item.title }}</span>
+                            <span class="badge bg-light text-secondary ms-2 small text-uppercase">{{ item.type }}</span>
+                          </div>
+                          @if (item.id) {
+                            <button class="btn btn-outline-danger btn-sm border-0 rounded-circle" 
+                                    (click)="unmapActivityFromContent(item.blockIndex)" 
+                                    title="Remove from Lesson">
+                              <i class="bi bi-trash3"></i>
+                            </button>
+                          } @else {
+                            <span class="text-muted small">Inline Editor Block</span>
+                          }
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <p class="text-muted small my-2">No activities currently mapped to this lesson.</p>
+                  }
+                }
+              </div>
+            }
+          </div>
+          <div class="modal-footer border-top border-light p-4">
+            <button type="button" class="btn btn-light border px-4" (click)="closeLinkingModal()">Close</button>
+            <button type="button" class="btn btn-primary px-4 shadow-sm" 
+                    [disabled]="!selectedLinkContentId() || isLinkingInProgress() || isActivityAlreadyMapped()"
+                    (click)="linkActivityToContent()">
+              @if (isLinkingInProgress()) {
+                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                Linking...
+              } @else if (isActivityAlreadyMapped()) {
+                <i class="bi bi-check-circle-fill me-1"></i> Already Linked
+              } @else {
+                <i class="bi bi-plus-lg me-1"></i> Add to Lesson
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
 </div>

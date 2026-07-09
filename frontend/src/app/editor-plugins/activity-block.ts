@@ -5,6 +5,7 @@
  */
 import { CrosswordGenerator } from '../services/crossword-generator.service';
 import { ACTIVITY_BLOCK_STYLES } from './activity-block/styles';
+import { environment } from '../../environments/environment';
 
 // Import modular sub-forms
 import { renderMCQForm } from './activity-block/forms/mcq';
@@ -25,6 +26,7 @@ export class ActivityBlock {
   private api: any;
   private readOnly: boolean;
   private container: HTMLDivElement | null = null;
+  private inlineEdit: boolean;
 
   static get toolbox() {
     return {
@@ -33,7 +35,7 @@ export class ActivityBlock {
     };
   }
 
-  constructor({ data, api, readOnly }: any) {
+  constructor({ data, api, readOnly, inlineEdit }: any) {
     let type = data?.type || 'mcq';
     if (type === 'cloud_match') {
       type = 'match';
@@ -41,6 +43,9 @@ export class ActivityBlock {
 
     this.data = {
       type,
+      activityReferenceId: data?.activityReferenceId || null,
+      activityReferenceTitle: data?.activityReferenceTitle || '',
+      activityReferenceType: data?.activityReferenceType || '',
       question: data?.question || '',
       options: data?.options || [
         { text: '', isCorrect: true },
@@ -86,6 +91,7 @@ export class ActivityBlock {
     };
     this.api = api;
     this.readOnly = readOnly;
+    this.inlineEdit = !!inlineEdit;
   }
 
   render(): HTMLElement {
@@ -102,9 +108,50 @@ export class ActivityBlock {
     wrapper.classList.add('editorjs-activity-block');
 
     this.container = wrapper as HTMLDivElement;
-    this.updatePreview();
+    if (this.inlineEdit) {
+      this.renderInlineForm();
+    } else {
+      this.updatePreview();
+    }
 
     return wrapper;
+  }
+
+  private renderInlineForm(): void {
+    if (!this.container) return;
+    this.container.innerHTML = '';
+
+    const formWrapper = document.createElement('div');
+    formWrapper.classList.add('activity-inline-form');
+
+    const type = this.data.type;
+    if (type === 'mcq') {
+      renderMCQForm(formWrapper, this.data, this.api, this.renderExplanationInput.bind(this));
+    } else if (type === 'fill_blanks') {
+      renderBlanksForm(formWrapper, this.data, this.renderExplanationInput.bind(this));
+    } else if (type === 'flashcard') {
+      renderFlashcardForm(formWrapper, this.data);
+    } else if (type === 'match') {
+      renderMatchForm(formWrapper, this.data, this.renderExplanationInput.bind(this));
+    } else if (type === 'crossword') {
+      renderCrosswordForm(formWrapper, this.data, this.renderExplanationInput.bind(this));
+    } else if (type === 'word_arrange') {
+      renderWordArrangeForm(formWrapper, this.data, this.renderExplanationInput.bind(this));
+    } else if (type === 'speaking') {
+      renderSpeakingForm(formWrapper, this.data, this.renderExplanationInput.bind(this));
+    } else if (type === 'role_play') {
+      renderRolePlayForm(formWrapper, this.data, this.renderExplanationInput.bind(this));
+    } else if (type === 'sequencing') {
+      renderSequencingForm(formWrapper, this.data, this.renderExplanationInput.bind(this));
+    } else if (type === 'parts_of_speech') {
+      renderPartsOfSpeechForm(formWrapper, this.data, this.renderExplanationInput.bind(this));
+    } else if (type === 'mind_map') {
+      renderMindMapForm(formWrapper, this.data, this.renderExplanationInput.bind(this));
+    } else if (type === 'writing') {
+      renderWritingForm(formWrapper, this.data, this.renderExplanationInput.bind(this));
+    }
+
+    this.container.appendChild(formWrapper);
   }
 
   private getPreviewDetails() {
@@ -112,6 +159,13 @@ export class ActivityBlock {
     let typeLabel = 'Activity';
     let icon = 'bi-controller';
     let details = '';
+
+    if (type === 'activity_reference') {
+      typeLabel = `Linked ${this.data.activityReferenceType ? this.data.activityReferenceType.toUpperCase() : 'Activity'}`;
+      icon = 'bi-link-45deg';
+      details = `Linked to Activity: "${this.data.activityReferenceTitle || ''}" (ID: ${this.data.activityReferenceId})`;
+      return { typeLabel, icon, details };
+    }
 
     switch (type) {
       case 'mcq':
@@ -223,6 +277,17 @@ export class ActivityBlock {
           <button class="activity-modal-close-x" style="background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; padding: 0.25rem;">&times;</button>
         </div>
         <div class="activity-modal-body">
+          <div class="activity-form-group" style="margin-bottom: 1.25rem;">
+            <label class="activity-editor-label">Import Saved Activity</label>
+            <select class="activity-editor-select modal-import-activity-select" style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 0.5rem 0.75rem; width: 100%; outline: none; background-color: #f8fafc;">
+              <option value="">-- Choose a pre-made activity to import --</option>
+            </select>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; color: #94a3b8; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; position: relative;">
+            <span style="background: white; padding: 0 10px; z-index: 1;">Or Configure from Scratch</span>
+            <hr style="position: absolute; width: 100%; border: 0.5px solid #e2e8f0; margin: 0; z-index: 0;" />
+          </div>
+
           <label class="activity-editor-label">Practice Activity Type</label>
           <select class="activity-editor-select modal-activity-select">
             <option value="mcq" ${tempData.type === 'mcq' ? 'selected' : ''}>Multiple Choice Question (MCQ)</option>
@@ -249,6 +314,53 @@ export class ActivityBlock {
 
     document.body.appendChild(modalOverlay);
 
+    // Fetch and populate pre-made activities from Activity Builder
+    const token = localStorage.getItem('auth_token');
+    const tenantCode = localStorage.getItem('tenant_code');
+    const headers: any = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (tenantCode) headers['X-Tenant-Code'] = tenantCode;
+
+    fetch(`${environment.apiUrl}/activities`, { headers })
+      .then(res => res.json())
+      .then((activities: any[]) => {
+        const importSelect = modalOverlay.querySelector('.modal-import-activity-select') as HTMLSelectElement;
+        if (!importSelect || !Array.isArray(activities)) return;
+        activities.forEach((act: any) => {
+          const opt = document.createElement('option');
+          opt.value = act.id.toString();
+          opt.textContent = `${act.title} (${act.type.toUpperCase()})`;
+          if (tempData.type === 'activity_reference' && tempData.activityReferenceId === act.id) {
+            opt.selected = true;
+          }
+          importSelect.appendChild(opt);
+        });
+
+        // Listen for selections
+        importSelect.addEventListener('change', (e: any) => {
+          const selectedId = e.target.value;
+          if (!selectedId) {
+            // Unlink if they select the empty option
+            tempData.type = 'mcq';
+            tempData.activityReferenceId = null;
+            tempData.activityReferenceTitle = '';
+            tempData.activityReferenceType = '';
+            renderForm();
+            return;
+          }
+          const selectedAct = activities.find(a => a.id.toString() === selectedId);
+          if (selectedAct) {
+            tempData.type = 'activity_reference';
+            tempData.activityReferenceId = selectedAct.id;
+            tempData.activityReferenceTitle = selectedAct.title;
+            tempData.activityReferenceType = selectedAct.type;
+            
+            renderForm();
+          }
+        });
+      })
+      .catch(err => console.error('Failed to load activities', err));
+
     const closeX = modalOverlay.querySelector('.activity-modal-close-x') as HTMLButtonElement;
     const cancelBtn = modalOverlay.querySelector('.activity-modal-cancel') as HTMLButtonElement;
     const saveBtn = modalOverlay.querySelector('.activity-modal-save') as HTMLButtonElement;
@@ -257,6 +369,56 @@ export class ActivityBlock {
 
     const renderForm = () => {
       formContainer.innerHTML = '';
+      
+      if (tempData.type === 'activity_reference') {
+        const linkCard = document.createElement('div');
+        linkCard.style.cssText = 'background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 1.25rem; border-radius: 8px; margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;';
+        linkCard.innerHTML = `
+          <div style="display: flex; align-items: center; font-weight: 700; font-size: 1rem; color: #15803d;">
+            <i class="bi bi-link-45deg" style="font-size: 1.5rem; margin-right: 0.5rem;"></i>
+            Linked to Saved Activity
+          </div>
+          <div style="margin-top: 0.5rem; font-size: 0.9rem;">
+            <strong>Title:</strong> ${tempData.activityReferenceTitle || 'Untitled'}
+          </div>
+          <div style="font-size: 0.9rem;">
+            <strong>Type:</strong> ${tempData.activityReferenceType ? tempData.activityReferenceType.toUpperCase() : 'N/A'}
+          </div>
+          <div style="font-size: 0.8rem; color: #166534; opacity: 0.85; margin-top: 0.25rem;">
+            Updates made in the Activity Builder will automatically reflect in the course player!
+          </div>
+          <button type="button" class="activity-btn btn-unlink-activity" style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0.35rem 0.75rem; font-size: 0.8rem; color: #475569; cursor: pointer; align-self: flex-start; margin-top: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
+            <i class="bi bi-x-circle"></i> Unlink and Edit Manually
+          </button>
+        `;
+        formContainer.appendChild(linkCard);
+        
+        typeSelect.style.display = 'none';
+        const typeLabel = typeSelect.previousElementSibling as HTMLElement;
+        if (typeLabel) typeLabel.style.display = 'none';
+        
+        const unlinkBtn = linkCard.querySelector('.btn-unlink-activity') as HTMLButtonElement;
+        unlinkBtn.addEventListener('click', () => {
+          tempData.type = tempData.activityReferenceType || 'mcq';
+          tempData.activityReferenceId = null;
+          tempData.activityReferenceTitle = '';
+          tempData.activityReferenceType = '';
+          
+          typeSelect.value = tempData.type;
+          typeSelect.style.display = '';
+          if (typeLabel) typeLabel.style.display = '';
+          const importSelect = modalOverlay.querySelector('.modal-import-activity-select') as HTMLSelectElement;
+          if (importSelect) importSelect.value = '';
+          
+          renderForm();
+        });
+        return;
+      }
+
+      typeSelect.style.display = '';
+      const normalTypeLabel = typeSelect.previousElementSibling as HTMLElement;
+      if (normalTypeLabel) normalTypeLabel.style.display = '';
+
       const type = tempData.type;
       if (type === 'mcq') {
         renderMCQForm(formContainer, tempData, this.api, this.renderExplanationInput);
@@ -359,6 +521,15 @@ export class ActivityBlock {
 
   save(blockContent: HTMLElement): any {
     const type = this.data.type;
+    if (type === 'activity_reference') {
+      return {
+        type: 'activity_reference',
+        activityReferenceId: this.data.activityReferenceId,
+        activityReferenceTitle: this.data.activityReferenceTitle,
+        activityReferenceType: this.data.activityReferenceType
+      };
+    }
+
     const savedData: any = {
       type,
       explanation: this.data.explanation || ''

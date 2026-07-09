@@ -2,8 +2,11 @@ import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { LoaderService } from './services/loader.service';
+import { AuthService } from './services/auth';
 import { NotificationService } from './services/notification.service';
+import { LoaderService } from './services/loader.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -16,11 +19,15 @@ export class App implements OnInit {
   protected readonly title = signal('Language Management System');
 
   private translate = inject(TranslateService);
-  private router = inject(Router);
+  protected authService = inject(AuthService);
+  protected notificationService = inject(NotificationService);
   public loaderService = inject(LoaderService);
-  public notificationService = inject(NotificationService);
+  private http = inject(HttpClient);
+  private router = inject(Router);
+
   currentLang = signal('en');
   isSidebarOpen = signal(false);
+  tenantBranding = signal<any>(null);
   isAdventureView = signal(false);
 
   ngOnInit() {
@@ -29,15 +36,60 @@ export class App implements OnInit {
     this.translate.use(savedLang);
     this.currentLang.set(savedLang);
 
-    // Initial check
+    // Initial check for adventure layout
     this.checkRoute(this.router.url);
 
-    // Subscribe to future navigation events
+    // Subscribe to future navigation events for adventure layout
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.checkRoute(event.urlAfterRedirects || event.url);
       }
     });
+
+    // Fetch and apply branding based on user's active tenant
+    const user = this.authService.getUser();
+    const tenantCode = this.authService.getTenantCode();
+    if (user && user.tenant_id && tenantCode) {
+      this.http.get<any>(`${environment.apiUrl}/tenants/brand/${tenantCode}`).subscribe({
+        next: (brand) => {
+          this.tenantBranding.set(brand);
+          const root = document.documentElement;
+          if (brand.primary_color) {
+            root.style.setProperty('--primary-color', brand.primary_color);
+          }
+          if (brand.secondary_color) {
+            root.style.setProperty('--secondary-color', brand.secondary_color);
+          }
+          localStorage.setItem('tenant_branding', JSON.stringify(brand));
+        },
+        error: () => {
+          // Fallback to local storage if API call fails
+          const savedBranding = localStorage.getItem('tenant_branding');
+          if (savedBranding) {
+            try {
+              const brand = JSON.parse(savedBranding);
+              this.tenantBranding.set(brand);
+              const root = document.documentElement;
+              if (brand.primary_color) {
+                root.style.setProperty('--primary-color', brand.primary_color);
+              }
+              if (brand.secondary_color) {
+                root.style.setProperty('--secondary-color', brand.secondary_color);
+              }
+            } catch (e) {
+              console.error('Failed to parse saved branding', e);
+            }
+          }
+        }
+      });
+    } else {
+      // Clear branding if no tenant (e.g. super admin)
+      this.tenantBranding.set(null);
+      localStorage.removeItem('tenant_branding');
+      const root = document.documentElement;
+      root.style.removeProperty('--primary-color');
+      root.style.removeProperty('--secondary-color');
+    }
   }
 
   private checkRoute(url: string) {
@@ -58,6 +110,28 @@ export class App implements OnInit {
         document.body.classList.remove('adventure-view');
       }
     }
+  }
+
+  logout() {
+    this.authService.logout().subscribe({
+      complete: () => {
+        localStorage.removeItem('tenant_branding');
+        const root = document.documentElement;
+        root.style.removeProperty('--primary-color');
+        root.style.removeProperty('--secondary-color');
+        this.closeSidebar();
+        window.location.href = '/login';
+      },
+      error: () => {
+        this.authService.clearSession();
+        localStorage.removeItem('tenant_branding');
+        const root = document.documentElement;
+        root.style.removeProperty('--primary-color');
+        root.style.removeProperty('--secondary-color');
+        this.closeSidebar();
+        window.location.href = '/login';
+      }
+    });
   }
 
   toggleSidebar() {
