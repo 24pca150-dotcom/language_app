@@ -183,7 +183,7 @@
   }
 
   @media (min-width: 992px) {
-    .kids-prev-btn {
+    .lesson-player:not(.sidebar-collapsed) .kids-prev-btn {
       left: 300px !important;
     }
   }
@@ -195,9 +195,16 @@
   }
 
   @media (min-width: 992px) {
-    .kids-header-hud {
+    .lesson-player:not(.sidebar-collapsed) .kids-header-hud {
       left: 280px !important;
       width: calc(100% - 280px) !important;
+    }
+  }
+
+  /* Hide sidebar on desktop when collapsed */
+  @media (min-width: 992px) {
+    .lesson-player.sidebar-collapsed .kids-sidebar-steps {
+      display: none !important;
     }
   }
 

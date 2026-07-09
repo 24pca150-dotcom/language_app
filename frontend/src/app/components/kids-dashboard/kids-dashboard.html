@@ -227,6 +227,8 @@
                 style="width: 80px; height: 80px; z-index: 3; position: relative;" (click)="onChapterClick(chapter.id)">
                 @if (!isChapterUnlocked(chapter.id)) {
                 <i class="bi bi-lock-fill fs-2"></i>
+                } @else if (isChapterCompleted(chapter.id)) {
+                <i class="bi bi-check-lg fs-2 text-white" style="filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.5));"></i>
                 } @else {
                 <span class="fs-2 fw-bold text-white" style="text-shadow: 1px 2px 3px rgba(0,0,0,0.5);">{{
                   info.globalNumber }}</span>

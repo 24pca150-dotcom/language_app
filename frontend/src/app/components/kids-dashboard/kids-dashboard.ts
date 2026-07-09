@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, computed, HostListener, OnChanges, SimpleChanges, AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, HostListener, OnChanges, SimpleChanges, AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { gsap } from 'gsap';
 
@@ -34,11 +34,24 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
 
   isBrowser: boolean;
 
+  structureSignal = signal<CourseStructure | null>(null);
+  activeLevelIdSignal = signal<number | null>(null);
+  completedChaptersSignal = signal<number[]>([]);
+
   constructor(@Inject(PLATFORM_ID) platformId: Object) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    if (changes['structure']) {
+      this.structureSignal.set(this.structure);
+    }
+    if (changes['activeLevelId']) {
+      this.activeLevelIdSignal.set(this.activeLevelId);
+    }
+    if (changes['completedChapters']) {
+      this.completedChaptersSignal.set(this.completedChapters || []);
+    }
     if (changes['currentView'] && changes['currentView'].currentValue === 'map') {
       this.scrollToActiveNode();
     }
@@ -87,8 +100,8 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
   }
 
   selectedLevel = computed(() => {
-    const struct = this.structure;
-    const levId = this.activeLevelId;
+    const struct = this.structureSignal();
+    const levId = this.activeLevelIdSignal();
     if (!struct || !levId) return null;
     return struct.levels.find((l: any) => l.id === levId) || null;
   });
@@ -149,11 +162,10 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
     return d;
   });
 
-  // Mock function to generate 1-3 stars for completed chapters
+  // Always give 3 stars for a fully completed chapter
   getChapterStars(chapterId: number): number {
     if (!this.isChapterCompleted(chapterId)) return 0;
-    // Generate a pseudo-random 1-3 stars based on chapterId so it's consistent
-    return (chapterId % 3) + 1; 
+    return 3; // Full completion = full 3 stars
   }
 
   isLevelUnlocked(levelId: number): boolean {
@@ -178,7 +190,7 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
   }
 
   isChapterCompleted(chapterId: number): boolean {
-    return this.completedChapters.includes(chapterId);
+    return this.completedChaptersSignal().includes(chapterId);
   }
 
   onLevelClick(id: number) {

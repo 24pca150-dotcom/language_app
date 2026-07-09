@@ -91,7 +91,7 @@ export class ActivityRenderer implements OnChanges {
     }
   }
 
-  convertEditorJsToHtml(jsonStr: string): string {
+  convertEditorJsToHtml(jsonStr: string | null | undefined): string {
     if (!jsonStr) return '';
     const trimmed = jsonStr.trim();
     if (!(trimmed.startsWith('{') && trimmed.endsWith('}'))) {
@@ -104,7 +104,13 @@ export class ActivityRenderer implements OnChanges {
       }
       return data.blocks.map((block: any) => {
         if (block.type === 'paragraph') {
-          return `<p class="mb-3">${block.data.text || ''}</p>`;
+          const text = block.data.text || '';
+          const trimmed = text.trim();
+          const isCode = /^(class|public|private|protected|void|int|double|String|System\.out|\{|\}|\/\/|Animala|a\.)/.test(trimmed);
+          if (isCode) {
+            return `<pre class="code-line m-0 px-3 py-0.5 font-monospace bg-dark bg-opacity-50 text-light border-0 text-start d-block" style="font-family: 'Courier New', Courier, monospace; white-space: pre; font-size: 0.95rem; line-height: 1.5; letter-spacing: normal; text-shadow: none; min-height: 1.5rem;">${text}</pre>`;
+          }
+          return `<p class="mb-3">${text}</p>`;
         } else if (block.type === 'header') {
           return `<h${block.data.level} class="fw-bold mb-3">${block.data.text || ''}</h${block.data.level}>`;
         } else if (block.type === 'list') {

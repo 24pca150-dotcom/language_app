@@ -24,7 +24,7 @@
         @for (option of activity?.options; track option.id; let idx = $index) {
           <button 
             type="button"
-            class="option-row w-100 d-flex align-items-center text-start border bg-white bg-opacity-75 rounded-4 p-3 position-relative"
+            class="option-row w-100 d-flex align-items-center text-start border rounded-4 p-3 position-relative"
             [class.selected]="selectedOptionId() === option.id"
             [class.correct]="showFeedback && hasSubmitted() && option.isCorrect"
             [class.incorrect]="showFeedback && hasSubmitted() && selectedOptionId() === option.id && !option.isCorrect"
@@ -33,7 +33,7 @@
             [disabled]="showFeedback && hasSubmitted()"
             (click)="selectOption(option)">
             
-            <div class="bubble d-flex align-items-center justify-content-center rounded-circle fw-bold text-secondary flex-shrink-0 bg-light me-4" style="width: 2.2rem; height: 2.2rem; transition: all 0.2s ease;">
+            <div class="bubble d-flex align-items-center justify-content-center rounded-circle fw-bold flex-shrink-0 me-4" style="width: 2.2rem; height: 2.2rem; transition: all 0.2s ease;">
               {{ getLetter(idx) }}
             </div>
             
@@ -51,13 +51,15 @@
       </div>
 
       <!-- Expandable Explanation Block -->
-      @if (showFeedback && hasSubmitted() && activity?.explanation) {
-        <div class="animate-fade-in mt-4 rounded-3 p-4 bg-warning bg-opacity-10 border-start border-4 border-warning">
-          <div class="d-flex align-items-center gap-2 fw-bold text-warning mb-2" style="font-size: 0.9rem;">
-            <i class="bi bi-info-circle-fill"></i>
-            <span>Explanation</span>
+      @if (showFeedback && hasSubmitted() && activity; as act) {
+        @if (act.explanation) {
+          <div class="animate-fade-in mt-4 rounded-3 p-4 bg-warning bg-opacity-10 border-start border-4 border-warning">
+            <div class="d-flex align-items-center gap-2 fw-bold text-warning mb-2" style="font-size: 0.9rem;">
+              <i class="bi bi-info-circle-fill"></i>
+              <span>Explanation</span>
+            </div>
+            <p class="m-0" style="color: #451a03; font-size: 0.925rem; line-height: 1.5;">{{ act.explanation }}</p>
           </div>
-          <p class="m-0" style="color: #451a03; font-size: 0.925rem; line-height: 1.5;">{{ activity?.explanation }}</p>
-        </div>
+        }
       }
     </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -68,6 +68,7 @@ export class CoursePackageLevel implements OnInit {
   }
 
   onSelectionChange(): void {
+    this.isDropdownOpen.set(false);
     const pkgId = this.selectedPackageId();
     const courseId = this.selectedCourseId();
     if (pkgId && courseId) {
@@ -141,6 +142,7 @@ export class CoursePackageLevel implements OnInit {
           this.showFeedback('success', `${levelIds.length} levels mapped successfully`);
           this.selectedLevelIds.set([]);
           this.loadMappings(pkgId, courseId);
+          this.isDropdownOpen.set(false);
         },
         error: () => this.showFeedback('error', 'Failed to map selected levels'),
       });
@@ -159,6 +161,11 @@ export class CoursePackageLevel implements OnInit {
         error: () => this.showFeedback('error', 'Failed to remove mapping'),
       });
     }
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    this.isDropdownOpen.set(false);
   }
 
   toggleDropdown(event: Event): void {

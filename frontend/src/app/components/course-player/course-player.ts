@@ -90,6 +90,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
   completedChapterIds = signal<number[]>([]);
 
   lessonSequence = signal<LessonStep[]>([]);
+  isLoadingLesson = signal<boolean>(true);
   currentStepIndex = signal<number>(0);
   highestStepIndex = signal<number>(0);
   learningMode = signal<'strict' | 'easy'>('easy'); // Strict mode prevents skipping activities
@@ -217,9 +218,14 @@ export class CoursePlayer implements OnInit, OnDestroy {
 
     this.route.params.subscribe(params => {
       const cid = params['courseId'] ? +params['courseId'] : null;
+      const returningFromAssessment = !!localStorage.getItem('lang_app_assessment_done');
       if (cid && cid !== this.courseId()) {
         this.courseId.set(cid);
         this.loadStructure();
+      } else if (cid && cid === this.courseId() && returningFromAssessment) {
+        // Same course, returning from assessment — just refresh DB progress
+        localStorage.removeItem('lang_app_assessment_done');
+        this.loadDatabaseProgress();
       }
     });
 
@@ -365,7 +371,10 @@ export class CoursePlayer implements OnInit, OnDestroy {
 
     // Sync progress to the backend database
     this.http.post(`${environment.apiUrl}/chapters/${chapterId}/complete`, {}).subscribe({
-      next: (res) => console.log('Backend progress updated successfully:', res),
+      next: (res) => {
+        console.log('Backend progress updated successfully:', res);
+        this.loadDatabaseProgress(); // Refresh stats (XP, gems) from database!
+      },
       error: (err) => console.error('Failed to sync progress to backend:', err)
     });
   }
@@ -463,6 +472,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
     this.activeChapterId.set(chapterId);
     this.currentView.set('content'); // Using 'content' view for the new Full-Screen Lesson Player
     this.lessonSequence.set([]);
+    this.isLoadingLesson.set(true);
 
     const resumeKey = `lang_app_resume_step_${this.userId()}_${this.courseId()}_${chapterId}`;
     const savedIndex = localStorage.getItem(resumeKey);
@@ -477,7 +487,10 @@ export class CoursePlayer implements OnInit, OnDestroy {
     this.activityFeedbackState.set(null);
 
     const chapter = this.selectedChapter();
-    if (!chapter) return;
+    if (!chapter) {
+      this.isLoadingLesson.set(false);
+      return;
+    }
 
     const contentIds = chapter.contents.map(c => c.id);
     if (contentIds.length === 0) {
@@ -492,7 +505,10 @@ export class CoursePlayer implements OnInit, OnDestroy {
       next: (resolvedContents) => {
         this.generateLessonSequence(resolvedContents, chapter.assessments || []);
       },
-      error: (err) => console.error('Failed to load chapter contents', err)
+      error: (err) => {
+        console.error('Failed to load chapter contents', err);
+        this.isLoadingLesson.set(false);
+      }
     });
   }
 
@@ -618,6 +634,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
       this.currentStepIndex.set(0);
     }
     this.evaluateStepCompletion();
+    this.isLoadingLesson.set(false);
   }
 
   handleStepCompleted(isCompleted: boolean) {
@@ -760,6 +777,11 @@ export class CoursePlayer implements OnInit, OnDestroy {
       this.evaluateStepCompletion();
       this.activityFeedbackState.set(null);
     } else {
+      // ✅ Auto-complete the chapter NOW — don't wait for FINISH button click
+      const activeChapId = this.activeChapterId();
+      if (activeChapId) {
+        this.completeChapter(activeChapId);
+      }
       this.lessonFinished.set(true);
     }
   }
@@ -790,6 +812,8 @@ export class CoursePlayer implements OnInit, OnDestroy {
   ngOnDestroy() {}
 
   finishLesson() {
+    // Chapter is already completed in nextLessonStep() when all steps are done.
+    // This method only handles celebration and navigation.
     this.audioService.playSuccess();
 
     const duration = 3 * 1000;
@@ -816,11 +840,6 @@ export class CoursePlayer implements OnInit, OnDestroy {
       }
     };
     frame();
-
-    const activeChapId = this.activeChapterId();
-    if (activeChapId) {
-      this.completeChapter(activeChapId);
-    }
 
     setTimeout(() => {
       this.goToMap();

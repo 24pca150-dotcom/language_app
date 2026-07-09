@@ -21,6 +21,7 @@ export interface LessonStep {
 })
 export class StudentLessonPlayer implements OnInit, OnDestroy {
   lessonSequence = input<LessonStep[]>([]);
+  isLoading = input<boolean>(true);
   currentStepIndex = input<number>(0);
   highestStepIndex = input<number>(0);
   isChapterCompleted = input<boolean>(false);
@@ -52,6 +53,9 @@ export class StudentLessonPlayer implements OnInit, OnDestroy {
       id = step.data.id;
     }
     if (id) {
+      // Store the return courseId so assessment player can navigate back
+      const courseId = this.router.url.match(/\/learn(?:\/play)?\/([0-9]+)/)?.[1];
+      if (courseId) localStorage.setItem('lang_app_assessment_return_course', courseId);
       this.router.navigate(['/assessments/play', id]);
     } else {
       this.onActivityAnswered({ isCorrect: true });
@@ -66,6 +70,11 @@ export class StudentLessonPlayer implements OnInit, OnDestroy {
   pageSize = 2;
   isFullscreen = signal(false);
   isSpeaking = signal(false);
+  isSidebarOpen = signal(true);
+
+  toggleSidebar() {
+    this.isSidebarOpen.update(v => !v);
+  }
 
   currentStep = computed(() => {
     if (this.lessonSequence().length > 0 && this.currentStepIndex() >= 0 && this.currentStepIndex() < this.lessonSequence().length) {

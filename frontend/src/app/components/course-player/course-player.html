@@ -31,6 +31,7 @@
   @if (theme() === 'kids') {
   <app-kids-lesson-player
     [lessonSequence]="lessonSequence()"
+    [isLoading]="isLoadingLesson()"
     [currentStepIndex]="currentStepIndex()"
     [highestStepIndex]="highestStepIndex()"
     [isChapterCompleted]="isChapterCompleted(activeChapterId() || 0)"
@@ -53,6 +54,7 @@
   } @else {
   <app-student-lesson-player
     [lessonSequence]="lessonSequence()"
+    [isLoading]="isLoadingLesson()"
     [currentStepIndex]="currentStepIndex()"
     [highestStepIndex]="highestStepIndex()"
     [isChapterCompleted]="isChapterCompleted(activeChapterId() || 0)"
