@@ -81,13 +81,19 @@ class DashboardController extends Controller
         // 3. Calculate streak dynamically
         $streak = $this->calculateStreak($userId);
 
-        // 4. Calculate XP Points dynamically
+        // 4. Calculate XP Points and Gems dynamically (with default baselines)
         $activityCompletions = DB::table('user_course_progress')
             ->where('user_id', $userId)
             ->where('status', 'activity_completed')
             ->count();
         
-        $xpPoints = ($completedChapters * 100) + ($passedAttempts * 200) + ($totalAttempts * 50) + ($streak * 25) + ($activityCompletions * 75);
+        $xpPoints = 1250 + ($completedChapters * 100) + ($passedAttempts * 200) + ($totalAttempts * 50) + ($streak * 25) + ($activityCompletions * 75);
+        $gems = 85 + ($completedChapters * 15) + ($passedAttempts * 30) + ($streak * 5) + ($activityCompletions * 10);
+
+        // Save to users table so columns are synchronized
+        $user->xp = $xpPoints;
+        $user->gems = $gems;
+        $user->save();
 
         // 5. Course-by-course progressions
         $courseProgressions = [];
@@ -307,6 +313,7 @@ class DashboardController extends Controller
             'passed_attempts' => $passedAttempts,
             'average_score' => $averageScore,
             'xp_points' => $xpPoints,
+            'gems' => $gems,
             'streak_days' => $streak,
             'course_progressions' => $courseProgressions,
             'skill_mastery' => $skillMastery,
@@ -649,11 +656,96 @@ class DashboardController extends Controller
             'updated_at' => now(),
         ]);
 
+        // Recalculate stats and save to users table
+        self::recalculateUserStats($userId);
+
         return response()->json([
             'success' => true,
             'xp_earned' => $xpEarned,
             'activity_type' => $validated['activity_type'],
             'message' => "Activity recorded! You earned {$xpEarned} XP.",
         ]);
+    }
+
+    /**
+     * Reusable helper to recalculate user stats and save them to the users table.
+     */
+    public static function recalculateUserStats($userId)
+    {
+        $user = \App\Models\User::find($userId);
+        if (!$user) return null;
+
+        $completedChapters = DB::table('user_course_progress')
+            ->where('user_id', $userId)
+            ->where('status', 'completed')
+            ->whereNotNull('chapter_id')
+            ->distinct('chapter_id')
+            ->count('chapter_id');
+
+        $totalAttempts = DB::table('user_assessment_attempts')
+            ->where('user_id', $userId)
+            ->count();
+
+        $passedAttempts = DB::table('user_assessment_attempts')
+            ->where('user_id', $userId)
+            ->where('passed', true)
+            ->count();
+
+        // Calculate streak
+        $progressDates = DB::table('user_course_progress')
+            ->where('user_id', $userId)
+            ->whereNotNull('completed_at')
+            ->pluck('completed_at')
+            ->map(function ($date) {
+                return date('Y-m-d', strtotime($date));
+            })
+            ->toArray();
+
+        $attemptDates = DB::table('user_assessment_attempts')
+            ->where('user_id', $userId)
+            ->pluck('attempted_at')
+            ->map(function ($date) {
+                return date('Y-m-d', strtotime($date));
+            })
+            ->toArray();
+
+        $allDates = array_unique(array_merge($progressDates, $attemptDates));
+        rsort($allDates);
+
+        $streak = 0;
+        if (!empty($allDates)) {
+            $today = date('Y-m-d');
+            $yesterday = date('Y-m-d', strtotime('-1 day'));
+            $mostRecent = $allDates[0];
+            if ($mostRecent === $today || $mostRecent === $yesterday) {
+                $currentDate = $mostRecent;
+                foreach ($allDates as $date) {
+                    if ($date === $currentDate) {
+                        $streak++;
+                        $currentDate = date('Y-m-d', strtotime($currentDate . ' -1 day'));
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+
+        $activityCompletions = DB::table('user_course_progress')
+            ->where('user_id', $userId)
+            ->where('status', 'activity_completed')
+            ->count();
+
+        $xpPoints = 1250 + ($completedChapters * 100) + ($passedAttempts * 200) + ($totalAttempts * 50) + ($streak * 25) + ($activityCompletions * 75);
+        $gems = 85 + ($completedChapters * 15) + ($passedAttempts * 30) + ($streak * 5) + ($activityCompletions * 10);
+
+        $user->xp = $xpPoints;
+        $user->gems = $gems;
+        $user->save();
+
+        return [
+            'xp' => $xpPoints,
+            'gems' => $gems,
+            'streak' => $streak
+        ];
     }
 }

@@ -32,6 +32,9 @@ export class LearnerDashboard implements OnInit {
   isLoading = signal(true);
   isFullscreen = signal(false);
   uiTheme = signal<'adventure' | 'classic'>('adventure');
+  xp = signal<number>(1250);
+  gems = signal<number>(85);
+  hearts = signal<number>(5);
 
   // Mascot Tip Messages
   mascotTip = signal<string>('Welcome back, adventurer! Click "Play" on a course to start your quest!');
@@ -53,6 +56,17 @@ export class LearnerDashboard implements OnInit {
   showAchievementModal = signal(false);
 
   ngOnInit() {
+    // Load dynamic XP, Gems and Hearts from student dashboard stats
+    this.http.get<any>(`${environment.apiUrl}/student/dashboard`).subscribe({
+      next: (stats) => {
+        if (stats) {
+          if (stats.xp_points !== undefined) this.xp.set(stats.xp_points);
+          if (stats.gems !== undefined) this.gems.set(stats.gems);
+        }
+      },
+      error: (err) => console.error('Failed to load student stats:', err)
+    });
+
     // Determine theme based on user's age from DOB
     const user = this.authService.getUser();
     console.log('[DEBUG] learner-dashboard ngOnInit user:', user);

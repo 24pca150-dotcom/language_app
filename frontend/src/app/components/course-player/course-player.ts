@@ -293,26 +293,31 @@ export class CoursePlayer implements OnInit, OnDestroy {
   loadDatabaseProgress(): void {
     this.http.get<any>(`${environment.apiUrl}/student/dashboard`).subscribe({
       next: (stats) => {
-        if (stats && stats.completed_chapter_ids) {
-          // Merge local and database completed chapters to make sure we don't lose anything
-          const localIds = this.completedChapterIds();
-          const dbIds = stats.completed_chapter_ids;
+        if (stats) {
+          if (stats.xp_points !== undefined) this.xp.set(stats.xp_points);
+          if (stats.gems !== undefined) this.coins.set(stats.gems);
+          
+          if (stats.completed_chapter_ids) {
+            // Merge local and database completed chapters to make sure we don't lose anything
+            const localIds = this.completedChapterIds();
+            const dbIds = stats.completed_chapter_ids;
 
-          // Find any chapters completed locally but NOT in the database, and sync them to the database
-          localIds.forEach(id => {
-            if (!dbIds.includes(id)) {
-              console.log('[DEBUG] Syncing local chapter completion to database:', id);
-              this.http.post(`${environment.apiUrl}/chapters/${id}/complete`, {}).subscribe({
-                next: (res) => console.log('Successfully synced local chapter to DB:', id),
-                error: (err) => console.error('Failed to sync local chapter to DB:', id, err)
-              });
-            }
-          });
+            // Find any chapters completed locally but NOT in the database, and sync them to the database
+            localIds.forEach(id => {
+              if (!dbIds.includes(id)) {
+                console.log('[DEBUG] Syncing local chapter completion to database:', id);
+                this.http.post(`${environment.apiUrl}/chapters/${id}/complete`, {}).subscribe({
+                  next: (res) => console.log('Successfully synced local chapter to DB:', id),
+                  error: (err) => console.error('Failed to sync local chapter to DB:', id, err)
+                });
+              }
+            });
 
-          const merged = Array.from(new Set([...localIds, ...dbIds]));
-          this.completedChapterIds.set(merged);
-          console.log('[DEBUG] loaded completed chapters from DB:', dbIds, 'Merged:', merged);
-          this.saveLocalProgress(); // save merged back to local storage
+            const merged = Array.from(new Set([...localIds, ...dbIds]));
+            this.completedChapterIds.set(merged);
+            console.log('[DEBUG] loaded completed chapters from DB:', dbIds, 'Merged:', merged);
+            this.saveLocalProgress(); // save merged back to local storage
+          }
         }
       },
       error: (err) => console.error('Failed to load progress from backend database:', err)

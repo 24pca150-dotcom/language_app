@@ -226,6 +226,9 @@ class AssessmentController extends Controller
             );
         }
 
+        // Recalculate stats and sync to users table
+        \App\Http\Controllers\DashboardController::recalculateUserStats($validated['user_id']);
+
         return response()->json([
             'attempt_id' => $attempt->id,
             'score' => $score,

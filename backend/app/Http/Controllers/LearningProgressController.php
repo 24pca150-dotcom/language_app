@@ -124,6 +124,9 @@ class LearningProgressController extends Controller
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+
+            // Recalculate stats and sync to users table
+            \App\Http\Controllers\DashboardController::recalculateUserStats($userId);
         }
 
         return response()->json([
