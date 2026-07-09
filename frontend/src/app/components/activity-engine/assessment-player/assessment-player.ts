@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ActivityRenderer, NormalizedActivity } from '../activity-renderer/activity-renderer';
+import { AuthService } from '../../../services/auth';
+import { environment } from '../../../../environments/environment';
 
 interface Option {
   id: number;
@@ -38,6 +40,7 @@ export class AssessmentPlayerComponent implements OnInit, OnDestroy {
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   assessmentId = signal<number | null>(null);
   assessment = signal<AssessmentData | null>(null);
@@ -82,7 +85,7 @@ export class AssessmentPlayerComponent implements OnInit, OnDestroy {
     if (!this.assessmentId()) return;
     this.errorMessage.set(null);
 
-    const url = `http://localhost:8000/api/assessments/${this.assessmentId()}`;
+    const url = `${environment.apiUrl}/assessments/${this.assessmentId()}`;
     this.http.get<AssessmentData>(url).subscribe({
       next: (data) => {
         this.assessment.set(data);
@@ -172,12 +175,15 @@ export class AssessmentPlayerComponent implements OnInit, OnDestroy {
       };
     });
 
+    const user = this.authService.getUser();
+    const userId = user ? user.id : 1;
+
     const body = {
-      user_id: 1, // Simulated current authenticated student ID
+      user_id: userId,
       answers: answersPayload
     };
 
-    const url = `http://localhost:8000/api/assessments/${exam.id}/submit`;
+    const url = `${environment.apiUrl}/assessments/${exam.id}/submit`;
     this.http.post<any>(url, body).subscribe({
       next: (res) => {
         this.resultsData.set({

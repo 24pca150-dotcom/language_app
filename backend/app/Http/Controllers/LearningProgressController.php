@@ -81,4 +81,54 @@ class LearningProgressController extends Controller
         // Keep existing or use service
         return response()->json(['is_unlocked' => true]);
     }
+
+    /**
+     * Mark a chapter as completed in the database.
+     */
+    public function completeChapter(Request $request, $chapterId)
+    {
+        $user = $request->user();
+        $userId = $user->id;
+
+        // Find associated level and course to satisfy DB constraints
+        $levelId = \DB::table('level_chapter')
+            ->where('chapter_id', $chapterId)
+            ->value('level_id');
+
+        $courseId = null;
+        if ($levelId) {
+            $courseId = \DB::table('course_package_levels')
+                ->where('level_id', $levelId)
+                ->value('course_id');
+        }
+
+        if (!$courseId) {
+            $courseId = 0; // fallback course ID
+        }
+
+        // Check if the record already exists to avoid duplicate entries
+        $exists = \DB::table('user_course_progress')
+            ->where('user_id', $userId)
+            ->where('chapter_id', $chapterId)
+            ->where('status', 'completed')
+            ->exists();
+
+        if (!$exists) {
+            \DB::table('user_course_progress')->insert([
+                'user_id' => $userId,
+                'course_id' => $courseId,
+                'level_id' => $levelId,
+                'chapter_id' => $chapterId,
+                'status' => 'completed',
+                'completed_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Chapter marked as completed.'
+        ]);
+    }
 }

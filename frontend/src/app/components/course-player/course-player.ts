@@ -202,6 +202,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
     const user = this.authService.getUser();
     console.log('[DEBUG] course-player ngOnInit user:', user);
     if (user) {
+      this.userId.set(user.id);
       const age = this.getAgeFromDob(user.dob);
       console.log('[DEBUG] course-player calculated age:', age);
       if (age !== null) {
@@ -270,6 +271,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
     });
     this.courseStructure.set(structure);
     this.loadLocalProgress();
+    this.loadDatabaseProgress();
   }
 
   loadLocalProgress(): void {
@@ -286,6 +288,35 @@ export class CoursePlayer implements OnInit, OnDestroy {
     } catch (e) {
       console.error('Failed to load local progress:', e);
     }
+  }
+
+  loadDatabaseProgress(): void {
+    this.http.get<any>(`${environment.apiUrl}/student/dashboard`).subscribe({
+      next: (stats) => {
+        if (stats && stats.completed_chapter_ids) {
+          // Merge local and database completed chapters to make sure we don't lose anything
+          const localIds = this.completedChapterIds();
+          const dbIds = stats.completed_chapter_ids;
+
+          // Find any chapters completed locally but NOT in the database, and sync them to the database
+          localIds.forEach(id => {
+            if (!dbIds.includes(id)) {
+              console.log('[DEBUG] Syncing local chapter completion to database:', id);
+              this.http.post(`${environment.apiUrl}/chapters/${id}/complete`, {}).subscribe({
+                next: (res) => console.log('Successfully synced local chapter to DB:', id),
+                error: (err) => console.error('Failed to sync local chapter to DB:', id, err)
+              });
+            }
+          });
+
+          const merged = Array.from(new Set([...localIds, ...dbIds]));
+          this.completedChapterIds.set(merged);
+          console.log('[DEBUG] loaded completed chapters from DB:', dbIds, 'Merged:', merged);
+          this.saveLocalProgress(); // save merged back to local storage
+        }
+      },
+      error: (err) => console.error('Failed to load progress from backend database:', err)
+    });
   }
 
   saveLocalProgress(): void {
@@ -326,6 +357,12 @@ export class CoursePlayer implements OnInit, OnDestroy {
       }
     }
     this.saveLocalProgress();
+
+    // Sync progress to the backend database
+    this.http.post(`${environment.apiUrl}/chapters/${chapterId}/complete`, {}).subscribe({
+      next: (res) => console.log('Backend progress updated successfully:', res),
+      error: (err) => console.error('Failed to sync progress to backend:', err)
+    });
   }
 
   goBack() {
