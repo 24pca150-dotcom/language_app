@@ -182,12 +182,6 @@
     left: 20px;
   }
 
-  @media (min-width: 992px) {
-    .lesson-player:not(.sidebar-collapsed) .kids-prev-btn {
-      left: 300px !important;
-    }
-  }
-
   /* ── HUD Header Offset ── */
   .kids-header-hud {
     left: 0;
@@ -196,6 +190,20 @@
 
   @media (min-width: 992px) {
     .lesson-player:not(.sidebar-collapsed) .kids-header-hud {
+      left: 280px !important;
+      width: calc(100% - 280px) !important;
+    }
+  }
+
+  /* ── HUD Bottom Offset ── */
+  .kids-bottom-hud {
+    left: 0;
+    width: 100%;
+    transition: left 0.3s ease, width 0.3s ease;
+  }
+
+  @media (min-width: 992px) {
+    .lesson-player:not(.sidebar-collapsed) .kids-bottom-hud {
       left: 280px !important;
       width: calc(100% - 280px) !important;
     }

@@ -765,6 +765,25 @@ export class CoursePlayer implements OnInit, OnDestroy {
     this.showGameOver.set(false);
     this.activityFeedbackState.set(null);
     this.evaluateStepCompletion();
+
+    // Reset the active activity content reference to trigger component reset via ngOnChanges
+    const currentIdx = this.currentStepIndex();
+    const seq = this.lessonSequence();
+    if (seq.length > 0 && currentIdx >= 0 && currentIdx < seq.length) {
+      const step = seq[currentIdx];
+      if (step && step.type === 'activity' && step.data) {
+        const clonedStep = {
+          ...step,
+          data: {
+            ...step.data,
+            data: step.data.data ? { ...step.data.data } : null
+          }
+        };
+        const newSeq = [...seq];
+        newSeq[currentIdx] = clonedStep;
+        this.lessonSequence.set(newSeq);
+      }
+    }
   }
 
 

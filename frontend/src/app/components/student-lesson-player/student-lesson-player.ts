@@ -420,41 +420,7 @@ export class StudentLessonPlayer implements OnInit, OnDestroy {
   }
 
   startTypewriter(htmlContent: string, isTamil: boolean = false) {
-    this.typedContent.set('');
+    this.typedContent.set(htmlContent);
     clearTimeout(this.typingTimeout);
-
-    let i = 0;
-    let isTag = false;
-    let currentText = '';
-
-    const charDelay = isTamil ? Math.random() * 20 + 35 : Math.random() * 15 + 20;
-    const sentenceDelay = isTamil ? 600 : 400;
-    const commaDelay = isTamil ? 300 : 200;
-
-    const type = () => {
-      if (i < htmlContent.length) {
-        let char = htmlContent.charAt(i);
-        if (char === '<') isTag = true;
-
-        currentText += char;
-        i++;
-
-        if (isTag) {
-          while (i < htmlContent.length && htmlContent.charAt(i - 1) !== '>') {
-            currentText += htmlContent.charAt(i);
-            i++;
-          }
-          isTag = false;
-          this.typedContent.set(currentText);
-          this.typingTimeout = setTimeout(type, 0);
-        } else {
-          this.typedContent.set(currentText);
-          const delay = char === '.' || char === '!' || char === '?' ? sentenceDelay : (char === ',' ? commaDelay : charDelay);
-          this.typingTimeout = setTimeout(type, delay);
-        }
-      }
-    };
-
-    type();
   }
 }

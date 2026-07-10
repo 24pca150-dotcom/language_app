@@ -245,13 +245,11 @@
           <!-- Floating Text Area -->
           <div
             class="flex-grow-1 position-relative p-3 w-100 h-100 d-flex flex-column align-items-center justify-content-center overflow-hidden">
-            <!-- Huge Floating Typewriter Content Area -->
+            <!-- Huge Floating Content Area -->
             <div class="reading-content w-100 text-center px-4 py-3 h-100 d-flex flex-column hide-scrollbar"
               style="overflow-y: auto; justify-content: flex-start; font-size: 1.3rem; line-height: 1.7; color: #1e293b; font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; text-shadow: 0px 4px 15px rgba(255,255,255,0.8); font-weight: 600; letter-spacing: 0.5px;">
               <div class="mt-auto mb-auto">
-                <span [innerHTML]="typedContent()"></span>
-                <span class="blinking-cursor"
-                  style="border-right: 5px solid #fcd34d; animation: blink 1s step-end infinite;">&nbsp;</span>
+                <span [innerHTML]="rawReadingHtml()"></span>
               </div>
             </div>
           </div>
@@ -332,7 +330,7 @@
 
   <!-- BOTTOM ACTION BAR (Floating) -->
   @if (lessonSequence().length > 0 && !showGameOver()) {
-  <div class="position-absolute bottom-0 start-0 w-100 z-3 pe-none">
+  <div class="position-absolute bottom-0 start-0 w-100 z-3 pe-none kids-bottom-hud">
 
     <!-- Floating Feedback Banner -->
     @if (activityFeedbackState() === 'correct') {

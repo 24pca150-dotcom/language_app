@@ -19,34 +19,34 @@ class EnglishCourseSeeder extends Seeder
     {
         // 1. Create a default package if not exists
         $package = Package::firstOrCreate(
-            ['code' => 'PKG-DEFAULT'],
+            ['code' => 'PKG-ENGLISH-BEGINNER'],
             [
-                'name' => 'Default Package',
-                'description' => 'Default Package for general courses',
+                'name' => 'English for Beginner Package',
+                'description' => 'Complete package containing all English skill levels.',
                 'is_active' => true,
             ]
         );
 
         // 2. Create the English Course
         $course = Course::firstOrCreate(
-            ['name' => 'English Course'],
+            ['name' => 'English for Beginner'],
             [
-                'description' => 'A course to improve your English skills',
+                'description' => 'Learn English step by step with writing, listening, reading, and speaking skills.',
                 'is_active' => true,
             ]
         );
 
-        // 3. Create Level: Listening Skill
+        // 3. Create Level: Grammar & Vocabulary
         $level = Level::firstOrCreate(
-            ['code' => 'LVL-LISTENING'],
+            ['code' => 'LVL-GRAMMAR-VOCAB'],
             [
-                'name' => 'Listening Skill',
-                'description' => 'Improve your listening skills with these modules',
+                'name' => 'Grammar & Vocabulary',
+                'description' => 'Master grammar, homophones, vocabulary, and basic language elements.',
+                'sort_order' => 5,
                 'is_active' => true,
             ]
         );
 
-        // Link Course -> Package -> Level
         DB::table('course_package_levels')->updateOrInsert(
             [
                 'course_id' => $course->id,
@@ -60,6 +60,44 @@ class EnglishCourseSeeder extends Seeder
                 'updated_at' => now(),
             ]
         );
+
+        // Map English Course Package to the single Tenant and Property
+        $learningModes = \App\Models\LearningMode::whereIn('code', ['BEGINNER', 'CHILDEREN'])->get();
+        if ($learningModes->isEmpty()) {
+            $learningModes = \App\Models\LearningMode::all();
+        }
+        $learningModeIds = $learningModes->pluck('id')->toArray();
+
+        $t = \App\Models\Tenant::where('tenant_code', 'SCH-001')->first() ?? \App\Models\Tenant::first();
+        if ($t) {
+            $property = \App\Models\Property::firstOrCreate(
+                ['property_code' => 'PROP-SCH-001'],
+                [
+                    'tenant_id' => $t->id,
+                    'property_name' => 'Ariga Public School Campus',
+                    'location' => 'Virtual/Online',
+                    'address' => 'Online Portal',
+                    'max_users' => 500,
+                    'is_active' => true,
+                ]
+            );
+
+            DB::table('property_packages')->updateOrInsert(
+                [
+                    'property_id' => $property->id,
+                    'package_id' => $package->id,
+                ],
+                [
+                    'course_id' => $course->id,
+                    'learning_mode_ids' => json_encode($learningModeIds),
+                    'start_date' => now()->format('Y-m-d'),
+                    'end_date' => now()->addYears(5)->format('Y-m-d'),
+                    'is_active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+        }
 
         // 4. Create Chapter: Homophones
         $chapter = Chapter::firstOrCreate(
