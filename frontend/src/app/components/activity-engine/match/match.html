@@ -1,13 +1,4 @@
 <div class="match-container w-100 pb-2 pt-1 position-relative">
-  <!-- Title is now handled by course-player as a single line -->
-  <div class="position-absolute end-0 z-3" style="top: -2.5rem;">
-    <button 
-      type="button" 
-      class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-bold d-flex align-items-center gap-1 shadow-sm bg-white"
-      (click)="reset()">
-      <i class="bi bi-arrow-counterclockwise"></i> Reset
-    </button>
-  </div>
 
   @if (theme() === 'cloud') {
     <app-match-cloud
@@ -73,12 +64,19 @@
   }
 
   <!-- Progress and Reset Controls -->
-  <div class="d-flex justify-content-between align-items-center px-2">
+  <div class="d-flex justify-content-between align-items-center px-2 mt-3">
     <div class="progress-info">
       <span class="fw-bold text-secondary text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.05em;">
         Pairs Matched: {{ matchedPairs().length }} / {{ activity?.pairs?.length || 0 }}
       </span>
     </div>
+    <button 
+      type="button" 
+      class="btn-action reset-btn border-0 py-2 px-4 rounded-pill fw-bold d-inline-flex align-items-center gap-2 shadow"
+      [disabled]="matchedPairs().length === 0 || isComplete()"
+      (click)="reset()">
+      <i class="bi bi-arrow-counterclockwise"></i> Reset
+    </button>
   </div>
 
   <!-- Success & Explanation Box -->

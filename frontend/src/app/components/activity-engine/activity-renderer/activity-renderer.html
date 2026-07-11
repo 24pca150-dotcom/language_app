@@ -85,6 +85,13 @@
               (answered)="onWritingAnswered($event)">
             </app-activity-writing>
           }
+          @case ('custom') {
+            <app-activity-custom-canvas
+              [activity]="data"
+              [showFeedback]="showFeedback"
+              (answered)="onCustomCanvasAnswered($event)">
+            </app-activity-custom-canvas>
+          }
         }
       </div>
     }

@@ -1,0 +1,72 @@
+.canvas-container {
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Audio play button */
+.audio-play-btn {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.audio-play-btn.playing {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.audio-play-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35) !important;
+}
+
+/* Waveform animation */
+.wave-bar {
+  width: 4px;
+  background: #10b981;
+  opacity: 0.4;
+  height: 8px;
+  transition: height 0.2s ease;
+}
+
+.wave-bar.active {
+  opacity: 1;
+  animation: waveAnim 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes waveAnim {
+  0%   { height: 4px; }
+  100% { height: 20px; }
+}
+
+/* Fade in */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Image hover */
+.image-block img {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.image-block img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
+}
+
+/* Link hover */
+.link-block a:hover {
+  background: #eff6ff !important;
+  border-color: #93c5fd !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.1);
+}
+
+/* Grid display for containers */
+.d-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}

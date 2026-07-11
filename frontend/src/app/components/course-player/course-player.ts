@@ -454,7 +454,8 @@ export class CoursePlayer implements OnInit, OnDestroy {
           
           block.data = {
             ...realData,
-            type: act.type
+            type: act.type,
+            title: act.title
           };
           
           content.text_content = JSON.stringify(parsed);
@@ -596,9 +597,11 @@ export class CoursePlayer implements OnInit, OnDestroy {
                 if (block.data.type === 'mcq') actName = 'Multiple Choice';
               }
 
+              const stepTitle = (block.data && block.data.title) ? block.data.title : `${idx + 1}. Activity - ${actName}`;
+
               steps.push({
                 type: 'activity',
-                title: `${idx + 1}. Activity - ${actName}`,
+                title: stepTitle,
                 data: block
               });
             });

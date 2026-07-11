@@ -50,6 +50,15 @@
         }
       </div>
 
+      <!-- Controls -->
+      <button 
+        type="button" 
+        class="btn-action reset-btn border-0 py-2 px-4 rounded-pill fw-bold d-inline-flex align-items-center gap-2 mt-3 shadow"
+        [disabled]="!hasSubmitted()"
+        (click)="reset()">
+        <i class="bi bi-arrow-counterclockwise"></i> Reset
+      </button>
+
       <!-- Expandable Explanation Block -->
       @if (showFeedback && hasSubmitted() && activity; as act) {
         @if (act.explanation) {

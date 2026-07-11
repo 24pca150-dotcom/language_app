@@ -218,7 +218,7 @@ class WritingSkillSeeder extends Seeder
                 'title' => 'Regular Plurals - Exercise 1',
                 'type' => 'mcq',
                 'data_json' => [
-                    'question' => '<strong>Regular Plurals - Exercise 1:</strong> Choose the correct plural forms of: <strong>boy</strong>, <strong>park</strong>, and <strong>friend</strong>.',
+                    'question' => 'Choose the correct plural forms of: <strong>boy</strong>, <strong>park</strong>, and <strong>friend</strong>.',
                     'options' => [
                         [ 'id' => 1, 'text' => 'boys, parks, friends', 'is_correct' => true ],
                         [ 'id' => 2, 'text' => 'boyes, parkes, friendes', 'is_correct' => false ]
@@ -229,7 +229,7 @@ class WritingSkillSeeder extends Seeder
                 'title' => 'Regular Plurals - Exercise 2',
                 'type' => 'fill_blanks',
                 'data_json' => [
-                    'question' => '<strong>Regular Plurals - Exercise 2:</strong> Write the plural form of the words in brackets to complete the sentence.',
+                    'question' => 'Write the plural form of the words in brackets to complete the sentence.',
                     'text' => 'He carried a [boxes] (box) filled with [toys] (toy), two [brushes] (brush), and three [watches] (watch).'
                 ]
             ],
@@ -237,7 +237,7 @@ class WritingSkillSeeder extends Seeder
                 'title' => 'Regular Plurals - Exercise 3',
                 'type' => 'word_arrange',
                 'data_json' => [
-                    'question' => '<strong>Regular Plurals - Exercise 3:</strong> Unscramble the words to make a correct sentence containing plurals.',
+                    'question' => 'Unscramble the words to make a correct sentence containing plurals.',
                     'text' => 'The kids saw three foxes in the bushes.'
                 ]
             ],
@@ -245,7 +245,7 @@ class WritingSkillSeeder extends Seeder
                 'title' => 'Irregular Plurals - Exercise 4',
                 'type' => 'match',
                 'data_json' => [
-                    'question' => '<strong>Irregular Plurals:</strong> Match the singular noun with its correct irregular plural.',
+                    'question' => 'Match the singular noun with its correct irregular plural.',
                     'pairs' => [
                         [ 'left' => 'child', 'right' => 'children' ],
                         [ 'left' => 'woman', 'right' => 'women' ],
@@ -258,7 +258,7 @@ class WritingSkillSeeder extends Seeder
                 'title' => 'Irregular Plurals - Exercise 5',
                 'type' => 'mcq',
                 'data_json' => [
-                    'question' => '<strong>Irregular Plurals - Exercise 5:</strong> Choose the correct plural forms of: <strong>leaf</strong>, <strong>wolf</strong>, <strong>knife</strong>, <strong>loaf</strong>, and <strong>life</strong>.',
+                    'question' => 'Choose the correct plural forms of: <strong>leaf</strong>, <strong>wolf</strong>, <strong>knife</strong>, <strong>loaf</strong>, and <strong>life</strong>.',
                     'options' => [
                         [ 'id' => 1, 'text' => 'leaves, wolves, knives, loaves, lives', 'is_correct' => true ],
                         [ 'id' => 2, 'text' => 'leafs, wolfs, knifes, loafs, lifes', 'is_correct' => false ]

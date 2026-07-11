@@ -1,16 +1,6 @@
     <div class="w-100 pb-4">
-      <div class="header mb-4 position-relative d-flex justify-content-between align-items-center">
-        <!-- Empty spacer to keep title centered if needed, or just let flex handle it -->
-        <div style="width: 120px;" class="d-none d-sm-block"></div>
-        <h3 class="fw-bold text-dark m-0 flex-grow-1 text-center" style="text-shadow: 1px 1px 0 rgba(255,255,255,0.5);">Fill in the grid based on the clues below</h3>
-        <div style="width: 120px;" class="d-flex justify-content-end">
-          <button 
-            type="button" 
-            class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-bold d-flex align-items-center gap-1 shadow-sm"
-            (click)="resetPuzzle()">
-            <i class="bi bi-arrow-counterclockwise"></i> Reset
-          </button>
-        </div>
+      <div class="header mb-4 position-relative d-flex justify-content-center align-items-center">
+        <h3 class="fw-bold text-dark m-0 text-center" style="text-shadow: 1px 1px 0 rgba(255,255,255,0.5);">Fill in the grid based on the clues below</h3>
       </div>
 
       <div class="d-flex flex-column flex-xl-row w-100 gap-4 mb-4 justify-content-center align-items-stretch" style="min-height: 55vh;">
@@ -115,6 +105,12 @@
           *ngIf="!isSolved()"
           (click)="checkAnswers()">
           <i class="bi bi-shield-check"></i> Check Answers
+        </button>
+        <button 
+          type="button" 
+          class="btn-action reset-btn border-0 py-3 px-4 rounded-3 fw-bold d-inline-flex align-items-center gap-2"
+          (click)="resetPuzzle()">
+          <i class="bi bi-arrow-counterclockwise"></i> Reset
         </button>
       </div>
 

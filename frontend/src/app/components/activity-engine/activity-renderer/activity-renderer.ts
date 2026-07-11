@@ -12,9 +12,10 @@ import { SequencingComponent, SequencingData } from '../sequencing/sequencing';
 import { PartsOfSpeechComponent, PartsOfSpeechData } from '../parts-of-speech/parts-of-speech';
 import { MindMapComponent, MindMapData } from '../mind-map/mind-map';
 import { WritingComponent, WritingData } from '../writing/writing';
+import { CustomCanvasComponent, CustomCanvasData } from '../custom-canvas/custom-canvas';
 
 export interface NormalizedActivity {
-  type: 'mcq' | 'fill_blanks' | 'flashcard' | 'match' | 'crossword' | 'word_arrange' | 'speaking' | 'role_play' | 'sequencing' | 'parts_of_speech' | 'mind_map' | 'writing';
+  type: 'mcq' | 'fill_blanks' | 'flashcard' | 'match' | 'crossword' | 'word_arrange' | 'speaking' | 'role_play' | 'sequencing' | 'parts_of_speech' | 'mind_map' | 'writing' | 'custom';
   question?: string;
   text?: string;
   front?: string;
@@ -72,7 +73,8 @@ export interface NormalizedActivity {
     SequencingComponent,
     PartsOfSpeechComponent,
     MindMapComponent,
-    WritingComponent
+    WritingComponent,
+    CustomCanvasComponent
   ],
   templateUrl: './activity-renderer.html',
   styleUrls: ['./activity-renderer.css']
@@ -159,7 +161,7 @@ export class ActivityRenderer implements OnChanges {
     
     // 1. Determine type
     let typeInput = raw.type || raw.question_type || 'mcq';
-    let type: 'mcq' | 'fill_blanks' | 'flashcard' | 'match' | 'crossword' | 'word_arrange' | 'speaking' | 'role_play' | 'sequencing' | 'parts_of_speech' | 'mind_map' | 'writing' = 'mcq';
+    let type: 'mcq' | 'fill_blanks' | 'flashcard' | 'match' | 'crossword' | 'word_arrange' | 'speaking' | 'role_play' | 'sequencing' | 'parts_of_speech' | 'mind_map' | 'writing' | 'custom' = 'mcq';
 
     if (['multiple_choice', 'mcq', 'multiple-choice', 'multiplechoice'].includes(typeInput.toLowerCase())) {
       type = 'mcq';
@@ -185,6 +187,8 @@ export class ActivityRenderer implements OnChanges {
       type = 'mind_map';
     } else if (['writing', 'essay', 'paragraph_writing', 'story_writing'].includes(typeInput.toLowerCase())) {
       type = 'writing';
+    } else if (['custom', 'custom_canvas', 'canvas'].includes(typeInput.toLowerCase())) {
+      type = 'custom';
     }
 
     // 2. Extract explanation & options
@@ -268,6 +272,9 @@ export class ActivityRenderer implements OnChanges {
       normalized.modelAnswer = raw.modelAnswer || additional.modelAnswer || '';
       normalized.minWords = raw.minWords || additional.minWords || 1;
       normalized.maxWords = raw.maxWords || additional.maxWords || 1000;
+    } else if (type === 'custom') {
+      normalized.question = raw.question || '';
+      (normalized as any).nodes = raw.nodes || [];
     }
 
     this.normalizedActivity.set(normalized);
@@ -366,6 +373,15 @@ export class ActivityRenderer implements OnChanges {
     this.answered.emit({
       questionId: this.activity?.id,
       type: 'writing',
+      ...event
+    });
+  }
+
+  onCustomCanvasAnswered(event: any): void {
+    this.answered.emit({
+      questionId: this.activity?.id,
+      type: 'custom',
+      correct: true,
       ...event
     });
   }

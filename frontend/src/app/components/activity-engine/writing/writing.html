@@ -1,9 +1,4 @@
 <div class="mb-4 glass-card writing-container">
-  <div class="mb-3 d-flex align-items-center justify-content-end">
-    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1" (click)="reset()">
-      <i class="bi bi-arrow-counterclockwise me-1"></i> Restart
-    </button>
-  </div>
 
   <!-- Instruction Question -->
   <h5 class="text-dark fw-bold mb-3" [innerHTML]="activity?.question || 'Write a short composition based on the prompt:'"></h5>
@@ -41,20 +36,26 @@
     </div>
   </div>
 
-  <!-- Submit Buttons -->
-  @if (!hasSubmitted()) {
+  <!-- Controls -->
+  <div class="d-flex gap-3 justify-content-center mt-3">
+    @if (!hasSubmitted()) {
+      <button type="button" 
+              class="btn-action check-btn border-0 py-3 px-5 rounded-pill fw-bold text-white d-inline-flex align-items-center gap-2 shadow" 
+              [disabled]="!isValidLength()"
+              (click)="submitWriting()">
+        <i class="bi bi-shield-check"></i> Submit Composition
+      </button>
+    } @else {
+      <div class="animate-fade-in card border-0 bg-success bg-opacity-5 rounded-4 p-3 text-center text-success mb-0 flex-grow-1">
+        <h5 class="fw-bold m-0"><i class="bi bi-check-circle-fill me-1"></i> Composition Submitted!</h5>
+      </div>
+    }
     <button type="button" 
-            class="btn btn-primary w-100 rounded-pill py-3 fw-bold text-white shadow-sm border-0" 
-            style="background: linear-gradient(135deg, #4f46e5, #6366f1); transition: all 0.2s;"
-            [disabled]="!isValidLength()"
-            (click)="submitWriting()">
-      Submit Composition
+            class="btn-action reset-btn border-0 py-3 px-4 rounded-pill fw-bold d-inline-flex align-items-center gap-2 shadow" 
+            (click)="reset()">
+      <i class="bi bi-arrow-counterclockwise"></i> Reset
     </button>
-  } @else {
-    <div class="animate-fade-in card border-0 bg-success bg-opacity-5 rounded-4 p-4 text-center text-success mb-3">
-      <h5 class="fw-bold m-0"><i class="bi bi-check-circle-fill me-1"></i> Composition Submitted Successfully!</h5>
-    </div>
-  }
+  </div>
 
   <!-- Model Answer Block -->
   @if (showFeedback && hasSubmitted() && activity?.modelAnswer) {

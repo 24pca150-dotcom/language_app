@@ -178,6 +178,11 @@ export class FillBlanksComponent implements OnInit, OnChanges {
     });
   }
 
+  isAllCorrect(): boolean {
+    const blanks = this.segments.filter(s => s.type === 'blank' || s.type === 'dropdown');
+    return blanks.every(b => this.isCorrect(b.blankIndex!));
+  }
+
   reset(): void {
     this.userAnswers.set(new Array(this.userAnswers().length).fill(''));
     this.hasSubmitted.set(false);

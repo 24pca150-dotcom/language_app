@@ -90,16 +90,28 @@
         }
       </div>
 
-      <!-- Action Button for Low-Stakes Practice (Instant Feedback) -->
-      @if (showFeedback && !hasSubmitted()) {
-        <button 
-          type="button" 
-          class="btn-action check-btn border-0 py-3 px-5 rounded-pill fw-bold text-white d-inline-flex align-items-center gap-2 mt-2 shadow"
-          [disabled]="!isAnyAnswered()"
-          (click)="checkAnswers()">
-          <i class="bi bi-shield-check"></i> Check Answers
-        </button>
-      }
+      <!-- Action Buttons for Low-Stakes Practice (Instant Feedback) -->
+      <div class="d-flex gap-3 justify-content-center mt-3">
+        @if (showFeedback && !hasSubmitted()) {
+          <button 
+            type="button" 
+            class="btn-action check-btn border-0 py-3 px-5 rounded-pill fw-bold text-white d-inline-flex align-items-center gap-2 mt-2 shadow"
+            [disabled]="!isAnyAnswered()"
+            (click)="checkAnswers()">
+            <i class="bi bi-shield-check"></i> Check Answers
+          </button>
+        }
+
+        @if (showFeedback) {
+          <button 
+            type="button" 
+            class="btn-action reset-btn border-0 py-3 px-4 rounded-pill fw-bold d-inline-flex align-items-center gap-2 mt-2 shadow"
+            [disabled]="!isAnyAnswered() || (hasSubmitted() && isAllCorrect())"
+            (click)="reset()">
+            <i class="bi bi-arrow-counterclockwise"></i> Reset
+          </button>
+        }
+      </div>
 
       <!-- Explanation Box -->
       @if (showFeedback && hasSubmitted() && activity?.explanation) {

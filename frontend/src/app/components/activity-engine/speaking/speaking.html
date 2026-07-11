@@ -103,15 +103,23 @@
     </div>
   }
 
-  <!-- Submit Buttons -->
-  @if (transcript() && !hasSubmitted()) {
+  <!-- Controls -->
+  <div class="d-flex gap-3 justify-content-center mt-3">
+    @if (!hasSubmitted()) {
+      <button type="button" 
+              class="btn-action check-btn border-0 py-3 px-5 rounded-pill fw-bold text-white d-inline-flex align-items-center gap-2 shadow" 
+              [disabled]="!transcript()"
+              (click)="submitAnswer()">
+        <i class="bi bi-shield-check"></i> Submit Answer
+      </button>
+    }
     <button type="button" 
-            class="btn btn-danger w-100 rounded-pill py-3 fw-bold text-white shadow-sm border-0" 
-            style="background: linear-gradient(135deg, #ef4444, #b91c1c); transition: all 0.2s;"
-            (click)="submitAnswer()">
-      Submit Answer
+            class="btn-action reset-btn border-0 py-3 px-4 rounded-pill fw-bold d-inline-flex align-items-center gap-2 shadow" 
+            [disabled]="!transcript() && !hasSubmitted()"
+            (click)="reset()">
+      <i class="bi bi-arrow-counterclockwise"></i> Reset
     </button>
-  }
+  </div>
 
   <!-- Explanation box -->
   @if (showFeedback && hasSubmitted() && activity?.explanation) {

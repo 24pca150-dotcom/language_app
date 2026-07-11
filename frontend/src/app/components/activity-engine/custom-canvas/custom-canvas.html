@@ -1,0 +1,123 @@
+<div class="custom-canvas-activity w-100 pb-4">
+
+  <!-- Optional Instruction / Question -->
+  @if (activity?.question) {
+    <div class="canvas-question mb-4 px-1">
+      <p class="fw-semibold text-dark mb-0" style="font-size: 1.05rem; line-height: 1.6;"
+         [innerHTML]="activity?.question"></p>
+    </div>
+  }
+
+  <!-- Containers -->
+  <div class="canvas-containers d-flex flex-column gap-4">
+    @for (container of containers; track container.id) {
+      <div class="canvas-container glass-card p-4"
+           [class.d-flex]="container.display === 'flex'"
+           [class.flex-wrap]="container.display === 'flex'"
+           [class.gap-3]="container.display === 'flex'"
+           [class.d-grid]="container.display === 'grid'">
+
+        @for (block of container.contents; track block.id) {
+
+          <!-- TEXT BLOCK -->
+          @if (block.type === 'text') {
+            <div class="canvas-block text-block">
+              <p class="mb-0 text-dark" style="font-size: 1rem; line-height: 1.75; white-space: pre-wrap;">{{ block.content }}</p>
+            </div>
+          }
+
+          <!-- AUDIO BLOCK -->
+          @if (block.type === 'audio' && block.url) {
+            <div class="canvas-block audio-block d-flex align-items-center gap-3 p-3 rounded-4 border"
+                 style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-color: #86efac !important;">
+              <button type="button"
+                      class="audio-play-btn border-0 rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
+                      [class.playing]="isAudioPlaying(block.id)"
+                      (click)="toggleAudio(block)"
+                      style="width: 52px; height: 52px; cursor: pointer;">
+                <i class="bi fs-4"
+                   [class.bi-pause-fill]="isAudioPlaying(block.id)"
+                   [class.bi-play-fill]="!isAudioPlaying(block.id)"></i>
+              </button>
+              <div class="flex-grow-1">
+                <div class="fw-bold text-success mb-1" style="font-size: 0.8rem; letter-spacing: 0.05em; text-transform: uppercase;">
+                  🎵 Audio
+                </div>
+                <div class="audio-waveform d-flex align-items-center gap-1">
+                  @for (bar of [1,2,3,4,5,6,7,8]; track bar) {
+                    <div class="wave-bar rounded-pill"
+                         [class.active]="isAudioPlaying(block.id)"
+                         [style.animation-delay]="(bar * 0.1) + 's'"></div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- IMAGE BLOCK -->
+          @if (block.type === 'image' && block.url) {
+            <div class="canvas-block image-block text-center">
+              <img [src]="block.url"
+                   [alt]="block.content || 'Activity Image'"
+                   class="img-fluid rounded-4 shadow-sm border border-light"
+                   style="max-height: 280px; object-fit: contain;" />
+              @if (block.content) {
+                <p class="text-secondary mt-2 mb-0" style="font-size: 0.85rem;">{{ block.content }}</p>
+              }
+            </div>
+          }
+
+          <!-- VIDEO BLOCK -->
+          @if (block.type === 'video' && block.url) {
+            <div class="canvas-block video-block rounded-4 overflow-hidden shadow-sm border border-light">
+              <video [src]="block.url"
+                     controls
+                     class="w-100"
+                     style="max-height: 320px; background: #000; display: block;">
+              </video>
+              @if (block.content) {
+                <div class="px-3 py-2 bg-dark bg-opacity-10 text-secondary" style="font-size: 0.85rem;">
+                  {{ block.content }}
+                </div>
+              }
+            </div>
+          }
+
+          <!-- LINK BLOCK -->
+          @if (block.type === 'link' && block.url) {
+            <div class="canvas-block link-block">
+              <a [href]="block.url"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 class="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill border fw-semibold text-decoration-none"
+                 style="background: #f8fafc; color: #3b82f6; border-color: #bfdbfe; transition: all 0.2s;">
+                <i class="bi bi-box-arrow-up-right"></i>
+                {{ block.content || block.url }}
+              </a>
+            </div>
+          }
+
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Mark as Viewed Button -->
+  @if (showFeedback) {
+    <div class="d-flex justify-content-center mt-4">
+      @if (!isViewed()) {
+        <button type="button"
+                class="btn-action check-btn border-0 py-3 px-5 rounded-pill fw-bold text-white d-inline-flex align-items-center gap-2 shadow"
+                (click)="markAsViewed()">
+          <i class="bi bi-check-circle-fill"></i> Got it, Continue!
+        </button>
+      } @else {
+        <div class="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill fw-bold animate-fade-in"
+             style="background: #dcfce7; color: #166534; border: 2px solid #86efac; font-size: 0.95rem;">
+          <i class="bi bi-check-circle-fill"></i> Viewed — Great!
+        </div>
+      }
+    </div>
+  }
+
+</div>
