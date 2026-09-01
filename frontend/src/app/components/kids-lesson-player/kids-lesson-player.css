@@ -241,3 +241,214 @@
     scrollbar-width: thin !important;
     scrollbar-color: #cbd5e1 #f1f5f9 !important;
   }
+
+  /* ── KIDS MASCOT LOADING SCREEN ── */
+  .loading-adventure-container {
+    animation: fadeIn 0.4s ease-out;
+    max-width: 480px;
+    margin: auto;
+  }
+
+  .speech-bubble {
+    background: #ffffff;
+    border: 3px solid #cbd5e1;
+    border-radius: 1.5rem !important;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+    max-width: 320px;
+    color: #475569;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.4;
+    animation: floatLoading 3.5s ease-in-out infinite;
+  }
+
+  .speech-bubble-arrow {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 15px solid #cbd5e1;
+  }
+
+  .speech-bubble-arrow::after {
+    content: '';
+    position: absolute;
+    top: -18px;
+    left: -12px;
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 12px solid #ffffff;
+  }
+
+  .mascot-loading-wrapper {
+    display: inline-block;
+  }
+
+  .mascot-loading {
+    animation: mascotBounce 1.4s ease-in-out infinite;
+    transform-origin: bottom center;
+  }
+
+  @keyframes mascotBounce {
+    0%, 100% {
+      transform: translateY(0) scaleY(1);
+    }
+    50% {
+      transform: translateY(-20px) scaleY(1.05);
+    }
+    55% {
+      transform: translateY(-20px) scaleY(1.05);
+    }
+  }
+
+  @keyframes floatLoading {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+    100% { transform: translateY(0px); }
+  }
+
+  .font-nunito {
+    font-family: 'Nunito', sans-serif;
+  }
+
+  main {
+    padding-bottom: var(--main-padding-bottom, 90px);
+  }
+
+  /* ── MOBILE PORTRAIT ORIENTATION PROMPT ── */
+  .orientation-lock-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #1e1b4b 0%, #311042 100%);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Show only on small screens (mobile/tablet) when in portrait mode */
+  @media (max-width: 991px) and (orientation: portrait) {
+    .orientation-lock-overlay {
+      display: flex;
+    }
+  }
+
+  .phone-rotate-icon {
+    animation: rotatePhone 2.5s ease-in-out infinite;
+  }
+
+  @keyframes rotatePhone {
+    0%, 100% {
+      transform: rotate(0deg);
+    }
+    40%, 60% {
+      transform: rotate(-90deg);
+    }
+  }
+
+  /* ── LANDSCAPE OPTIMIZATIONS FOR MOBILE/TABLET ── */
+  @media (max-height: 576px) and (orientation: landscape) {
+    /* Reduce header HUD top spacing */
+    .kids-header-hud {
+      height: 60px !important;
+    }
+    
+    .kids-header-hud .progress {
+      height: 12px !important;
+    }
+    
+    .kids-header-hud div[style*="top: 30px"],
+    .kids-header-hud div[style*="top:30px"] {
+      top: 15px !important;
+    }
+    
+    .kids-header-hud div[style*="top: 15px"],
+    .kids-header-hud div[style*="top:15px"] {
+      top: 10px !important;
+      padding: 0.25rem 0.75rem !important;
+    }
+
+    /* Reduce main content padding top/bottom */
+    main {
+      padding-top: 60px !important;
+      padding-bottom: calc(var(--main-padding-bottom, 90px) * 0.5) !important;
+    }
+
+    /* Reduce bottom HUD action buttons height & size */
+    .kids-bottom-hud {
+      height: 70px !important;
+    }
+
+    .kids-prev-btn, 
+    .kids-bottom-hud button[style*="bottom: 20px"],
+    .kids-bottom-hud button[style*="bottom:20px"] {
+      bottom: 10px !important;
+      padding: 0.35rem 1.25rem !important;
+      font-size: 0.9rem !important;
+      min-width: 110px !important;
+    }
+
+    /* Feedback Banner optimizations in mobile landscape */
+    .kids-bottom-hud div[style*="bottom: 30px"],
+    .kids-bottom-hud div[style*="bottom:30px"] {
+      bottom: 10px !important;
+    }
+
+    .kids-bottom-hud .rounded-pill.p-3.px-5 {
+      padding: 0.5rem 1.5rem !important;
+      border-width: 3px !important;
+    }
+
+    .kids-bottom-hud .mascot-happy,
+    .kids-bottom-hud .mascot-sad {
+      width: 80px !important;
+      left: 0px !important;
+      bottom: -5px !important;
+    }
+
+    .kids-bottom-hud div[style*="margin-left: 130px"],
+    .kids-bottom-hud div[style*="margin-left: 120px"] {
+      margin-left: 80px !important;
+    }
+
+    .kids-bottom-hud h2 {
+      font-size: 1.25rem !important;
+    }
+
+    .kids-bottom-hud p.fs-5 {
+      font-size: 0.9rem !important;
+    }
+
+    .kids-bottom-hud button.btn-lg {
+      padding: 0.4rem 1.2rem !important;
+      font-size: 1.1rem !important;
+      min-width: 130px !important;
+    }
+
+    /* Reduce spacing for dynamic cards in mobile landscape */
+    .reading-content {
+      font-size: 1.1rem !important;
+      line-height: 1.5 !important;
+    }
+
+    .reading-content + div.d-flex.justify-content-between {
+      margin-top: 0.25rem !important;
+    }
+
+    /* Spacing inside the main container */
+    main div[style*="my-auto"] {
+      margin-top: 10px !important;
+      margin-bottom: 10px !important;
+    }
+  }

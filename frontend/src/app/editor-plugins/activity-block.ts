@@ -56,7 +56,7 @@ export class ActivityBlock {
       back: data?.back || '',
       audioUrl: data?.audioUrl || '',
       pairs: data?.pairs || [
-        { left: '', right: '', rightImage: '' }
+        { left: '', leftImage: '', leftAudio: '', right: '', rightImage: '', rightAudio: '', result: '' }
       ],
       gridSize: data?.gridSize || 10,
       words: data?.words || [
@@ -565,8 +565,12 @@ export class ActivityBlock {
       savedData.enableAudio = !!this.data.enableAudio;
       savedData.pairs = (this.data.pairs || []).map((p: any) => ({
         left: p.left || '',
+        leftImage: p.leftImage || '',
+        leftAudio: p.leftAudio || '',
         right: p.right || '',
-        rightImage: p.rightImage || ''
+        rightImage: p.rightImage || '',
+        rightAudio: p.rightAudio || '',
+        result: p.result || ''
       }));
     } else if (type === 'crossword') {
       let finalWords = this.data.words || [];

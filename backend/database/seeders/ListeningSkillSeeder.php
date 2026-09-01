@@ -295,6 +295,75 @@ class ListeningSkillSeeder extends Seeder
 
         $examples = [
             [
+                'title' => 'Animal Sound MCQ Exercise',
+                'type' => 'mcq',
+                'data_json' => [
+                    'question' => 'Listen carefully and select the animal that makes this sound!',
+                    'imageUrl' => 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=400&q=80',
+                    'options' => [
+                        [ 
+                            'id' => 1, 
+                            'text' => 'Dog (Woof!)', 
+                            'is_correct' => true,
+                            'imageUrl' => 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=150&q=80',
+                            'audioUrl' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+                        ],
+                        [ 
+                            'id' => 2, 
+                            'text' => 'Cat (Meow!)', 
+                            'is_correct' => false,
+                            'imageUrl' => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=150&q=80',
+                            'audioUrl' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'
+                        ],
+                        [ 
+                            'id' => 3, 
+                            'text' => 'Lion (Roar!)', 
+                            'is_correct' => false,
+                            'imageUrl' => 'https://images.unsplash.com/photo-1546182990-dffeafbe841d?auto=format&fit=crop&w=150&q=80',
+                            'audioUrl' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
+                        ]
+                    ]
+                ]
+            ],
+            [
+                'title' => 'Cloud Compound Match Exercise',
+                'type' => 'match',
+                'data_json' => [
+                    'question' => 'Match the compound word parts to form complete words:',
+                    'theme' => 'cloud',
+                    'enableAudio' => true,
+                    'pairs' => [
+                        [
+                            'left' => 'Sun',
+                            'leftImage' => 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=150&q=80',
+                            'leftAudio' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+                            'right' => 'Flower',
+                            'rightImage' => 'https://images.unsplash.com/photo-1534088568595-a066f410bcda?auto=format&fit=crop&w=150&q=80',
+                            'rightAudio' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+                            'result' => 'Sunflower'
+                        ],
+                        [
+                            'left' => 'Rain',
+                            'leftImage' => 'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?auto=format&fit=crop&w=150&q=80',
+                            'leftAudio' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+                            'right' => 'Bow',
+                            'rightImage' => 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=150&q=80',
+                            'rightAudio' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+                            'result' => 'Rainbow'
+                        ],
+                        [
+                            'left' => 'Jelly',
+                            'leftImage' => 'https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?auto=format&fit=crop&w=150&q=80',
+                            'leftAudio' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
+                            'right' => 'Fish',
+                            'rightImage' => 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=150&q=80',
+                            'rightAudio' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
+                            'result' => 'Jellyfish'
+                        ]
+                    ]
+                ]
+            ],
+            [
                 'title' => 'Homophones Example 1',
                 'type' => 'mcq',
                 'data_json' => [

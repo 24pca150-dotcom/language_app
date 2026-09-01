@@ -27,6 +27,8 @@ class User extends Authenticatable
         'role',
         'tenant_id',
         'dob',
+        'xp',
+        'gems',
     ];
 
     /**

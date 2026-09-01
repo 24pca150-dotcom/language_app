@@ -1,5 +1,6 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, signal, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AudioService } from '../../../services/audio.service';
 import { MCQComponent, MCQData } from '../mcq/mcq';
 import { FillBlanksComponent, FillBlanksData } from '../fill-blanks/fill-blanks';
 import { FlashcardComponent, FlashcardData } from '../flashcard/flashcard';
@@ -55,6 +56,7 @@ export interface NormalizedActivity {
   modelAnswer?: string;
   minWords?: number;
   maxWords?: number;
+  mode?: 'essay' | 'image_fill';
 }
 
 @Component({
@@ -79,7 +81,7 @@ export interface NormalizedActivity {
   templateUrl: './activity-renderer.html',
   styleUrls: ['./activity-renderer.css']
 })
-export class ActivityRenderer implements OnChanges {
+export class ActivityRenderer implements OnChanges, OnDestroy {
   @Input() activity: any = null;
   @Input() showFeedback: boolean = true;
 
@@ -87,10 +89,17 @@ export class ActivityRenderer implements OnChanges {
 
   normalizedActivity = signal<any | null>(null);
 
+  private audioService = inject(AudioService);
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['activity']) {
+      this.audioService.stopAll();
       this.normalizeInput();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.audioService.stopAll();
   }
 
   convertEditorJsToHtml(jsonStr: string | null | undefined): string {
@@ -202,12 +211,15 @@ export class ActivityRenderer implements OnChanges {
 
     if (type === 'mcq') {
       normalized.question = this.convertEditorJsToHtml(raw.question || raw.question_text || '');
+      normalized.imageUrl = raw.image_url ?? additional.imageUrl ?? '';
       normalized.audioUrl = raw.media_url || additional.audioUrl || '';
       const rawOptions = raw.options || additional.options || [];
       normalized.options = rawOptions.map((opt: any, idx: number) => ({
         id: opt.id ?? idx,
         text: opt.option_text ?? opt.text ?? '',
-        isCorrect: !!(opt.is_correct ?? opt.isCorrect ?? false)
+        isCorrect: !!(opt.is_correct ?? opt.isCorrect ?? false),
+        imageUrl: opt.image_url ?? opt.imageUrl ?? '',
+        audioUrl: opt.audio_url ?? opt.audioUrl ?? ''
       }));
     } else if (type === 'fill_blanks') {
       normalized.text = this.convertEditorJsToHtml(raw.text || raw.question_text || '');
@@ -217,7 +229,16 @@ export class ActivityRenderer implements OnChanges {
       normalized.front = this.convertEditorJsToHtml(raw.front || additional.front || raw.question_text || '');
       normalized.back = this.convertEditorJsToHtml(raw.back || additional.back || '');
     } else if (type === 'match') {
-      normalized.pairs = raw.pairs || additional.pairs || [];
+      const rawPairs = raw.pairs || additional.pairs || [];
+      normalized.pairs = rawPairs.map((pair: any) => ({
+        left: pair.left ?? '',
+        leftImage: pair.left_image ?? pair.leftImage ?? '',
+        leftAudio: pair.left_audio ?? pair.leftAudio ?? '',
+        right: pair.right ?? '',
+        rightImage: pair.right_image ?? pair.rightImage ?? '',
+        rightAudio: pair.right_audio ?? pair.rightAudio ?? '',
+        result: pair.result ?? ''
+      }));
       normalized.theme = raw.theme ?? additional.theme ?? (typeInput.toLowerCase().includes('cloud') ? 'cloud' : 'standard');
       
       const rawMode = raw.matchMode ?? additional.matchMode;
@@ -272,6 +293,14 @@ export class ActivityRenderer implements OnChanges {
       normalized.modelAnswer = raw.modelAnswer || additional.modelAnswer || '';
       normalized.minWords = raw.minWords || additional.minWords || 1;
       normalized.maxWords = raw.maxWords || additional.maxWords || 1000;
+      normalized.mode = raw.mode ?? additional.mode ?? 'essay';
+      const rawPairs = raw.pairs || additional.pairs || [];
+      normalized.pairs = rawPairs.map((pair: any) => ({
+        leftImage: pair.left_image ?? pair.leftImage ?? '',
+        leftAnswer: pair.left_answer ?? pair.leftAnswer ?? '',
+        rightImage: pair.right_image ?? pair.rightImage ?? '',
+        rightAnswer: pair.right_answer ?? pair.rightAnswer ?? ''
+      }));
     } else if (type === 'custom') {
       normalized.question = raw.question || '';
       (normalized as any).nodes = raw.nodes || [];

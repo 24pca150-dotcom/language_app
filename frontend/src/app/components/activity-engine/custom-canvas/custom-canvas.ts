@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface CanvasBlock {
@@ -27,7 +27,7 @@ export interface CustomCanvasData {
   templateUrl: './custom-canvas.html',
   styleUrls: ['./custom-canvas.css']
 })
-export class CustomCanvasComponent implements OnChanges {
+export class CustomCanvasComponent implements OnChanges, OnDestroy {
   @Input() activity: CustomCanvasData | null = null;
   @Input() showFeedback: boolean = true;
 
@@ -88,5 +88,9 @@ export class CustomCanvasComponent implements OnChanges {
     this.audioRefs = {};
     this.playingAudioId.set(null);
     this.isViewed.set(false);
+  }
+
+  ngOnDestroy(): void {
+    this.reset();
   }
 }

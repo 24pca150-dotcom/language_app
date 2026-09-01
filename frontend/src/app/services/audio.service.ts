@@ -7,6 +7,7 @@ import { Howl } from 'howler';
 export class AudioService {
   private successSound: Howl;
   private errorSound: Howl;
+  private currentPlayingAudio: HTMLAudioElement | null = null;
 
   constructor() {
     // Initialize Howler instances
@@ -26,18 +27,63 @@ export class AudioService {
   }
 
   playSuccess() {
+    this.stopAll();
     if (this.successSound.state() === 'loaded') {
       this.successSound.play();
     } else {
       this.synthesizeSuccess();
     }
+    this.speak("Yes, you are right!");
   }
 
   playError() {
+    this.stopAll();
     if (this.errorSound.state() === 'loaded') {
       this.errorSound.play();
     } else {
       this.synthesizeError();
+    }
+    this.speak("No, you are wrong!");
+  }
+
+  speak(text: string) {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel(); // stop any current speech
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 1.0;
+      utterance.pitch = 1.3; // child-like friendly pitch
+      window.speechSynthesis.speak(utterance);
+    }
+  }
+
+  playAudioUrl(url: string, fallbackText?: string) {
+    this.stopAll();
+
+    this.currentPlayingAudio = new Audio(url);
+    this.currentPlayingAudio.play().catch(err => {
+      console.warn('Audio URL playback failed:', err);
+      if (fallbackText) {
+        this.speak(fallbackText);
+      }
+    });
+
+    this.currentPlayingAudio.onended = () => {
+      if (this.currentPlayingAudio?.src === url) {
+        this.currentPlayingAudio = null;
+      }
+    };
+  }
+
+  stopAll() {
+    if (this.currentPlayingAudio) {
+      try {
+        this.currentPlayingAudio.pause();
+      } catch (e) {}
+      this.currentPlayingAudio = null;
+    }
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
     }
   }
 
