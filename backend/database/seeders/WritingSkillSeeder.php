@@ -210,10 +210,33 @@ class WritingSkillSeeder extends Seeder
             $q->where('title', 'like', 'Regular Plurals%')
               ->orWhere('title', 'like', 'Irregular Plurals%')
               ->orWhere('title', 'like', 'Gerund spelling%')
-              ->orWhere('title', 'like', 'Gerund sentence%');
+              ->orWhere('title', 'like', 'Gerund sentence%')
+              ->orWhere('title', 'like', 'Writing Image Fill%');
         })->delete();
 
         $chapter1Activities = [
+            [
+                'title' => 'Writing Image Fill-in-the-blanks Exercise',
+                'type' => 'writing',
+                'data_json' => [
+                    'question' => 'Look at the images and type the correct English names in the input boxes below!',
+                    'mode' => 'image_fill',
+                    'pairs' => [
+                        [
+                            'leftImage' => 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=150&q=80',
+                            'leftAnswer' => 'dog',
+                            'rightImage' => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=150&q=80',
+                            'rightAnswer' => 'cat'
+                        ],
+                        [
+                            'leftImage' => 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=150&q=80',
+                            'leftAnswer' => 'sun',
+                            'rightImage' => 'https://images.unsplash.com/photo-1534088568595-a066f410bcda?auto=format&fit=crop&w=150&q=80',
+                            'rightAnswer' => 'flower'
+                        ]
+                    ]
+                ]
+            ],
             [
                 'title' => 'Regular Plurals - Exercise 1',
                 'type' => 'mcq',

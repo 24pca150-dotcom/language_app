@@ -15,7 +15,8 @@
       (rightSelected)="selectRight($event)"
       (dragStarted)="onDragStart($event.event, $event.item)"
       (dropped)="onDrop($event.event, $event.item)"
-      (speakRequested)="speak($event)">
+      (speakRequested)="speak($event)"
+      (playAudioRequested)="playItemAudio($event)">
     </app-match-cloud>
   } @else {
     <app-match-standard
@@ -32,7 +33,8 @@
       (rightSelected)="selectRight($event)"
       (dragStarted)="onDragStart($event.event, $event.item)"
       (dropped)="onDrop($event.event, $event.item)"
-      (speakRequested)="speak($event)">
+      (speakRequested)="speak($event)"
+      (playAudioRequested)="playItemAudio($event)">
     </app-match-standard>
   }
 
@@ -47,15 +49,31 @@
           @let leftText = getLeftItemText(pair.leftId);
           @let rightText = getRightItemText(pair.rightId);
           @let rightImg = getRightItemImage(pair.rightId);
+          @let leftImg = getItemImage(pair.leftId);
+          @let resultText = getMatchedPairResult(pair);
           
           <div class="matched-pair-card color-pair-{{ pair.colorIndex }} d-flex align-items-center gap-3 px-4 py-2 rounded-pill shadow-sm border" style="animation: fadeIn 0.4s ease-out forwards;">
-            <span class="matched-word fw-bold">{{ leftText }}</span>
+            <div class="d-flex align-items-center gap-1">
+              @if (leftImg) {
+                <img [src]="leftImg" alt="Left" class="matched-img-mini" style="max-width: 32px; max-height: 32px; object-fit: contain;" />
+              }
+              <span class="matched-word fw-bold">{{ leftText }}</span>
+            </div>
+            
             <span class="matched-separator text-secondary opacity-75"><i class="bi bi-arrow-left-right text-muted"></i></span>
             
-            @if (rightImg) {
-              <img [src]="rightImg" alt="Matched" class="matched-img-mini" />
-            } @else {
-              <span class="matched-word fw-bold">{{ rightText }}</span>
+            <div class="d-flex align-items-center gap-1">
+              @if (rightImg) {
+                <img [src]="rightImg" alt="Right" class="matched-img-mini" style="max-width: 32px; max-height: 32px; object-fit: contain;" />
+              }
+              @if (rightText) {
+                <span class="matched-word fw-bold">{{ rightText }}</span>
+              }
+            </div>
+
+            @if (resultText) {
+              <span class="matched-separator text-secondary opacity-75"><i class="bi bi-arrow-right"></i></span>
+              <span class="matched-word fw-bold text-indigo" style="font-size: 1.05rem; letter-spacing: 0.5px;">{{ resultText }}</span>
             }
           </div>
         }

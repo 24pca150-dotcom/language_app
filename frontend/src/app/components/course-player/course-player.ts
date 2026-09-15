@@ -345,8 +345,8 @@ export class CoursePlayer implements OnInit, OnDestroy {
   }
 
   resolveActivityReferences(contents: Content[]): Observable<Content[]> {
-    const fetchObservables: Observable<any>[] = [];
-    const referencePositions: Array<{ contentIdx: number, blockIdx: number }> = [];
+    const referencePositions: Array<{ contentIdx: number, blockIdx: number, refId: number }> = [];
+    const uniqueIds = new Set<number>();
 
     contents.forEach((content, contentIdx) => {
       if (content.text_content) {
@@ -359,8 +359,8 @@ export class CoursePlayer implements OnInit, OnDestroy {
               if (block.type === 'activity' && block.data && block.data.type === 'activity_reference') {
                 const refId = block.data.activityReferenceId;
                 if (refId) {
-                  fetchObservables.push(this.http.get<any>(`${environment.apiUrl}/activities/${refId}`));
-                  referencePositions.push({ contentIdx, blockIdx });
+                  referencePositions.push({ contentIdx, blockIdx, refId });
+                  uniqueIds.add(refId);
                 }
               }
             });
@@ -369,28 +369,35 @@ export class CoursePlayer implements OnInit, OnDestroy {
       }
     });
 
-    if (fetchObservables.length === 0) {
+    if (uniqueIds.size === 0) {
       return of(contents);
     }
 
-    return forkJoin(fetchObservables).pipe(
+    const idsArray = Array.from(uniqueIds);
+    return this.http.get<any[]>(`${environment.apiUrl}/activities`, { params: { ids: idsArray.join(',') } }).pipe(
       map(activities => {
-        activities.forEach((act, idx) => {
-          const pos = referencePositions[idx];
+        const activityMap = new Map<number, any>();
+        activities.forEach(act => {
+          activityMap.set(act.id, act);
+        });
+
+        referencePositions.forEach(pos => {
+          const act = activityMap.get(pos.refId);
+          if (!act) return;
           const content = contents[pos.contentIdx];
           if (!content.text_content) return;
-          const parsed = JSON.parse(content.text_content);
-          const block = parsed.blocks[pos.blockIdx];
-          
-          const realData = typeof act.data_json === 'string' ? JSON.parse(act.data_json) : act.data_json;
-          
-          block.data = {
-            ...realData,
-            type: act.type,
-            title: act.title
-          };
-          
-          content.text_content = JSON.stringify(parsed);
+          try {
+            const parsed = JSON.parse(content.text_content);
+            const block = parsed.blocks[pos.blockIdx];
+            const realData = typeof act.data_json === 'string' ? JSON.parse(act.data_json) : act.data_json;
+            
+            block.data = {
+              ...realData,
+              type: act.type,
+              title: act.title
+            };
+            content.text_content = JSON.stringify(parsed);
+          } catch (e) {}
         });
         return contents;
       }),
@@ -419,24 +426,23 @@ export class CoursePlayer implements OnInit, OnDestroy {
     this.lessonFinished.set(false);
     this.activityFeedbackState.set(null);
 
-    const chapter = this.selectedChapter();
-    if (!chapter) {
-      this.isLoadingLesson.set(false);
-      return;
-    }
+    // Fetch the full chapter details including contents and assessments in a single request
+    this.http.get<any>(`${environment.apiUrl}/chapters/${chapterId}`).pipe(
+      switchMap(chapterData => {
+        const contents: Content[] = (chapterData.contents || [])
+          .filter((c: any) => c.is_active !== false)
+          .sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0));
 
-    const contentIds = chapter.contents.map(c => c.id);
-    if (contentIds.length === 0) {
-      this.generateLessonSequence([], chapter.assessments || []);
-      return;
-    }
-
-    const requests = contentIds.map(id => this.http.get<Content>(`${environment.apiUrl}/contents/${id}`));
-    forkJoin(requests).pipe(
-      switchMap(fullContents => this.resolveActivityReferences(fullContents))
+        return this.resolveActivityReferences(contents).pipe(
+          map(resolvedContents => ({
+            contents: resolvedContents,
+            assessments: chapterData.assessments || []
+          }))
+        );
+      })
     ).subscribe({
-      next: (resolvedContents) => {
-        this.generateLessonSequence(resolvedContents, chapter.assessments || []);
+      next: (result) => {
+        this.generateLessonSequence(result.contents, result.assessments);
       },
       error: (err) => {
         console.error('Failed to load chapter contents', err);

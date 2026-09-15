@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -31,7 +31,7 @@ export interface CustomCanvasData {
   templateUrl: './custom-canvas.html',
   styleUrls: ['./custom-canvas.css']
 })
-export class CustomCanvasComponent implements OnChanges {
+export class CustomCanvasComponent implements OnChanges, OnDestroy {
   @Input() activity: CustomCanvasData | null = null;
   @Input() showFeedback: boolean = true;
 
@@ -175,5 +175,9 @@ export class CustomCanvasComponent implements OnChanges {
     this.isViewed.set(false);
     this.answeredBlocksState.set({});
     this.inputTextValues.set({});
+  }
+
+  ngOnDestroy(): void {
+    this.reset();
   }
 }

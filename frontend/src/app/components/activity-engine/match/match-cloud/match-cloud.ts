@@ -5,7 +5,8 @@ export interface ShuffledItem {
   id: string;
   text: string;
   originalIndex: number;
-  rightImage?: string;
+  image?: string;
+  audio?: string;
 }
 
 export interface MatchedPair {
@@ -37,6 +38,14 @@ export class MatchCloudComponent {
   @Output() dragStarted = new EventEmitter<{ event: DragEvent; item: ShuffledItem }>();
   @Output() dropped = new EventEmitter<{ event: DragEvent; item: ShuffledItem }>();
   @Output() speakRequested = new EventEmitter<string>();
+  @Output() playAudioRequested = new EventEmitter<ShuffledItem>();
+
+  playAudio(item: ShuffledItem, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.playAudioRequested.emit(item);
+  }
 
   isItemMatched(itemId: string): boolean {
     return this.matchedPairs.some(p => p.leftId === itemId || p.rightId === itemId);

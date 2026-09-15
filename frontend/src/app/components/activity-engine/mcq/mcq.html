@@ -17,6 +17,11 @@
             </button>
           }
         </div>
+        @if (activity?.imageUrl) {
+          <div class="my-3 text-center animate-fade-in">
+            <img [src]="activity?.imageUrl" alt="Question Image" class="img-fluid rounded-4 shadow-sm border border-light-subtle" style="max-height: 220px; object-fit: contain; background: white; padding: 5px;">
+          </div>
+        }
         <h3 class="fw-bold text-dark m-0 mt-2 fs-3" style="line-height: 1.5; text-shadow: 0px 4px 10px rgba(255,255,255,0.8), 0px 8px 30px rgba(255,255,255,0.9);" [innerHTML]="activity?.question"></h3>
       </div>
 
@@ -33,11 +38,26 @@
             [disabled]="showFeedback && hasSubmitted()"
             (click)="selectOption(option)">
             
-            <div class="bubble d-flex align-items-center justify-content-center rounded-circle fw-bold flex-shrink-0 me-4" style="width: 2.2rem; height: 2.2rem; transition: all 0.2s ease;">
+            <div class="bubble d-flex align-items-center justify-content-center rounded-circle fw-bold flex-shrink-0 me-3" style="width: 2.2rem; height: 2.2rem; transition: all 0.2s ease;">
               {{ getLetter(idx) }}
             </div>
             
-            <span class="flex-grow-1 fw-medium text-secondary" style="font-size: 1rem;">{{ option.text }}</span>
+            <div class="d-flex align-items-center gap-3 flex-grow-1">
+              @if (option.imageUrl) {
+                <img [src]="option.imageUrl" alt="Option Image" class="rounded-3 border border-light-subtle shadow-sm bg-white" style="width: 55px; height: 55px; object-fit: contain; padding: 2px;">
+              }
+              <span class="fw-semibold text-secondary" style="font-size: 1rem;">{{ option.text }}</span>
+            </div>
+
+            <!-- Option Speaker / Mic Button -->
+            @if (option.audioUrl || option.text) {
+              <button type="button" 
+                      class="btn btn-outline-primary btn-sm rounded-circle p-1 d-inline-flex align-items-center justify-content-center me-2 border-0 shadow-none" 
+                      style="width: 2.2rem; height: 2.2rem; transition: transform 0.2s; background: rgba(99, 102, 241, 0.05);"
+                      (click)="playOptionAudio(option, $event)">
+                <i class="bi bi-volume-up-fill fs-5" style="color: #6366f1;"></i>
+              </button>
+            }
 
             <div class="d-flex align-items-center ms-3 fs-5" *ngIf="showFeedback && hasSubmitted()">
               @if (option.isCorrect) {
