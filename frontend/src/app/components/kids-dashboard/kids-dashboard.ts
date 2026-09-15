@@ -2,17 +2,7 @@ import { Component, Input, Output, EventEmitter, signal, computed, HostListener,
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { gsap } from 'gsap';
 
-interface Level {
-  id: number;
-  name: string;
-  chapters: any[];
-}
-
-interface CourseStructure {
-  id: number;
-  name: string;
-  levels: Level[];
-}
+import { CourseStructure, Level } from '../../models/course-structure.model';
 
 @Component({
   selector: 'app-kids-dashboard',
@@ -68,14 +58,14 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
     setTimeout(() => {
       const mapContainer = document.querySelector('.map-container') as HTMLElement;
       const activeNode = document.querySelector('.active-node') as HTMLElement;
-      
+
       if (mapContainer) {
         if (activeNode) {
           // Manually calculate scroll target to prevent scrolling overflow:hidden parent
           const containerRect = mapContainer.getBoundingClientRect();
           const nodeRect = activeNode.getBoundingClientRect();
           const scrollTarget = mapContainer.scrollTop + (nodeRect.top - containerRect.top) - (containerRect.height / 2) + (nodeRect.height / 2);
-          
+
           mapContainer.scrollTo({ top: scrollTarget, behavior: 'smooth' });
         } else {
           // If all completed, scroll to top (last chapter is at top)
@@ -130,35 +120,35 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
   svgPathData = computed(() => {
     const level = this.selectedLevel();
     if (!level || level.chapters.length === 0) return '';
-    
+
     const map = this.levelChaptersMap();
-    const stepHeight = 160; 
+    const stepHeight = 160;
     let d = '';
-    
+
     level.chapters.forEach((chapter: any, idx: number) => {
       const info = map.get(chapter.id);
       if (!info) return;
-      
+
       const x = 200 + info.xOffset; // 200 is horizontal center of SVG
       const y = (level.chapters.length - 1 - idx) * stepHeight + 80; // 80 is vertical offset
-      
+
       if (idx === 0) {
         d += `M ${x} ${y} `;
       } else {
         const prevInfo = map.get(level.chapters[idx - 1].id);
         const prevX = 200 + (prevInfo ? prevInfo.xOffset : 0);
         const prevY = (level.chapters.length - idx) * stepHeight + 80;
-        
+
         // Control points for a smooth bezier curve
         const cp1x = prevX;
         const cp1y = prevY - (stepHeight / 2);
         const cp2x = x;
         const cp2y = y + (stepHeight / 2);
-        
+
         d += `C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${x} ${y} `;
       }
     });
-    
+
     return d;
   });
 
@@ -176,11 +166,11 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
   currentPlayableChapterId = computed(() => {
     const level = this.selectedLevel();
     if (!level) return null;
-    
+
     // Find first uncompleted chapter
     const uncompleted = level.chapters.find((c: any) => !this.isChapterCompleted(c.id));
     if (uncompleted) return uncompleted.id;
-    
+
     // If all completed, return the last chapter
     return level.chapters.length > 0 ? level.chapters[level.chapters.length - 1].id : null;
   });

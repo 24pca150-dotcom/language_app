@@ -1,6 +1,9 @@
 import { Component, signal, computed, inject, ViewChild, ElementRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { environment } from '../../../environments/environment';
 import { ActivityService, Activity } from '../../services/activity.service';
 import { NotificationService } from '../../services/notification.service';
 import { CourseService, CourseData } from '../../services/course';
@@ -10,9 +13,12 @@ import { ActivityRenderer } from '../activity-engine/activity-renderer/activity-
 
 interface BlockContent {
   id: string;
-  type: 'text' | 'audio' | 'image' | 'video' | 'link';
+  type: 'text' | 'audio' | 'image' | 'video' | 'link' | 'button' | 'input';
   content?: string;
   url?: string;
+  imageUrl?: string;
+  audioUrl?: string;
+  isCorrect?: boolean;
 }
 
 interface ContainerNode {
@@ -25,7 +31,7 @@ interface ContainerNode {
 @Component({
   selector: 'app-activity-builder',
   standalone: true,
-  imports: [CommonModule, FormsModule, ActivityRenderer],
+  imports: [CommonModule, FormsModule, ActivityRenderer, DragDropModule],
   templateUrl: './activity-builder.html',
   styleUrls: ['./activity-builder.css']
 })
@@ -34,6 +40,7 @@ export class ActivityBuilder {
   private notificationService = inject(NotificationService);
   private courseService = inject(CourseService);
   private contentService = inject(ContentService);
+  private http = inject(HttpClient);
 
   // Mapping State
   linkingActivity = signal<Activity | null>(null);
@@ -86,6 +93,7 @@ export class ActivityBuilder {
   // Custom Builder State
   nodes = signal<ContainerNode[]>([]);
   selectedContainerId = signal<string | null>(null);
+  customQuestion = signal<string>('');
 
   // Standard Engine State
   engineData: any = {};
@@ -154,6 +162,7 @@ export class ActivityBuilder {
     this.activityType.set('mcq');
     this.activityTitle.set(this.generateNextTitle('mcq'));
     this.nodes.set([]);
+    this.customQuestion.set('');
     this.selectedContainerId.set(null);
     this.engineData = { type: 'mcq' };
     this.activityBlockInstance = null;
@@ -173,6 +182,7 @@ export class ActivityBuilder {
       } else {
         this.nodes.set([]);
       }
+      this.customQuestion.set(activity.data_json?.question || '');
       this.activityType.set('custom');
     } else {
       this.engineData = JSON.parse(JSON.stringify(activity.data_json || {}));
@@ -235,7 +245,10 @@ export class ActivityBuilder {
         this.notificationService.show('error', 'Please add at least one container to the custom activity');
         return;
       }
-      data_json = { nodes: this.nodes() };
+      data_json = { 
+        nodes: this.nodes(),
+        question: this.customQuestion()
+      };
     } else {
       if (this.activityBlockInstance) {
         data_json = this.activityBlockInstance.save();
@@ -298,7 +311,7 @@ export class ActivityBuilder {
     this.selectedContainerId.set(newContainer.id);
   }
 
-  addBlock(type: 'text' | 'audio' | 'image' | 'video' | 'link') {
+  addBlock(type: 'text' | 'audio' | 'image' | 'video' | 'link' | 'button' | 'input') {
     const activeId = this.selectedContainerId();
     if (!activeId) {
       alert('Please select or create a container first!');
@@ -308,8 +321,9 @@ export class ActivityBuilder {
     const newBlock: BlockContent = {
       id: 'block_' + this.generateId(),
       type: type,
-      content: type === 'text' ? 'Enter text here...' : undefined,
-      url: type !== 'text' ? 'assets/placeholder' : undefined
+      content: type === 'text' ? 'Enter text here...' : (type === 'button' ? 'Option Text' : (type === 'input' ? 'Type your answer...' : undefined)),
+      url: type === 'input' ? 'expected answer' : (type !== 'text' && type !== 'button' ? 'assets/placeholder' : undefined),
+      isCorrect: type === 'button' ? false : undefined
     };
 
     this.nodes.update(current => {
@@ -346,6 +360,109 @@ export class ActivityBuilder {
     });
   }
 
+  onBlockDropped(event: CdkDragDrop<BlockContent[]>) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+    }
+    this.nodes.update(current => [...current]);
+  }
+
+  setContainerDisplay(id: string, display: string) {
+    this.nodes.update(current => {
+      return current.map(container => {
+        if (container.id === id) {
+          return { ...container, display };
+        }
+        return container;
+      });
+    });
+  }
+
+  onBlockFileSelected(block: BlockContent, event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const uploadUrl = `${environment.apiUrl}/contents/upload`;
+    this.http.post<any>(uploadUrl, formData).subscribe({
+      next: (res) => {
+        if (res && res.url) {
+          block.url = res.url;
+          this.notificationService.show('success', 'File uploaded successfully!');
+        } else {
+          this.notificationService.show('error', 'Upload failed: Invalid response');
+        }
+      },
+      error: (err) => {
+        console.error('Upload error', err);
+        this.notificationService.show('error', 'File upload failed');
+      }
+    });
+  }
+
+  onBlockImageSelected(block: BlockContent, event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const uploadUrl = `${environment.apiUrl}/contents/upload`;
+    this.http.post<any>(uploadUrl, formData).subscribe({
+      next: (res) => {
+        if (res && res.url) {
+          block.imageUrl = res.url;
+          this.notificationService.show('success', 'Image uploaded successfully!');
+        } else {
+          this.notificationService.show('error', 'Upload failed: Invalid response');
+        }
+      },
+      error: (err) => {
+        console.error('Upload error', err);
+        this.notificationService.show('error', 'Image upload failed');
+      }
+    });
+  }
+
+  onBlockAudioSelected(block: BlockContent, event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const uploadUrl = `${environment.apiUrl}/contents/upload`;
+    this.http.post<any>(uploadUrl, formData).subscribe({
+      next: (res) => {
+        if (res && res.url) {
+          block.audioUrl = res.url;
+          if (block.type !== 'input') {
+            block.url = res.url;
+          }
+          this.notificationService.show('success', 'Audio uploaded successfully!');
+        } else {
+          this.notificationService.show('error', 'Upload failed: Invalid response');
+        }
+      },
+      error: (err) => {
+        console.error('Upload error', err);
+        this.notificationService.show('error', 'Audio upload failed');
+      }
+    });
+  }
+
   togglePreview() {
     if (!this.isPreviewMode() && this.activityType() !== 'custom') {
       if (this.activityBlockInstance) {
@@ -363,6 +480,12 @@ export class ActivityBuilder {
   }
 
   getPreviewActivityData() {
+    if (this.activityType() === 'custom') {
+      return {
+        type: 'custom',
+        nodes: this.nodes()
+      };
+    }
     if (this.activityBlockInstance) {
       const data = this.activityBlockInstance.save();
       return {

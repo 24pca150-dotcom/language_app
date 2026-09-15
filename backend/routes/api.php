@@ -21,7 +21,7 @@ use App\Http\Controllers\AnnouncementController;
 |--------------------------------------------------------------------------
 */
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::get('/tenants/brand/{code}', [TenantController::class, 'getBranding']);
 
 /*
@@ -165,6 +165,7 @@ Route::middleware(['auth:sanctum', 'identify.tenant'])->group(function () {
     Route::get('users/{userId}/levels/{levelId}/access', [LearningProgressController::class, 'getLevelAccess']);
     Route::get('users/{userId}/levels/{levelId}/chapters/progress', [LearningProgressController::class, 'getChapterProgress']);
     Route::post('chapters/{chapterId}/complete', [LearningProgressController::class, 'completeChapter']);
+    Route::post('chapters/{chapterId}/contents/{contentId}/complete', [LearningProgressController::class, 'completeContent']);
 
     // Profile Settings & dynamic updates
     Route::put('/profile', [AuthController::class, 'updateProfile']);

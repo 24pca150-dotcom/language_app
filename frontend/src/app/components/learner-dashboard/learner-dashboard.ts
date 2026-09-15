@@ -81,29 +81,6 @@ export class LearnerDashboard implements OnInit {
         this.uiTheme.set(role === 'student' ? 'adventure' : 'classic');
       }
       console.log('[DEBUG] learner-dashboard uiTheme set to:', this.uiTheme());
-
-      // Auto-sync any locally completed chapters to backend database
-      if (user.role === 'student') {
-        const uid = user.id;
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.startsWith(`lang_app_completed_chapters_${uid}_`)) {
-            try {
-              const chapterIds = JSON.parse(localStorage.getItem(key) || '[]');
-              if (Array.isArray(chapterIds)) {
-                chapterIds.forEach(id => {
-                  this.http.post(`${environment.apiUrl}/chapters/${id}/complete`, {}).subscribe({
-                    next: () => console.log(`Auto-synced chapter ${id} from dashboard`),
-                    error: (err) => console.error(`Failed to sync chapter ${id}`, err)
-                  });
-                });
-              }
-            } catch (e) {
-              console.error('Failed to parse localStorage key:', key, e);
-            }
-          }
-        }
-      }
     }
     this.fetchCourses();
   }

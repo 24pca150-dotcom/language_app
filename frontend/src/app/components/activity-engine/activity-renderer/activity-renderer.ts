@@ -381,7 +381,7 @@ export class ActivityRenderer implements OnChanges {
     this.answered.emit({
       questionId: this.activity?.id,
       type: 'custom',
-      correct: true,
+      isCorrect: event.isCorrect,
       ...event
     });
   }

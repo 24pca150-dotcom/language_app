@@ -55,6 +55,7 @@ class DashboardController extends Controller
             ->where('user_id', $userId)
             ->where('status', 'completed')
             ->whereNotNull('chapter_id')
+            ->whereNull('content_id')
             ->distinct('chapter_id')
             ->count('chapter_id');
 
@@ -91,9 +92,15 @@ class DashboardController extends Controller
         $gems = 85 + ($completedChapters * 15) + ($passedAttempts * 30) + ($streak * 5) + ($activityCompletions * 10);
 
         // Save to users table so columns are synchronized
-        $user->xp = $xpPoints;
-        $user->gems = $gems;
-        $user->save();
+        if (\Schema::hasColumn('users', 'xp')) {
+            $user->xp = $xpPoints;
+        }
+        if (\Schema::hasColumn('users', 'gems')) {
+            $user->gems = $gems;
+        }
+        if ($user->isDirty()) {
+            $user->save();
+        }
 
         // 5. Course-by-course progressions
         $courseProgressions = [];
@@ -302,6 +309,7 @@ class DashboardController extends Controller
             ->where('user_id', $userId)
             ->where('status', 'completed')
             ->whereNotNull('chapter_id')
+            ->whereNull('content_id')
             ->pluck('chapter_id')
             ->toArray();
 
@@ -414,42 +422,7 @@ class DashboardController extends Controller
                 ->toArray();
         }
 
-        $totalChaptersQuery = DB::table('chapters');
-        if (!empty($allowedCourseIds)) {
-            $totalChaptersQuery->whereIn('chapters.id', function ($query) use ($allowedCourseIds) {
-                $query->select('level_chapter.chapter_id')
-                    ->from('level_chapter')
-                    ->join('levels', 'level_chapter.level_id', '=', 'levels.id')
-                    ->join('course_package_levels', 'levels.id', '=', 'course_package_levels.level_id')
-                    ->whereIn('course_package_levels.course_id', $allowedCourseIds);
-            });
-        }
-        $totalChapters = $totalChaptersQuery->count();
-        
-        $completedChapters = DB::table('user_course_progress')
-            ->where('user_id', $userId)
-            ->where('status', 'completed')
-            ->whereNotNull('chapter_id')
-            ->distinct('chapter_id')
-            ->count('chapter_id');
-
-        $completionPercentage = $totalChapters > 0 
-            ? round(($completedChapters / $totalChapters) * 100, 1) 
-            : 0;
-
-        // Assessment stats
-        $passedAttempts = DB::table('user_assessment_attempts')
-            ->where('user_id', $userId)
-            ->where('passed', true)
-            ->count();
-
-        $averageScore = DB::table('user_assessment_attempts')
-            ->where('user_id', $userId)
-            ->avg('score');
-        $averageScore = $averageScore ? round($averageScore, 1) : 0;
-
-        // Course breakdown (Show only mapped courses and calculate student progress)
-        $coursesProgress = [];
+        // Course breakdown & Fractional Chapter Completion Progress
         $coursesQuery = \App\Models\Course::where('is_active', true);
         
         if ($targetUser->role === 'student' && $targetUser->tenant_id) {
@@ -473,43 +446,93 @@ class DashboardController extends Controller
         }
         
         $courses = $coursesQuery->get();
+        $totalChaptersOverall = 0;
+        $completedChaptersFractionalOverall = 0;
+        $coursesProgress = [];
         
         foreach ($courses as $course) {
-            $totalCourseChapters = DB::table('chapters')
-                ->join('level_chapter', 'chapters.id', '=', 'level_chapter.chapter_id')
+            $chapterMappings = DB::table('level_chapter')
                 ->join('levels', 'level_chapter.level_id', '=', 'levels.id')
                 ->join('course_package_levels', 'levels.id', '=', 'course_package_levels.level_id')
                 ->where('course_package_levels.course_id', $course->id)
-                ->count('chapters.id');
-                
-            $completedCourseChapters = DB::table('user_course_progress')
-                ->where('user_id', $userId)
-                ->where('status', 'completed')
-                ->whereIn('chapter_id', function ($query) use ($course) {
-                    $query->select('chapters.id')
-                        ->from('chapters')
-                        ->join('level_chapter', 'chapters.id', '=', 'level_chapter.chapter_id')
-                        ->join('levels', 'level_chapter.level_id', '=', 'levels.id')
-                        ->join('course_package_levels', 'levels.id', '=', 'course_package_levels.level_id')
-                        ->where('course_package_levels.course_id', $course->id);
-                })
-                ->distinct('chapter_id')
-                ->count('chapter_id');
-                
-            if ($totalCourseChapters > 0 || $completedCourseChapters > 0) {
+                ->where('level_chapter.is_active', true)
+                ->select('level_chapter.chapter_id', 'level_chapter.level_id')
+                ->get();
+
+            $totalCourseChapters = count($chapterMappings);
+            $completedCourseChaptersFractional = 0;
+
+            foreach ($chapterMappings as $mapping) {
+                $chapId = $mapping->chapter_id;
+                $chapterDone = DB::table('user_course_progress')
+                    ->where('user_id', $userId)
+                    ->where('chapter_id', $chapId)
+                    ->whereNull('content_id')
+                    ->where('status', 'completed')
+                    ->exists();
+
+                if ($chapterDone) {
+                    $completedCourseChaptersFractional += 1.0;
+                } else {
+                    $totalContents = DB::table('content_chapters')
+                        ->where('chapter_id', $chapId)
+                        ->count();
+
+                    if ($totalContents > 0) {
+                        $completedContents = DB::table('user_course_progress')
+                            ->where('user_id', $userId)
+                            ->where('chapter_id', $chapId)
+                            ->whereNotNull('content_id')
+                            ->where('status', 'completed')
+                            ->distinct('content_id')
+                            ->count('content_id');
+
+                        $fraction = min(1.0, $completedContents / $totalContents);
+                        $completedCourseChaptersFractional += $fraction;
+                    }
+                }
+            }
+
+            $totalChaptersOverall += $totalCourseChapters;
+            $completedChaptersFractionalOverall += $completedCourseChaptersFractional;
+
+            if ($totalCourseChapters > 0 || $completedCourseChaptersFractional > 0) {
+                $displayCompleted = ($completedCourseChaptersFractional == floor($completedCourseChaptersFractional))
+                    ? (int) $completedCourseChaptersFractional
+                    : round($completedCourseChaptersFractional, 1);
+
                 $coursesProgress[] = [
                     'course_name' => $course->name,
                     'total_chapters' => $totalCourseChapters,
-                    'completed_chapters' => $completedCourseChapters,
-                    'percentage' => $totalCourseChapters > 0 ? round(($completedCourseChapters / $totalCourseChapters) * 100, 1) : 0,
+                    'completed_chapters' => $displayCompleted,
+                    'percentage' => $totalCourseChapters > 0 ? round(($completedCourseChaptersFractional / $totalCourseChapters) * 100, 1) : 0,
                 ];
             }
         }
 
+        $completionPercentage = $totalChaptersOverall > 0
+            ? round(($completedChaptersFractionalOverall / $totalChaptersOverall) * 100, 1)
+            : 0;
+
+        $displayCompletedOverall = ($completedChaptersFractionalOverall == floor($completedChaptersFractionalOverall))
+            ? (int) $completedChaptersFractionalOverall
+            : round($completedChaptersFractionalOverall, 1);
+
+        // Assessment stats
+        $passedAttempts = DB::table('user_assessment_attempts')
+            ->where('user_id', $userId)
+            ->where('passed', true)
+            ->count();
+
+        $averageScore = DB::table('user_assessment_attempts')
+            ->where('user_id', $userId)
+            ->avg('score');
+        $averageScore = $averageScore ? round($averageScore, 1) : 0;
+
         return response()->json([
             'completion_percentage' => $completionPercentage,
-            'completed_chapters' => $completedChapters,
-            'total_chapters' => $totalChapters,
+            'completed_chapters' => $displayCompletedOverall,
+            'total_chapters' => $totalChaptersOverall,
             'passed_attempts' => $passedAttempts,
             'average_score' => $averageScore,
             'total_courses' => count($coursesProgress),
@@ -598,6 +621,7 @@ class DashboardController extends Controller
                 ->whereIn('user_id', $studentIds)
                 ->where('status', 'completed')
                 ->whereNotNull('chapter_id')
+                ->whereNull('content_id')
                 ->count();
                 
             $maxPossibleCompletions = $studentIds->count() * $totalChapters;
@@ -679,6 +703,7 @@ class DashboardController extends Controller
             ->where('user_id', $userId)
             ->where('status', 'completed')
             ->whereNotNull('chapter_id')
+            ->whereNull('content_id')
             ->distinct('chapter_id')
             ->count('chapter_id');
 
@@ -738,9 +763,16 @@ class DashboardController extends Controller
         $xpPoints = 1250 + ($completedChapters * 100) + ($passedAttempts * 200) + ($totalAttempts * 50) + ($streak * 25) + ($activityCompletions * 75);
         $gems = 85 + ($completedChapters * 15) + ($passedAttempts * 30) + ($streak * 5) + ($activityCompletions * 10);
 
-        $user->xp = $xpPoints;
-        $user->gems = $gems;
-        $user->save();
+        if (\Schema::hasColumn('users', 'xp')) {
+            $user->xp = $xpPoints;
+        }
+        if (\Schema::hasColumn('users', 'gems')) {
+            $user->gems = $gems;
+        }
+        // Save if user attributes were updated
+        if ($user->isDirty()) {
+            $user->save();
+        }
 
         return [
             'xp' => $xpPoints,
