@@ -1,12 +1,17 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, signal, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AudioService } from '../../../services/audio.service';
 import { MatchCloudComponent } from './match-cloud/match-cloud';
 import { MatchStandardComponent } from './match-standard/match-standard';
 
 export interface MatchPair {
   left: string;
+  leftImage?: string;
+  leftAudio?: string;
   right?: string;
   rightImage?: string;
+  rightAudio?: string;
+  result?: string;
 }
 
 export interface MatchData {
@@ -19,11 +24,12 @@ export interface MatchData {
   explanation?: string;
 }
 
-interface ShuffledItem {
+export interface ShuffledItem {
   id: string; // "left-0", "right-2", etc.
   text: string;
   originalIndex: number;
-  rightImage?: string;
+  image?: string;
+  audio?: string;
 }
 
 interface MatchedPair {
@@ -39,11 +45,13 @@ interface MatchedPair {
   templateUrl: './match.html',
   styleUrls: ['./match.css']
 })
-export class MatchComponent implements OnInit, OnChanges {
+export class MatchComponent implements OnInit, OnChanges, OnDestroy {
   @Input() activity: MatchData | null = null;
   @Input() showFeedback: boolean = true;
 
   @Output() answered = new EventEmitter<{ isCorrect: boolean }>();
+
+  private audioService = inject(AudioService);
 
   leftItems = signal<ShuffledItem[]>([]);
   rightItems = signal<ShuffledItem[]>([]);
@@ -92,13 +100,16 @@ export class MatchComponent implements OnInit, OnChanges {
       left.push({
         id: `left-${idx}`,
         text: pair.left,
-        originalIndex: idx
+        originalIndex: idx,
+        image: pair.leftImage,
+        audio: pair.leftAudio
       });
       right.push({
         id: `right-${idx}`,
         text: pair.right || '',
         originalIndex: idx,
-        rightImage: pair.rightImage
+        image: pair.rightImage,
+        audio: pair.rightAudio
       });
     });
 
@@ -132,21 +143,16 @@ export class MatchComponent implements OnInit, OnChanges {
 
   // Speak left word using browser TTS API
   speak(text: string): void {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel(); // cancel any active speech
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.9;
-      window.speechSynthesis.speak(utterance);
-    }
+    this.audioService.speak(text);
   }
 
   // --- Click to Match Logic ---
   selectLeft(item: ShuffledItem): void {
     if (this.isItemMatched(item.id) || this.isComplete()) return;
     
-    // Play speech if enabled (works for click mode on click, or speaker icon click)
+    // Play speech/audio if enabled
     if (this.enableAudio()) {
-      this.speak(item.text);
+      this.playItemAudio(item);
     }
 
     if (this.allowClickMatch()) {
@@ -157,6 +163,12 @@ export class MatchComponent implements OnInit, OnChanges {
 
   selectRight(item: ShuffledItem): void {
     if (this.isItemMatched(item.id) || this.isComplete()) return;
+
+    // Play speech/audio if enabled
+    if (this.enableAudio()) {
+      this.playItemAudio(item);
+    }
+
     if (this.allowClickMatch()) {
       this.selectedRightId.set(item.id);
       this.checkMatch();
@@ -184,6 +196,21 @@ export class MatchComponent implements OnInit, OnChanges {
 
         this.selectedLeftId.set(null);
         this.selectedRightId.set(null);
+
+        // Speak the match explanation with a small delay to let the selection sound finish
+        setTimeout(() => {
+          if (this.matchedPairs().some(p => p.leftId === leftId && p.rightId === rightId)) {
+            const pair = this.activity?.pairs[leftItem.originalIndex];
+            const leftText = leftItem.text || '';
+            const rightText = rightItem.text || '';
+            const resultText = pair?.result || '';
+            if (resultText) {
+              this.speak(`${leftText} and ${rightText} match to ${resultText}`);
+            } else {
+              this.speak(`${leftText} and ${rightText} match`);
+            }
+          }
+        }, 800);
 
         // Check completion
         if (this.matchedPairs().length === this.activity?.pairs.length) {
@@ -262,12 +289,52 @@ export class MatchComponent implements OnInit, OnChanges {
   }
 
   getRightItemImage(id: string): string {
-    return this.rightItems().find(i => i.id === id)?.rightImage || '';
+    return this.rightItems().find(i => i.id === id)?.image || '';
+  }
+
+  getItemImage(id: string): string {
+    if (id.startsWith('left-')) {
+      return this.leftItems().find(i => i.id === id)?.image || '';
+    } else {
+      return this.rightItems().find(i => i.id === id)?.image || '';
+    }
+  }
+
+  getItemAudio(id: string): string {
+    if (id.startsWith('left-')) {
+      return this.leftItems().find(i => i.id === id)?.audio || '';
+    } else {
+      return this.rightItems().find(i => i.id === id)?.audio || '';
+    }
+  }
+
+  getMatchedPairResult(pair: MatchedPair): string {
+    const leftItem = this.leftItems().find(i => i.id === pair.leftId);
+    if (leftItem && this.activity?.pairs[leftItem.originalIndex]) {
+      return this.activity.pairs[leftItem.originalIndex].result || '';
+    }
+    return '';
+  }
+
+  playItemAudio(item: ShuffledItem, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    if (item.audio) {
+      this.audioService.playAudioUrl(item.audio, item.text);
+    } else {
+      this.audioService.speak(item.text);
+    }
   }
 
   reset(): void {
     this.selectedLeftId.set(null);
     this.selectedRightId.set(null);
+    this.audioService.stopAll();
     this.initializeMatchGame();
+  }
+
+  ngOnDestroy(): void {
+    this.audioService.stopAll();
   }
 }

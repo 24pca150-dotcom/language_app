@@ -1,9 +1,4 @@
 <div class="mb-4 glass-card roleplay-container">
-  <div class="mb-3 d-flex align-items-center justify-content-end">
-    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1" (click)="reset()">
-      <i class="bi bi-arrow-counterclockwise me-1"></i> Restart
-    </button>
-  </div>
 
   <h5 class="text-dark fw-bold mb-4" [innerHTML]="activity?.question || 'Complete the following role play script:'"></h5>
 
@@ -86,14 +81,20 @@
       <div class="w-100 text-center animate-fade-in">
         <h5 class="text-success fw-bold mb-3"><i class="bi bi-check-circle-fill"></i> Dialogue Conversation Finished!</h5>
         
-        @if (!hasSubmitted()) {
-          <button type="button"
-                  class="btn btn-info w-100 rounded-pill py-3 fw-bold text-white shadow-sm border-0"
-                  style="background: linear-gradient(135deg, #0ea5e9, #0284c7); transition: all 0.2s;"
-                  (click)="submitRolePlay()">
-            Complete and Submit
+        <div class="d-flex gap-3 justify-content-center mt-3">
+          @if (!hasSubmitted()) {
+            <button type="button"
+                    class="btn-action check-btn border-0 py-3 px-5 rounded-pill fw-bold text-white d-inline-flex align-items-center gap-2 shadow"
+                    (click)="submitRolePlay()">
+              <i class="bi bi-shield-check"></i> Complete and Submit
+            </button>
+          }
+          <button type="button" 
+                  class="btn-action reset-btn border-0 py-3 px-4 rounded-pill fw-bold d-inline-flex align-items-center gap-2 shadow" 
+                  (click)="reset()">
+            <i class="bi bi-arrow-counterclockwise"></i> Reset
           </button>
-        }
+        </div>
       </div>
     }
   </div>

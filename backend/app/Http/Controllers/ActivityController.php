@@ -12,7 +12,7 @@ class ActivityController extends Controller
     {
         $query = Activity::with('course:id,name,code');
         
-        // Scope to tenant if applicable
+        // Scope to tenant or global activities if applicable
         if ($request->user() && $request->user()->tenant_id) {
             $query->where(function ($q) use ($request) {
                 $q->where('tenant_id', $request->user()->tenant_id)

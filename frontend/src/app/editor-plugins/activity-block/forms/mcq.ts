@@ -28,6 +28,18 @@ export function renderMCQForm(
   const audioInput = audioGroup.querySelector('.mcq-audio') as HTMLInputElement;
   audioInput.addEventListener('input', (e: any) => { data.audioUrl = e.target.value; });
 
+  // 1c. Question Image URL input
+  const imageGroup = document.createElement('div');
+  imageGroup.classList.add('activity-form-group');
+  imageGroup.innerHTML = `
+    <label class="activity-editor-label">Question Image URL (Optional)</label>
+    <input type="text" class="activity-input-text mcq-image" value="${data.imageUrl || ''}" placeholder="E.g., https://example.com/images/question.png">
+  `;
+  parent.appendChild(imageGroup);
+
+  const imageInput = imageGroup.querySelector('.mcq-image') as HTMLInputElement;
+  imageInput.addEventListener('input', (e: any) => { data.imageUrl = e.target.value; });
+
   // 2. Options list
   const optionsGroup = document.createElement('div');
   optionsGroup.classList.add('activity-form-group');
@@ -45,6 +57,7 @@ export function renderMCQForm(
     data.options.forEach((opt: any, idx: number) => {
       const row = document.createElement('div');
       row.classList.add('activity-row');
+      row.style.gap = '8px';
 
       const radio = document.createElement('input');
       radio.type = 'radio';
@@ -58,11 +71,33 @@ export function renderMCQForm(
       const input = document.createElement('input');
       input.type = 'text';
       input.classList.add('activity-input-text');
-      input.style.flexGrow = '1';
+      input.style.flexGrow = '2';
       input.value = opt.text || '';
-      input.placeholder = `Option ${idx + 1}`;
+      input.placeholder = `Option Text ${idx + 1}`;
       input.addEventListener('input', (e: any) => {
         opt.text = e.target.value;
+      });
+
+      const optImage = document.createElement('input');
+      optImage.type = 'text';
+      optImage.classList.add('activity-input-text');
+      optImage.style.flexGrow = '1';
+      optImage.style.width = '20%';
+      optImage.value = opt.imageUrl || '';
+      optImage.placeholder = 'Image URL';
+      optImage.addEventListener('input', (e: any) => {
+        opt.imageUrl = e.target.value;
+      });
+
+      const optAudio = document.createElement('input');
+      optAudio.type = 'text';
+      optAudio.classList.add('activity-input-text');
+      optAudio.style.flexGrow = '1';
+      optAudio.style.width = '20%';
+      optAudio.value = opt.audioUrl || '';
+      optAudio.placeholder = 'Audio URL';
+      optAudio.addEventListener('input', (e: any) => {
+        opt.audioUrl = e.target.value;
       });
 
       const deleteBtn = document.createElement('button');
@@ -78,6 +113,8 @@ export function renderMCQForm(
 
       row.appendChild(radio);
       row.appendChild(input);
+      row.appendChild(optImage);
+      row.appendChild(optAudio);
       row.appendChild(deleteBtn);
       rowsContainer.appendChild(row);
     });
@@ -92,7 +129,7 @@ export function renderMCQForm(
   addBtn.classList.add('activity-btn', 'activity-btn-primary', 'mt-2');
   addBtn.innerHTML = `+ Add Option`;
   addBtn.addEventListener('click', () => {
-    data.options.push({ text: '', isCorrect: false });
+    data.options.push({ text: '', isCorrect: false, imageUrl: '', audioUrl: '' });
     renderOptionRows();
   });
   optionsGroup.appendChild(addBtn);

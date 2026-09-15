@@ -17,6 +17,11 @@
             </button>
           }
         </div>
+        @if (activity?.imageUrl) {
+          <div class="my-3 text-center animate-fade-in">
+            <img [src]="activity?.imageUrl" alt="Question Image" class="img-fluid rounded-4 shadow-sm border border-light-subtle" style="max-height: 220px; object-fit: contain; background: white; padding: 5px;">
+          </div>
+        }
         <h3 class="fw-bold text-dark m-0 mt-2 fs-3" style="line-height: 1.5; text-shadow: 0px 4px 10px rgba(255,255,255,0.8), 0px 8px 30px rgba(255,255,255,0.9);" [innerHTML]="activity?.question"></h3>
       </div>
 
@@ -24,7 +29,7 @@
         @for (option of activity?.options; track option.id; let idx = $index) {
           <button 
             type="button"
-            class="option-row w-100 d-flex align-items-center text-start border bg-white bg-opacity-75 rounded-4 p-3 position-relative"
+            class="option-row w-100 d-flex align-items-center text-start border rounded-4 p-3 position-relative"
             [class.selected]="selectedOptionId() === option.id"
             [class.correct]="showFeedback && hasSubmitted() && option.isCorrect"
             [class.incorrect]="showFeedback && hasSubmitted() && selectedOptionId() === option.id && !option.isCorrect"
@@ -33,11 +38,26 @@
             [disabled]="showFeedback && hasSubmitted()"
             (click)="selectOption(option)">
             
-            <div class="bubble d-flex align-items-center justify-content-center rounded-circle fw-bold text-secondary flex-shrink-0 bg-light me-4" style="width: 2.2rem; height: 2.2rem; transition: all 0.2s ease;">
+            <div class="bubble d-flex align-items-center justify-content-center rounded-circle fw-bold flex-shrink-0 me-3" style="width: 2.2rem; height: 2.2rem; transition: all 0.2s ease;">
               {{ getLetter(idx) }}
             </div>
             
-            <span class="flex-grow-1 fw-medium text-secondary" style="font-size: 1rem;">{{ option.text }}</span>
+            <div class="d-flex align-items-center gap-3 flex-grow-1">
+              @if (option.imageUrl) {
+                <img [src]="option.imageUrl" alt="Option Image" class="rounded-3 border border-light-subtle shadow-sm bg-white" style="width: 55px; height: 55px; object-fit: contain; padding: 2px;">
+              }
+              <span class="fw-semibold text-secondary" style="font-size: 1rem;">{{ option.text }}</span>
+            </div>
+
+            <!-- Option Speaker / Mic Button -->
+            @if (option.audioUrl || option.text) {
+              <button type="button" 
+                      class="btn btn-outline-primary btn-sm rounded-circle p-1 d-inline-flex align-items-center justify-content-center me-2 border-0 shadow-none" 
+                      style="width: 2.2rem; height: 2.2rem; transition: transform 0.2s; background: rgba(99, 102, 241, 0.05);"
+                      (click)="playOptionAudio(option, $event)">
+                <i class="bi bi-volume-up-fill fs-5" style="color: #6366f1;"></i>
+              </button>
+            }
 
             <div class="d-flex align-items-center ms-3 fs-5" *ngIf="showFeedback && hasSubmitted()">
               @if (option.isCorrect) {
@@ -50,14 +70,25 @@
         }
       </div>
 
+      <!-- Controls -->
+      <button 
+        type="button" 
+        class="btn-action reset-btn border-0 py-2 px-4 rounded-pill fw-bold d-inline-flex align-items-center gap-2 mt-3 shadow"
+        [disabled]="!hasSubmitted()"
+        (click)="reset()">
+        <i class="bi bi-arrow-counterclockwise"></i> Reset
+      </button>
+
       <!-- Expandable Explanation Block -->
-      @if (showFeedback && hasSubmitted() && activity?.explanation) {
-        <div class="animate-fade-in mt-4 rounded-3 p-4 bg-warning bg-opacity-10 border-start border-4 border-warning">
-          <div class="d-flex align-items-center gap-2 fw-bold text-warning mb-2" style="font-size: 0.9rem;">
-            <i class="bi bi-info-circle-fill"></i>
-            <span>Explanation</span>
+      @if (showFeedback && hasSubmitted() && activity; as act) {
+        @if (act.explanation) {
+          <div class="animate-fade-in mt-4 rounded-3 p-4 bg-warning bg-opacity-10 border-start border-4 border-warning">
+            <div class="d-flex align-items-center gap-2 fw-bold text-warning mb-2" style="font-size: 0.9rem;">
+              <i class="bi bi-info-circle-fill"></i>
+              <span>Explanation</span>
+            </div>
+            <p class="m-0" style="color: #451a03; font-size: 0.925rem; line-height: 1.5;">{{ act.explanation }}</p>
           </div>
-          <p class="m-0" style="color: #451a03; font-size: 0.925rem; line-height: 1.5;">{{ activity?.explanation }}</p>
-        </div>
+        }
       }
     </div>

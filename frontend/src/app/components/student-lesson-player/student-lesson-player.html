@@ -6,6 +6,10 @@
               style="width: 36px; height: 36px;" (click)="goToMap()" title="Exit Lesson">
         <i class="bi bi-arrow-left"></i>
       </button>
+      <button class="btn btn-outline-secondary btn-sm rounded-circle d-none d-lg-flex align-items-center justify-content-center"
+              style="width: 36px; height: 36px;" (click)="toggleSidebar()" title="Toggle Sidebar">
+        <i class="bi" [ngClass]="isSidebarOpen() ? 'bi-layout-sidebar-inset' : 'bi-layout-sidebar'"></i>
+      </button>
       <div>
         <h4 class="mb-0 fw-bold fs-6 text-dark">{{ currentStep()?.title || 'Lesson' }}</h4>
         <small class="text-secondary">Step {{ currentStepIndex() + 1 }} of {{ lessonSequence().length }}</small>
@@ -38,7 +42,7 @@
   <!-- Main Layout Body -->
   <div class="flex-grow-1 d-flex overflow-hidden">
     <!-- Sidebar: Lesson steps list -->
-    <aside class="sidebar-steps d-none d-lg-block border-end border-light bg-light" style="width: 280px; overflow-y: auto;">
+    <aside class="sidebar-steps d-none border-end border-light bg-light" [class.d-lg-block]="isSidebarOpen()" style="width: 280px; overflow-y: auto;">
       <div class="p-3">
         <span class="text-secondary small fw-bold text-uppercase d-block mb-3">Lesson Steps</span>
         <div class="d-flex flex-column gap-2">
@@ -68,10 +72,21 @@
     <!-- Main Content Pane -->
     <main class="flex-grow-1 d-flex flex-column bg-light p-4 overflow-y-auto position-relative">
       @if (lessonSequence().length === 0) {
-        <div class="d-flex flex-column align-items-center justify-content-center h-100">
-          <div class="spinner-border text-primary" role="status"></div>
-          <h5 class="mt-3 text-secondary">Loading lesson contents...</h5>
-        </div>
+        @if (isLoading()) {
+          <div class="d-flex flex-column align-items-center justify-content-center h-100 w-100">
+            <div class="spinner-border text-primary" role="status"></div>
+            <h5 class="mt-3 text-secondary">Loading lesson contents...</h5>
+          </div>
+        } @else {
+          <div class="d-flex flex-column align-items-center justify-content-center h-100 w-100 text-center p-4 my-auto">
+            <div class="mb-4 text-muted" style="font-size: 4rem;"><i class="bi bi-journal-x"></i></div>
+            <h4 class="fw-bold text-dark mb-2">No Lessons Available</h4>
+            <p class="text-secondary mb-4" style="max-width: 350px;">There are currently no lesson sections or resources uploaded for this chapter.</p>
+            <button class="btn btn-outline-primary rounded-pill px-4 py-2 fw-semibold" (click)="quit.emit()">
+              <i class="bi bi-arrow-left me-2"></i> Return to Curriculum
+            </button>
+          </div>
+        }
       } @else if (lessonFinished()) {
         <!-- Complete screen -->
         <div class="card border-0 shadow-sm rounded-4 p-5 text-center max-w-lg mx-auto my-auto animate-slide-up bg-white">
@@ -144,7 +159,7 @@
                 </div>
                 
                 <div class="reading-text text-dark" style="font-size: 1.15rem; line-height: 1.8;"
-                     [innerHTML]="typedContent()">
+                     [innerHTML]="rawReadingHtml()">
                 </div>
 
                 <!-- Inner reading navigation -->
@@ -214,9 +229,14 @@
           <span class="fw-bold fs-5">Correct! +10 XP</span>
         </div>
       } @else if (activityFeedbackState() === 'incorrect') {
-        <div class="d-flex align-items-center gap-2 text-danger animate-pop-in">
-          <i class="bi bi-x-circle-fill fs-5"></i>
-          <span class="fw-bold fs-5">Incorrect! Hearts remaining: {{ hearts() }}</span>
+        <div class="d-flex align-items-center gap-3 text-danger animate-pop-in">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-x-circle-fill fs-5"></i>
+            <span class="fw-bold fs-5">Incorrect! Hearts remaining: {{ hearts() }}</span>
+          </div>
+          <button class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1" (click)="retryActivity()">
+            <i class="bi bi-arrow-repeat me-1"></i> Try Again
+          </button>
         </div>
       }
 

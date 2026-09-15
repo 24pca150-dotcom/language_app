@@ -15,12 +15,34 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Clean up remaining course/curriculum data from database
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('course_package_levels')->truncate();
+        DB::table('level_chapter')->truncate();
+        DB::table('content_chapters')->truncate();
+        DB::table('property_packages')->truncate();
+        DB::table('content_attachments')->truncate();
+        DB::table('question_options')->truncate();
+        DB::table('assessment_questions')->truncate();
+        DB::table('user_assessment_attempts')->truncate();
+        DB::table('assessments')->truncate();
+        DB::table('user_course_progress')->truncate();
+        DB::table('contents')->truncate();
+        DB::table('chapters')->truncate();
+        DB::table('levels')->truncate();
+        DB::table('courses')->truncate();
+        DB::table('activities')->truncate();
+        DB::table('properties')->truncate();
+        DB::table('tenants')->where('tenant_code', '!=', 'SCH-001')->delete();
+        DB::table('users')->whereNotIn('username', ['superadmin', 'coordinator', 'karthik_std'])->delete();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
         // 1. Seed Super Admin (Global Administrator with no tenant_id)
         User::updateOrCreate(
-            ['username' => 'superadmin'],
+            ['email' => 'admin@ariga.local'],
             [
-                'name' => 'Global Administrator',
-                'email' => 'admin@ariga.local',
+                'username' => 'superadmin',
+                'name' => 'Super Admin',
                 'password' => Hash::make('admin123'),
                 'role' => 'super_admin',
                 'tenant_id' => null,
@@ -42,11 +64,11 @@ class DatabaseSeeder extends Seeder
 
         // 4. Seed Staff (School Coordinator)
         User::updateOrCreate(
-            ['username' => 'coordinator'],
+            ['email' => 'manager@ariga.school'],
             [
-                'name' => 'School Coordinator',
-                'email' => 'manager@ariga.school',
-                'password' => Hash::make('admin123'),
+                'username' => 'staff',
+                'name' => 'Staff',
+                'password' => Hash::make('test123'),
                 'role' => 'staff',
                 'tenant_id' => $tenant->id,
             ]
@@ -54,14 +76,21 @@ class DatabaseSeeder extends Seeder
 
         // 5. Seed Student
         User::updateOrCreate(
-            ['username' => 'karthik_std'],
+            ['username' => 'karthik'],
             [
-                'name' => 'Karthik Student',
+                'name' => 'Karthik',
                 'email' => null,
                 'password' => Hash::make('student123'),
                 'role' => 'student',
                 'tenant_id' => $tenant->id,
             ]
         );
+
+        $this->call(EnglishCourseSeeder::class);
+        $this->call(WritingSkillSeeder::class);
+        $this->call(ListeningSkillSeeder::class);
+        $this->call(ReadingSkillSeeder::class);
+        $this->call(SpeakingSkillSeeder::class);
     }
 }
+

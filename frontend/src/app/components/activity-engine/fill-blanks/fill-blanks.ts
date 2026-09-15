@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, signal, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AudioService } from '../../../services/audio.service';
 
 export interface FillBlanksData {
   id?: number;
@@ -24,7 +25,7 @@ interface Segment {
   templateUrl: './fill-blanks.html',
   styleUrls: ['./fill-blanks.css']
 })
-export class FillBlanksComponent implements OnInit, OnChanges {
+export class FillBlanksComponent implements OnInit, OnChanges, OnDestroy {
   @Input() activity: FillBlanksData | null = null;
   @Input() showFeedback: boolean = true;
 
@@ -34,7 +35,7 @@ export class FillBlanksComponent implements OnInit, OnChanges {
   userAnswers = signal<string[]>([]);
   hasSubmitted = signal<boolean>(false);
   isPlaying = signal<boolean>(false);
-  private currentAudio: HTMLAudioElement | null = null;
+  private audioService = inject(AudioService);
 
   ngOnInit(): void {
     this.parseSentence();
@@ -132,28 +133,14 @@ export class FillBlanksComponent implements OnInit, OnChanges {
   playAudio(): void {
     if (!this.activity || !this.activity.audioUrl) return;
 
-    if (this.currentAudio) {
-      this.currentAudio.pause();
+    if (this.isPlaying()) {
+      this.audioService.stopAll();
       this.isPlaying.set(false);
-      this.currentAudio = null;
       return;
     }
 
     this.isPlaying.set(true);
-    this.currentAudio = new Audio(this.activity.audioUrl);
-    this.currentAudio.onended = () => {
-      this.isPlaying.set(false);
-      this.currentAudio = null;
-    };
-    this.currentAudio.onerror = () => {
-      this.isPlaying.set(false);
-      this.currentAudio = null;
-    };
-    this.currentAudio.play().catch(err => {
-      console.error(err);
-      this.isPlaying.set(false);
-      this.currentAudio = null;
-    });
+    this.audioService.playAudioUrl(this.activity.audioUrl);
   }
 
   checkAnswers(): void {
@@ -178,13 +165,19 @@ export class FillBlanksComponent implements OnInit, OnChanges {
     });
   }
 
+  isAllCorrect(): boolean {
+    const blanks = this.segments.filter(s => s.type === 'blank' || s.type === 'dropdown');
+    return blanks.every(b => this.isCorrect(b.blankIndex!));
+  }
+
   reset(): void {
     this.userAnswers.set(new Array(this.userAnswers().length).fill(''));
     this.hasSubmitted.set(false);
-    if (this.currentAudio) {
-      this.currentAudio.pause();
-      this.currentAudio = null;
-    }
+    this.audioService.stopAll();
     this.isPlaying.set(false);
+  }
+
+  ngOnDestroy(): void {
+    this.audioService.stopAll();
   }
 }

@@ -47,16 +47,13 @@
             <div class="dropdown-menu show w-100 border-light shadow-lg rounded-3 p-2 animate-in fade-in" 
                  (click)="$event.stopPropagation()" style="max-height: 250px; overflow-y: auto;">
               @for (level of availableLevels(); track level.id) {
-              <div class="dropdown-item px-2 py-1 rounded-2">
-                <div class="form-check m-0">
-                  <input class="form-check-input shadow-none cursor-pointer" type="checkbox" 
-                         [id]="'level-' + level.id"
-                         [checked]="isLevelSelected(level.id!)" 
-                         (change)="toggleLevelSelection(level.id!)">
-                  <label class="form-check-label ms-2 cursor-pointer w-100" [for]="'level-' + level.id">
-                    {{ level.name }}
-                  </label>
-                </div>
+              <div class="dropdown-item px-3 py-2 rounded-2 cursor-pointer d-flex align-items-center" (click)="toggleLevelSelection(level.id!)">
+                <input class="form-check-input m-0 shadow-none cursor-pointer" type="checkbox" 
+                       [id]="'level-' + level.id"
+                       [checked]="isLevelSelected(level.id!)" 
+                       (click)="$event.stopPropagation()"
+                       (change)="toggleLevelSelection(level.id!)">
+                <span class="ms-2 select-none">{{ level.name }}</span>
               </div>
               }
               @if (availableLevels().length === 0) {

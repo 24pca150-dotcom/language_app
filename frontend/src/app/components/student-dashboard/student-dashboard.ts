@@ -1,29 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-interface Lesson {
-  id: number;
-  name: string;
-}
-
-interface Chapter {
-  id: number;
-  name: string;
-  contents: Lesson[];
-}
-
-interface Level {
-  id: number;
-  name: string;
-  chapters: Chapter[];
-}
-
-interface CourseStructure {
-  id: number;
-  name: string;
-  description?: string;
-  levels: Level[];
-}
+import { CourseStructure } from '../../models/course-structure.model';
 
 @Component({
   selector: 'app-student-dashboard',

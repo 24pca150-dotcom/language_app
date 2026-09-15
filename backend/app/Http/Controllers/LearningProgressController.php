@@ -134,4 +134,94 @@ class LearningProgressController extends Controller
             'message' => 'Chapter marked as completed.'
         ]);
     }
+
+    /**
+     * Mark a content/step within a chapter as completed in the database.
+     */
+    public function completeContent(Request $request, $chapterId, $contentId)
+    {
+        $user = $request->user();
+        $userId = $user->id;
+
+        // Find associated level and course
+        $levelId = \DB::table('level_chapter')
+            ->where('chapter_id', $chapterId)
+            ->value('level_id');
+
+        $courseId = null;
+        if ($levelId) {
+            $courseId = \DB::table('course_package_levels')
+                ->where('level_id', $levelId)
+                ->value('course_id');
+        }
+
+        if (!$courseId) {
+            $courseId = 0;
+        }
+
+        $exists = \DB::table('user_course_progress')
+            ->where('user_id', $userId)
+            ->where('chapter_id', $chapterId)
+            ->where('content_id', $contentId)
+            ->where('status', 'completed')
+            ->exists();
+
+        if (!$exists) {
+            \DB::table('user_course_progress')->insert([
+                'user_id' => $userId,
+                'course_id' => $courseId,
+                'level_id' => $levelId,
+                'chapter_id' => $chapterId,
+                'content_id' => $contentId,
+                'status' => 'completed',
+                'completed_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // Check if all contents in this chapter are now completed
+            $totalChapterContents = \DB::table('content_chapters')
+                ->where('chapter_id', $chapterId)
+                ->count();
+
+            $completedChapterContents = \DB::table('user_course_progress')
+                ->where('user_id', $userId)
+                ->where('chapter_id', $chapterId)
+                ->whereNotNull('content_id')
+                ->where('status', 'completed')
+                ->distinct('content_id')
+                ->count('content_id');
+
+            if ($totalChapterContents > 0 && $completedChapterContents >= $totalChapterContents) {
+                // Auto-complete chapter if all contents done
+                $chapterDone = \DB::table('user_course_progress')
+                    ->where('user_id', $userId)
+                    ->where('chapter_id', $chapterId)
+                    ->whereNull('content_id')
+                    ->where('status', 'completed')
+                    ->exists();
+
+                if (!$chapterDone) {
+                    \DB::table('user_course_progress')->insert([
+                        'user_id' => $userId,
+                        'course_id' => $courseId,
+                        'level_id' => $levelId,
+                        'chapter_id' => $chapterId,
+                        'content_id' => null,
+                        'status' => 'completed',
+                        'completed_at' => now(),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+
+            \App\Http\Controllers\DashboardController::recalculateUserStats($userId);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Content marked as completed.'
+        ]);
+    }
 }

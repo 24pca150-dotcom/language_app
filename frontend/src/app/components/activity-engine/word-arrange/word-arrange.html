@@ -1,16 +1,6 @@
     <div class="w-100 d-flex flex-column align-items-center justify-content-center pb-4 pt-2 max-w-lg mx-auto" style="max-width: 800px;">
-      <div class="header mb-4 position-relative d-flex justify-content-between align-items-center w-100">
-        <div style="width: 120px;" class="d-none d-sm-block"></div>
-        <h3 class="fw-bold text-dark m-0 flex-grow-1 text-center fs-3" style="text-shadow: 0px 4px 10px rgba(255,255,255,0.8), 0px 8px 30px rgba(255,255,255,0.9);">{{ activity?.question || 'Arrange the words to form a correct sentence:' }}</h3>
-        <div style="width: 120px;" class="d-flex justify-content-end">
-          <button 
-            type="button" 
-            class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-bold d-flex align-items-center gap-1 shadow-sm"
-            [disabled]="hasSubmitted() && isCorrect()"
-            (click)="resetPuzzle()">
-            <i class="bi bi-arrow-counterclockwise"></i> Reset
-          </button>
-        </div>
+      <div class="header mb-4 position-relative d-flex justify-content-center align-items-center w-100">
+        <h3 class="fw-bold text-dark m-0 text-center fs-3" style="text-shadow: 0px 4px 10px rgba(255,255,255,0.8), 0px 8px 30px rgba(255,255,255,0.9);" [innerHTML]="activity?.question || 'Arrange the words to form a correct sentence:'"></h3>
       </div>
 
       <!-- Arrangement Slot / Workspace (Box-less) -->
@@ -57,6 +47,15 @@
             [disabled]="!isAnyWordArranged()"
             (click)="checkAnswers()">
             <i class="bi bi-shield-check"></i> Check Answers
+          </button>
+        }
+        @if (showFeedback) {
+          <button 
+            type="button" 
+            class="btn-action reset-btn border-0 py-3 px-4 rounded-pill fw-bold d-inline-flex align-items-center gap-2 shadow"
+            [disabled]="!isAnyWordArranged() || (hasSubmitted() && isCorrect())"
+            (click)="resetPuzzle()">
+            <i class="bi bi-arrow-counterclockwise"></i> Reset
           </button>
         }
       </div>

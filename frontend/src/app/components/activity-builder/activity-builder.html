@@ -98,8 +98,7 @@
                 }
               </div>
               <h5 class="fw-bold text-dark mb-2 text-truncate" [title]="activity.title">{{ activity.title }}</h5>
-              <p class="text-muted small mb-4 flex-grow-1">
-                {{ getActivityDetailsSummary(activity) }}
+              <p class="text-muted small mb-4 flex-grow-1" [innerHTML]="getActivityDetailsSummary(activity)">
               </p>
               <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top border-light">
                 <span class="text-muted small">ID: #{{ activity.id }}</span>
@@ -288,6 +287,12 @@
         <!-- Custom Canvas Builder -->
         @if (activityType() === 'custom') {
           <div class="custom-builder-wrapper">
+            <div class="mb-3 p-3 bg-white border rounded shadow-sm">
+              <label class="form-label fw-bold text-secondary mb-1">Global Question / Instructions</label>
+              <input type="text" class="form-control" [(ngModel)]="customQuestion"
+                     placeholder="e.g. Listen to the audio and click the correct matching word.">
+            </div>
+
             <div class="d-flex justify-content-between align-items-center mb-3">
               <div class="toolbar">
                 <button class="btn btn-outline-primary fw-bold me-2" (click)="addContainer()">
@@ -309,12 +314,18 @@
                   <button class="btn btn-outline-secondary" (click)="addBlock('link')" [disabled]="!selectedContainerId()">
                     <i class="bi bi-link-45deg"></i> Link
                   </button>
+                  <button class="btn btn-outline-secondary" (click)="addBlock('button')" [disabled]="!selectedContainerId()">
+                    <i class="bi bi-check-square"></i> Button Option
+                  </button>
+                  <button class="btn btn-outline-secondary" (click)="addBlock('input')" [disabled]="!selectedContainerId()">
+                    <i class="bi bi-input-cursor-text"></i> Text Input
+                  </button>
                 </div>
               </div>
             </div>
 
             <div class="card shadow-sm border-0 border-top bg-light">
-              <div class="card-body p-4 canvas-area">
+              <div class="card-body p-4 canvas-area" cdkDropListGroup>
 
                 @if (nodes().length === 0) {
                 <div class="text-center text-muted p-5 border border-2 border-dashed rounded-3">
@@ -325,27 +336,61 @@
 
                 <!-- BUILDER MODE -->
                 @if (!isPreviewMode()) {
-                @for (container of nodes(); track container.id) {
+                @for (container of nodes(); track container.id; let idx = $index) {
                 <div class="activity-container mb-4 position-relative"
                   [class.active-container]="selectedContainerId() === container.id" (click)="selectContainer(container.id)">
 
                   <div class="container-badge d-flex justify-content-between align-items-center">
-                    <span class="badge bg-primary rounded-pill px-3 py-2">
-                      <i class="bi bi-box me-1"></i> Container
-                    </span>
-                    <button class="btn btn-sm btn-outline-danger border-0" (click)="removeContainer(container.id, $event)">
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="badge bg-primary rounded-pill px-3 py-2">
+                        <i class="bi bi-question-circle-fill me-1"></i> Question Group #{{ idx + 1 }}
+                      </span>
+                      <div class="btn-group btn-group-sm bg-white border rounded shadow-none" role="group">
+                        <button type="button" class="btn btn-light py-1 px-2 d-flex align-items-center gap-1" [class.btn-primary]="container.display !== 'flex'"
+                                (click)="setContainerDisplay(container.id, 'block'); $event.stopPropagation();" title="Vertical Layout (Stack)">
+                          <i class="bi bi-layout-three-columns" style="transform: rotate(90deg); display: inline-block;"></i>
+                          <span class="small">Vertical</span>
+                        </button>
+                        <button type="button" class="btn btn-light py-1 px-2 d-flex align-items-center gap-1" [class.btn-primary]="container.display === 'flex'"
+                                (click)="setContainerDisplay(container.id, 'flex'); $event.stopPropagation();" title="Horizontal Layout (Side-by-side)">
+                          <i class="bi bi-layout-three-columns"></i>
+                          <span class="small">Horizontal</span>
+                        </button>
+                      </div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger border-0 bg-white shadow-sm" (click)="removeContainer(container.id, $event)">
                       <i class="bi bi-trash"></i>
                     </button>
                   </div>
 
-                  <div class="container-content p-3 mt-3">
+                  <div cdkDropList
+                       [cdkDropListData]="container.contents"
+                       (cdkDropListDropped)="onBlockDropped($event)"
+                       class="container-content p-3 mt-3 d-flex gap-3"
+                       [class.flex-row]="container.display === 'flex'"
+                       [class.flex-wrap]="container.display === 'flex'"
+                       [class.flex-column]="container.display !== 'flex'">
                     @if (container.contents.length === 0) {
-                    <div class="text-center text-muted small p-3 opacity-50">Empty Container</div>
+                    <div class="text-center p-4 border border-dashed rounded bg-light text-muted w-100 my-2">
+                      <p class="mb-1 fw-bold small">Group is empty</p>
+                      <p class="mb-0 small text-secondary" style="font-size: 0.8rem;">
+                        Select this group, then click blocks above (like <b>Text</b>, <b>Audio</b>, or <b>Option Button</b>) to build your question.
+                      </p>
+                    </div>
                     }
 
                     @for (block of container.contents; track block.id) {
-                    <div
-                      class="activity-block d-flex align-items-start gap-3 mb-2 p-3 bg-white border rounded shadow-sm position-relative">
+                    <div cdkDrag
+                      class="activity-block d-flex align-items-start gap-3 mb-2 p-3 border rounded shadow-sm position-relative"
+                      [class.w-100]="container.display !== 'flex'"
+                      [style.flex]="container.display === 'flex' ? '1 1 320px' : 'none'"
+                      [style.min-width]="container.display === 'flex' ? '320px' : 'auto'"
+                      [style.border-left]="(block.type === 'button' || block.type === 'input') ? '5px solid #198754 !important' : '5px solid #0d6efd !important'"
+                      [style.background-color]="(block.type === 'button' || block.type === 'input') ? '#f0fdf4' : '#ffffff'">
+
+                      <div class="drag-handle text-muted cursor-grab me-1 align-self-center" cdkDragHandle>
+                        <i class="bi bi-grip-vertical fs-5"></i>
+                      </div>
 
                       <div class="block-icon bg-light text-primary rounded p-2 d-flex align-items-center justify-content-center">
                         @if (block.type === 'text') { <i class="bi bi-fonts fs-5"></i> }
@@ -353,19 +398,172 @@
                         @if (block.type === 'image') { <i class="bi bi-image fs-5"></i> }
                         @if (block.type === 'video') { <i class="bi bi-play-btn fs-5"></i> }
                         @if (block.type === 'link') { <i class="bi bi-link-45deg fs-5"></i> }
+                        @if (block.type === 'button') { <i class="bi bi-check-square fs-5"></i> }
+                        @if (block.type === 'input') { <i class="bi bi-input-cursor-text fs-5"></i> }
                       </div>
 
                       <div class="flex-grow-1">
-                        <div class="d-flex justify-content-between mb-1">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
                           <span class="text-uppercase fw-bold text-muted small" style="font-size: 0.7rem;">{{ block.type }}</span>
+                          @if (block.type === 'button' || block.type === 'input') {
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size: 0.6rem;">Interactive Answer</span>
+                          } @else {
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1" style="font-size: 0.6rem;">Display Content</span>
+                          }
                         </div>
 
                         @if (block.type === 'text') {
-                        <input type="text" class="form-control form-control-sm" [(ngModel)]="block.content"
-                          placeholder="Enter text content...">
+                        <div class="d-flex flex-column gap-3">
+                          <textarea class="form-control form-control-sm" [(ngModel)]="block.content" rows="2"
+                            placeholder="Enter text content..."></textarea>
+                          
+                          <div class="row g-3">
+                            <!-- Image URL / Upload inside Text Block -->
+                            <div class="col-md-6">
+                              <label class="form-label text-secondary small fw-bold mb-1 d-flex align-items-center gap-1">
+                                🖼️ Image Illustration <span class="text-muted fw-normal">(optional)</span>
+                              </label>
+                              <div class="input-group input-group-sm">
+                                <input type="text" class="form-control" [(ngModel)]="block.imageUrl"
+                                  placeholder="Image URL...">
+                                <button class="btn btn-outline-secondary" type="button" (click)="textImageUpload.click()" title="Upload Image">
+                                  <i class="bi bi-upload"></i>
+                                </button>
+                                <input type="file" #textImageUpload class="d-none" (change)="onBlockImageSelected(block, $event)" accept="image/*">
+                              </div>
+                              @if (block.imageUrl) {
+                                <div class="mt-2 position-relative d-inline-block">
+                                  <img [src]="block.imageUrl" class="img-thumbnail" style="max-height: 60px; object-fit: contain;">
+                                  <button class="btn btn-sm btn-danger rounded-circle position-absolute top-0 end-0 p-0 d-flex align-items-center justify-content-center"
+                                          style="width: 20px; height: 20px; transform: translate(40%, -40%);" (click)="block.imageUrl = ''" title="Remove image">
+                                    <i class="bi bi-x" style="font-size: 14px; line-height: 1;"></i>
+                                  </button>
+                                </div>
+                              }
+                            </div>
+
+                            <!-- Audio URL / Upload inside Text Block -->
+                            <div class="col-md-6">
+                              <label class="form-label text-secondary small fw-bold mb-1 d-flex align-items-center gap-1">
+                                🔊 Audio Pronunciation <span class="text-muted fw-normal">(optional)</span>
+                              </label>
+                              <div class="input-group input-group-sm">
+                                <input type="text" class="form-control" [(ngModel)]="block.url"
+                                  placeholder="Audio URL...">
+                                <button class="btn btn-outline-secondary" type="button" (click)="textAudioUpload.click()" title="Upload Audio">
+                                  <i class="bi bi-upload"></i>
+                                </button>
+                                <input type="file" #textAudioUpload class="d-none" (change)="onBlockAudioSelected(block, $event)" accept="audio/*">
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        } @else if (block.type === 'button') {
+                        <div class="d-flex flex-column gap-3">
+                          <input type="text" class="form-control form-control-sm" [(ngModel)]="block.content"
+                            placeholder="Button Label (e.g. Option A)...">
+                          
+                          <div class="row g-2">
+                            <!-- Image URL / Upload inside Button Block -->
+                            <div class="col-md-6">
+                              <label class="form-label text-secondary small fw-bold mb-1">🖼️ Image (optional)</label>
+                              <div class="input-group input-group-sm">
+                                <input type="text" class="form-control" [(ngModel)]="block.imageUrl" placeholder="Image URL...">
+                                <button class="btn btn-outline-secondary" type="button" (click)="btnImageUpload.click()" title="Upload Image">
+                                  <i class="bi bi-upload"></i>
+                                </button>
+                                <input type="file" #btnImageUpload class="d-none" (change)="onBlockImageSelected(block, $event)" accept="image/*">
+                              </div>
+                              @if (block.imageUrl) {
+                                <div class="mt-1 position-relative d-inline-block">
+                                  <img [src]="block.imageUrl" class="img-thumbnail" style="max-height: 40px; object-fit: contain;">
+                                  <button class="btn btn-sm btn-danger rounded-circle position-absolute top-0 end-0 p-0 d-flex align-items-center justify-content-center"
+                                          style="width: 16px; height: 16px; transform: translate(40%, -40%);" (click)="block.imageUrl = ''">
+                                    <i class="bi bi-x" style="font-size: 10px; line-height: 1;"></i>
+                                  </button>
+                                </div>
+                              }
+                            </div>
+
+                            <!-- Audio URL / Upload inside Button Block -->
+                            <div class="col-md-6">
+                              <label class="form-label text-secondary small fw-bold mb-1">🔊 Audio (optional)</label>
+                              <div class="input-group input-group-sm">
+                                <input type="text" class="form-control" [(ngModel)]="block.audioUrl" placeholder="Audio URL...">
+                                <button class="btn btn-outline-secondary" type="button" (click)="btnAudioUpload.click()" title="Upload Audio">
+                                  <i class="bi bi-upload"></i>
+                                </button>
+                                <input type="file" #btnAudioUpload class="d-none" (change)="onBlockAudioSelected(block, $event)" accept="audio/*">
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="form-check form-check-inline mt-1">
+                            <input class="form-check-input" type="checkbox" [id]="'check_' + block.id" [(ngModel)]="block.isCorrect">
+                            <label class="form-check-label text-success fw-bold small" [for]="'check_' + block.id">
+                              Is Correct Answer Option?
+                            </label>
+                          </div>
+                        </div>
+                        } @else if (block.type === 'input') {
+                        <div class="d-flex flex-column gap-3">
+                          <input type="text" class="form-control form-control-sm" [(ngModel)]="block.content"
+                            placeholder="Input Box Placeholder (e.g. Type word here)...">
+                          <input type="text" class="form-control form-control-sm" [(ngModel)]="block.url"
+                            placeholder="Expected Correct Answer (e.g. dog)...">
+
+                          <div class="row g-2">
+                            <!-- Image URL / Upload inside Input Block -->
+                            <div class="col-md-6">
+                              <label class="form-label text-secondary small fw-bold mb-1">🖼️ Image (optional)</label>
+                              <div class="input-group input-group-sm">
+                                <input type="text" class="form-control" [(ngModel)]="block.imageUrl" placeholder="Image URL...">
+                                <button class="btn btn-outline-secondary" type="button" (click)="inputImageUpload.click()" title="Upload Image">
+                                  <i class="bi bi-upload"></i>
+                                </button>
+                                <input type="file" #inputImageUpload class="d-none" (change)="onBlockImageSelected(block, $event)" accept="image/*">
+                              </div>
+                              @if (block.imageUrl) {
+                                <div class="mt-1 position-relative d-inline-block">
+                                  <img [src]="block.imageUrl" class="img-thumbnail" style="max-height: 40px; object-fit: contain;">
+                                  <button class="btn btn-sm btn-danger rounded-circle position-absolute top-0 end-0 p-0 d-flex align-items-center justify-content-center"
+                                          style="width: 16px; height: 16px; transform: translate(40%, -40%);" (click)="block.imageUrl = ''">
+                                    <i class="bi bi-x" style="font-size: 10px; line-height: 1;"></i>
+                                  </button>
+                                </div>
+                              }
+                            </div>
+
+                            <!-- Audio URL / Upload inside Input Block -->
+                            <div class="col-md-6">
+                              <label class="form-label text-secondary small fw-bold mb-1">🔊 Audio (optional)</label>
+                              <div class="input-group input-group-sm">
+                                <input type="text" class="form-control" [(ngModel)]="block.audioUrl" placeholder="Audio URL...">
+                                <button class="btn btn-outline-secondary" type="button" (click)="inputAudioUpload.click()" title="Upload Audio">
+                                  <i class="bi bi-upload"></i>
+                                </button>
+                                <input type="file" #inputAudioUpload class="d-none" (change)="onBlockAudioSelected(block, $event)" accept="audio/*">
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                         } @else {
-                        <input type="text" class="form-control form-control-sm" [(ngModel)]="block.url"
-                          placeholder="Enter media URL (e.g., assets/audio.wav)">
+                        <div class="input-group input-group-sm mb-2">
+                          <input type="text" class="form-control" [(ngModel)]="block.url"
+                            placeholder="Enter media URL or upload file...">
+                          <button class="btn btn-outline-secondary" type="button" (click)="mediaUploadInput.click()" title="Upload File">
+                            <i class="bi bi-upload"></i> Upload
+                          </button>
+                          <input type="file" #mediaUploadInput class="d-none" (change)="onBlockFileSelected(block, $event)">
+                        </div>
+                        @if (block.type === 'image' || block.type === 'video') {
+                        <input type="text" class="form-control form-control-sm" [(ngModel)]="block.content"
+                          placeholder="Caption / Description (optional)...">
+                        }
+                        @if (block.type === 'link') {
+                        <input type="text" class="form-control form-control-sm" [(ngModel)]="block.content"
+                          placeholder="Link Text (e.g. Visit Website)...">
+                        }
                         }
                       </div>
 
@@ -382,44 +580,8 @@
 
                 <!-- USER PREVIEW MODE -->
                 @if (isPreviewMode()) {
-                <div class="user-preview-wrapper p-4 rounded-4 bg-white shadow-sm border">
-                  @for (container of nodes(); track container.id) {
-                  <div class="preview-container mb-4">
-                    @for (block of container.contents; track block.id) {
-
-                    @if (block.type === 'text') {
-                    <div class="preview-text">
-                      <span class="fs-5">{{ block.content || '...' }}</span>
-                    </div>
-                    }
-
-                    @if (block.type === 'audio') {
-                    <div class="preview-audio d-inline-flex align-items-center rounded-pill bg-light border px-2 py-1 mx-1 shadow-sm">
-                      <button class="btn btn-primary rounded-circle p-1 d-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px;">
-                        <i class="bi bi-play-fill fs-6"></i>
-                      </button>
-                    </div>
-                    }
-
-                    @if (block.type === 'image') {
-                    <div class="preview-image mx-2 d-inline-block">
-                      <div class="bg-light border rounded d-flex flex-column align-items-center justify-content-center p-2 text-muted" style="min-height: 80px; min-width: 100px;">
-                        <i class="bi bi-image fs-3 mb-1 opacity-50"></i>
-                      </div>
-                    </div>
-                    }
-
-                    @if (block.type === 'video') {
-                    <div class="preview-video mx-2 d-inline-block w-100 mt-2">
-                      <div class="bg-dark border rounded d-flex flex-column align-items-center justify-content-center p-4 text-light position-relative">
-                        <i class="bi bi-play-circle fs-2 mb-2 opacity-75"></i>
-                      </div>
-                    </div>
-                    }
-
-                    }
-                  </div>
-                  }
+                <div class="user-preview-wrapper p-4 rounded-4 bg-white shadow-sm border" style="min-height: 250px;">
+                  <app-activity-renderer [activity]="getPreviewActivityData()" [showFeedback]="false"></app-activity-renderer>
                 </div>
                 }
 

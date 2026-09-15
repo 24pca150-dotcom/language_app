@@ -79,6 +79,7 @@ class CourseController extends Controller
             },
             'levels.chapters' => function ($query) {
                 $query->where('level_chapter.is_active', true)
+                    ->orderBy('chapters.sort_order')
                     ->orderBy('level_chapter.sort_order');
             },
             'levels.chapters.contents' => function ($query) {

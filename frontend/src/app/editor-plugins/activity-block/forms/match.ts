@@ -1,7 +1,36 @@
+import { environment } from '../../../../environments/environment';
+
 const isImageUrl = (url: string) => {
   if (!url) return false;
   const cleanUrl = url.split('?')[0].split('#')[0];
   return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(cleanUrl);
+};
+
+const uploadFile = async (file: File): Promise<string> => {
+  const token = localStorage.getItem('auth_token');
+  const tenantCode = localStorage.getItem('tenant_code');
+  const headers: any = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (tenantCode) headers['X-Tenant-Code'] = tenantCode;
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${environment.apiUrl}/contents/upload`, {
+    method: 'POST',
+    headers,
+    body: formData
+  });
+
+  if (!response.ok) {
+    throw new Error('Upload failed with status ' + response.status);
+  }
+
+  const result = await response.json();
+  if (result && result.url) {
+    return result.url;
+  }
+  throw new Error('Invalid response structure');
 };
 
 export function renderMatchForm(
@@ -83,116 +112,112 @@ export function renderMatchForm(
       row.style.padding = '1rem';
       row.style.marginBottom = '0.75rem';
 
-      const showImage = pair.rightImage && isImageUrl(pair.rightImage);
-      const showDoc = pair.rightImage && !isImageUrl(pair.rightImage);
-      const fileName = pair.rightImage ? pair.rightImage.substring(pair.rightImage.lastIndexOf('/') + 1) : '';
-
       row.innerHTML = `
-        <div style="display: flex; gap: 0.75rem; margin-bottom: 0.5rem; align-items: center;">
-          <input type="text" class="activity-input-text pair-left" placeholder="Left Word (Text)" value="${pair.left || ''}" style="flex: 1; margin-bottom: 0;">
-          <span style="color: #94a3b8; font-weight: bold;">➔</span>
-          <input type="text" class="activity-input-text pair-right" placeholder="Right Word (Text)" value="${pair.right || ''}" style="flex: 1; margin-bottom: 0;">
-          <button type="button" class="activity-btn activity-btn-danger pair-del" style="flex-shrink: 0; padding: 0.5rem 0.75rem; margin-bottom: 0;">&times;</button>
-        </div>
-        <div style="margin-top: 0.5rem; display: flex; flex-direction: co  lumn; gap: 0.5rem;">
-          <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <input type="text" class="activity-input-text pair-right-image" placeholder="Right Image/File URL (E.g. https://example.com/file.jpg)" value="${pair.rightImage || ''}" style="flex: 1; font-size: 0.85rem; margin-bottom: 0;">
-            <span style="color: #64748b; font-size: 0.8rem; font-weight: bold;">OR</span>
-            <label class="activity-btn activity-btn-primary" style="margin-bottom: 0; padding: 0.45rem 0.75rem; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0;">
-              📁 Upload File
-              <input type="file" class="pair-image-upload" style="display: none;">
-            </label>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 0.25rem;">
+              <span style="font-size: 0.8rem; font-weight: bold; color: #475569;">Left Cloud Element</span>
+              <input type="text" class="activity-input-text pair-left" placeholder="Left Word" value="${pair.left || ''}" style="margin-bottom: 0;">
+              
+              <div style="display: flex; gap: 0.5rem; align-items: center; width: 100%;">
+                <input type="text" class="activity-input-text pair-left-image" placeholder="Left Image URL (optional)" value="${pair.leftImage || ''}" style="margin-bottom: 0; font-size: 0.85rem; flex: 1;">
+                <label class="activity-btn activity-btn-primary" style="margin-bottom: 0; padding: 0.25rem 0.5rem; font-size: 0.75rem; cursor: pointer; flex-shrink: 0; display: inline-flex; align-items: center; gap: 0.25rem;">
+                  <i class="bi bi-upload"></i> Upload
+                  <input type="file" accept="image/*" class="pair-left-image-file" style="display: none;">
+                </label>
+              </div>
+
+              <div style="display: flex; gap: 0.5rem; align-items: center; width: 100%;">
+                <input type="text" class="activity-input-text pair-left-audio" placeholder="Left Audio URL (optional)" value="${pair.leftAudio || ''}" style="margin-bottom: 0; font-size: 0.85rem; flex: 1;">
+                <label class="activity-btn activity-btn-primary" style="margin-bottom: 0; padding: 0.25rem 0.5rem; font-size: 0.75rem; cursor: pointer; flex-shrink: 0; display: inline-flex; align-items: center; gap: 0.25rem;">
+                  <i class="bi bi-upload"></i> Upload
+                  <input type="file" accept="audio/*" class="pair-left-audio-file" style="display: none;">
+                </label>
+              </div>
+            </div>
+            
+            <span style="color: #94a3b8; font-weight: bold; font-size: 1.5rem; margin-top: 1.25rem;">➔</span>
+            
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 0.25rem;">
+              <span style="font-size: 0.8rem; font-weight: bold; color: #475569;">Right Cloud Element</span>
+              <input type="text" class="activity-input-text pair-right" placeholder="Right Word" value="${pair.right || ''}" style="margin-bottom: 0;">
+              
+              <div style="display: flex; gap: 0.5rem; align-items: center; width: 100%;">
+                <input type="text" class="activity-input-text pair-right-image" placeholder="Right Image URL (optional)" value="${pair.rightImage || ''}" style="margin-bottom: 0; font-size: 0.85rem; flex: 1;">
+                <label class="activity-btn activity-btn-primary" style="margin-bottom: 0; padding: 0.25rem 0.5rem; font-size: 0.75rem; cursor: pointer; flex-shrink: 0; display: inline-flex; align-items: center; gap: 0.25rem;">
+                  <i class="bi bi-upload"></i> Upload
+                  <input type="file" accept="image/*" class="pair-right-image-file" style="display: none;">
+                </label>
+              </div>
+
+              <div style="display: flex; gap: 0.5rem; align-items: center; width: 100%;">
+                <input type="text" class="activity-input-text pair-right-audio" placeholder="Right Audio URL (optional)" value="${pair.rightAudio || ''}" style="margin-bottom: 0; font-size: 0.85rem; flex: 1;">
+                <label class="activity-btn activity-btn-primary" style="margin-bottom: 0; padding: 0.25rem 0.5rem; font-size: 0.75rem; cursor: pointer; flex-shrink: 0; display: inline-flex; align-items: center; gap: 0.25rem;">
+                  <i class="bi bi-upload"></i> Upload
+                  <input type="file" accept="audio/*" class="pair-right-audio-file" style="display: none;">
+                </label>
+              </div>
+            </div>
+            
+            <button type="button" class="activity-btn activity-btn-danger pair-del" style="align-self: stretch; display: flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; margin-bottom: 0; margin-top: 1.25rem;">&times;</button>
           </div>
-          <!-- Preview Container -->
-          <div class="image-preview-container" style="display: ${pair.rightImage ? 'flex' : 'none'}; align-items: center; gap: 0.75rem; background: #ffffff; padding: 0.5rem; border-radius: 0.375rem; border: 1px dashed #cbd5e1;">
-            <img src="${pair.rightImage || ''}" style="max-height: 45px; max-width: 80px; border-radius: 0.25rem; object-fit: contain; display: ${showImage ? 'block' : 'none'};" class="preview-img">
-            <span class="file-icon" style="font-size: 1.5rem; display: ${showDoc ? 'block' : 'none'};">📄</span>
-            <span class="preview-filename text-muted" style="font-size: 0.75rem; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${fileName || 'Selected File'}</span>
-            <button type="button" class="activity-btn activity-btn-danger clear-img-btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; margin-bottom: 0;">Remove</button>
+          
+          <div style="display: flex; gap: 0.75rem; align-items: center; background: #e2e8f0; padding: 0.5rem; border-radius: 0.375rem;">
+            <label style="font-size: 0.8rem; font-weight: bold; color: #475569; margin-bottom: 0; flex-shrink: 0;">Compound Result Word (e.g., Sunflower):</label>
+            <input type="text" class="activity-input-text pair-result" placeholder="Combined result word" value="${pair.result || ''}" style="flex: 1; margin-bottom: 0; font-size: 0.85rem;">
           </div>
         </div>
       `;
 
       // Bind pair inputs events
       const leftVal = row.querySelector('.pair-left') as HTMLInputElement;
+      const leftImgVal = row.querySelector('.pair-left-image') as HTMLInputElement;
+      const leftAudioVal = row.querySelector('.pair-left-audio') as HTMLInputElement;
       const rightVal = row.querySelector('.pair-right') as HTMLInputElement;
       const rightImgVal = row.querySelector('.pair-right-image') as HTMLInputElement;
-      const fileInput = row.querySelector('.pair-image-upload') as HTMLInputElement;
-      const previewContainer = row.querySelector('.image-preview-container') as HTMLDivElement;
-      const previewImg = row.querySelector('.preview-img') as HTMLImageElement;
-      const clearImgBtn = row.querySelector('.clear-img-btn') as HTMLButtonElement;
+      const rightAudioVal = row.querySelector('.pair-right-audio') as HTMLInputElement;
+      const resultVal = row.querySelector('.pair-result') as HTMLInputElement;
       const delBtn = row.querySelector('.pair-del') as HTMLButtonElement;
 
       leftVal.addEventListener('input', (e: any) => { pair.left = e.target.value; });
+      leftImgVal.addEventListener('input', (e: any) => { pair.leftImage = e.target.value; });
+      leftAudioVal.addEventListener('input', (e: any) => { pair.leftAudio = e.target.value; });
       rightVal.addEventListener('input', (e: any) => { pair.right = e.target.value; });
+      rightImgVal.addEventListener('input', (e: any) => { pair.rightImage = e.target.value; });
+      rightAudioVal.addEventListener('input', (e: any) => { pair.rightAudio = e.target.value; });
+      resultVal.addEventListener('input', (e: any) => { pair.result = e.target.value; });
 
-      const updatePreview = (url: string) => {
-        if (url) {
-          const isImg = isImageUrl(url);
-          previewImg.src = isImg ? url : '';
-          previewImg.style.display = isImg ? 'block' : 'none';
+      // Bind file input uploads
+      const leftImgFile = row.querySelector('.pair-left-image-file') as HTMLInputElement;
+      const leftAudioFile = row.querySelector('.pair-left-audio-file') as HTMLInputElement;
+      const rightImgFile = row.querySelector('.pair-right-image-file') as HTMLInputElement;
+      const rightAudioFile = row.querySelector('.pair-right-audio-file') as HTMLInputElement;
 
-          const fileIcon = row.querySelector('.file-icon') as HTMLSpanElement;
-          if (fileIcon) {
-            fileIcon.style.display = isImg ? 'none' : 'block';
+      const handleUpload = (fileInput: HTMLInputElement, textInput: HTMLInputElement, field: string) => {
+        fileInput.addEventListener('change', async (e: any) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+
+          textInput.value = 'Uploading...';
+          textInput.disabled = true;
+
+          try {
+            const url = await uploadFile(file);
+            pair[field] = url;
+            textInput.value = url;
+          } catch (err) {
+            textInput.value = pair[field] || '';
+            alert('Upload failed. Please try again.');
+          } finally {
+            textInput.disabled = false;
           }
-
-          const filenameSpan = row.querySelector('.preview-filename') as HTMLSpanElement;
-          if (filenameSpan) {
-            filenameSpan.textContent = url.substring(url.lastIndexOf('/') + 1);
-          }
-
-          previewContainer.style.display = 'flex';
-        } else {
-          previewContainer.style.display = 'none';
-        }
+        });
       };
 
-      rightImgVal.addEventListener('input', (e: any) => {
-        pair.rightImage = e.target.value;
-        updatePreview(pair.rightImage);
-      });
-
-      fileInput.addEventListener('change', (e: any) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        rightImgVal.placeholder = "Uploading file...";
-        rightImgVal.disabled = true;
-
-        const formData = new FormData();
-        formData.append('file', file);
-
-        fetch('http://127.0.0.1:8000/api/contents/upload', {
-          method: 'POST',
-          body: formData
-        })
-          .then(res => res.json())
-          .then(uploadResult => {
-            rightImgVal.disabled = false;
-            rightImgVal.placeholder = "Right Image/File URL (E.g. https://example.com/file.jpg)";
-
-            if (uploadResult && uploadResult.url) {
-              pair.rightImage = uploadResult.url;
-              rightImgVal.value = uploadResult.url;
-              updatePreview(uploadResult.url);
-            } else {
-              alert("Upload failed. Invalid response from server.");
-            }
-          })
-          .catch(err => {
-            rightImgVal.disabled = false;
-            rightImgVal.placeholder = "Right Image/File URL (E.g. https://example.com/file.jpg)";
-            console.error("Upload error:", err);
-            alert("Upload failed. Could not reach server.");
-          });
-      });
-
-      clearImgBtn.addEventListener('click', () => {
-        pair.rightImage = '';
-        rightImgVal.value = '';
-        updatePreview('');
-      });
+      if (leftImgFile && leftImgVal) handleUpload(leftImgFile, leftImgVal, 'leftImage');
+      if (leftAudioFile && leftAudioVal) handleUpload(leftAudioFile, leftAudioVal, 'leftAudio');
+      if (rightImgFile && rightImgVal) handleUpload(rightImgFile, rightImgVal, 'rightImage');
+      if (rightAudioFile && rightAudioVal) handleUpload(rightAudioFile, rightAudioVal, 'rightAudio');
 
       delBtn.addEventListener('click', () => {
         if (data.pairs.length > 1) {
@@ -214,7 +239,7 @@ export function renderMatchForm(
   addBtn.classList.add('activity-btn', 'activity-btn-primary', 'mt-1');
   addBtn.innerHTML = `+ Add Pair`;
   addBtn.addEventListener('click', () => {
-    data.pairs.push({ left: '', right: '', rightImage: '' });
+    data.pairs.push({ left: '', right: '', rightImage: '', leftImage: '', leftAudio: '', rightAudio: '', result: '' });
     renderPairRows();
   });
   pairsGroup.appendChild(addBtn);

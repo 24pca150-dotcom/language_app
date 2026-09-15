@@ -1,9 +1,4 @@
 <div class="mb-4 glass-card sequencing-container">
-  <div class="mb-3 d-flex align-items-center justify-content-end">
-    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1" [disabled]="hasSubmitted() && isCorrect()" (click)="reset()">
-      <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
-    </button>
-  </div>
 
   <h5 class="text-dark fw-bold mb-4" [innerHTML]="activity?.question || 'Arrange the following events in the correct chronological order:'"></h5>
 
@@ -56,15 +51,22 @@
     }
   </div>
 
-  <!-- Check Sequence Action Button -->
-  @if (!hasSubmitted()) {
+  <!-- Controls -->
+  <div class="d-flex gap-3 justify-content-center mt-3">
+    @if (!hasSubmitted()) {
+      <button type="button" 
+              class="btn-action check-btn border-0 py-3 px-5 rounded-pill fw-bold text-white d-inline-flex align-items-center gap-2 shadow" 
+              (click)="checkAnswer()">
+        <i class="bi bi-shield-check"></i> Check Order
+      </button>
+    }
     <button type="button" 
-            class="btn btn-primary w-100 rounded-pill py-3 fw-bold text-white shadow-sm border-0" 
-            style="background: linear-gradient(135deg, #6366f1, #4f46e5); transition: all 0.2s;"
-            (click)="checkAnswer()">
-      Check Order
+            class="btn-action reset-btn border-0 py-3 px-4 rounded-pill fw-bold d-inline-flex align-items-center gap-2 shadow" 
+            [disabled]="hasSubmitted() && isCorrect()" 
+            (click)="reset()">
+      <i class="bi bi-arrow-counterclockwise"></i> Reset
     </button>
-  }
+  </div>
 
   <!-- Correct Sequence Model Answer Panel -->
   @if (showFeedback && hasSubmitted() && !isCorrect() && activity?.events) {

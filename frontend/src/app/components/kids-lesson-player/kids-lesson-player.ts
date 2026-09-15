@@ -21,6 +21,7 @@ export interface LessonStep {
 })
 export class KidsLessonPlayer implements OnInit, OnDestroy {
   lessonSequence = input<LessonStep[]>([]);
+  isLoading = input<boolean>(true);
   currentStepIndex = input<number>(0);
   highestStepIndex = input<number>(0);
   isChapterCompleted = input<boolean>(false);
@@ -60,6 +61,9 @@ export class KidsLessonPlayer implements OnInit, OnDestroy {
       id = step.data.id;
     }
     if (id) {
+      // Store the return courseId so assessment player can navigate back
+      const courseId = this.router.url.match(/\/learn(?:\/play)?\/([0-9]+)/)?.[1];
+      if (courseId) localStorage.setItem('lang_app_assessment_return_course', courseId);
       this.router.navigate(['/assessments/play', id]);
     } else {
       this.onActivityAnswered({ isCorrect: true });
@@ -75,6 +79,11 @@ export class KidsLessonPlayer implements OnInit, OnDestroy {
   pageSize = 2;
   isFullscreen = signal(false);
   isSpeaking = signal(false);
+  isSidebarOpen = signal(true);
+
+  toggleSidebar() {
+    this.isSidebarOpen.update(v => !v);
+  }
 
   currentStep = computed(() => {
     if (this.lessonSequence().length > 0 && this.currentStepIndex() >= 0 && this.currentStepIndex() < this.lessonSequence().length) {
@@ -448,41 +457,7 @@ export class KidsLessonPlayer implements OnInit, OnDestroy {
   }
 
   startTypewriter(htmlContent: string, isTamil: boolean = false) {
-    this.typedContent.set('');
+    this.typedContent.set(htmlContent);
     clearTimeout(this.typingTimeout);
-
-    let i = 0;
-    let isTag = false;
-    let currentText = '';
-
-    const charDelay = isTamil ? Math.random() * 30 + 55 : Math.random() * 20 + 35;
-    const sentenceDelay = isTamil ? 900 : 600;
-    const commaDelay = isTamil ? 450 : 300;
-
-    const type = () => {
-      if (i < htmlContent.length) {
-        let char = htmlContent.charAt(i);
-        if (char === '<') isTag = true;
-
-        currentText += char;
-        i++;
-
-        if (isTag) {
-          while (i < htmlContent.length && htmlContent.charAt(i - 1) !== '>') {
-            currentText += htmlContent.charAt(i);
-            i++;
-          }
-          isTag = false;
-          this.typedContent.set(currentText);
-          this.typingTimeout = setTimeout(type, 0);
-        } else {
-          this.typedContent.set(currentText);
-          const delay = char === '.' || char === '!' || char === '?' ? sentenceDelay : (char === ',' ? commaDelay : charDelay);
-          this.typingTimeout = setTimeout(type, delay);
-        }
-      }
-    };
-
-    type();
   }
 }

@@ -503,7 +503,7 @@ export class LearnerDashboard implements OnInit {
           }
         }
       },
-      error: () => {}
+      error: () => { }
     });
 
     this.fetchCourses();

@@ -6,32 +6,12 @@ import { ActivatedRoute } from '@angular/router';
 import { forkJoin, of, Observable } from 'rxjs';
 import { switchMap, map, catchError } from 'rxjs/operators';
 
+import { CourseStructure, Level, Chapter, Content } from '../../models/course-structure.model';
+
 export interface LessonStep {
   type: 'video' | 'pdf' | 'reading' | 'activity' | 'assessment';
   title: string;
   data: any;
-}
-
-interface Chapter {
-  id: number;
-  name: string;
-  contents: Content[];
-  assessments?: any[];
-  is_expanded?: boolean;
-}
-
-interface Level {
-  id: number;
-  name: string;
-  chapters: Chapter[];
-  is_expanded?: boolean;
-}
-
-interface CourseStructure {
-  id: number;
-  name: string;
-  description?: string;
-  levels: Level[];
 }
 
 import { RouterModule, Router } from '@angular/router';
@@ -44,17 +24,6 @@ import { gsap } from 'gsap';
 import { AudioService } from '../../services/audio.service';
 import { AuthService } from '../../services/auth';
 
-interface Content {
-  id: number;
-  name: string;
-  title?: string;
-  text_content?: string;
-  attachments?: any[];
-  external_url?: any[];
-  assessments?: any[];
-  sort_order?: number;
-  is_active?: boolean;
-}
 
 @Component({
   selector: 'app-course-player',
@@ -88,6 +57,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
   completedChapterIds = signal<number[]>([]);
 
   lessonSequence = signal<LessonStep[]>([]);
+  isLoadingLesson = signal<boolean>(true);
   currentStepIndex = signal<number>(0);
   highestStepIndex = signal<number>(0);
   learningMode = signal<'strict' | 'easy'>('easy'); // Strict mode prevents skipping activities
@@ -218,9 +188,14 @@ export class CoursePlayer implements OnInit, OnDestroy {
 
     this.route.params.subscribe(params => {
       const cid = params['courseId'] ? +params['courseId'] : null;
+      const returningFromAssessment = !!localStorage.getItem('lang_app_assessment_done');
       if (cid && cid !== this.courseId()) {
         this.courseId.set(cid);
         this.loadStructure();
+      } else if (cid && cid === this.courseId() && returningFromAssessment) {
+        // Same course, returning from assessment — just refresh DB progress
+        localStorage.removeItem('lang_app_assessment_done');
+        this.loadDatabaseProgress();
       }
     });
 
@@ -275,24 +250,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
       this.activeLevelId.set(structure.levels[0].id);
       this.currentView.set('map');
     }
-    this.loadLocalProgress();
     this.loadDatabaseProgress();
-  }
-
-  loadLocalProgress(): void {
-    const cid = this.courseId();
-    if (!cid) return;
-    const uid = this.userId();
-    try {
-      const levelsKey = `lang_app_completed_levels_${uid}_${cid}`;
-      const chaptersKey = `lang_app_completed_chapters_${uid}_${cid}`;
-      const storedLevels = localStorage.getItem(levelsKey);
-      const storedChapters = localStorage.getItem(chaptersKey);
-      this.completedLevelIds.set(storedLevels ? JSON.parse(storedLevels) : []);
-      this.completedChapterIds.set(storedChapters ? JSON.parse(storedChapters) : []);
-    } catch (e) {
-      console.error('Failed to load local progress:', e);
-    }
   }
 
   loadDatabaseProgress(): void {
@@ -301,46 +259,15 @@ export class CoursePlayer implements OnInit, OnDestroy {
         if (stats) {
           if (stats.xp_points !== undefined) this.xp.set(stats.xp_points);
           if (stats.gems !== undefined) this.coins.set(stats.gems);
-          
+
           if (stats.completed_chapter_ids) {
-            // Merge local and database completed chapters to make sure we don't lose anything
-            const localIds = this.completedChapterIds();
-            const dbIds = stats.completed_chapter_ids;
-
-            // Find any chapters completed locally but NOT in the database, and sync them to the database
-            localIds.forEach(id => {
-              if (!dbIds.includes(id)) {
-                console.log('[DEBUG] Syncing local chapter completion to database:', id);
-                this.http.post(`${environment.apiUrl}/chapters/${id}/complete`, {}).subscribe({
-                  next: (res) => console.log('Successfully synced local chapter to DB:', id),
-                  error: (err) => console.error('Failed to sync local chapter to DB:', id, err)
-                });
-              }
-            });
-
-            const merged = Array.from(new Set([...localIds, ...dbIds]));
-            this.completedChapterIds.set(merged);
-            console.log('[DEBUG] loaded completed chapters from DB:', dbIds, 'Merged:', merged);
-            this.saveLocalProgress(); // save merged back to local storage
+            this.completedChapterIds.set(stats.completed_chapter_ids);
+            console.log('[DEBUG] loaded completed chapters 100% from DB:', stats.completed_chapter_ids);
           }
         }
       },
       error: (err) => console.error('Failed to load progress from backend database:', err)
     });
-  }
-
-  saveLocalProgress(): void {
-    const cid = this.courseId();
-    if (!cid) return;
-    const uid = this.userId();
-    try {
-      const levelsKey = `lang_app_completed_levels_${uid}_${cid}`;
-      const chaptersKey = `lang_app_completed_chapters_${uid}_${cid}`;
-      localStorage.setItem(levelsKey, JSON.stringify(this.completedLevelIds()));
-      localStorage.setItem(chaptersKey, JSON.stringify(this.completedChapterIds()));
-    } catch (e) {
-      console.error('Failed to save local progress:', e);
-    }
   }
 
   isLevelUnlocked(levelId: number): boolean {
@@ -366,14 +293,28 @@ export class CoursePlayer implements OnInit, OnDestroy {
         this.completedLevelIds.update(lids => [...lids, level.id]);
       }
     }
-    this.saveLocalProgress();
 
-    // Sync progress to the backend database
+    // Persist progress directly to the backend database
     this.http.post(`${environment.apiUrl}/chapters/${chapterId}/complete`, {}).subscribe({
-      next: (res) => console.log('Backend progress updated successfully:', res),
-      error: (err) => console.error('Failed to sync progress to backend:', err)
+      next: (res) => {
+        console.log('Backend database progress updated successfully:', res);
+        this.loadDatabaseProgress(); // Refresh stats (XP, gems, completed chapters) from database!
+      },
+      error: (err) => console.error('Failed to sync progress to backend database:', err)
     });
   }
+
+  completeContent(chapterId: number, contentId: number): void {
+    if (!chapterId || !contentId) return;
+    this.http.post(`${environment.apiUrl}/chapters/${chapterId}/contents/${contentId}/complete`, {}).subscribe({
+      next: (res) => {
+        console.log(`Content ${contentId} in Chapter ${chapterId} completed:`, res);
+        this.loadDatabaseProgress();
+      },
+      error: (err) => console.error('Failed to mark content as completed:', err)
+    });
+  }
+
 
   goBack() {
     if (this.currentView() === 'content') {
@@ -406,8 +347,8 @@ export class CoursePlayer implements OnInit, OnDestroy {
   }
 
   resolveActivityReferences(contents: Content[]): Observable<Content[]> {
-    const fetchObservables: Observable<any>[] = [];
-    const referencePositions: Array<{ contentIdx: number, blockIdx: number }> = [];
+    const referencePositions: Array<{ contentIdx: number, blockIdx: number, refId: number }> = [];
+    const uniqueIds = new Set<number>();
 
     contents.forEach((content, contentIdx) => {
       if (content.text_content) {
@@ -420,37 +361,45 @@ export class CoursePlayer implements OnInit, OnDestroy {
               if (block.type === 'activity' && block.data && block.data.type === 'activity_reference') {
                 const refId = block.data.activityReferenceId;
                 if (refId) {
-                  fetchObservables.push(this.http.get<any>(`${environment.apiUrl}/activities/${refId}`));
-                  referencePositions.push({ contentIdx, blockIdx });
+                  referencePositions.push({ contentIdx, blockIdx, refId });
+                  uniqueIds.add(refId);
                 }
               }
             });
-          } catch (e) {}
+          } catch (e) { }
         }
       }
     });
 
-    if (fetchObservables.length === 0) {
+    if (uniqueIds.size === 0) {
       return of(contents);
     }
 
-    return forkJoin(fetchObservables).pipe(
+    const idsArray = Array.from(uniqueIds);
+    return this.http.get<any[]>(`${environment.apiUrl}/activities`, { params: { ids: idsArray.join(',') } }).pipe(
       map(activities => {
-        activities.forEach((act, idx) => {
-          const pos = referencePositions[idx];
+        const activityMap = new Map<number, any>();
+        activities.forEach(act => {
+          activityMap.set(act.id, act);
+        });
+
+        referencePositions.forEach(pos => {
+          const act = activityMap.get(pos.refId);
+          if (!act) return;
           const content = contents[pos.contentIdx];
           if (!content.text_content) return;
-          const parsed = JSON.parse(content.text_content);
-          const block = parsed.blocks[pos.blockIdx];
-          
-          const realData = typeof act.data_json === 'string' ? JSON.parse(act.data_json) : act.data_json;
-          
-          block.data = {
-            ...realData,
-            type: act.type
-          };
-          
-          content.text_content = JSON.stringify(parsed);
+          try {
+            const parsed = JSON.parse(content.text_content);
+            const block = parsed.blocks[pos.blockIdx];
+            const realData = typeof act.data_json === 'string' ? JSON.parse(act.data_json) : act.data_json;
+
+            block.data = {
+              ...realData,
+              type: act.type,
+              title: act.title
+            };
+            content.text_content = JSON.stringify(parsed);
+          } catch (e) { }
         });
         return contents;
       }),
@@ -465,6 +414,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
     this.activeChapterId.set(chapterId);
     this.currentView.set('content'); // Using 'content' view for the new Full-Screen Lesson Player
     this.lessonSequence.set([]);
+    this.isLoadingLesson.set(true);
 
     const resumeKey = `lang_app_resume_step_${this.userId()}_${this.courseId()}_${chapterId}`;
     const savedIndex = localStorage.getItem(resumeKey);
@@ -478,23 +428,28 @@ export class CoursePlayer implements OnInit, OnDestroy {
     this.lessonFinished.set(false);
     this.activityFeedbackState.set(null);
 
-    const chapter = this.selectedChapter();
-    if (!chapter) return;
+    // Fetch the full chapter details including contents and assessments in a single request
+    this.http.get<any>(`${environment.apiUrl}/chapters/${chapterId}`).pipe(
+      switchMap(chapterData => {
+        const contents: Content[] = (chapterData.contents || [])
+          .filter((c: any) => c.is_active !== false)
+          .sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0));
 
-    const contentIds = chapter.contents.map(c => c.id);
-    if (contentIds.length === 0) {
-      this.generateLessonSequence([], chapter.assessments || []);
-      return;
-    }
-
-    const requests = contentIds.map(id => this.http.get<Content>(`${environment.apiUrl}/contents/${id}`));
-    forkJoin(requests).pipe(
-      switchMap(fullContents => this.resolveActivityReferences(fullContents))
+        return this.resolveActivityReferences(contents).pipe(
+          map(resolvedContents => ({
+            contents: resolvedContents,
+            assessments: chapterData.assessments || []
+          }))
+        );
+      })
     ).subscribe({
-      next: (resolvedContents) => {
-        this.generateLessonSequence(resolvedContents, chapter.assessments || []);
+      next: (result) => {
+        this.generateLessonSequence(result.contents, result.assessments);
       },
-      error: (err) => console.error('Failed to load chapter contents', err)
+      error: (err) => {
+        console.error('Failed to load chapter contents', err);
+        this.isLoadingLesson.set(false);
+      }
     });
   }
 
@@ -582,9 +537,11 @@ export class CoursePlayer implements OnInit, OnDestroy {
                 if (block.data.type === 'mcq') actName = 'Multiple Choice';
               }
 
+              const stepTitle = (block.data && block.data.title) ? block.data.title : `${idx + 1}. Activity - ${actName}`;
+
               steps.push({
                 type: 'activity',
-                title: `${idx + 1}. Activity - ${actName}`,
+                title: stepTitle,
                 data: block
               });
             });
@@ -620,6 +577,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
       this.currentStepIndex.set(0);
     }
     this.evaluateStepCompletion();
+    this.isLoadingLesson.set(false);
   }
 
   handleStepCompleted(isCompleted: boolean) {
@@ -750,18 +708,51 @@ export class CoursePlayer implements OnInit, OnDestroy {
     this.showGameOver.set(false);
     this.activityFeedbackState.set(null);
     this.evaluateStepCompletion();
+
+    // Reset the active activity content reference to trigger component reset via ngOnChanges
+    const currentIdx = this.currentStepIndex();
+    const seq = this.lessonSequence();
+    if (seq.length > 0 && currentIdx >= 0 && currentIdx < seq.length) {
+      const step = seq[currentIdx];
+      if (step && step.type === 'activity' && step.data) {
+        const clonedStep = {
+          ...step,
+          data: {
+            ...step.data,
+            data: step.data.data ? { ...step.data.data } : null
+          }
+        };
+        const newSeq = [...seq];
+        newSeq[currentIdx] = clonedStep;
+        this.lessonSequence.set(newSeq);
+      }
+    }
   }
 
 
 
   nextLessonStep() {
     const currentIdx = this.currentStepIndex();
+    const activeChapId = this.activeChapterId();
+    const chapter = this.selectedChapter();
+
+    if (activeChapId && chapter && chapter.contents && chapter.contents.length > 0) {
+      const content = chapter.contents[Math.min(currentIdx, chapter.contents.length - 1)];
+      if (content) {
+        this.completeContent(activeChapId, content.id);
+      }
+    }
+
     if (currentIdx < this.lessonSequence().length - 1) {
       this.currentStepIndex.set(currentIdx + 1);
       this.isVideoCompleted.set(false);
       this.evaluateStepCompletion();
       this.activityFeedbackState.set(null);
     } else {
+      // ✅ Auto-complete the chapter NOW — don't wait for FINISH button click
+      if (activeChapId) {
+        this.completeChapter(activeChapId);
+      }
       this.lessonFinished.set(true);
     }
   }
@@ -789,9 +780,11 @@ export class CoursePlayer implements OnInit, OnDestroy {
   }
 
 
-  ngOnDestroy() {}
+  ngOnDestroy() { }
 
   finishLesson() {
+    // Chapter is already completed in nextLessonStep() when all steps are done.
+    // This method only handles celebration and navigation.
     this.audioService.playSuccess();
 
     const duration = 3 * 1000;
@@ -818,11 +811,6 @@ export class CoursePlayer implements OnInit, OnDestroy {
       }
     };
     frame();
-
-    const activeChapId = this.activeChapterId();
-    if (activeChapId) {
-      this.completeChapter(activeChapId);
-    }
 
     setTimeout(() => {
       this.goToMap();

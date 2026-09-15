@@ -240,9 +240,19 @@ export class AssessmentPlayerComponent implements OnInit, OnDestroy {
   }
 
   goBackToCourse(): void {
-    // Navigate back to course dashboard learn page
-    const exam = this.assessment();
-    // Assuming level or chapter ID or learn router path
-    this.router.navigate(['/learn']);
+    // Read the stored courseId so we navigate back to the exact course
+    const returnCourseId = localStorage.getItem('lang_app_assessment_return_course');
+    localStorage.removeItem('lang_app_assessment_return_course');
+
+    // Signal to course-player that it must refresh DB progress on re-init
+    localStorage.setItem('lang_app_assessment_done', '1');
+
+    if (returnCourseId) {
+      // Navigate to the course player — it will re-init and call loadDatabaseProgress()
+      this.router.navigate(['/learn', returnCourseId]);
+    } else {
+      // Fallback: go to general learn dashboard
+      this.router.navigate(['/learn']);
+    }
   }
 }
