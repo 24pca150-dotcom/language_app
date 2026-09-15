@@ -86,6 +86,17 @@
                   {{ getActivityTypeName(activity.type) }}
                 </span>
               </div>
+              <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                @if (activity.course) {
+                  <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill small">
+                    <i class="bi bi-book-half me-1"></i>{{ activity.course.name }}
+                  </span>
+                } @else {
+                  <span class="badge bg-secondary-subtle text-secondary rounded-pill small">
+                    🌐 Global / All Courses
+                  </span>
+                }
+              </div>
               <h5 class="fw-bold text-dark mb-2 text-truncate" [title]="activity.title">{{ activity.title }}</h5>
               <p class="text-muted small mb-4 flex-grow-1">
                 {{ getActivityDetailsSummary(activity) }}
@@ -210,16 +221,16 @@
 
     <div class="card-body p-4 p-lg-5">
       <!-- Top Section: Metadata -->
-      <div class="row g-4 mb-5">
-        <div class="col-md-8">
+      <div class="row g-3 mb-4">
+        <div class="col-md-5">
           <label class="form-label fw-bold text-secondary small">Activity Title</label>
-          <input type="text" class="form-control border-secondary form-control-lg" 
-                 placeholder="e.g. Tamil Nouns MCQ" [(ngModel)]="activityTitle"
+          <input type="text" class="form-control border-secondary" 
+                 placeholder="e.g. English Greetings Match / Daily Practice" [(ngModel)]="activityTitle"
                  (input)="isTitleManuallyEdited.set(true)">
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label class="form-label fw-bold text-secondary small">Activity Type</label>
-          <select class="form-select border-secondary form-select-lg" [(ngModel)]="activityType">
+          <select class="form-select border-secondary" [(ngModel)]="activityType">
             <option value="mcq">Multiple Choice Question (MCQ)</option>
             <option value="fill_blanks">Fill in the Blanks</option>
             <option value="flashcard">3D Vocabulary Flashcard</option>
@@ -232,8 +243,16 @@
             <option value="parts_of_speech">Parts of Speech Tagger</option>
             <option value="mind_map">Mind Mapping Diagram</option>
             <option value="writing">Paragraph / Story Writing</option>
-            <hr>
             <option value="custom">Custom Canvas Builder</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-bold text-secondary small">Associated Course (Practice Arena)</label>
+          <select class="form-select border-secondary" [(ngModel)]="activityCourseId">
+            <option [ngValue]="null">🌐 All Courses / General Practice</option>
+            @for (c of coursesList(); track c.id) {
+              <option [ngValue]="c.id">{{ c.name }} ({{ c.code }})</option>
+            }
           </select>
         </div>
       </div>

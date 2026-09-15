@@ -1,5 +1,36 @@
-<div class="lesson-player w-100 h-100 lesson-bg-pattern d-flex flex-column position-absolute top-0 start-0 z-3 animate-slide-up overflow-hidden">
+<div class="lesson-player w-100 h-100 lesson-bg-pattern d-flex flex-column position-absolute top-0 start-0 z-3 animate-slide-up overflow-hidden"
+     [class.steps-drawer-collapsed]="isStepsDrawerCollapsed()">
   
+  <!-- Floating Top Buttons when steps are collapsed -->
+  @if (isStepsDrawerCollapsed()) {
+    <div class="position-absolute d-flex align-items-center gap-2 pe-auto" style="top: 16px; left: 16px; z-index: 1050;">
+      <!-- Menu Toggle Arrow Button -->
+      <button
+        class="btn btn-dark rounded-circle shadow-md hover-lift d-flex align-items-center justify-content-center"
+        style="width: 42px; height: 42px; background: #0B192C; border: 1.5px solid #FFC727;"
+        (click)="toggleNavMenu.emit()"
+        title="Open Main Navigation Menu">
+        <i class="bi bi-arrow-right-short fw-bold text-warning fs-4"></i>
+      </button>
+
+      <!-- Quit Button -->
+      <button
+        class="btn btn-light rounded-circle shadow-md hover-lift d-flex align-items-center justify-content-center border border-2 border-secondary"
+        style="width: 42px; height: 42px;" (click)="goToMap()" title="Back to Map">
+        <i class="bi bi-x-lg fw-bold text-secondary fs-6"></i>
+      </button>
+
+      <!-- Expand Steps Drawer Arrow Button -->
+      <button
+        class="btn btn-warning rounded-pill shadow-md hover-lift d-flex align-items-center gap-2 px-3 py-2 fw-bold text-dark border border-2 border-dark"
+        (click)="toggleStepsDrawer()"
+        title="Show Adventure Steps">
+        <i class="bi bi-chevron-right fw-bold"></i>
+        <span>Steps 🗺️</span>
+      </button>
+    </div>
+  }
+
   <!-- Top HUD (Floating widgets) -->
   <header class="position-absolute top-0 start-0 w-100 h-100 pe-none kids-header-hud" style="z-index: 1000;">
     <!-- Quit Button (Floating Top Left - Mobile Only) -->
@@ -34,16 +65,37 @@
   <!-- Main Layout Body -->
   <div class="flex-grow-1 d-flex overflow-hidden w-100" style="min-height: 0;">
     <!-- Sidebar: Kids Lesson steps list -->
-    <aside class="kids-sidebar-steps d-none d-lg-block border-end border-2 bg-white" style="width: 280px; z-index: 10; display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden;">
+    <aside class="kids-sidebar-steps d-none d-lg-block border-end border-2 bg-white"
+           [class.steps-collapsed]="isStepsDrawerCollapsed()"
+           style="width: 280px; z-index: 10; display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden;">
       <!-- Sidebar Fixed Header (Aligned with top HUD height) -->
-      <div class="p-3 border-bottom border-2 d-flex align-items-center gap-3 bg-white" style="height: 85px; border-color: #cbd5e1 !important;">
-        <!-- Quit Button inside sidebar header -->
+      <div class="p-3 border-bottom border-2 d-flex align-items-center justify-content-between bg-white" style="height: 85px; border-color: #cbd5e1 !important;">
+        <div class="d-flex align-items-center gap-2">
+          <!-- Main Menu Arrow Button (User Request: "mela oru arrow vachiru venum na eduthukura mathiri intha page vantha matoom scroll aagiranum") -->
+          <button
+            class="btn btn-dark rounded-circle shadow-sm hover-lift d-flex align-items-center justify-content-center flex-shrink-0"
+            style="width: 38px; height: 38px; background: #0B192C; border: 1.5px solid #FFC727;"
+            (click)="toggleNavMenu.emit()"
+            title="Open Main Navigation Menu">
+            <i class="bi bi-arrow-right-short fw-bold text-warning fs-5"></i>
+          </button>
+
+          <!-- Quit Button inside sidebar header -->
+          <button
+            class="btn btn-light rounded-circle border border-2 border-secondary hover-lift d-flex align-items-center justify-content-center flex-shrink-0"
+            style="width: 38px; height: 38px;" (click)="goToMap()" title="Back to Map">
+            <i class="bi bi-x-lg fw-bold text-secondary fs-6"></i>
+          </button>
+
+          <span class="text-secondary small fw-bold text-uppercase mb-0 text-truncate" style="letter-spacing: 0.5px; font-family: 'Nunito', sans-serif; font-size: 0.88rem;">Steps 🗺️</span>
+        </div>
+
+        <!-- Collapse Steps Drawer Arrow Button -->
         <button
-          class="btn btn-light rounded-circle border border-2 border-secondary hover-lift d-flex align-items-center justify-content-center"
-          style="width: 40px; height: 40px;" (click)="goToMap()">
-          <i class="bi bi-x-lg fw-bold text-secondary fs-5"></i>
+          class="btn btn-light rounded-circle border border-2 border-secondary hover-lift d-flex align-items-center justify-content-center flex-shrink-0"
+          style="width: 34px; height: 34px;" (click)="toggleStepsDrawer()" title="Collapse Steps Panel">
+          <i class="bi bi-chevron-left fw-bold text-secondary fs-6"></i>
         </button>
-        <span class="text-secondary small fw-bold text-uppercase mb-0" style="letter-spacing: 1px; font-family: 'Nunito', sans-serif; font-size: 0.95rem;">Adventure Steps 🗺️</span>
       </div>
 
       <!-- Scrollable steps list -->
@@ -259,8 +311,10 @@
       @if (step.type === 'activity') {
       <div class="w-100 flex-grow-1 d-flex flex-column align-items-center justify-content-center mx-auto"
         style="max-width: 1600px; width: 95%;">
-        <app-activity-renderer [activity]="step.data.data" [showFeedback]="true"
-          (answered)="onActivityAnswered($event)" class="w-100"></app-activity-renderer>
+        @if (activityRenderKey()) {
+          <app-activity-renderer [activity]="step.data.data" [showFeedback]="true"
+            (answered)="onActivityAnswered($event)" class="w-100"></app-activity-renderer>
+        }
       </div>
       }
 
@@ -375,17 +429,32 @@
         </button>
       </div>
     </div>
-    } @else {
-    <!-- Standard Navigation Buttons -->
+    }
+
+    <!-- Standard Navigation Buttons (PREV + REFRESH on left, NEXT/FINISH on right) -->
+    @if (activityFeedbackState() !== 'correct') {
     <div class="position-absolute bottom-0 start-0 w-100 pe-none" style="z-index: 10; height: 90px;">
-      <!-- Left Side: PREV -->
-      @if (currentStepIndex() > 0 && !lessonFinished()) {
-      <button
-        class="btn btn-light rounded-pill px-4 py-2 fw-bold fs-5 text-secondary shadow-lg hover-lift border border-4 border-light transition-all position-absolute pe-auto kids-prev-btn"
-        style="bottom: 20px; min-width: 140px;" (click)="prevLessonStep()">
-        <i class="bi bi-chevron-left me-2"></i> PREV
-      </button>
-      }
+      <!-- Left Side: Navigation (PREV + REFRESH) -->
+      <div class="position-absolute d-flex align-items-center gap-3 pe-auto kids-prev-btn" style="bottom: 20px;">
+        @if (currentStepIndex() > 0 && !lessonFinished()) {
+        <button
+          class="btn btn-light rounded-pill px-4 py-2 fw-bold fs-5 text-secondary shadow-lg hover-lift border border-4 border-light transition-all"
+          style="min-width: 140px;" (click)="prevLessonStep()">
+          <i class="bi bi-chevron-left me-2"></i> PREV
+        </button>
+        }
+
+        @if (currentStep()?.type === 'activity' && !lessonFinished()) {
+        <button
+          class="btn rounded-pill px-4 py-2 fw-bold fs-5 shadow-lg hover-lift border border-4 border-white transition-all kids-refresh-btn d-flex align-items-center justify-content-center gap-2"
+          style="min-width: 140px;"
+          (click)="refreshCurrentActivity()"
+          title="Reset and retry this question">
+          <i class="bi bi-arrow-clockwise fs-4 fw-bold"></i>
+          <span>Refresh</span>
+        </button>
+        }
+      </div>
 
       <!-- Right Side: NEXT / FINISH -->
       @if (lessonFinished()) {
@@ -394,7 +463,7 @@
         style="bottom: 20px; right: 20px; min-width: 140px;" (click)="finishLesson()">
         FINISH <i class="bi bi-check2-circle ms-2"></i>
       </button>
-      } @else if (currentStep()?.type !== 'activity') {
+      } @else if (currentStep()?.type !== 'activity' && !activityFeedbackState()) {
       <button
         class="btn rounded-pill px-4 py-2 fw-bold fs-5 shadow-lg hover-lift transition-all text-white border-bottom border-4 position-absolute pe-auto"
         style="bottom: 20px; right: 20px; min-width: 140px; background: #6366f1; border-color: #4f46e5;" (click)="nextLessonStep()">

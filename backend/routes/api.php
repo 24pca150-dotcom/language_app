@@ -14,6 +14,7 @@ use App\Http\Controllers\LearningModeController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\LiveClassController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +44,18 @@ Route::middleware(['auth:sanctum', 'identify.tenant'])->group(function () {
     Route::middleware(['role:super_admin,admin,staff'])->group(function () {
         Route::post('announcements', [AnnouncementController::class, 'store']);
         Route::delete('announcements/{announcement}', [AnnouncementController::class, 'destroy']);
+    });
+
+    // Live Classes Routes
+    Route::get('live-classes', [LiveClassController::class, 'index']);
+    Route::get('live-classes/upcoming', [LiveClassController::class, 'upcoming']);
+
+    Route::middleware(['role:super_admin,admin,staff'])->group(function () {
+        Route::post('live-classes', [LiveClassController::class, 'store']);
+        Route::put('live-classes/{liveClass}', [LiveClassController::class, 'update']);
+        Route::delete('live-classes/{liveClass}', [LiveClassController::class, 'destroy']);
+        Route::post('live-classes/{liveClass}/attachments', [LiveClassController::class, 'uploadAttachments']);
+        Route::delete('live-classes/attachments/{attachment}', [LiveClassController::class, 'deleteAttachment']);
     });
 
     /*

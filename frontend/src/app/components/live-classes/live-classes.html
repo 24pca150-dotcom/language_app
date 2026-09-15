@@ -1,0 +1,467 @@
+<div class="container-fluid py-4 live-classes-container">
+  <!-- Header Section -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3">
+    <div>
+      <h2 class="fw-bold mb-1 d-flex align-items-center gap-2 text-dark">
+        <span class="live-icon-badge">
+          <i class="bi bi-camera-video-fill text-primary"></i>
+        </span>
+        Live Classes & Study Materials
+      </h2>
+      <p class="text-secondary mb-0">Schedule live interactive classes and attach PDFs, videos, images, or audio materials.</p>
+    </div>
+    
+    @if (authService.hasRole(['super_admin', 'admin', 'staff'])) {
+      <button class="btn btn-primary d-inline-flex align-items-center gap-2 shadow-sm rounded-pill fw-semibold px-4 py-2" (click)="showForm.set(!showForm())">
+        <i class="bi" [ngClass]="showForm() ? 'bi-x-lg' : 'bi-plus-lg'"></i>
+        {{ showForm() ? 'Cancel' : 'Schedule Live Class' }}
+      </button>
+    }
+  </div>
+
+  <!-- Success Notification -->
+  @if (successMsg()) {
+    <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-4 d-flex align-items-center mb-4">
+      <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+      <div>{{ successMsg() }}</div>
+      <button type="button" class="btn-close ms-auto" (click)="successMsg.set(null)"></button>
+    </div>
+  }
+
+  <!-- Error Notification -->
+  @if (error()) {
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-4 d-flex align-items-center mb-4">
+      <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+      <div>{{ error() }}</div>
+      <button type="button" class="btn-close ms-auto" (click)="error.set(null)"></button>
+    </div>
+  }
+
+  <!-- Add / Schedule Live Class Form Card -->
+  @if (showForm() && authService.hasRole(['super_admin', 'admin', 'staff'])) {
+    <div class="card border-0 shadow rounded-4 mb-5 form-slide-card overflow-hidden">
+      <div class="card-header bg-gradient-primary text-white p-4 d-flex justify-content-between align-items-center border-0">
+        <div>
+          <h4 class="fw-bold mb-1"><i class="bi bi-calendar-plus me-2"></i>Schedule a New Live Class</h4>
+          <p class="mb-0 text-white-50 small">Provide session topic, video link, scheduled time, instructor, and upload study materials.</p>
+        </div>
+        <button type="button" class="btn-close btn-close-white" (click)="showForm.set(false)"></button>
+      </div>
+
+      <div class="card-body p-4 p-md-5">
+        <form [formGroup]="classForm" (ngSubmit)="submitClass()">
+          <div class="row g-4">
+            <!-- Title -->
+            <div class="col-md-7">
+              <label class="form-label fw-semibold text-dark">Class Title / Topic <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-0"><i class="bi bi-fonts text-secondary"></i></span>
+                <input type="text" class="form-control bg-light border-0 py-2 shadow-none" formControlName="title" placeholder="e.g., Conversational Spoken English Masterclass">
+              </div>
+              @if (classForm.get('title')?.touched && classForm.get('title')?.invalid) {
+                <div class="text-danger small mt-1">Please enter a valid title.</div>
+              }
+            </div>
+
+            <!-- Instructor Name -->
+            <div class="col-md-5">
+              <label class="form-label fw-semibold text-dark">Instructor / Host <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-0"><i class="bi bi-person-badge text-secondary"></i></span>
+                <input type="text" class="form-control bg-light border-0 py-2 shadow-none" formControlName="instructor_name" placeholder="e.g., Sarah Jenkins">
+              </div>
+              @if (classForm.get('instructor_name')?.touched && classForm.get('instructor_name')?.invalid) {
+                <div class="text-danger small mt-1">Instructor name is required.</div>
+              }
+            </div>
+
+            <!-- Meeting URL -->
+            <div class="col-md-12">
+              <label class="form-label fw-semibold text-dark">Live Meeting Link / URL <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-0"><i class="bi bi-link-45deg text-secondary fs-5"></i></span>
+                <input type="url" class="form-control bg-light border-0 py-2 shadow-none" formControlName="meeting_link" placeholder="https://meet.google.com/xxx-xxxx-xxx or Zoom / Teams link">
+              </div>
+              <div class="form-text text-muted">Supports Google Meet, Zoom, Microsoft Teams, YouTube Live, or any direct meeting URL.</div>
+              @if (classForm.get('meeting_link')?.touched && classForm.get('meeting_link')?.invalid) {
+                <div class="text-danger small mt-1">Please enter a valid URL starting with http:// or https://</div>
+              }
+            </div>
+
+            <!-- Date & Time -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold text-dark">Scheduled Date & Time <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-0"><i class="bi bi-calendar-event text-secondary"></i></span>
+                <input type="datetime-local" class="form-control bg-light border-0 py-2 shadow-none" formControlName="start_time">
+              </div>
+            </div>
+
+            <!-- Duration -->
+            <div class="col-md-3">
+              <label class="form-label fw-semibold text-dark">Duration (Minutes)</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-0"><i class="bi bi-clock text-secondary"></i></span>
+                <input type="number" class="form-control bg-light border-0 py-2 shadow-none" formControlName="duration_minutes" min="10" step="5">
+              </div>
+            </div>
+
+            <!-- Initial Status -->
+            <div class="col-md-3">
+              <label class="form-label fw-semibold text-dark">Initial Status</label>
+              <select class="form-select bg-light border-0 py-2 shadow-none" formControlName="status">
+                <option value="scheduled">📅 Scheduled</option>
+                <option value="live">🔴 Live Now</option>
+                <option value="completed">✔️ Completed</option>
+              </select>
+            </div>
+
+            <!-- Description -->
+            <div class="col-12">
+              <label class="form-label fw-semibold text-dark">Description / Agenda (Optional)</label>
+              <textarea class="form-control bg-light border-0 py-2 shadow-none" rows="2" formControlName="description" placeholder="Short description of topics covered, prerequisites, or session notes..."></textarea>
+            </div>
+
+            <!-- 📁 Attachments Upload (PDF, Video, Image, Audio) -->
+            <div class="col-12">
+              <label class="form-label fw-semibold text-dark d-flex align-items-center gap-2 mb-2">
+                <i class="bi bi-paperclip text-primary fs-5"></i>
+                <span>Attach Class Materials (PDFs, Videos, Images, Audio)</span>
+                <span class="badge bg-secondary-subtle text-secondary small">Optional</span>
+              </label>
+              
+              <div class="file-drop-zone p-4 rounded-4 text-center border-dashed position-relative">
+                <input type="file" multiple class="file-input-overlay"
+                  accept=".pdf,.mp4,.mov,.webm,.mkv,.jpg,.jpeg,.png,.gif,.webp,.mp3,.wav,.ogg,.m4a,.aac,.doc,.docx,.ppt,.pptx"
+                  (change)="onFilesSelected($event)">
+                <div class="py-2">
+                  <i class="bi bi-cloud-arrow-up display-5 text-primary mb-2 d-block"></i>
+                  <h6 class="fw-bold mb-1">Click to browse or drag & drop files here</h6>
+                  <p class="text-secondary small mb-0">
+                    Supports <strong>PDF documents</strong>, <strong>MP4/MOV videos</strong>, <strong>MP3/WAV audio clips</strong>, and <strong>Images (JPG, PNG)</strong>
+                  </p>
+                </div>
+              </div>
+
+              <!-- Selected files preview list -->
+              @if (selectedFiles().length > 0) {
+                <div class="mt-3">
+                  <div class="fw-semibold small text-secondary mb-2">Selected Files ({{ selectedFiles().length }}):</div>
+                  <div class="d-flex flex-wrap gap-2">
+                    @for (file of selectedFiles(); track $index) {
+                      <div class="selected-file-chip d-flex align-items-center gap-2 px-3 py-2 bg-light border rounded-pill small">
+                        <i class="bi bi-file-earmark-check text-success"></i>
+                        <span class="text-truncate fw-semibold" style="max-width: 200px;">{{ file.name }}</span>
+                        <span class="text-muted">({{ (file.size / 1024 / 1024).toFixed(2) }} MB)</span>
+                        <button type="button" class="btn btn-sm btn-link p-0 text-danger" (click)="removeSelectedFile($index)">
+                          <i class="bi bi-x-circle-fill"></i>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="d-flex justify-content-end align-items-center gap-2 mt-4 pt-3 border-top">
+            <button type="button" class="btn btn-light rounded-pill px-4 fw-semibold" (click)="showForm.set(false)">Cancel</button>
+            <button type="submit" class="btn btn-primary rounded-pill px-5 fw-semibold shadow-sm" [disabled]="classForm.invalid || isSubmitting()">
+              @if (isSubmitting()) {
+                <span class="spinner-border spinner-border-sm me-2"></span> Saving & Uploading...
+              } @else {
+                <i class="bi bi-check2-circle me-2"></i> Save & Schedule Class
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Filters & Status Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div class="btn-group p-1 bg-light rounded-pill border">
+      <button class="btn btn-sm rounded-pill px-3 fw-semibold transition-all"
+        [class.btn-primary]="filterStatus() === 'all'"
+        [class.btn-light]="filterStatus() !== 'all'"
+        (click)="filterStatus.set('all')">
+        All ({{ liveClasses().length }})
+      </button>
+      <button class="btn btn-sm rounded-pill px-3 fw-semibold transition-all"
+        [class.btn-danger]="filterStatus() === 'live'"
+        [class.btn-light]="filterStatus() !== 'live'"
+        (click)="filterStatus.set('live')">
+        🔴 Live Now
+      </button>
+      <button class="btn btn-sm rounded-pill px-3 fw-semibold transition-all"
+        [class.btn-primary]="filterStatus() === 'scheduled'"
+        [class.btn-light]="filterStatus() !== 'scheduled'"
+        (click)="filterStatus.set('scheduled')">
+        Upcoming
+      </button>
+      <button class="btn btn-sm rounded-pill px-3 fw-semibold transition-all"
+        [class.btn-secondary]="filterStatus() === 'completed'"
+        [class.btn-light]="filterStatus() !== 'completed'"
+        (click)="filterStatus.set('completed')">
+        Completed
+      </button>
+    </div>
+
+    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" (click)="loadClasses()">
+      <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-2 text-secondary">Loading live classes...</p>
+    </div>
+  } @else {
+    <!-- Live Classes Cards Grid -->
+    <div class="row g-4">
+      @for (item of filteredClasses(); track item.id) {
+        <div class="col-12 col-lg-6">
+          <div class="card border-0 shadow-sm rounded-4 h-100 live-class-card" [class.is-live-pulse]="item.status === 'live'">
+            <div class="card-body p-4 d-flex flex-column justify-content-between">
+              <div>
+                <!-- Status & Platform Header -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div class="d-flex align-items-center gap-2">
+                    @if (item.status === 'live') {
+                      <span class="badge bg-danger rounded-pill px-3 py-2 fw-bold d-inline-flex align-items-center gap-1">
+                        <span class="pulse-dot"></span> LIVE NOW
+                      </span>
+                    } @else if (item.status === 'completed') {
+                      <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2 fw-semibold">
+                        <i class="bi bi-check-all me-1"></i> Completed
+                      </span>
+                    } @else {
+                      <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 fw-semibold">
+                        <i class="bi bi-calendar-event me-1"></i> Scheduled
+                      </span>
+                    }
+
+                    <span class="badge bg-light text-dark border rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-1">
+                      <i class="bi" [ngClass]="getPlatformIcon(item.platform)"></i> {{ getPlatformName(item.platform) }}
+                    </span>
+                  </div>
+
+                  <!-- Admin Actions (Delete) -->
+                  @if (authService.hasRole(['super_admin', 'admin', 'staff'])) {
+                    <div class="dropdown">
+                      <button class="btn btn-sm btn-light rounded-circle" type="button" (click)="deleteClass(item.id)" title="Delete Class">
+                        <i class="bi bi-trash3 text-danger"></i>
+                      </button>
+                    </div>
+                  }
+                </div>
+
+                <!-- Class Title -->
+                <h4 class="fw-bold text-dark mb-2">{{ item.title }}</h4>
+
+                <!-- Description -->
+                @if (item.description) {
+                  <p class="text-secondary small mb-3 text-truncate-2">{{ item.description }}</p>
+                }
+
+                <!-- Session Meta -->
+                <div class="session-meta-box p-3 rounded-3 bg-light mb-3">
+                  <div class="row g-2 small">
+                    <div class="col-sm-6 text-secondary d-flex align-items-center gap-2">
+                      <i class="bi bi-person-circle text-primary fs-6"></i>
+                      <span><strong>Host:</strong> {{ item.instructor_name || 'Instructor' }}</span>
+                    </div>
+                    <div class="col-sm-6 text-secondary d-flex align-items-center gap-2">
+                      <i class="bi bi-clock-history text-primary fs-6"></i>
+                      <span><strong>Duration:</strong> {{ item.duration_minutes }} Mins</span>
+                    </div>
+                    <div class="col-12 text-secondary d-flex align-items-center gap-2">
+                      <i class="bi bi-calendar3 text-primary fs-6"></i>
+                      <span><strong>Timing:</strong> {{ item.start_time | date:'fullDate' }} at {{ item.start_time | date:'shortTime' }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 📎 Attached Materials Preview Row -->
+                <div class="materials-preview-section p-3 rounded-3 border bg-white mb-3">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-bold small text-dark d-flex align-items-center gap-1">
+                      <i class="bi bi-folder-fill text-warning"></i>
+                      Study Materials ({{ item.attachments?.length || 0 }})
+                    </span>
+                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fw-semibold" (click)="openMaterialsModal(item)">
+                      <i class="bi bi-plus-circle me-1"></i> Add / View Files
+                    </button>
+                  </div>
+
+                  @if (item.attachments && item.attachments.length > 0) {
+                    <div class="d-flex flex-wrap gap-2">
+                      @for (file of item.attachments.slice(0, 3); track file.id) {
+                        <a [href]="file.file_url" target="_blank" [class]="'badge text-decoration-none rounded-pill px-3 py-2 d-inline-flex align-items-center gap-1 ' + getFileBadgeClass(file.file_type)">
+                          <i [class]="'bi ' + getFileIcon(file.file_type)"></i>
+                          <span class="text-truncate" style="max-width: 140px;">{{ file.original_name }}</span>
+                          <span class="opacity-75 small">({{ file.file_size }})</span>
+                        </a>
+                      }
+                      @if (item.attachments.length > 3) {
+                        <button type="button" class="badge bg-light text-secondary border rounded-pill px-2 py-1 btn btn-sm" (click)="openMaterialsModal(item)">
+                          +{{ item.attachments.length - 3 }} more
+                        </button>
+                      }
+                    </div>
+                  } @else {
+                    <div class="text-secondary small fst-italic">No materials uploaded yet. Click "Add / View Files" to attach PDFs, videos, or audio.</div>
+                  }
+                </div>
+              </div>
+
+              <!-- Footer Actions -->
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 pt-3 border-top mt-2">
+                <!-- Status Toggle for Admins/Staff -->
+                @if (authService.hasRole(['super_admin', 'admin', 'staff'])) {
+                  <div class="btn-group btn-group-sm">
+                    @if (item.status !== 'live') {
+                      <button type="button" class="btn btn-outline-danger btn-sm" (click)="updateStatus(item, 'live')" title="Mark as Live Now">
+                        <i class="bi bi-broadcast me-1"></i> Go Live
+                      </button>
+                    }
+                    @if (item.status !== 'completed') {
+                      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="updateStatus(item, 'completed')" title="Mark Completed">
+                        <i class="bi bi-check-lg me-1"></i> Complete
+                      </button>
+                    }
+                    @if (item.status !== 'scheduled') {
+                      <button type="button" class="btn btn-outline-primary btn-sm" (click)="updateStatus(item, 'scheduled')" title="Reschedule">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Schedule
+                      </button>
+                    }
+                  </div>
+                }
+
+                <!-- Direct Join Button -->
+                <a [href]="item.meeting_link" target="_blank" rel="noopener noreferrer"
+                  class="btn btn-primary d-inline-flex align-items-center gap-2 rounded-pill px-4 fw-semibold shadow-sm ms-auto"
+                  [class.btn-danger]="item.status === 'live'">
+                  <i class="bi bi-box-arrow-up-right"></i>
+                  {{ item.status === 'live' ? 'Join Live Now' : 'Join / Test Link' }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+      @empty {
+        <div class="col-12 text-center py-5">
+          <div class="empty-state-icon mx-auto mb-3">
+            <i class="bi bi-camera-video text-secondary opacity-50 display-4"></i>
+          </div>
+          <h4 class="fw-bold text-dark mb-1">No Live Classes Found</h4>
+          <p class="text-secondary mb-3">There are no live classes under this filter. Click the button below to schedule one.</p>
+          @if (authService.hasRole(['super_admin', 'admin', 'staff'])) {
+            <button class="btn btn-primary rounded-pill px-4 fw-semibold shadow-sm" (click)="showForm.set(true)">
+              <i class="bi bi-plus-lg me-1"></i> Schedule First Live Class
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- 📦 Materials & Attachments Modal -->
+@if (activeClassForMaterials(); as activeClass) {
+  <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+        <!-- Modal Header -->
+        <div class="modal-header bg-gradient-primary text-white p-4 border-0">
+          <div>
+            <h5 class="modal-title fw-bold mb-1 d-flex align-items-center gap-2">
+              <i class="bi bi-folder2-open text-warning"></i>
+              Study Materials for: {{ activeClass.title }}
+            </h5>
+            <p class="mb-0 text-white-50 small">Manage PDFs, videos, images, and audio clips for this session.</p>
+          </div>
+          <button type="button" class="btn-close btn-close-white" (click)="closeMaterialsModal()"></button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body p-4">
+          <!-- Upload New Files Box -->
+          <div class="upload-materials-box p-4 rounded-4 border border-2 border-dashed text-center mb-4 bg-light position-relative">
+            <input type="file" multiple class="file-input-overlay"
+              accept=".pdf,.mp4,.mov,.webm,.mkv,.jpg,.jpeg,.png,.gif,.webp,.mp3,.wav,.ogg,.m4a,.aac,.doc,.docx"
+              (change)="uploadNewFilesToClass($event)">
+            <div>
+              @if (isUploadingMaterials()) {
+                <div class="spinner-border text-primary mb-2" role="status"></div>
+                <div class="fw-semibold text-primary">Uploading selected files...</div>
+              } @else {
+                <i class="bi bi-cloud-plus display-6 text-primary mb-2 d-block"></i>
+                <h6 class="fw-bold mb-1">Upload New Materials (PDF, Video, Image, Audio)</h6>
+                <p class="text-secondary small mb-0">Click or drop files here to upload directly to this class.</p>
+              }
+            </div>
+          </div>
+
+          <!-- Existing Attachments List -->
+          <h6 class="fw-bold text-dark mb-3">
+            Attached Files ({{ activeClass.attachments?.length || 0 }})
+          </h6>
+
+          @if (activeClass.attachments && activeClass.attachments.length > 0) {
+            <div class="list-group list-group-flush rounded-3 border">
+              @for (file of activeClass.attachments; track file.id) {
+                <div class="list-group-item d-flex justify-content-between align-items-center p-3">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="file-type-icon-box rounded-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background: #f1f5f9;">
+                      <i [class]="'bi fs-4 ' + getFileIcon(file.file_type)"></i>
+                    </div>
+                    <div>
+                      <div class="fw-bold text-dark mb-0">{{ file.original_name }}</div>
+                      <div class="text-muted small d-flex align-items-center gap-2">
+                        <span class="badge text-uppercase" [ngClass]="getFileBadgeClass(file.file_type)">{{ file.file_type }}</span>
+                        <span>•</span>
+                        <span>{{ file.file_size }}</span>
+                        <span>•</span>
+                        <span>{{ file.created_at | date:'short' }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="d-flex align-items-center gap-2">
+                    <!-- Download / View Link -->
+                    <a [href]="file.file_url" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                      <i class="bi bi-box-arrow-up-right me-1"></i> Open
+                    </a>
+
+                    <!-- Delete Button for Admins -->
+                    @if (authService.hasRole(['super_admin', 'admin', 'staff'])) {
+                      <button type="button" class="btn btn-sm btn-outline-danger rounded-circle" (click)="deleteAttachment(file.id)" title="Delete File">
+                        <i class="bi bi-trash3"></i>
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="text-center py-4 bg-light rounded-3">
+              <i class="bi bi-file-earmark-x text-secondary opacity-50 fs-1 mb-2 d-block"></i>
+              <p class="text-secondary mb-0">No materials attached yet. Upload files above to make them available to learners.</p>
+            </div>
+          }
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer bg-light p-3">
+          <button type="button" class="btn btn-secondary rounded-pill px-4" (click)="closeMaterialsModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

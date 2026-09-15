@@ -8,6 +8,8 @@ import { HttpParams } from '@angular/common/http';
 export interface Activity {
   id?: number;
   tenant_id?: number;
+  course_id?: number | null;
+  course?: { id: number; name: string; code?: string };
   title: string;
   type: string;
   data_json: any;
@@ -23,10 +25,13 @@ export class ActivityService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/activities`;
 
-  getActivities(type?: string): Observable<Activity[]> {
+  getActivities(type?: string, course_id?: number): Observable<Activity[]> {
     let params = new HttpParams();
     if (type) {
       params = params.set('type', type);
+    }
+    if (course_id) {
+      params = params.set('course_id', course_id.toString());
     }
     return this.http.get<Activity[]>(this.apiUrl, { params });
   }

@@ -108,13 +108,18 @@
         <i class="bi bi-graph-up"></i>
         <span>{{ 'SIDEBAR.STUDENT_PROGRESS' | translate }}</span>
       </a>
+      <a routerLink="/live-classes" routerLinkActive="active" (click)="closeSidebar()"
+        class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-light transition-all w-100">
+        <i class="bi bi-camera-video"></i>
+        <span>{{ 'SIDEBAR.LIVE_CLASSES' | translate }}</span>
+      </a>
       }
 
-      <!-- 📚 Content Manager Menu Items (Super Admin Only) -->
-      @if (authService.hasRole(['super_admin'])) {
+      <!-- 📚 Content Manager Menu Items (Super Admin, Admin, Staff) -->
+      @if (authService.hasRole(['super_admin', 'admin', 'staff'])) {
       <div class="mt-3 mb-1 px-3 small text-uppercase fw-bold text-light opacity-75"
         style="font-size: 0.65rem; letter-spacing: 0.05em;">
-        Content Manager
+        {{ 'SIDEBAR.CONTENT_MANAGER' | translate }}
       </div>
       <a routerLink="/courses" routerLinkActive="active" (click)="closeSidebar()"
         class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-light transition-all w-100">
@@ -154,7 +159,7 @@
       <a routerLink="/activity-builder" routerLinkActive="active" (click)="closeSidebar()"
         class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 text-light transition-all w-100">
         <i class="bi bi-puzzle"></i>
-        <span>Activity Builder</span>
+        <span>{{ 'SIDEBAR.ACTIVITY_BUILDER' | translate }}</span>
       </a>
       }
 

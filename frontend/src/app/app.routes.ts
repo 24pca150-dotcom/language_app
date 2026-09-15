@@ -17,6 +17,7 @@ import { UserManagement } from './components/user-management/user-management';
 import { StudentProgressComponent } from './components/student-progress/student-progress';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard';
 import { Announcements } from './components/announcements/announcements';
+import { LiveClasses } from './components/live-classes/live-classes';
 import { roleGuard } from './guards/role.guard';
 import { guestGuard } from './guards/guest.guard';
 
@@ -45,12 +46,12 @@ export const routes: Routes = [
 
 
   /*
-   * 🏢 Admins (Super Admin and Tenant Admin) Pages
+   * 🏢 Admins (Super Admin Only) Pages
    */
   { 
     path: 'properties', 
     component: Property, 
-    canActivate: [roleGuard(['super_admin', 'admin'])] 
+    canActivate: [roleGuard(['super_admin'])] 
   },
 
   /*
@@ -60,6 +61,11 @@ export const routes: Routes = [
     path: 'admin-dashboard', 
     component: AdminDashboardComponent, 
     canActivate: [roleGuard(['super_admin', 'admin', 'staff'])] 
+  },
+  { 
+    path: 'live-classes', 
+    component: LiveClasses, 
+    canActivate: [roleGuard(['super_admin', 'admin', 'staff', 'student'])] 
   },
   { 
     path: 'announcements', 
@@ -132,22 +138,32 @@ export const routes: Routes = [
   },
   { 
     path: 'learn/courses', 
-    component: CoursePlayer, 
+    component: LearnerDashboard, 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
+  },
+  { 
+    path: 'learn/practice', 
+    component: LearnerDashboard, 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
+  },
+  { 
+    path: 'learn/badges', 
+    component: LearnerDashboard, 
     canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
   },
   { 
     path: 'learn/achievements', 
-    component: CoursePlayer, 
+    component: LearnerDashboard, 
     canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
   },
   { 
     path: 'learn/progress', 
-    component: CoursePlayer, 
+    component: LearnerDashboard, 
     canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
   },
   { 
     path: 'learn/settings', 
-    component: CoursePlayer, 
+    component: LearnerDashboard, 
     canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
   },
   { 

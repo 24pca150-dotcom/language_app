@@ -145,105 +145,111 @@
   </div>
   }
 
-  <!-- MAIN MAP VIEW -->
+  <!-- MAIN MAP VIEW (Angry Birds Horizontal World Map) -->
   @if (currentView === 'map') {
-  <div class="flex-grow-1 overflow-auto map-container position-relative z-2 w-100" style="scroll-behavior: smooth;">
+  <div class="flex-grow-1 overflow-x-auto overflow-y-hidden map-container position-relative z-2 w-100 d-flex flex-column justify-content-center custom-horizontal-scrollbar"
+    style="scroll-behavior: smooth; min-height: 100vh;">
 
     <!-- The Map Scroll Area -->
-    <div class="map-background position-relative w-100 d-flex flex-column" style="min-height: 100vh;">
+    <div class="map-background position-relative w-100 d-flex flex-column justify-content-center align-items-center"
+      style="min-height: 100vh; padding-top: 60px; padding-bottom: 40px;">
 
       @if (selectedLevel(); as activeLevel) {
       <!-- Level Header Banner (Pinned to the Top) -->
-      <div
-        class="chapter-header-banner position-sticky top-0 z-3 align-self-center mt-4 pt-3 w-100 text-center pointer-events-none">
-        <span
-          class="chapter-badge bg-success text-white px-4 py-2 rounded-pill fw-bold shadow-lg border border-3 border-white d-inline-block pointer-events-auto">
-          <i class="bi bi-journal-bookmark-fill me-2 text-warning"></i>
-          {{ activeLevel.name }}
+      <div class="chapter-header-banner position-absolute top-0 start-50 translate-middle-x z-3 mt-4 pt-2 text-center pointer-events-none">
+        <span class="chapter-badge bg-success text-white px-4 py-2 rounded-pill fw-bold shadow-lg border border-3 border-white d-inline-flex align-items-center gap-2 pointer-events-auto">
+          <i class="bi bi-journal-bookmark-fill text-warning fs-5"></i>
+          <span class="fs-5">{{ activeLevel.name }}</span>
+          <span class="badge bg-warning text-dark rounded-pill px-2.5 py-1 small ms-2 fw-bold" style="font-size: 0.82rem;">
+            {{ completedChaptersCount() }}/{{ activeLevel.chapters.length }} Chapters Done
+          </span>
         </span>
       </div>
 
-      <div class="chapter-group position-relative w-100 mt-5 mx-auto"
-        style="max-width: 400px; padding-top: 40px; padding-bottom: 40px;">
+      <!-- Angry Birds Horizontal World Track -->
+      <div class="horizontal-map-track position-relative mx-auto my-auto d-flex align-items-center"
+        [style.width.px]="totalTrackWidth()"
+        style="height: 380px; min-width: 100%;">
 
-        <!-- Dynamic SVG Path Background -->
-        <svg class="position-absolute top-0 start-0 w-100 h-100 pointer-events-none"
-          [attr.viewBox]="'0 0 400 ' + (activeLevel.chapters.length * 160)"
-          style="z-index: 0; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">
+        <!-- Dynamic Horizontal SVG Path Background (Terrain & Golden Trail) -->
+        <svg class="position-absolute top-0 start-0 pointer-events-none"
+          [style.width.px]="totalTrackWidth()"
+          style="height: 380px; z-index: 0; filter: drop-shadow(0 8px 12px rgba(0,0,0,0.25));"
+          [attr.viewBox]="'0 0 ' + totalTrackWidth() + ' 380'">
 
-          <!-- Inactive/Locked Base Path (Grey) -->
-          <path [attr.d]="svgPathData()" fill="none" stroke="#b0bec5" stroke-width="22" stroke-linecap="round"></path>
+          <!-- Bottom Shadow / Ground Path (Angry Birds Terrain Road) -->
+          <path [attr.d]="svgPathData()" fill="none" stroke="#1b5e20" stroke-width="34" stroke-linecap="round" opacity="0.3"></path>
+          <path [attr.d]="svgPathData()" fill="none" stroke="#8d6e63" stroke-width="26" stroke-linecap="round" opacity="0.45"></path>
 
-          <!-- Active/Unlocked Overlay Path (Gold, glowing) -->
-          <path [attr.d]="svgPathData()" fill="none" stroke="#FFCA28" stroke-width="16" stroke-linecap="round"
-            style="filter: drop-shadow(0 0 8px rgba(255, 202, 40, 0.8));"></path>
+          <!-- Golden Stone Trail -->
+          <path [attr.d]="svgPathData()" fill="none" stroke="#F59E0B" stroke-width="18" stroke-linecap="round"></path>
+
+          <!-- Active Dotted Game Path (Angry Birds white/cream dashed trail) -->
+          <path [attr.d]="svgPathData()" fill="none" stroke="#FFFDE7" stroke-width="6" stroke-dasharray="14, 14" stroke-linecap="round"
+            style="filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9));"></path>
         </svg>
 
-        <!-- Nodes Container (flex column-reverse so chapter 1 is at the bottom) -->
-        <div class="d-flex flex-column-reverse w-100 position-relative z-2">
-          @for (chapter of activeLevel.chapters; track chapter.id) {
-          @if (levelChaptersMap().get(chapter.id); as info) {
+        <!-- Chapter Nodes Placed Horizontally Along the Path -->
+        @for (chapter of activeLevel.chapters; track chapter.id) {
+        @if (levelChaptersMap().get(chapter.id); as info) {
 
-          <!-- Position node exactly on the SVG path -->
-          <div
-            class="path-node-container d-flex flex-column align-items-center justify-content-center position-relative w-100"
-            [ngClass]="{'animate-pop-in': isChapterUnlocked(chapter.id), 'node-locked opacity-75': !isChapterUnlocked(chapter.id)}"
-            [style.animation-delay]="(info.globalIndex * 0.15) + 's'" [style.z-index]="100 - info.globalIndex"
-            style="height: 160px;">
+        <div class="angry-node-wrapper position-absolute d-flex flex-column align-items-center"
+          [style.left.px]="info.x - 45"
+          [style.top.px]="info.y - 45"
+          [style.z-index]="10 + info.globalIndex">
 
-            <div class="position-relative" [style.transform]="'translateX(' + info.xOffset + 'px)'">
-              <!-- The 3-Star Rating (Candy Crush Style) -->
-              @if (isChapterCompleted(chapter.id)) {
-              <div class="stars-container position-absolute d-flex justify-content-center gap-1"
-                style="top: -25px; left: 50%; transform: translateX(-50%); width: 100px; z-index: 4;">
-                @for (star of [1,2,3]; track star) {
-                <i class="bi bi-star-fill"
-                  [ngClass]="star <= getChapterStars(chapter.id) ? 'text-warning' : 'text-secondary opacity-50'"
-                  [style.transform]="star === 2 ? 'translateY(-5px) scale(1.2)' : 'scale(1)'"
-                  style="font-size: 1.1rem; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));"></i>
-                }
-              </div>
-              }
+          <!-- 3-Star Rating on Arc (Angry Birds Style) -->
+          <div class="angry-stars-arc position-absolute d-flex justify-content-center align-items-center gap-1"
+            style="top: -30px; left: 50%; transform: translateX(-50%); width: 110px; z-index: 5;">
+            @for (star of [1,2,3]; track star) {
+              <i class="bi bi-star-fill"
+                [ngClass]="star <= getChapterStars(chapter.id) ? 'text-warning star-gold' : 'star-empty'"
+                [style.transform]="star === 2 ? 'translateY(-6px) scale(1.3)' : 'scale(1)'"
+                style="font-size: 1.15rem; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));"></i>
+            }
+          </div>
 
-              <!-- Floating Player Avatar (Indicator for active node) -->
-              @if (currentPlayableChapterId() === chapter.id) {
-              <div class="position-absolute z-4"
-                style="top: -65px; left: 50%; transform: translateX(-50%); animation: floatAvatar 1.5s ease-in-out infinite alternate;">
-                <div class="bg-white rounded-circle shadow-lg d-flex align-items-center justify-content-center"
-                  style="width: 45px; height: 45px; border: 3px solid #ff9800; box-shadow: 0 5px 15px rgba(255,152,0,0.5);">
-                  <span
-                    style="font-size: 1.6rem; line-height: 1; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));">🦊</span>
-                </div>
-                <div class="mx-auto mt-1"
-                  style="width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 10px solid white;">
-                </div>
-              </div>
-              }
-
-              <!-- The Premium Colored Node Button -->
-              <button
-                class="path-node btn rounded-circle d-flex align-items-center justify-content-center transition-all"
-                [ngClass]="!isChapterUnlocked(chapter.id) ? 'bg-secondary border-secondary text-white-50' : (isChapterCompleted(chapter.id) ? 'completed-node' : (currentPlayableChapterId() === chapter.id ? 'active-node' : (info.globalIndex % 3 === 0 ? 'bg-info border-info text-white' : (info.globalIndex % 3 === 1 ? 'bg-primary border-primary text-white' : 'bg-success border-success text-white'))))"
-                style="width: 80px; height: 80px; z-index: 3; position: relative;" (click)="onChapterClick(chapter.id)">
-                @if (!isChapterUnlocked(chapter.id)) {
-                <i class="bi bi-lock-fill fs-2"></i>
-                } @else {
-                <span class="fs-2 fw-bold text-white" style="text-shadow: 1px 2px 3px rgba(0,0,0,0.5);">{{
-                  info.globalNumber }}</span>
-                }
-              </button>
-
-              <!-- The Title beside the node -->
-              <div class="topic-label position-absolute text-center fw-bold text-dark"
-                [ngStyle]="info.xOffset < 0 ? {'left': '95px', 'top': '50%', 'transform': 'translateY(-50%)'} : {'right': '95px', 'top': '50%', 'transform': 'translateY(-50%)'}"
-                style="width: max-content; max-width: 150px; font-size: 0.95rem; line-height: 1.3; z-index: 5;">
-                {{ chapter.name }}
-              </div>
+          <!-- Floating Mascot Avatar (stands on the currently playable chapter!) -->
+          @if (currentPlayableChapterId() === chapter.id) {
+          <div class="angry-mascot-anchor position-absolute z-4"
+            style="top: -72px; left: 50%; transform: translateX(-50%); animation: floatAvatar 1.5s ease-in-out infinite alternate;">
+            <div class="bg-white rounded-circle shadow-lg d-flex align-items-center justify-content-center border border-3 border-warning"
+              style="width: 48px; height: 48px; box-shadow: 0 8px 20px rgba(245, 158, 11, 0.6) !important;">
+              <span style="font-size: 1.8rem; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));">🦊</span>
+            </div>
+            <div class="mx-auto"
+              style="width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 10px solid #f59e0b;">
             </div>
           </div>
           }
-          }
+
+          <!-- The Angry Birds Glossy 3D Circle Node Button -->
+          <button
+            class="angry-circle-btn btn rounded-circle d-flex align-items-center justify-content-center p-0"
+            [ngClass]="{
+              'locked-btn': !isChapterUnlocked(chapter.id),
+              'completed-btn': isChapterCompleted(chapter.id),
+              'active-btn': currentPlayableChapterId() === chapter.id && !isChapterCompleted(chapter.id),
+              'unlocked-btn': isChapterUnlocked(chapter.id) && currentPlayableChapterId() !== chapter.id && !isChapterCompleted(chapter.id)
+            }"
+            (click)="onChapterClick(chapter.id)"
+            [title]="chapter.name">
+            @if (!isChapterUnlocked(chapter.id)) {
+              <i class="bi bi-lock-fill fs-3 text-white-50"></i>
+            } @else {
+              <span class="angry-number">{{ info.globalNumber }}</span>
+            }
+          </button>
+
+          <!-- Chapter Title Banner Below the Node -->
+          <div class="angry-chapter-label mt-3 text-center fw-bold shadow-sm"
+            (click)="onChapterClick(chapter.id)"
+            [title]="chapter.name">
+            <span class="d-block text-truncate px-1">{{ chapter.name }}</span>
+          </div>
         </div>
+        }
+        }
       </div>
       }
     </div>

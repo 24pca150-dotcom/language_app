@@ -82,6 +82,8 @@ export class ActivityBuilder {
   activityId = signal<number | null>(null);
   activityTitle = signal<string>('');
   activityType = signal<string>('mcq');
+  activityCourseId = signal<number | null>(null);
+  coursesList = signal<CourseData[]>([]);
 
   // Custom Builder State
   nodes = signal<ContainerNode[]>([]);
@@ -114,6 +116,14 @@ export class ActivityBuilder {
 
   ngOnInit() {
     this.loadActivities();
+    this.loadCourses();
+  }
+
+  loadCourses() {
+    this.courseService.getAll().subscribe({
+      next: (courses) => this.coursesList.set(courses || []),
+      error: () => {}
+    });
   }
 
   generateNextTitle(type: string): string {
@@ -152,6 +162,7 @@ export class ActivityBuilder {
     this.activityId.set(null);
     this.isTitleManuallyEdited.set(false);
     this.activityType.set('mcq');
+    this.activityCourseId.set(null);
     this.activityTitle.set(this.generateNextTitle('mcq'));
     this.nodes.set([]);
     this.selectedContainerId.set(null);
@@ -163,6 +174,7 @@ export class ActivityBuilder {
   editActivity(activity: Activity) {
     this.activityId.set(activity.id || null);
     this.activityTitle.set(activity.title);
+    this.activityCourseId.set(activity.course_id || null);
     this.isTitleManuallyEdited.set(true);
     
     const type = activity.type;
@@ -248,9 +260,10 @@ export class ActivityBuilder {
 
     this.isSaving.set(true);
 
-    const payload = {
+    const payload: Partial<Activity> = {
       title: this.activityTitle(),
       type: type,
+      course_id: this.activityCourseId(),
       data_json: data_json
     };
 

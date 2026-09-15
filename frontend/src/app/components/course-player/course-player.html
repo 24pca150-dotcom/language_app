@@ -1,132 +1,179 @@
-<div class="w-100 position-relative overflow-hidden bg-light" style="height: 100vh;">
+<div class="langnest-shell d-flex w-100 position-relative overflow-hidden" style="height: 100vh;">
 
-  <!-- Mascot Progression Warning Bubble -->
-  @if (showMascotWarning()) {
-  <div
-    class="mascot-warning-toast position-fixed top-0 start-50 translate-middle-x mt-5 p-3 rounded-4 shadow-lg border border-3 border-danger d-flex align-items-center gap-3 animate-pop-in z-5"
-    style="background: #FFF9C4; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;">
-    <div style="font-size: 2.2rem;">🦉</div>
-    <div>
-      <p class="mb-0 fw-bold text-dark fs-6" style="line-height: 1.3;">{{ mascotWarning() }}</p>
-    </div>
-  </div>
-  }
-
-
-
-  <!-- DASHBOARDS (Navigation View) -->
-  @if (currentView() === 'levels' || currentView() === 'map') {
-  @if (theme() === 'kids') {
-  <app-kids-dashboard [structure]="courseStructure()" [currentView]="currentView()" [activeLevelId]="activeLevelId()"
-    [activeChapterId]="activeChapterId()" [completedLevels]="completedLevelIds()"
-    [completedChapters]="completedChapterIds()" (selectLevel)="selectLevel($event)"
-    (selectChapterNode)="selectChapterNode($event)"></app-kids-dashboard>
-  } @else {
-  <app-student-dashboard [structure]="courseStructure()" [completedChapters]="completedChapterIds()" (selectChapter)="selectChapterNode($event)"></app-student-dashboard>
-  }
-  }
-
-  <!-- LESSON PLAYER OVERLAY -->
-  @if (currentView() === 'content') {
-  @if (theme() === 'kids') {
-  <app-kids-lesson-player
-    [lessonSequence]="lessonSequence()"
-    [currentStepIndex]="currentStepIndex()"
-    [highestStepIndex]="highestStepIndex()"
-    [isChapterCompleted]="isChapterCompleted(activeChapterId() || 0)"
-    [lessonFinished]="lessonFinished()"
-    [showGameOver]="showGameOver()"
-    [hearts]="hearts()"
-    [xp]="xp()"
-    [coins]="coins()"
-    [activityFeedbackState]="activityFeedbackState()"
-    (quit)="goToMap()"
-    (retry)="retryActivity()"
-    (finish)="finishLesson()"
-    (stepCompleted)="handleStepCompleted($event)"
-    (nextStep)="nextLessonStep()"
-    (prevStep)="prevLessonStep()"
-    (activityAnswered)="onActivityAnswered($event)"
-    (continueFeedback)="continueFromFeedback()"
-    (jumpToStep)="currentStepIndex.set($event)">
-  </app-kids-lesson-player>
-  } @else {
-  <app-student-lesson-player
-    [lessonSequence]="lessonSequence()"
-    [currentStepIndex]="currentStepIndex()"
-    [highestStepIndex]="highestStepIndex()"
-    [isChapterCompleted]="isChapterCompleted(activeChapterId() || 0)"
-    [lessonFinished]="lessonFinished()"
-    [showGameOver]="showGameOver()"
-    [hearts]="hearts()"
-    [xp]="xp()"
-    [coins]="coins()"
-    [activityFeedbackState]="activityFeedbackState()"
-    (quit)="goToMap()"
-    (retry)="retryActivity()"
-    (finish)="finishLesson()"
-    (stepCompleted)="handleStepCompleted($event)"
-    (nextStep)="nextLessonStep()"
-    (prevStep)="prevLessonStep()"
-    (activityAnswered)="onActivityAnswered($event)"
-    (continueFeedback)="continueFromFeedback()"
-    (jumpToStep)="currentStepIndex.set($event)">
-  </app-student-lesson-player>
-  }
-  }
-
-  <!-- Top HUD (Floating widgets for Dashboard) -->
-  <header class="position-absolute top-0 start-0 w-100 h-100 pe-none" style="z-index: 1050;"
-    [class.d-none]="currentView() === 'content'">
-    <!-- Left Navigation Actions (Floating Top Left) -->
-    <div class="position-absolute pe-auto" style="top: 20px; left: 20px;">
-      <button
-        class="btn btn-warning rounded-pill px-3 py-2 shadow-lg border border-2 border-white text-dark fw-bold d-flex align-items-center gap-2 hover-lift"
-        (click)="goBack()">
-        <i class="bi bi-arrow-left-circle-fill text-dark"></i>
-        <span>Back</span>
+  <!-- 🌿 SLIDING LEFT SIDEBAR (Collapsed by default on this page, slides out when arrow is clicked) -->
+  <aside class="langnest-sidebar d-flex flex-column p-4"
+         [class.player-sidebar-open]="isNavSidebarOpen()"
+         [class.player-sidebar-collapsed]="!isNavSidebarOpen()">
+    <!-- Brand / Logo -->
+    <div class="brand-block d-flex align-items-center justify-content-between mb-4">
+      <div class="d-flex align-items-center gap-3">
+        <div class="logo-box d-flex align-items-center justify-content-center rounded-3">
+          <i class="bi bi-journal-bookmark-fill text-warning fs-4"></i>
+        </div>
+        <div>
+          <h3 class="fw-bold text-white mb-0 fs-5 letter-spacing-tight">LangNest</h3>
+          <span class="text-white-50 text-uppercase" style="font-size: 0.65rem; letter-spacing: 1px;">Learn • Practice • Grow</span>
+        </div>
+      </div>
+      <!-- Close arrow button inside sidebar -->
+      <button class="btn btn-sm text-white-50 p-1 border-0 hover-text-white"
+              (click)="closeNavSidebar()" title="Close Navigation Menu">
+        <i class="bi bi-chevron-left fs-5"></i>
       </button>
     </div>
 
-    <!-- Stats & Actions (Floating Top Right) -->
-    <div class="position-absolute d-flex gap-2 pe-auto" style="top: 20px; right: 20px;">
-      @if (currentView() === 'activity') {
-      <div
-        class="stat-badge d-flex align-items-center bg-white rounded-pill px-2 py-1 shadow-sm border border-2 border-danger"
-        style="font-size: 0.85rem;">
-        @for (h of [1,2,3,4,5]; track h) {
-        <i class="bi" [ngClass]="hearts() >= h ? 'bi-heart-fill text-danger' : 'bi-heart text-secondary'"
-          style="font-size: 0.9rem; margin: 0 1px;"></i>
-        }
-      </div>
-      }
-      <div
-        class="stat-badge d-flex align-items-center bg-white rounded-pill px-2 py-1 shadow-sm border border-2 border-warning"
-        style="font-size: 0.85rem;">
-        <i class="bi bi-star-fill text-warning me-1"></i>
-        <span class="fw-bold text-dark">{{ xp() }}</span>
-      </div>
-      <div
-        class="stat-badge d-flex align-items-center bg-white rounded-pill px-2 py-1 shadow-sm border border-2 border-primary"
-        style="font-size: 0.85rem;">
-        <i class="bi bi-gem text-primary me-1"></i>
-        <span class="fw-bold text-dark">{{ coins() }}</span>
-      </div>
-      <button class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center"
-        style="width: 32px; height: 32px; border: 2px solid white; padding: 0;" (click)="toggleFullscreen()" title="Fullscreen">
-        <i class="bi" [ngClass]="isFullscreen() ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'"
-          style="font-size: 0.9rem;"></i>
-      </button>
-      <a routerLink="/learn"
-        class="btn btn-danger rounded-circle shadow-sm d-flex align-items-center justify-content-center"
-        style="width: 32px; height: 32px; border: 2px solid white; padding: 0;" title="Exit Course">
-        <i class="bi bi-x-lg" style="font-size: 0.9rem;"></i>
+    <!-- Navigation Items -->
+    <nav class="sidebar-nav d-flex flex-column gap-2 mt-4">
+      <a class="nav-item-btn" routerLink="/learn/dashboard">
+        <i class="bi bi-house-door-fill"></i>
+        <span>Home</span>
       </a>
-      <button class="btn btn-danger rounded-circle shadow-sm d-flex align-items-center justify-content-center"
-        style="width: 32px; height: 32px; border: 2px solid white; padding: 0; margin-left: 5px;" (click)="logout()" title="Logout">
-        <i class="bi bi-box-arrow-right" style="font-size: 0.9rem;"></i>
+
+      <a class="nav-item-btn active" routerLink="/learn/courses">
+        <i class="bi bi-book-half"></i>
+        <span>Learn</span>
+      </a>
+
+      <a class="nav-item-btn" routerLink="/learn/practice">
+        <i class="bi bi-lightning-charge-fill"></i>
+        <span>Practice</span>
+      </a>
+
+      <a class="nav-item-btn" routerLink="/learn/badges">
+        <i class="bi bi-trophy-fill"></i>
+        <span>Badges</span>
+      </a>
+
+      <a class="nav-item-btn" routerLink="/learn/progress">
+        <i class="bi bi-bar-chart-fill"></i>
+        <span>Progress</span>
+      </a>
+
+      <a class="nav-item-btn" routerLink="/learn/settings">
+        <i class="bi bi-gear-fill"></i>
+        <span>Settings</span>
+      </a>
+    </nav>
+
+    <!-- 🚪 Logout Button (at bottom of sidebar) -->
+    <div class="sidebar-footer mt-auto pt-3">
+      <button class="nav-item-btn btn-logout-sidebar w-100" (click)="logout()">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Logout</span>
       </button>
     </div>
-  </header>
+  </aside>
 
+  <!-- Sliding Backdrop when sidebar is open on this page -->
+  @if (isNavSidebarOpen()) {
+    <div class="player-nav-backdrop" (click)="closeNavSidebar()"></div>
+  }
+
+  <!-- 🎮 COURSE PLAYER MAIN WORKSPACE (Green game world map with winding line & lesson player) -->
+  <main class="course-player-main flex-grow-1 position-relative h-100 overflow-hidden bg-light">
+
+    <!-- Mascot Progression Warning Bubble -->
+    @if (showMascotWarning()) {
+      <div
+        class="mascot-warning-toast position-fixed top-0 start-50 translate-middle-x mt-5 p-3 rounded-4 shadow-lg border border-3 border-danger d-flex align-items-center gap-3 animate-pop-in z-5"
+        style="background: #FFF9C4; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;">
+        <div style="font-size: 2.2rem;">🦉</div>
+        <div>
+          <p class="mb-0 fw-bold text-dark fs-6" style="line-height: 1.3;">{{ mascotWarning() }}</p>
+        </div>
+      </div>
+    }
+
+    <!-- DASHBOARD VIEW: Green Game World Map with Winding SVG Path & Chapter Nodes -->
+    @if (currentView() === 'levels' || currentView() === 'map') {
+      <app-kids-dashboard
+        [structure]="courseStructure()"
+        [currentView]="currentView()"
+        [activeLevelId]="activeLevelId()"
+        [activeChapterId]="activeChapterId()"
+        [completedLevels]="completedLevelIds()"
+        [completedChapters]="completedChapterIds()"
+        (selectLevel)="selectLevel($event)"
+        (selectChapterNode)="selectChapterNode($event)">
+      </app-kids-dashboard>
+    }
+
+    <!-- LESSON PLAYER OVERLAY -->
+    @if (currentView() === 'content') {
+      <app-kids-lesson-player
+        [lessonSequence]="lessonSequence()"
+        [currentStepIndex]="currentStepIndex()"
+        [highestStepIndex]="highestStepIndex()"
+        [isChapterCompleted]="isChapterCompleted(activeChapterId() || 0)"
+        [lessonFinished]="lessonFinished()"
+        [showGameOver]="showGameOver()"
+        [hearts]="hearts()"
+        [xp]="xp()"
+        [coins]="coins()"
+        [activityFeedbackState]="activityFeedbackState()"
+        (quit)="goToMap()"
+        (retry)="retryActivity()"
+        (finish)="finishLesson()"
+        (stepCompleted)="handleStepCompleted($event)"
+        (nextStep)="nextLessonStep()"
+        (prevStep)="prevLessonStep()"
+        (activityAnswered)="onActivityAnswered($event)"
+        (continueFeedback)="continueFromFeedback()"
+        (jumpToStep)="currentStepIndex.set($event)"
+        (toggleNavMenu)="toggleNavSidebar()">
+      </app-kids-lesson-player>
+    }
+
+    <!-- Top HUD (Floating widgets inside Course Player) -->
+    <header class="position-absolute top-0 start-0 w-100 pe-none" style="z-index: 1050; height: 80px;"
+      [class.d-none]="currentView() === 'content'">
+      <!-- Left Navigation Actions (Floating Top Left) -->
+      <div class="position-absolute pe-auto d-flex align-items-center gap-2" style="top: 20px; left: 20px;">
+        <!-- Menu Toggle Button -->
+        <button
+          class="btn btn-dark rounded-pill px-3 py-2 shadow-lg d-flex align-items-center gap-2 hover-lift"
+          style="background: #0B192C; border: 2px solid #FFC727;"
+          (click)="toggleNavSidebar()"
+          title="Open Navigation Menu">
+          <i class="bi bi-arrow-right-circle-fill text-warning fs-5"></i>
+          <span class="fw-bold text-white small">Menu</span>
+        </button>
+
+        <!-- Back to Courses Button -->
+        <button
+          class="btn btn-warning rounded-pill px-3 py-2 shadow-lg border border-2 border-white text-dark fw-bold d-flex align-items-center gap-2 hover-lift"
+          (click)="goBack()">
+          <i class="bi bi-arrow-left-circle-fill text-dark fs-5"></i>
+          <span>Back to Courses</span>
+        </button>
+      </div>
+
+      <!-- Stats & Actions (Floating Top Right) -->
+      <div class="position-absolute d-flex gap-2 pe-auto" style="top: 20px; right: 20px;">
+        <div
+          class="stat-badge d-flex align-items-center bg-white rounded-pill px-3 py-1 shadow-sm border border-2 border-warning"
+          style="font-size: 0.85rem;">
+          <i class="bi bi-star-fill text-warning me-1"></i>
+          <span class="fw-bold text-dark">{{ xp() }} XP</span>
+        </div>
+        <div
+          class="stat-badge d-flex align-items-center bg-white rounded-pill px-3 py-1 shadow-sm border border-2 border-primary"
+          style="font-size: 0.85rem;">
+          <i class="bi bi-gem text-primary me-1"></i>
+          <span class="fw-bold text-dark">{{ coins() }}</span>
+        </div>
+        <button class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+          style="width: 34px; height: 34px; border: 2px solid white; padding: 0;" (click)="toggleFullscreen()" title="Fullscreen">
+          <i class="bi" [ngClass]="isFullscreen() ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'"
+            style="font-size: 0.9rem;"></i>
+        </button>
+        <button
+          (click)="goBack()"
+          class="btn btn-danger rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+          style="width: 34px; height: 34px; border: 2px solid white; padding: 0;" title="Exit Course">
+          <i class="bi bi-x-lg" style="font-size: 0.9rem;"></i>
+        </button>
+      </div>
+    </header>
+  </main>
 </div>

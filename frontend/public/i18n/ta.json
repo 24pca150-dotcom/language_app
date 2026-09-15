@@ -17,10 +17,13 @@
     "ACADEMY_MANAGER": "அகாடமி மேலாளர்",
     "ADMIN_UPLOAD": "நிர்வாகி பதிவேற்றம்",
     "ANNOUNCEMENTS": "அறிவிப்புகள்",
+    "LIVE_CLASSES": "நேரலை வகுப்புகள்",
     "DASHBOARD": "முகப்பு",
     "LEARNING_PORTAL": "கற்றல் தளம்",
     "STUDENT_PROGRESS": "மாணவர் முன்னேற்றம்",
-    "USERS": "பயனர்கள்"
+    "USERS": "பயனர்கள்",
+    "CONTENT_MANAGER": "உள்ளடக்க மேலாளர்",
+    "ACTIVITY_BUILDER": "செயல்பாடு உருவாக்குநர்"
   },
   "COMMON": {
     "CREATE": "உருவாக்கு",

@@ -38,8 +38,6 @@ import { RouterModule, Router } from '@angular/router';
 import { ActivityRenderer } from '../activity-engine/activity-renderer/activity-renderer';
 import { CourseService } from '../../services/course';
 import { KidsDashboard } from '../kids-dashboard/kids-dashboard';
-import { StudentDashboard } from '../student-dashboard/student-dashboard';
-import { StudentLessonPlayer } from '../student-lesson-player/student-lesson-player';
 import { KidsLessonPlayer } from '../kids-lesson-player/kids-lesson-player';
 import confetti from 'canvas-confetti';
 import { gsap } from 'gsap';
@@ -61,7 +59,7 @@ interface Content {
 @Component({
   selector: 'app-course-player',
   standalone: true,
-  imports: [CommonModule, RouterModule, KidsDashboard, StudentDashboard, KidsLessonPlayer, StudentLessonPlayer],
+  imports: [CommonModule, RouterModule, KidsDashboard, KidsLessonPlayer],
   templateUrl: './course-player.html',
   styleUrls: ['./course-player.css']
 })
@@ -104,6 +102,17 @@ export class CoursePlayer implements OnInit, OnDestroy {
   showCorrectSplash = signal<boolean>(false);
   showIncorrectSplash = signal<boolean>(false);
   activityFeedbackState = signal<'correct' | 'incorrect' | null>(null);
+
+  // 🌿 Left Navigation Sidebar Sliding State (Auto-collapsed on course player page)
+  isNavSidebarOpen = signal<boolean>(false);
+
+  toggleNavSidebar() {
+    this.isNavSidebarOpen.update(v => !v);
+  }
+
+  closeNavSidebar() {
+    this.isNavSidebarOpen.set(false);
+  }
 
   constructor() {
     // Keep highestStepIndex synchronized with the maximum reached index
@@ -203,17 +212,9 @@ export class CoursePlayer implements OnInit, OnDestroy {
     console.log('[DEBUG] course-player ngOnInit user:', user);
     if (user) {
       this.userId.set(user.id);
-      const age = this.getAgeFromDob(user.dob);
-      console.log('[DEBUG] course-player calculated age:', age);
-      if (age !== null) {
-        this.theme.set(age <= 15 ? 'kids' : 'student');
-      } else {
-        // No DOB set — default to student for non-student roles, kids for students
-        const role = (user.role || '').toLowerCase();
-        this.theme.set(role === 'student' ? 'kids' : 'student');
-      }
-      console.log('[DEBUG] course-player theme set to:', this.theme());
     }
+    // Always use the kids theme (green game world map with winding path line)
+    this.theme.set('kids');
 
     this.route.params.subscribe(params => {
       const cid = params['courseId'] ? +params['courseId'] : null;
@@ -270,6 +271,10 @@ export class CoursePlayer implements OnInit, OnDestroy {
       });
     });
     this.courseStructure.set(structure);
+    if (structure.levels && structure.levels.length > 0) {
+      this.activeLevelId.set(structure.levels[0].id);
+      this.currentView.set('map');
+    }
     this.loadLocalProgress();
     this.loadDatabaseProgress();
   }
@@ -371,18 +376,15 @@ export class CoursePlayer implements OnInit, OnDestroy {
   }
 
   goBack() {
-    if (this.currentView() === 'levels') {
-      this.router.navigate(['/dashboard']);
-    } else if (this.currentView() === 'map') {
-      this.goToLevels();
-    } else if (this.currentView() === 'content') {
+    if (this.currentView() === 'content') {
       if (this.activeContentId() !== null) {
         this.activeContentId.set(null);
-      } else {
-        this.goToMap();
       }
+      this.goToMap();
     } else if (this.currentView() === 'activity') {
       this.currentView.set('content');
+    } else {
+      this.router.navigate(['/learn/courses']);
     }
   }
 

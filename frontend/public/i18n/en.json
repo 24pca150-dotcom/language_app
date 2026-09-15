@@ -17,10 +17,13 @@
     "ACADEMY_MANAGER": "Academy Manager",
     "ADMIN_UPLOAD": "Admin Upload",
     "ANNOUNCEMENTS": "Announcements",
+    "LIVE_CLASSES": "Live Classes",
     "DASHBOARD": "Dashboard",
     "LEARNING_PORTAL": "Learning Portal",
     "STUDENT_PROGRESS": "Student Progress",
-    "USERS": "Users"
+    "USERS": "Users",
+    "CONTENT_MANAGER": "Content Manager",
+    "ACTIVITY_BUILDER": "Activity Builder"
   },
   "LEARNING_MODE": {
     "CREATE_BTN": "Create Btn",
