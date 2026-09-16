@@ -251,8 +251,8 @@ export class AssessmentPlayerComponent implements OnInit, OnDestroy {
       // Navigate to the course player — it will re-init and call loadDatabaseProgress()
       this.router.navigate(['/learn', returnCourseId]);
     } else {
-      // Fallback: go to general learn dashboard
-      this.router.navigate(['/learn']);
+      // Fallback: return directly to the assessments tab
+      this.router.navigate(['/learn', 'assessments']);
     }
   }
 }

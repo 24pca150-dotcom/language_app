@@ -147,6 +147,16 @@ export const routes: Routes = [
     canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
   },
   { 
+    path: 'learn/assessments', 
+    component: LearnerDashboard, 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
+  },
+  { 
+    path: 'learn/assessment', 
+    redirectTo: 'learn/assessments',
+    pathMatch: 'full'
+  },
+  { 
     path: 'learn/badges', 
     component: LearnerDashboard, 
     canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 

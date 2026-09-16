@@ -1,0 +1,202 @@
+.learner-assessment-container {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 🌟 Stats Mini Pill (Solid Dark for High Contrast on Sky Background) */
+.stat-mini-pill {
+  background: #0B192C !important;
+  border: 1px solid rgba(255, 199, 39, 0.45) !important;
+  box-shadow: 0 4px 12px rgba(11, 25, 44, 0.2) !important;
+}
+
+.btn-refresh-pill {
+  background: #0B192C !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-refresh-pill:hover {
+  background: #1E293B !important;
+  border-color: #FFC727 !important;
+  color: #FFC727 !important;
+  transform: translateY(-1px);
+}
+
+/* 🔍 Filters Bar */
+.filter-glass-card {
+  background: rgba(11, 25, 44, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* ⚪ White Search Input for Maximum Clarity */
+.custom-search-input {
+  background-color: #ffffff !important;
+  color: #0F172A !important;
+  font-weight: 500;
+  font-size: 0.88rem;
+}
+
+.custom-search-input::placeholder {
+  color: #64748B !important;
+  opacity: 0.9;
+}
+
+.custom-search-input:focus {
+  background-color: #ffffff !important;
+  color: #0F172A !important;
+  box-shadow: 0 0 0 0.2rem rgba(255, 199, 39, 0.35) !important;
+}
+
+/* Filter Tab Buttons */
+.filter-tab-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.82rem;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.filter-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+.filter-tab-btn.active {
+  background: #FFC727;
+  border-color: #FFC727;
+  color: #0B192C;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(255, 199, 39, 0.35);
+}
+
+/* ==========================================================================
+   ✨ MODERN ASSESSMENT CARD (Matching modern-course-card in Image 1)
+   ========================================================================== */
+.modern-assessment-card {
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1.5px solid rgba(255, 255, 255, 0.98) !important;
+  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.08) !important;
+  border-radius: 22px !important;
+  min-height: 255px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modern-assessment-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 22px 48px rgba(245, 158, 11, 0.28) !important;
+  border-color: #F59E0B !important;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Card Top Glow Accent */
+.card-glow-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #F59E0B 0%, #FBBF24 50%, #10B981 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.modern-assessment-card:hover .card-glow-bar {
+  opacity: 1;
+}
+
+.card-glow-bar.glow-success {
+  background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+}
+
+/* Assessment Icon Box (Matching modern-course-icon) */
+.modern-assessment-icon {
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.08) 100%);
+  border: 1.5px solid rgba(245, 158, 11, 0.35);
+  border-radius: 16px;
+  color: #D97706;
+  font-size: 1.5rem;
+  transition: transform 0.3s ease, background 0.3s ease;
+  flex-shrink: 0;
+}
+
+.modern-assessment-icon.icon-passed {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.08) 100%);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #059669;
+}
+
+.modern-assessment-card:hover .modern-assessment-icon {
+  transform: scale(1.08) rotate(4deg);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.3) 0%, rgba(245, 158, 11, 0.15) 100%);
+}
+
+/* Title */
+.assessment-card-heading {
+  color: #0F172A !important;
+  font-size: 1.18rem;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+/* Mini Stats (Horizontal format with separator dots) */
+.assessment-mini-stats {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #475569 !important;
+}
+
+/* Action Button (Matching modern-course-btn) */
+.modern-assessment-btn {
+  font-size: 0.92rem;
+  letter-spacing: 0.01em;
+  transition: all 0.2s ease;
+}
+
+.modern-assessment-card:hover .modern-assessment-btn {
+  background: #F59E0B !important;
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.42) !important;
+  transform: translateY(-1px);
+}
+
+/* Empty Glass Notice */
+.empty-notice-glass {
+  background: rgba(11, 25, 44, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.spin-animate {
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

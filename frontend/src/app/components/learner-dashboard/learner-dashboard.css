@@ -656,6 +656,43 @@
   color: #A855F7 !important;
 }
 
+/* ================================================================ */
+/* ⚠️ Balance Course Intimation - Simple Compact Box              */
+/* ================================================================ */
+.balance-simple-box {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(245, 158, 11, 0.35) !important;
+  border-left: 5px solid #F59E0B !important;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.07) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.balance-simple-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(245, 158, 11, 0.12) !important;
+}
+
+.balance-simple-icon {
+  width: 44px;
+  height: 44px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  flex-shrink: 0;
+}
+
+.balance-action-btn {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  font-size: 0.85rem;
+  letter-spacing: 0.2px;
+}
+
+.balance-action-btn:hover {
+  transform: scale(1.04);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4) !important;
+}
+
 /* Flashcard 3D Box */
 .flashcard-box {
   min-height: 240px;

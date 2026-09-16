@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +10,7 @@ import { AudioService } from '../../services/audio.service';
 import { ActivityService, Activity } from '../../services/activity.service';
 import { LottieComponent, AnimationOptions } from 'ngx-lottie';
 import confetti from 'canvas-confetti';
+import { LearnerAssessmentComponent } from '../learner-assessment/learner-assessment';
 
 interface Course {
   id: number;
@@ -18,6 +19,27 @@ interface Course {
   description: string;
   no_of_levels?: number;
   is_active: boolean;
+}
+
+export interface CourseProgression {
+  course_id: number;
+  course_name: string;
+  total_chapters: number;
+  completed_chapters: number;
+  percentage: number;
+}
+
+export interface BalanceCourseItem {
+  id: number;
+  course: Course;
+  name: string;
+  code: string;
+  description: string;
+  totalChapters: number;
+  completedChapters: number;
+  remainingChapters: number;
+  percentage: number;
+  isCompleted: boolean;
 }
 
 export interface MatchPairItem {
@@ -106,7 +128,7 @@ export interface LiveClassItem {
 @Component({
   selector: 'app-learner-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, LottieComponent],
+  imports: [CommonModule, FormsModule, RouterModule, LottieComponent, LearnerAssessmentComponent],
   templateUrl: './learner-dashboard.html',
   styleUrls: ['./learner-dashboard.css']
 })
@@ -119,6 +141,55 @@ export class LearnerDashboard implements OnInit {
   private activityService = inject(ActivityService);
 
   courses = signal<Course[]>([]);
+  courseProgressions = signal<CourseProgression[]>([]);
+
+  balanceCourses = computed<BalanceCourseItem[]>(() => {
+    const allCourses = this.courses();
+    const progs = this.courseProgressions();
+
+    const results: BalanceCourseItem[] = allCourses.map(course => {
+      const prog = progs.find(p => p.course_id === course.id);
+      const totalChapters = prog && prog.total_chapters > 0 ? prog.total_chapters : (course.no_of_levels || 1);
+      const completedChapters = prog ? prog.completed_chapters : 0;
+      const percentage = prog ? Math.min(Math.round(prog.percentage), 100) : 0;
+      const remainingChapters = Math.max(0, totalChapters - completedChapters);
+      const isCompleted = percentage >= 100 || (totalChapters > 0 && completedChapters >= totalChapters);
+
+      return {
+        id: course.id,
+        course,
+        name: course.name,
+        code: course.code || 'Enrolled Course',
+        description: course.description,
+        totalChapters,
+        completedChapters,
+        remainingChapters,
+        percentage,
+        isCompleted
+      };
+    }).filter(item => !item.isCompleted);
+
+    // If courses() had nothing loaded yet or empty, but progs had items that are incomplete
+    if (results.length === 0 && progs.length > 0) {
+      progs.filter(p => p.percentage < 100).forEach(p => {
+        results.push({
+          id: p.course_id,
+          course: { id: p.course_id, name: p.course_name, description: '', is_active: true },
+          name: p.course_name,
+          code: 'Enrolled Course',
+          description: '',
+          totalChapters: p.total_chapters,
+          completedChapters: p.completed_chapters,
+          remainingChapters: Math.max(0, p.total_chapters - p.completed_chapters),
+          percentage: Math.min(Math.round(p.percentage), 100),
+          isCompleted: false
+        });
+      });
+    }
+
+    return results;
+  });
+
   allDynamicActivities = signal<Activity[]>([]);
   isLoadingActivities = signal<boolean>(false);
   isLoading = signal(true);
@@ -145,7 +216,7 @@ export class LearnerDashboard implements OnInit {
   todayProgressMinutes = signal<number>(0);
   todayProgressPercent = signal<number>(0);
 
-  activeTab = signal<'home' | 'learn' | 'practice' | 'badges' | 'progress' | 'settings'>('home');
+  activeTab = signal<'home' | 'learn' | 'practice' | 'assessments' | 'badges' | 'progress' | 'settings'>('home');
   selectedCourseNotice = signal<string | null>(null);
 
   // Settings State
@@ -490,6 +561,9 @@ export class LearnerDashboard implements OnInit {
     this.http.get<any>(`${environment.apiUrl}/student/dashboard`).subscribe({
       next: (stats) => {
         if (stats) {
+          if (stats.course_progressions && Array.isArray(stats.course_progressions)) {
+            this.courseProgressions.set(stats.course_progressions);
+          }
           if (stats.xp_points !== undefined) this.xp.set(stats.xp_points);
           if (stats.streak_days !== undefined) this.streakDays.set(stats.streak_days);
           if (stats.average_score !== undefined) this.accuracyRate.set(Math.round(stats.average_score));
@@ -592,6 +666,8 @@ export class LearnerDashboard implements OnInit {
         this.practiceStage.set('courses');
       }
       this.fetchDynamicActivities();
+    } else if (path.includes('/assessments') || path.includes('/assessment')) {
+      this.activeTab.set('assessments');
     } else if (path.includes('/badges') || path.includes('/achievements')) {
       this.activeTab.set('badges');
     } else if (path.includes('/progress')) {
@@ -616,7 +692,7 @@ export class LearnerDashboard implements OnInit {
     });
   }
 
-  setTab(tab: 'home' | 'learn' | 'practice' | 'badges' | 'progress' | 'settings') {
+  setTab(tab: 'home' | 'learn' | 'practice' | 'assessments' | 'badges' | 'progress' | 'settings') {
     this.activeTab.set(tab);
     let routePath = 'dashboard';
     if (tab === 'learn') routePath = 'courses';
@@ -626,6 +702,7 @@ export class LearnerDashboard implements OnInit {
       this.practiceStage.set('courses');
       this.fetchDynamicActivities();
     }
+    else if (tab === 'assessments') routePath = 'assessments';
     else if (tab === 'badges') routePath = 'badges';
     else if (tab === 'progress') routePath = 'progress';
     else if (tab === 'settings') routePath = 'settings';

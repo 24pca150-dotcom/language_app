@@ -122,6 +122,11 @@
         <span>Practice</span>
       </button>
 
+      <button class="nav-item-btn" [class.active]="activeTab() === 'assessments'" (click)="setTab('assessments')">
+        <i class="bi bi-clipboard-check-fill"></i>
+        <span>Assessments</span>
+      </button>
+
       <button class="nav-item-btn" [class.active]="activeTab() === 'badges'" (click)="setTab('badges')">
         <i class="bi bi-trophy-fill"></i>
         <span>Badges</span>
@@ -381,47 +386,81 @@
             </div>
           </div>
 
-          <!-- Quick Navigation Cards to Other Sections -->
-          <div class="row g-3">
-            <div class="col-sm-6 col-xl-3" (click)="setTab('learn')">
-              <div class="quick-nav-glass p-3 rounded-4 d-flex align-items-center gap-3 cursor-pointer">
-                <div class="quick-icon text-primary"><i class="bi bi-journal-bookmark-fill"></i></div>
-                <div>
-                  <h6 class="text-white fw-bold mb-0">Learn Hub</h6>
-                  <span class="text-white-50 small">Explore courses & curriculum</span>
-                </div>
-              </div>
-            </div>
+          <!-- ================================================================ -->
+          <!-- ⚠️ BALANCE COURSE INTIMATION / REMINDER SECTION                   -->
+          <!-- ================================================================ -->
+          <!-- ================================================================ -->
+          <!-- ⚠️ BALANCE COURSE INTIMATION - COMPACT & SIMPLE BOX             -->
+          <!-- ================================================================ -->
+          <div class="balance-course-section mb-4">
+            @if (balanceCourses().length > 0) {
+              @for (item of balanceCourses(); track item.id) {
+                <div class="balance-simple-box p-3 px-4 rounded-4 d-flex align-items-center justify-content-between flex-wrap gap-3 mb-2 shadow-sm">
+                  <!-- Left: Warning Icon + Course Info & Incomplete notice -->
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="balance-simple-icon d-flex align-items-center justify-content-center rounded-circle">
+                      <i class="bi bi-clock-history text-warning fs-4"></i>
+                    </div>
+                    <div>
+                      <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                        <span class="badge bg-warning text-dark fw-bold px-2.5 py-0.5 rounded-pill" style="font-size: 0.72rem;">
+                          Balance Course
+                        </span>
+                        <h6 class="text-dark fw-bold mb-0" style="font-size: 0.95rem;">{{ item.name }}</h6>
+                        <span class="badge bg-light text-secondary border px-2 py-0.5 rounded-pill" style="font-size: 0.7rem;">
+                          {{ item.code }}
+                        </span>
+                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-0.5 rounded-pill" style="font-size: 0.7rem;">
+                          Incomplete
+                        </span>
+                      </div>
+                      <p class="text-muted small mb-0 d-flex align-items-center gap-1">
+                        <i class="bi bi-exclamation-circle-fill text-warning"></i>
+                        <span>
+                          <strong>{{ item.completedChapters }} of {{ item.totalChapters }}</strong> chapters completed
+                          ({{ item.remainingChapters > 0 ? item.remainingChapters + ' remaining' : 'in progress' }}).
+                          Finish your balance lessons!
+                        </span>
+                      </p>
+                    </div>
+                  </div>
 
-            <div class="col-sm-6 col-xl-3" (click)="setTab('practice')">
-              <div class="quick-nav-glass p-3 rounded-4 d-flex align-items-center gap-3 cursor-pointer">
-                <div class="quick-icon text-warning"><i class="bi bi-lightning-charge-fill"></i></div>
-                <div>
-                  <h6 class="text-white fw-bold mb-0">Practice Hub</h6>
-                  <span class="text-white-50 small">Quizzes, flashcards & drills</span>
+                  <!-- Right: Mini Progress + Action Button -->
+                  <div class="d-flex align-items-center gap-3 ms-auto">
+                    <div class="d-none d-md-block" style="width: 140px;">
+                      <div class="d-flex justify-content-between small text-muted mb-1" style="font-size: 0.75rem;">
+                        <span>Progress</span>
+                        <span class="fw-bold text-dark">{{ item.percentage }}%</span>
+                      </div>
+                      <div class="progress rounded-pill" style="height: 6px; background: #e2e8f0;">
+                        <div class="progress-bar bg-warning rounded-pill" [style.width.%]="item.percentage > 0 ? item.percentage : 6"></div>
+                      </div>
+                    </div>
+                    <button class="btn btn-warning rounded-pill px-3 py-1.5 fw-bold text-dark d-flex align-items-center gap-1.5 shadow-sm balance-action-btn"
+                            (click)="playCourse(item.course, $event)">
+                      <span>{{ item.percentage > 0 ? 'Resume' : 'Start Course' }}</span>
+                      <i class="bi bi-play-fill fs-5"></i>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </div>
-
-            <div class="col-sm-6 col-xl-3" (click)="setTab('badges')">
-              <div class="quick-nav-glass p-3 rounded-4 d-flex align-items-center gap-3 cursor-pointer">
-                <div class="quick-icon text-purple"><i class="bi bi-trophy-fill"></i></div>
-                <div>
-                  <h6 class="text-white fw-bold mb-0">Badges & Ranks</h6>
-                  <span class="text-white-50 small">Trophies & unlocked rewards</span>
+              }
+            } @else if (courses().length > 0) {
+              <!-- All completed state -->
+              <div class="balance-simple-box p-3 px-4 rounded-4 d-flex align-items-center justify-content-between flex-wrap gap-3 shadow-sm" style="border-left-color: #10B981 !important;">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="balance-simple-icon bg-success-subtle d-flex align-items-center justify-content-center rounded-circle">
+                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                  </div>
+                  <div>
+                    <h6 class="text-dark fw-bold mb-0">Balance Course: None Pending</h6>
+                    <p class="text-muted small mb-0">All your enrolled courses are 100% completed! Great job!</p>
+                  </div>
                 </div>
+                <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-1.5 fw-semibold" (click)="setTab('learn')">
+                  Explore Courses
+                </button>
               </div>
-            </div>
-
-            <div class="col-sm-6 col-xl-3" (click)="setTab('progress')">
-              <div class="quick-nav-glass p-3 rounded-4 d-flex align-items-center gap-3 cursor-pointer">
-                <div class="quick-icon text-success"><i class="bi bi-graph-up-arrow"></i></div>
-                <div>
-                  <h6 class="text-white fw-bold mb-0">Analytics</h6>
-                  <span class="text-white-50 small">Check fluency milestones</span>
-                </div>
-              </div>
-            </div>
+            }
           </div>
         </div>
       }
@@ -1121,6 +1160,13 @@
           }
 
         </div>
+      }
+
+      <!-- ================================================================ -->
+      <!-- 📝 TAB: ASSESSMENTS (SUPER ADMIN & ADMIN CREATED EVALUATIONS)    -->
+      <!-- ================================================================ -->
+      @if (activeTab() === 'assessments') {
+        <app-learner-assessment></app-learner-assessment>
       }
 
       <!-- ================================================================ -->

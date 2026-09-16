@@ -48,27 +48,6 @@
       <i class="bi bi-chevron-right fw-bold text-secondary fs-5"></i>
     </button>
     }
-
-    <!-- Progress Bar (Floating Top Center) -->
-    <div class="position-absolute pe-auto"
-      style="top: 30px; left: 50%; transform: translateX(-50%); width: 40%; min-width: 200px; max-width: 400px;">
-      <div class="progress rounded-pill bg-light border border-2 border-secondary overflow-hidden"
-        style="height: 18px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
-        <div class="progress-bar bg-success rounded-pill transition-all"
-          [style.width.%]="lessonSequence().length > 0 ? (lessonFinished() ? 100 : ((currentStepIndex() / lessonSequence().length) * 100)) : 0"
-          style="transition: width 0.5s ease-out;">
-          <div class="w-100 h-25 bg-white opacity-25 mt-1 rounded-pill mx-auto" style="max-width: 90%;"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Hearts (Floating Top Right) -->
-    <div
-      class="position-absolute d-flex align-items-center gap-2 text-danger fw-bold fs-5 pe-auto bg-white rounded-pill px-3 py-1 shadow-sm border border-2 border-danger"
-      style="top: 15px; right: 15px;">
-      <i class="bi bi-suit-heart-fill animate-pulse"></i>
-      <span>{{ hearts() }}</span>
-    </div>
   </header>
 
   <!-- Main Layout Body -->
@@ -140,7 +119,7 @@
     <!-- CENTER STAGE (Main Content Area) -->
     <main
       class="flex-grow-1 overflow-y-auto d-flex flex-column align-items-center px-3 px-md-4 w-100 mx-auto position-relative"
-      style="padding-top: 85px; min-height: 0;"
+      style="padding-top: 30px; min-height: 0;"
       [style.--main-padding-bottom]="activityFeedbackState() ? '200px' : (currentStep()?.type === 'activity' ? '40px' : '90px')">
 
       @if (lessonSequence().length === 0) {
@@ -205,7 +184,7 @@
       </div>
       } @else {
       <!-- DYNAMIC CARDS -->
-      <div class="w-100 my-auto d-flex flex-column animate-pop-in" style="min-height: 0;">
+      <div class="w-100 mt-1 mb-auto d-flex flex-column animate-pop-in" style="min-height: 0;">
         @if (currentStep(); as step) {
         @if (step.type !== 'reading') {
         <div class="position-relative w-100 d-flex justify-content-center align-items-center mb-4">
@@ -504,17 +483,5 @@
       }
     </div>
     }
-  </div>
-
-  <!-- Orientation Lock Overlay for Mobile Portrait -->
-  <div class="orientation-lock-overlay">
-    <div class="orientation-lock-content text-center font-nunito p-4">
-      <div class="phone-rotate-icon mb-4">
-        <i class="bi bi-phone-landscape text-warning" style="font-size: 5rem; display: inline-block;"></i>
-      </div>
-      <h3 class="fw-bold text-white mb-2">Turn Your Device! 📱</h3>
-      <p class="text-white opacity-75 mb-0">Please rotate your device to landscape (sideways) mode for the best
-        adventure experience!</p>
-    </div>
   </div>
 </div>

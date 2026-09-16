@@ -51,13 +51,14 @@ class DashboardController extends Controller
         }
         $totalChapters = $totalChaptersQuery->count();
         
-        $completedChapters = DB::table('user_course_progress')
+        $completedChaptersQuery = DB::table('user_course_progress')
             ->where('user_id', $userId)
             ->where('status', 'completed')
-            ->whereNotNull('chapter_id')
-            ->whereNull('content_id')
-            ->distinct('chapter_id')
-            ->count('chapter_id');
+            ->whereNotNull('chapter_id');
+        if (\Schema::hasColumn('user_course_progress', 'content_id')) {
+            $completedChaptersQuery->whereNull('content_id');
+        }
+        $completedChapters = $completedChaptersQuery->distinct('chapter_id')->count('chapter_id');
 
         $completionPercentage = $totalChapters > 0 
             ? round(($completedChapters / $totalChapters) * 100, 1) 
@@ -305,13 +306,14 @@ class DashboardController extends Controller
             ],
         ];
 
-        $completedChapterIds = DB::table('user_course_progress')
+        $completedChapterQuery = DB::table('user_course_progress')
             ->where('user_id', $userId)
             ->where('status', 'completed')
-            ->whereNotNull('chapter_id')
-            ->whereNull('content_id')
-            ->pluck('chapter_id')
-            ->toArray();
+            ->whereNotNull('chapter_id');
+        if (\Schema::hasColumn('user_course_progress', 'content_id')) {
+            $completedChapterQuery->whereNull('content_id');
+        }
+        $completedChapterIds = $completedChapterQuery->pluck('chapter_id')->toArray();
 
         return response()->json([
             'completion_percentage' => $completionPercentage,
@@ -617,12 +619,14 @@ class DashboardController extends Controller
         
         $overallCompletionPercentage = 0;
         if ($studentIds->count() > 0 && $totalChapters > 0) {
-            $completedChapters = DB::table('user_course_progress')
+            $completedChaptersQuery = DB::table('user_course_progress')
                 ->whereIn('user_id', $studentIds)
                 ->where('status', 'completed')
-                ->whereNotNull('chapter_id')
-                ->whereNull('content_id')
-                ->count();
+                ->whereNotNull('chapter_id');
+            if (\Schema::hasColumn('user_course_progress', 'content_id')) {
+                $completedChaptersQuery->whereNull('content_id');
+            }
+            $completedChapters = $completedChaptersQuery->count();
                 
             $maxPossibleCompletions = $studentIds->count() * $totalChapters;
             $overallCompletionPercentage = round(($completedChapters / $maxPossibleCompletions) * 100, 1);
@@ -699,13 +703,14 @@ class DashboardController extends Controller
         $user = \App\Models\User::find($userId);
         if (!$user) return null;
 
-        $completedChapters = DB::table('user_course_progress')
+        $completedChaptersQuery = DB::table('user_course_progress')
             ->where('user_id', $userId)
             ->where('status', 'completed')
-            ->whereNotNull('chapter_id')
-            ->whereNull('content_id')
-            ->distinct('chapter_id')
-            ->count('chapter_id');
+            ->whereNotNull('chapter_id');
+        if (\Schema::hasColumn('user_course_progress', 'content_id')) {
+            $completedChaptersQuery->whereNull('content_id');
+        }
+        $completedChapters = $completedChaptersQuery->distinct('chapter_id')->count('chapter_id');
 
         $totalAttempts = DB::table('user_assessment_attempts')
             ->where('user_id', $userId)

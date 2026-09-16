@@ -21,8 +21,31 @@ class AssessmentController extends Controller
             $query->where('chapter_id', $request->chapter_id);
         }
 
+        $user = $request->user();
+        if ($user && $user->role === 'student') {
+            $query->where('is_active', true);
+        }
 
-        return response()->json($query->latest()->get());
+        $assessments = $query->latest()->get();
+
+        if ($user) {
+            $attemptsMap = UserAssessmentAttempt::where('user_id', $user->id)
+                ->orderBy('id', 'desc')
+                ->get()
+                ->groupBy('assessment_id');
+
+            $assessments->transform(function ($item) use ($attemptsMap) {
+                $attempts = $attemptsMap->get($item->id, collect());
+                $latest = $attempts->first();
+                $item->latest_attempt = $latest;
+                $item->best_score = $attempts->max('score') ?? 0;
+                $item->is_passed = $attempts->contains('passed', true);
+                $item->total_attempts_count = $attempts->count();
+                return $item;
+            });
+        }
+
+        return response()->json($assessments);
     }
 
     public function store(Request $request)
