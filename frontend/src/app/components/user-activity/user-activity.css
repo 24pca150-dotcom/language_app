@@ -151,31 +151,52 @@
   background: url('/assets/images/learner-study-bg.png') center right / cover no-repeat fixed;
 }
 
-/* Sunlight Sparkles */
+/* ✨ Stationary Blinking Ambient Sparkles (10 particles in fixed cozy room spots) */
 .sparkles-container {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  pointer-events: none;
   overflow: hidden;
 }
 
-.sparkle {
+.sparkle.font-sparkle {
   position: absolute;
-  font-size: 1.5rem;
-  opacity: 0.6;
-  animation: floatSparkle 4s ease-in-out infinite alternate;
+  font-size: 1.35rem;
+  line-height: 1;
+  color: #FFD54F;
+  filter: drop-shadow(0 0 6px #FFD700) drop-shadow(0 0 14px rgba(255, 193, 7, 0.7));
+  user-select: none;
+  pointer-events: none;
+  animation-name: blinkSparkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
 }
 
-.sparkle:nth-child(1) { top: 15%; left: 20%; animation-delay: 0s; }
-.sparkle:nth-child(2) { top: 40%; right: 25%; animation-delay: 1.5s; }
-.sparkle:nth-child(3) { top: 70%; left: 10%; animation-delay: 0.8s; }
-.sparkle:nth-child(4) { top: 25%; right: 15%; animation-delay: 2.2s; }
+/* 7 Stationary Blinking Ambient Stars across the cozy study room */
+.sparkle.font-sparkle:nth-child(1) { top: 17%; left: 11%; font-size: 1.35rem; animation-duration: 2.4s; animation-delay: 0s;   }
+.sparkle.font-sparkle:nth-child(2) { top: 24%; left: 37%; font-size: 1.45rem; animation-duration: 3.1s; animation-delay: 0.8s; }
+.sparkle.font-sparkle:nth-child(3) { top: 23%; left: 60%; font-size: 1.25rem; animation-duration: 2.6s; animation-delay: 1.5s; }
+.sparkle.font-sparkle:nth-child(4) { top: 16%; left: 95%; font-size: 1.5rem;  animation-duration: 3.4s; animation-delay: 0.4s; }
+.sparkle.font-sparkle:nth-child(5) { top: 73%; left: 51%; font-size: 1.25rem; animation-duration: 2.9s; animation-delay: 0.2s; }
+.sparkle.font-sparkle:nth-child(6) { top: 73%; left: 88%; font-size: 1.45rem; animation-duration: 3.0s; animation-delay: 1.4s; }
+.sparkle.font-sparkle:nth-child(7) { top: 86%; left: 7%;  font-size: 1.3rem;  animation-duration: 2.7s; animation-delay: 0.9s; }
 
-@keyframes floatSparkle {
-  0% { transform: translateY(0px) rotate(0deg) scale(0.9); opacity: 0.3; }
-  100% { transform: translateY(-20px) rotate(15deg) scale(1.2); opacity: 0.8; }
+@keyframes blinkSparkle {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(0.7);
+    filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.4));
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.25);
+    filter: drop-shadow(0 0 8px #FFD700) drop-shadow(0 0 16px rgba(255, 193, 7, 0.9));
+  }
 }
 
 /* ==========================================================================

@@ -45,12 +45,8 @@
         </p>
       </div>
 
-      <!-- Quick Stats Pill (Solid Dark for High Contrast on Sky Background) -->
+      <!-- Action Refresh Button -->
       <div class="d-flex align-items-center gap-2 flex-wrap">
-        <div class="stat-mini-pill px-3 py-1.5 rounded-pill d-flex align-items-center gap-2 shadow-sm">
-          <span class="text-white small fw-semibold">Total Tests:</span>
-          <span class="badge bg-warning text-dark fw-bold rounded-pill px-2 py-0.5 fs-6">{{ totalCount() }}</span>
-        </div>
         <button class="btn btn-refresh-pill btn-sm rounded-pill px-3 py-1.5 d-flex align-items-center gap-1.5 shadow-sm fw-semibold"
                 (click)="fetchAssessments()"
                 [disabled]="isLoading()"
@@ -58,60 +54,6 @@
           <i class="bi bi-arrow-clockwise" [class.spin-animate]="isLoading()"></i>
           <span>Refresh</span>
         </button>
-      </div>
-    </div>
-
-    <!-- 🔍 Search & Filters Bar -->
-    <div class="filter-glass-card p-3 rounded-4 mb-4 shadow-sm">
-      <div class="row g-3 align-items-center">
-        <!-- Search Input (Clean White Background with High Readability) -->
-        <div class="col-12 col-md-6">
-          <div class="input-group">
-            <span class="input-group-text bg-white border-0 text-secondary ps-3">
-              <i class="bi bi-search"></i>
-            </span>
-            <input type="text"
-                   class="form-control border-0 py-2 custom-search-input shadow-none"
-                   placeholder="Search assessment title, topic, or course..."
-                   [value]="searchQuery()"
-                   (input)="searchQuery.set($any($event.target).value)">
-          </div>
-        </div>
-
-        <!-- Course Filter Dropdown -->
-        @if (availableCourses().length > 1) {
-          <div class="col-12 col-sm-6 col-md-3">
-            <select class="form-select border-0 bg-white text-dark shadow-none rounded-3 py-2 fw-semibold small"
-                    [value]="selectedCourseFilter()"
-                    (change)="selectedCourseFilter.set($any($event.target).value)">
-              <option value="all">All Courses ({{ totalCount() }})</option>
-              @for (course of availableCourses(); track course) {
-                <option [value]="course">{{ course }}</option>
-              }
-            </select>
-          </div>
-        }
-
-        <!-- Status Filter Pills -->
-        <div class="col-12 col-sm-6" [class.col-md-3]="availableCourses().length > 1" [class.col-md-6]="availableCourses().length <= 1">
-          <div class="d-flex align-items-center gap-2 justify-content-md-end flex-wrap">
-            <button class="btn btn-sm rounded-pill px-3 py-1.5 filter-pill-btn"
-                    [class.active]="selectedStatusFilter() === 'all'"
-                    (click)="selectedStatusFilter.set('all')">
-              All ({{ totalCount() }})
-            </button>
-            <button class="btn btn-sm rounded-pill px-3 py-1.5 filter-pill-btn"
-                    [class.active]="selectedStatusFilter() === 'passed'"
-                    (click)="selectedStatusFilter.set('passed')">
-              Passed ({{ passedCount() }})
-            </button>
-            <button class="btn btn-sm rounded-pill px-3 py-1.5 filter-pill-btn"
-                    [class.active]="selectedStatusFilter() === 'pending'"
-                    (click)="selectedStatusFilter.set('pending')">
-              Pending ({{ pendingCount() }})
-            </button>
-          </div>
-        </div>
       </div>
     </div>
 
