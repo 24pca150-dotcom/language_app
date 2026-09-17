@@ -1,18 +1,201 @@
+/* Admin Dashboard Styles */
+.dashboard-container {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/* KPI Cards */
 .kpi-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  
-  .kpi-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
-  }
-  
-  .icon-box {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .tracking-wide {
-    letter-spacing: 0.05em;
-  }
-  
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #f1f5f9;
+  background: #ffffff;
+}
+
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.08) !important;
+  border-color: #e2e8f0;
+}
+
+.icon-box {
+  width: 52px;
+  height: 52px;
+  transition: transform 0.2s ease;
+}
+
+.kpi-card:hover .icon-box {
+  transform: scale(1.08);
+}
+
+/* Quick Action Cards */
+.quick-action-btn {
+  transition: all 0.2s ease;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #1e293b;
+  text-decoration: none;
+}
+
+.quick-action-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.quick-action-btn.primary-action {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+}
+
+.quick-action-btn.primary-action:hover {
+  background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4);
+}
+
+/* CSS Bar Chart */
+.chart-bar-container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 140px;
+  padding-top: 20px;
+  gap: 12px;
+}
+
+.chart-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.chart-bar-fill {
+  width: 100%;
+  max-width: 32px;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, #6366f1 0%, #818cf8 100%);
+  transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  min-height: 4px;
+  position: relative;
+}
+
+.chart-bar-fill:hover {
+  background: linear-gradient(180deg, #4f46e5 0%, #6366f1 100%);
+}
+
+.chart-bar-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+.chart-bar-value {
+  font-size: 0.7rem;
+  color: #475569;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+/* Activity Feed Timeline */
+.timeline-item {
+  position: relative;
+  padding-left: 28px;
+  margin-bottom: 18px;
+}
+
+.timeline-item:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #6366f1;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 2px #c7d2fe;
+}
+
+.timeline-line {
+  position: absolute;
+  left: 5px;
+  top: 18px;
+  bottom: -12px;
+  width: 2px;
+  background: #e2e8f0;
+}
+
+.timeline-item:last-child .timeline-line {
+  display: none;
+}
+
+/* Student Leaderboard Avatar */
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  color: #3730a3;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rank-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rank-1 {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.rank-2 {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.rank-3 {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+/* Custom Nav Tabs */
+.custom-tabs .nav-link {
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #64748b;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 0;
+}
+
+.custom-tabs .nav-link.active {
+  color: #4f46e5;
+  border-bottom-color: #4f46e5;
+  background: transparent;
+}

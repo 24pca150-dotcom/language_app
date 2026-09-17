@@ -7,11 +7,24 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { RouterLink } from '@angular/router';
 import { NotificationService } from '../../services/notification.service';
 
-interface TenantStats {
+export interface TenantStats {
   total_students: number;
   total_staff: number;
   active_courses: number;
   overall_completion_rate: number;
+  active_today?: number;
+  top_performers?: Array<{ id: number; name: string; username: string; xp: number; gems: number }>;
+  recent_activities?: Array<{ user_name: string; action: string; title: string; time_ago: string; type: string }>;
+  upcoming_live_classes?: Array<{ id: number; title: string; instructor_name: string; start_time: string; meeting_link: string; duration_minutes: number; status: string }>;
+  recent_announcements?: Array<{ id: number; title: string; message: string; created_at: string }>;
+  weekly_activity?: Array<{ day: string; count: number }>;
+  skill_breakdown?: Array<{ skill: string; percentage: number; color: string }>;
+  super_admin_data?: {
+    total_tenants: number;
+    tenants_list: Array<{ id: number; tenant_name: string; tenant_code: string; email: string; is_active: boolean; students_count: number; staff_count: number; created_at: string }>;
+    total_packages: number;
+    total_properties: number;
+  };
 }
 
 @Component({
@@ -31,6 +44,12 @@ export class AdminDashboardComponent implements OnInit {
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
 
+  // Tenant Filtering for Super Admin
+  selectedTenantFilter = signal<string>('all');
+
+  // Modal Control for Branding Settings
+  showBrandingModal = signal<boolean>(false);
+
   // Branding Signals & Properties
   brandingForm!: FormGroup;
   savingBranding = signal<boolean>(false);
@@ -38,6 +57,23 @@ export class AdminDashboardComponent implements OnInit {
   logoPreviewUrl = signal<string | null>(null);
   tenant = signal<any>(null);
   tenantsList = signal<any[]>([]);
+
+  // Current Date
+  todayDate = new Date();
+
+  getGreeting(): string {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  }
+
+  getMaxWeeklyCount(): number {
+    const s = this.stats();
+    if (!s || !s.weekly_activity || s.weekly_activity.length === 0) return 1;
+    const max = Math.max(...s.weekly_activity.map(d => d.count));
+    return max > 0 ? max : 5;
+  }
 
   ngOnInit(): void {
     this.loadStats();
@@ -84,6 +120,29 @@ export class AdminDashboardComponent implements OnInit {
     this.logoFile = null;
   }
 
+  onFilterTenantChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const val = select.value;
+    this.selectedTenantFilter.set(val);
+    this.loadStats(val);
+
+    // Also synchronize selected tenant for branding if a specific tenant is chosen
+    if (val !== 'all') {
+      const selected = this.tenantsList().find(t => t.id === Number(val));
+      if (selected) {
+        this.selectTenant(selected);
+      }
+    }
+  }
+
+  openBrandingModal(): void {
+    this.showBrandingModal.set(true);
+  }
+
+  closeBrandingModal(): void {
+    this.showBrandingModal.set(false);
+  }
+
   onTenantChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
     const tenantId = Number(select.value);
@@ -123,11 +182,11 @@ export class AdminDashboardComponent implements OnInit {
     this.http.post<any>(`${environment.apiUrl}/tenants/${tenantId}/branding`, formData).subscribe({
       next: (updatedTenant) => {
         this.savingBranding.set(false);
+        this.closeBrandingModal();
         this.notificationService.show('success', 'Branding settings updated successfully!');
         
         const user = this.authService.getUser();
         if (user && user.tenant_id === updatedTenant.id) {
-          // Immediately apply new colors to root element
           const root = document.documentElement;
           if (updatedTenant.primary_color) {
             root.style.setProperty('--primary-color', updatedTenant.primary_color);
@@ -136,7 +195,6 @@ export class AdminDashboardComponent implements OnInit {
             root.style.setProperty('--secondary-color', updatedTenant.secondary_color);
           }
           
-          // Update stored branding in localStorage
           const localBranding = {
             tenant_name: updatedTenant.tenant_name,
             logo_url: updatedTenant.logo_path,
@@ -145,12 +203,10 @@ export class AdminDashboardComponent implements OnInit {
           };
           localStorage.setItem('tenant_branding', JSON.stringify(localBranding));
 
-          // Trigger a reload after toast display to refresh sidebar logo and text
           setTimeout(() => {
             window.location.reload();
           }, 1200);
         } else {
-          // If super admin edited another tenant, just reload the list of tenants to update UI
           this.loadTenantBranding();
         }
       },
@@ -161,11 +217,17 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  loadStats(): void {
+  loadStats(tenantId?: string): void {
     this.loading.set(true);
     this.error.set(null);
 
-    this.http.get<TenantStats>(`${environment.apiUrl}/dashboard/tenant-stats`).subscribe({
+    let url = `${environment.apiUrl}/dashboard/tenant-stats`;
+    const filter = tenantId !== undefined ? tenantId : this.selectedTenantFilter();
+    if (filter && filter !== 'all') {
+      url += `?tenant_id=${filter}`;
+    }
+
+    this.http.get<TenantStats>(url).subscribe({
       next: (data) => {
         this.stats.set(data);
         this.loading.set(false);

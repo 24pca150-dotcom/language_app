@@ -1,124 +1,168 @@
-<div class="container-fluid py-4">
-  <!-- Header Section -->
-  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+<div class="dashboard-container py-4 px-3 px-md-4">
+
+  <!-- ========================================== -->
+  <!-- 1. SLEEK HEADER WITH TENANT FILTER & SETTINGS -->
+  <!-- ========================================== -->
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 mb-4 pb-3 border-bottom">
     <div>
-      <h2 class="fw-bold mb-1 d-flex align-items-center gap-2">
-        <i class="bi bi-speedometer2 text-primary"></i>
-        Academy Dashboard
-      </h2>
-      <p class="text-secondary mb-0">Overview of your school's key performance indicators and statistics.</p>
+      <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+        <h2 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2 fs-3">
+          <i class="bi bi-speedometer2 text-primary"></i>
+          Academy Dashboard
+        </h2>
+        <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1 small fw-semibold">
+          <i class="bi bi-shield-check me-1"></i>
+          {{ authService.getUserRole() === 'super_admin' ? 'Super Admin' : (authService.getUserRole() === 'admin' ? 'School Admin' : 'Staff') }}
+        </span>
+        @if (tenant() && authService.getUserRole() !== 'super_admin') {
+          <span class="badge bg-light text-secondary border rounded-pill px-3 py-1 small">
+            <i class="bi bi-building me-1"></i> {{ tenant().tenant_name }}
+          </span>
+        }
+      </div>
+      <p class="text-secondary small mb-0">
+        {{ getGreeting() }}, {{ authService.getUser()?.name || authService.getUser()?.username || 'Admin' }} — Key performance indicators and academy statistics.
+      </p>
+    </div>
+
+    <!-- Header Action Controls -->
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <!-- Tenant Filter Dropdown for Super Admin -->
+      @if (authService.getUserRole() === 'super_admin' && tenantsList().length > 0) {
+        <div class="d-flex align-items-center bg-light border rounded-pill px-3 py-1">
+          <i class="bi bi-funnel text-primary me-2"></i>
+          <select [value]="selectedTenantFilter()" (change)="onFilterTenantChange($event)" class="form-select form-select-sm border-0 bg-transparent fw-semibold text-dark shadow-none p-0 pe-4" style="cursor: pointer; min-width: 170px;">
+            <option value="all">All Institutions (Global)</option>
+            @for (t of tenantsList(); track t.id) {
+              <option [value]="t.id">{{ t.tenant_name }} ({{ t.tenant_code }})</option>
+            }
+          </select>
+        </div>
+      }
+
+      <!-- Branding Settings Button (Super Admin / Admin) -->
+      @if (authService.hasRole(['super_admin', 'admin'])) {
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-flex align-items-center gap-1 fw-semibold" (click)="openBrandingModal()">
+          <i class="bi bi-palette-fill text-primary"></i>
+          <span>Branding</span>
+        </button>
+      }
+
+      <!-- Refresh Button -->
+      <button class="btn btn-sm btn-light border rounded-pill px-3 d-flex align-items-center gap-1 text-secondary" (click)="loadStats()" title="Refresh statistics">
+        <i class="bi bi-arrow-clockwise"></i>
+        <span>Refresh</span>
+      </button>
     </div>
   </div>
 
+  <!-- Alerts / Error message -->
   @if (error()) {
-    <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3">
+    <div class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4">
       <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ error() }}
       <button type="button" class="btn-close" (click)="error.set(null)"></button>
     </div>
   }
 
+  <!-- Loading state -->
   @if (loading()) {
     <div class="text-center py-5">
-      <div class="spinner-border text-primary" role="status"></div>
-      <p class="mt-2 text-secondary">Loading dashboard statistics...</p>
+      <div class="spinner-border text-primary" style="width: 2.5rem; height: 2.5rem;" role="status"></div>
+      <p class="mt-2 text-secondary small fw-semibold">Updating statistics...</p>
     </div>
   } @else if (stats(); as s) {
-    <!-- KPI Cards -->
-    <div class="row g-4 mb-5">
-      <!-- Total Students -->
-      <div class="col-sm-6 col-xl">
-        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden kpi-card">
-          <div class="card-body p-4 position-relative">
+
+    <!-- ========================================== -->
+    <!-- 2. CORE KPI METRIC CARDS (4 Cards) -->
+    <!-- ========================================== -->
+    <div class="row g-4 mb-4">
+      <!-- Card 1: Total Students -->
+      <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 kpi-card">
+          <div class="card-body p-4">
             <div class="d-flex justify-content-between align-items-start mb-3">
               <div>
-                <h6 class="text-secondary fw-semibold mb-1 text-uppercase tracking-wide">Total Students</h6>
-                <h2 class="fw-bold text-dark mb-0">{{ s.total_students }}</h2>
+                <span class="text-muted small fw-bold text-uppercase tracking-wider">Total Students</span>
+                <h2 class="fw-bold text-dark mt-1 mb-0">{{ s.total_students }}</h2>
               </div>
-              <div class="icon-box bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center">
+              <div class="icon-box bg-primary-subtle text-primary rounded-4 d-flex align-items-center justify-content-center">
                 <i class="bi bi-mortarboard-fill fs-4"></i>
               </div>
             </div>
-            <p class="text-muted small mb-0"><i class="bi bi-arrow-up-right text-success me-1"></i>Active learners in your academy</p>
+            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+              <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1 small">
+                <i class="bi bi-lightning-charge-fill me-1"></i>{{ s.active_today || 0 }} Active Today
+              </span>
+              <a routerLink="/users" class="text-primary small fw-semibold text-decoration-none">View All <i class="bi bi-chevron-right"></i></a>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Active Courses -->
-      <div class="col-sm-6 col-xl">
-        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden kpi-card">
-          <div class="card-body p-4 position-relative">
+      <!-- Card 2: Active Courses -->
+      <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 kpi-card">
+          <div class="card-body p-4">
             <div class="d-flex justify-content-between align-items-start mb-3">
               <div>
-                <h6 class="text-secondary fw-semibold mb-1 text-uppercase tracking-wide">Active Courses</h6>
-                <h2 class="fw-bold text-dark mb-0">{{ s.active_courses }}</h2>
+                <span class="text-muted small fw-bold text-uppercase tracking-wider">Active Courses</span>
+                <h2 class="fw-bold text-dark mt-1 mb-0">{{ s.active_courses }}</h2>
               </div>
-              <div class="icon-box bg-info-subtle text-info rounded-circle d-flex align-items-center justify-content-center">
-                <i class="bi bi-journal-richtext fs-4"></i>
+              <div class="icon-box bg-info-subtle text-info rounded-4 d-flex align-items-center justify-content-center">
+                <i class="bi bi-journal-bookmark-fill fs-4"></i>
               </div>
             </div>
-            <p class="text-muted small mb-0"><i class="bi bi-collection me-1"></i>Available in your curriculum</p>
+            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+              <span class="text-muted small"><i class="bi bi-check-circle-fill text-info me-1"></i>Curriculum</span>
+              <a routerLink="/courses" class="text-info small fw-semibold text-decoration-none">Manage <i class="bi bi-chevron-right"></i></a>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Overall Completion Rate -->
-      <div class="col-sm-6 col-xl">
-        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden kpi-card">
-          <div class="card-body p-4 position-relative">
+      <!-- Card 3: Avg Completion -->
+      <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 kpi-card">
+          <div class="card-body p-4">
             <div class="d-flex justify-content-between align-items-start mb-3">
               <div>
-                <h6 class="text-secondary fw-semibold mb-1 text-uppercase tracking-wide">Avg Completion</h6>
-                <h2 class="fw-bold text-success mb-0">{{ s.overall_completion_rate }}%</h2>
+                <span class="text-muted small fw-bold text-uppercase tracking-wider">Avg Completion</span>
+                <h2 class="fw-bold text-success mt-1 mb-0">{{ s.overall_completion_rate }}%</h2>
               </div>
-              <div class="icon-box bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center">
+              <div class="icon-box bg-success-subtle text-success rounded-4 d-flex align-items-center justify-content-center">
                 <i class="bi bi-graph-up-arrow fs-4"></i>
               </div>
             </div>
-            <div class="progress mt-3" style="height: 6px;">
-              <div class="progress-bar bg-success" role="progressbar" [style.width]="s.overall_completion_rate + '%'"></div>
+            <div class="progress rounded-pill mt-2" style="height: 6px;">
+              <div class="progress-bar bg-success rounded-pill" role="progressbar" [style.width]="s.overall_completion_rate + '%'"></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Total Staff -->
-      @if (authService.hasRole(['super_admin', 'admin'])) {
-        <div class="col-sm-6 col-xl">
-          <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden kpi-card">
-            <div class="card-body p-4 position-relative">
-              <div class="d-flex justify-content-between align-items-start mb-3">
-                <div>
-                  <h6 class="text-secondary fw-semibold mb-1 text-uppercase tracking-wide">Total Staff</h6>
-                  <h2 class="fw-bold text-dark mb-0">{{ s.total_staff }}</h2>
-                </div>
-                <div class="icon-box bg-warning-subtle text-warning rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-person-badge-fill fs-4"></i>
-                </div>
-              </div>
-              <p class="text-muted small mb-0"><i class="bi bi-building me-1"></i>Staff Members & Teachers</p>
-            </div>
-          </div>
-        </div>
-      }
-    </div>
-
-    <!-- Quick Actions / Secondary Row -->
-    <div class="row g-4 mb-4">
-      <div class="col-12">
-        <div class="card border-0 shadow-sm rounded-4">
-          <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
-            <h5 class="fw-bold"><i class="bi bi-lightning-charge text-warning me-2"></i>Quick Actions</h5>
-          </div>
+      <!-- Card 4: Staff OR Total Schools (Role Based) -->
+      <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 kpi-card">
           <div class="card-body p-4">
-            <div class="d-flex flex-wrap gap-3">
-              <a routerLink="/student-progress" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm">
-                <i class="bi bi-graph-up me-2"></i>View Detailed Progress
-              </a>
-              <a routerLink="/users" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold">
-                <i class="bi bi-people me-2"></i>Manage Users
-              </a>
-              <a routerLink="/courses" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold">
-                <i class="bi bi-journal-bookmark me-2"></i>Manage Courses
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <span class="text-muted small fw-bold text-uppercase tracking-wider">
+                  {{ (authService.getUserRole() === 'super_admin' && selectedTenantFilter() === 'all') ? 'Total Schools' : 'Total Staff' }}
+                </span>
+                <h2 class="fw-bold text-dark mt-1 mb-0">
+                  {{ (authService.getUserRole() === 'super_admin' && selectedTenantFilter() === 'all') ? (s.super_admin_data?.total_tenants || 1) : s.total_staff }}
+                </h2>
+              </div>
+              <div class="icon-box bg-warning-subtle text-warning rounded-4 d-flex align-items-center justify-content-center">
+                <i class="bi {{ (authService.getUserRole() === 'super_admin' && selectedTenantFilter() === 'all') ? 'bi-buildings-fill' : 'bi-person-badge-fill' }} fs-4"></i>
+              </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+              <span class="text-muted small">
+                {{ (authService.getUserRole() === 'super_admin' && selectedTenantFilter() === 'all') ? 'Active Tenants' : 'Staff Members' }}
+              </span>
+              <a [routerLink]="(authService.getUserRole() === 'super_admin' && selectedTenantFilter() === 'all') ? '/tenants' : '/users'" class="text-warning small fw-semibold text-decoration-none">
+                View <i class="bi bi-chevron-right"></i>
               </a>
             </div>
           </div>
@@ -126,76 +170,219 @@
       </div>
     </div>
 
-    <!-- Institution Branding Settings (Visible for super_admin and admin only) -->
-    @if (authService.hasRole(['super_admin', 'admin'])) {
-      <div class="row g-4 mt-2">
-        <div class="col-12 col-lg-6">
-          <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
-              <h5 class="fw-bold"><i class="bi bi-palette text-primary me-2"></i>Institution Branding Settings</h5>
-            </div>
-            <div class="card-body p-4">
-              <form [formGroup]="brandingForm" (ngSubmit)="saveBranding()">
-                <!-- Tenant Selector (Visible for super_admin only) -->
-                @if (authService.getUserRole() === 'super_admin' && tenantsList().length > 0) {
-                  <div class="mb-4">
-                    <label for="tenantSelect" class="form-label fw-semibold text-secondary small">Select Institution / Tenant</label>
-                    <select id="tenantSelect" [value]="tenant()?.id" (change)="onTenantChange($event)" class="form-select form-select-sm">
-                      @for (t of tenantsList(); track t.id) {
-                        <option [value]="t.id">{{ t.tenant_name }} ({{ t.tenant_code }})</option>
-                      }
-                    </select>
-                  </div>
+    <!-- ========================================== -->
+    <!-- 3. SUPER ADMIN: MANAGED INSTITUTIONS TABLE -->
+    <!-- ========================================== -->
+    @if (authService.hasRole(['super_admin']) && selectedTenantFilter() === 'all' && s.super_admin_data; as sa) {
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-white border-0 pt-4 pb-2 px-4 d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="fw-bold mb-1"><i class="bi bi-buildings text-primary me-2"></i>Managed Institutions & Schools</h5>
+            <p class="text-muted small mb-0">Overview of all active tenants enrolled in the language platform.</p>
+          </div>
+          <a routerLink="/tenants" class="btn btn-sm btn-primary rounded-pill px-3">
+            <i class="bi bi-plus-lg me-1"></i> Add Institution
+          </a>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="bg-light text-muted small text-uppercase">
+                <tr>
+                  <th class="ps-4">School Name</th>
+                  <th>Code</th>
+                  <th>Students</th>
+                  <th>Staff</th>
+                  <th>Status</th>
+                  <th class="text-end pe-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (t of sa.tenants_list; track t.id) {
+                  <tr>
+                    <td class="ps-4 fw-semibold text-dark">
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="avatar-circle bg-primary-subtle text-primary" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                          {{ t.tenant_name.charAt(0) }}
+                        </div>
+                        <span>{{ t.tenant_name }}</span>
+                      </div>
+                    </td>
+                    <td><span class="badge bg-light text-dark border">{{ t.tenant_code }}</span></td>
+                    <td><span class="fw-bold text-dark">{{ t.students_count }}</span></td>
+                    <td><span class="text-secondary">{{ t.staff_count }}</span></td>
+                    <td>
+                      <span class="badge bg-success-subtle text-success rounded-pill px-2">Active</span>
+                    </td>
+                    <td class="text-end pe-4">
+                      <button class="btn btn-sm btn-outline-primary rounded-pill me-1" (click)="selectedTenantFilter.set(t.id.toString()); loadStats(t.id.toString())">
+                        Filter Stats
+                      </button>
+                      <a routerLink="/tenants" class="btn btn-sm btn-outline-secondary rounded-pill">Manage</a>
+                    </td>
+                  </tr>
                 }
-
-                <!-- Logo upload -->
-                <div class="mb-4">
-                  <label class="form-label fw-semibold text-secondary small">School Logo</label>
-                  <div class="d-flex align-items-center gap-3">
-                    <div class="border rounded-3 p-1 bg-light d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                      @if (logoPreviewUrl()) {
-                        <img [src]="logoPreviewUrl()" class="img-fluid rounded-3 object-fit-contain" style="max-height: 100%;">
-                      } @else {
-                        <i class="bi bi-image text-muted fs-2"></i>
-                      }
-                    </div>
-                    <div>
-                      <input type="file" (change)="onLogoSelected($event)" accept="image/*" class="form-control form-control-sm">
-                      <small class="text-muted d-block mt-1">Recommended square format (PNG/JPEG).</small>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Primary & Secondary Colors -->
-                <div class="row g-3 mb-4">
-                  <div class="col-6">
-                    <label for="primary_color" class="form-label fw-semibold text-secondary small">Primary Color</label>
-                    <div class="d-flex align-items-center gap-2">
-                      <input type="color" id="primary_color" formControlName="primary_color" class="form-control form-control-color border-0 p-0" style="width: 44px; height: 38px; cursor: pointer;">
-                      <input type="text" formControlName="primary_color" class="form-control form-control-sm" style="font-size: 13px;">
-                    </div>
-                  </div>
-                  <div class="col-6">
-                    <label for="secondary_color" class="form-label fw-semibold text-secondary small">Secondary Color</label>
-                    <div class="d-flex align-items-center gap-2">
-                      <input type="color" id="secondary_color" formControlName="secondary_color" class="form-control form-control-color border-0 p-0" style="width: 44px; height: 38px; cursor: pointer;">
-                      <input type="text" formControlName="secondary_color" class="form-control form-control-sm" style="font-size: 13px;">
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Save Button -->
-                <button type="submit" [disabled]="savingBranding()" class="btn btn-primary px-4 rounded-pill fw-semibold shadow-sm">
-                  @if (savingBranding()) {
-                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                  }
-                  <span>Save Branding</span>
-                </button>
-              </form>
-            </div>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
     }
+
+    <!-- ========================================== -->
+    <!-- 4. BOTTOM SECTION: WEEKLY ACTIVITY + TOP LEARNERS -->
+    <!-- ========================================== -->
+    <div class="row g-4 mb-4">
+      <!-- Left: Weekly Student Engagement Chart -->
+      <div class="col-lg-7">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <h6 class="fw-bold text-dark mb-1"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Weekly Student Engagement</h6>
+                <p class="text-muted small mb-0">Lessons & activities completed this week</p>
+              </div>
+              <span class="badge bg-light text-secondary border px-2 py-1 small">Last 7 Days</span>
+            </div>
+
+            <!-- Bar Chart Container -->
+            <div class="chart-bar-container">
+              @for (day of s.weekly_activity; track day.day) {
+                <div class="chart-bar-col">
+                  <span class="chart-bar-value">{{ day.count }}</span>
+                  <div class="chart-bar-fill" [style.height]="((day.count / getMaxWeeklyCount()) * 100) + '%'"></div>
+                  <span class="chart-bar-label">{{ day.day }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Top Learners Leaderboard -->
+      <div class="col-lg-5">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="fw-bold text-dark mb-0"><i class="bi bi-trophy-fill text-warning me-2"></i>Top Learners</h6>
+              <a routerLink="/student-progress" class="text-primary small fw-semibold text-decoration-none">Full Ranking</a>
+            </div>
+
+            @if (s.top_performers && s.top_performers.length > 0) {
+              <div class="d-flex flex-column gap-3">
+                @for (student of s.top_performers; track student.id; let idx = $index) {
+                  <div class="d-flex align-items-center justify-content-between p-2 rounded-3 hover-bg">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="rank-badge" [ngClass]="idx === 0 ? 'rank-1' : (idx === 1 ? 'rank-2' : (idx === 2 ? 'rank-3' : 'bg-light text-muted'))">
+                        {{ idx + 1 }}
+                      </div>
+                      <div class="avatar-circle">
+                        {{ student.name.charAt(0).toUpperCase() }}
+                      </div>
+                      <div>
+                        <div class="fw-semibold text-dark">{{ student.name }}</div>
+                        <div class="text-muted small">&#64;{{ student.username }}</div>
+                      </div>
+                    </div>
+                    <div class="text-end">
+                      <span class="badge bg-warning-subtle text-warning fw-bold px-2 py-1 rounded-pill">
+                        <i class="bi bi-lightning-charge-fill me-1"></i>{{ student.xp }} XP
+                      </span>
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="text-muted text-center py-4 mb-0 small">No student activity recorded yet.</p>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
   }
+
+  <!-- ========================================== -->
+  <!-- 5. BRANDING SETTINGS MODAL / POPUP -->
+  <!-- ========================================== -->
+  @if (showBrandingModal()) {
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+          <div class="modal-header bg-light border-0 px-4 pt-4 pb-2">
+            <div>
+              <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2">
+                <i class="bi bi-palette text-primary"></i>
+                School Branding & Theme Settings
+              </h5>
+              <p class="text-muted small mb-0">Configure academy logo and accent colors for the learning portal.</p>
+            </div>
+            <button type="button" class="btn-close" (click)="closeBrandingModal()"></button>
+          </div>
+          <div class="modal-body p-4">
+            <form [formGroup]="brandingForm" (ngSubmit)="saveBranding()">
+              <!-- Select School / Tenant (Super Admin Only) -->
+              @if (authService.getUserRole() === 'super_admin' && tenantsList().length > 0) {
+                <div class="mb-4">
+                  <label for="modalTenantSelect" class="form-label fw-semibold text-secondary small">Target School / Tenant</label>
+                  <select id="modalTenantSelect" [value]="tenant()?.id" (change)="onTenantChange($event)" class="form-select">
+                    @for (t of tenantsList(); track t.id) {
+                      <option [value]="t.id">{{ t.tenant_name }} ({{ t.tenant_code }})</option>
+                    }
+                  </select>
+                </div>
+              }
+
+              <!-- School Logo Upload -->
+              <div class="mb-4">
+                <label class="form-label fw-semibold text-secondary small">School Logo</label>
+                <div class="d-flex align-items-center gap-3">
+                  <div class="border rounded-4 p-2 bg-light d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                    @if (logoPreviewUrl()) {
+                      <img [src]="logoPreviewUrl()" class="img-fluid rounded-3 object-fit-contain" style="max-height: 100%;">
+                    } @else {
+                      <i class="bi bi-image text-muted fs-1"></i>
+                    }
+                  </div>
+                  <div class="flex-grow-1">
+                    <input type="file" (change)="onLogoSelected($event)" accept="image/*" class="form-control form-control-sm">
+                    <small class="text-muted d-block mt-1">Recommended square format (PNG / JPEG / SVG).</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Accent Colors -->
+              <div class="row g-3 mb-4">
+                <div class="col-sm-6">
+                  <label for="primary_color" class="form-label fw-semibold text-secondary small">Primary Theme Color</label>
+                  <div class="d-flex align-items-center gap-2">
+                    <input type="color" id="primary_color" formControlName="primary_color" class="form-control form-control-color border-0 p-0" style="width: 44px; height: 38px; cursor: pointer;">
+                    <input type="text" formControlName="primary_color" class="form-control" style="font-size: 13px;">
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <label for="secondary_color" class="form-label fw-semibold text-secondary small">Secondary Highlight Color</label>
+                  <div class="d-flex align-items-center gap-2">
+                    <input type="color" id="secondary_color" formControlName="secondary_color" class="form-control form-control-color border-0 p-0" style="width: 44px; height: 38px; cursor: pointer;">
+                    <input type="text" formControlName="secondary_color" class="form-control" style="font-size: 13px;">
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                <button type="button" class="btn btn-light rounded-pill px-4" (click)="closeBrandingModal()">Cancel</button>
+                <button type="submit" [disabled]="savingBranding()" class="btn btn-primary px-4 rounded-pill fw-semibold shadow-sm">
+                  @if (savingBranding()) {
+                    <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                  }
+                  <span>Save & Apply</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
 </div>
