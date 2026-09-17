@@ -22,6 +22,7 @@ import { roleGuard } from './guards/role.guard';
 import { guestGuard } from './guards/guest.guard';
 
 import { ActivityBuilder } from './components/activity-builder/activity-builder';
+import { UserActivity } from './components/user-activity/user-activity';
 
 export const routes: Routes = [
   // Public Login route
@@ -140,6 +141,46 @@ export const routes: Routes = [
     path: 'learn/courses', 
     component: LearnerDashboard, 
     canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
+  },
+  { 
+    path: 'learn/games', 
+    component: UserActivity, 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
+  },
+  { 
+    path: 'learn/games/:courseId', 
+    component: UserActivity, 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
+  },
+  { 
+    path: 'learn/games/:courseId/:chapterId', 
+    component: UserActivity, 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
+  },
+  { 
+    path: 'learn/game', 
+    redirectTo: 'learn/games',
+    pathMatch: 'full'
+  },
+  { 
+    path: 'learn/activities', 
+    redirectTo: 'learn/games',
+    pathMatch: 'full'
+  },
+  { 
+    path: 'learn/activities/:courseId', 
+    redirectTo: 'learn/games/:courseId',
+    pathMatch: 'full'
+  },
+  { 
+    path: 'learn/activities/:courseId/:chapterId', 
+    redirectTo: 'learn/games/:courseId/:chapterId',
+    pathMatch: 'full'
+  },
+  { 
+    path: 'learn/activity', 
+    redirectTo: 'learn/games',
+    pathMatch: 'full'
   },
   { 
     path: 'learn/practice', 

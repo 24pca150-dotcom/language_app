@@ -31,6 +31,8 @@ export class KidsLessonPlayer implements OnInit, OnDestroy {
   xp = input<number>(0);
   coins = input<number>(0);
   activityFeedbackState = input<'correct' | 'incorrect' | null>(null);
+  courseId = input<number | null>(null);
+  activeChapterId = input<number | null>(null);
 
   @Output() quit = new EventEmitter<void>();
   @Output() retry = new EventEmitter<void>();
@@ -67,6 +69,18 @@ export class KidsLessonPlayer implements OnInit, OnDestroy {
       this.router.navigate(['/assessments/play', id]);
     } else {
       this.onActivityAnswered({ isCorrect: true });
+    }
+  }
+
+  goToActivities() {
+    const cId = this.courseId();
+    const chId = this.activeChapterId();
+    if (cId && chId) {
+      this.router.navigate(['/learn/games', cId, chId]);
+    } else if (cId) {
+      this.router.navigate(['/learn/games', cId]);
+    } else {
+      this.router.navigate(['/learn/games']);
     }
   }
 

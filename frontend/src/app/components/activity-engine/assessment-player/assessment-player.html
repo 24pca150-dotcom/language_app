@@ -1,31 +1,29 @@
-<div class="assessment-player-page min-vh-100 py-3 py-md-4 px-4 text-white">
+<div class="assessment-player-page py-2 text-dark">
   <div class="mx-auto" style="max-width: 800px;">
 
     <!-- ==================== START SCREEN ==================== -->
     @if (gameState() === 'start' && assessment(); as exam) {
-    <div
-      class="glass-container text-center animate-fade-in p-5 rounded-4 shadow-lg border border-secondary bg-opacity-25 bg-dark">
+    <div class="glass-container text-center animate-fade-in p-4 p-md-5 rounded-4 shadow-sm border border-light-subtle">
       <div class="mb-4">
         <div
-          class="bg-primary bg-opacity-25 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto"
+          class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto"
           style="width: 80px; height: 80px;">
-          <i class="bi bi-patch-check fs-1"></i>
+          <i class="bi bi-patch-check-fill fs-1 text-primary"></i>
         </div>
       </div>
 
-      <h1 class="display-6 fw-bold mb-3">{{ exam.title }}</h1>
+      <h1 class="display-6 fw-bold mb-3 text-dark">{{ exam.title }}</h1>
       <p class="text-secondary fs-5 mb-5">{{ exam.description || 'Welcome to the evaluation. Complete this timed standalone test to assess your fluency and unlock subsequent chapters.' }}</p>
 
       <div class="row g-4 justify-content-center mb-5">
         <div class="col-6 col-sm-3">
-          <div class="p-3 rounded-3 border border-secondary bg-dark bg-opacity-50">
-            <div class="text-secondary small fw-bold text-uppercase mb-1" style="letter-spacing: 0.08em;">Questions
-            </div>
+          <div class="p-3 rounded-4 border border-light-subtle bg-light">
+            <div class="text-secondary small fw-bold text-uppercase mb-1" style="letter-spacing: 0.08em;">Questions</div>
             <div class="fs-4 fw-bold text-primary">{{ exam.questions.length }}</div>
           </div>
         </div>
         <div class="col-6 col-sm-3">
-          <div class="p-3 rounded-3 border border-secondary bg-dark bg-opacity-50">
+          <div class="p-3 rounded-4 border border-light-subtle bg-light">
             <div class="text-secondary small fw-bold text-uppercase mb-1" style="letter-spacing: 0.08em;">Duration</div>
             <div class="fs-4 fw-bold text-warning">
               {{ exam.duration_minutes ? exam.duration_minutes + ' min' : 'Untimed' }}
@@ -33,15 +31,14 @@
           </div>
         </div>
         <div class="col-6 col-sm-3">
-          <div class="p-3 rounded-3 border border-secondary bg-dark bg-opacity-50">
-            <div class="text-secondary small fw-bold text-uppercase mb-1" style="letter-spacing: 0.08em;">Passing Score
-            </div>
+          <div class="p-3 rounded-4 border border-light-subtle bg-light">
+            <div class="text-secondary small fw-bold text-uppercase mb-1" style="letter-spacing: 0.08em;">Passing Score</div>
             <div class="fs-4 fw-bold text-success">{{ exam.pass_percentage }}%</div>
           </div>
         </div>
       </div>
 
-      <button type="button" class="btn-start-exam rounded-pill px-5 py-3 fw-bold fs-5 shadow-lg"
+      <button type="button" class="btn-start-exam rounded-pill px-5 py-3 fw-bold fs-5 shadow"
         (click)="startAttempt()">
         Start Attempt <i class="bi bi-play-fill ms-2"></i>
       </button>
@@ -52,9 +49,9 @@
     @if (gameState() === 'active' && assessment(); as exam) {
     <div class="active-exam-container animate-fade-in">
       <!-- Header with Countdown and Progress -->
-      <div class="d-flex align-items-center justify-content-between mb-4">
-        <div class="text-secondary fw-medium">
-          Question <span class="text-white fw-bold">{{ currentQuestionIdx() + 1 }}</span> of {{ exam.questions.length }}
+      <div class="d-flex align-items-center justify-content-between mb-3 px-1">
+        <div class="text-secondary fw-semibold fs-6">
+          Question <span class="text-dark fw-bold">{{ currentQuestionIdx() + 1 }}</span> of {{ exam.questions.length }}
         </div>
 
         <!-- Countdown Timer -->
@@ -67,29 +64,29 @@
       </div>
 
       <!-- Progress Bar -->
-      <div class="progress mb-4 rounded-pill bg-dark" style="height: 8px;">
+      <div class="progress mb-4 rounded-pill bg-light border border-light-subtle" style="height: 10px;">
         <div class="progress-bar-fill rounded-pill" [style.width.%]="progressPercentage()"></div>
       </div>
 
       <!-- Question Slider Container -->
-      <div class="glass-container p-3 p-md-4 rounded-4 shadow-lg border border-secondary bg-opacity-25 bg-dark mb-4">
+      <div class="glass-container p-4 p-md-5 rounded-4 shadow-sm border border-light-subtle mb-4">
         <app-activity-renderer [activity]="exam.questions[currentQuestionIdx()]" [showFeedback]="false"
           (answered)="onQuestionAnswered($event)">
         </app-activity-renderer>
 
         <!-- Bottom Pagination controls inside the glass container -->
-        <div class="d-flex align-items-center justify-content-between mt-4 border-top border-secondary border-opacity-10 pt-4">
+        <div class="d-flex align-items-center justify-content-between mt-5 border-top border-light-subtle pt-4">
           <button type="button" class="btn-nav prev rounded-pill px-4 py-2.5 fw-bold d-inline-flex align-items-center" [disabled]="currentQuestionIdx() === 0"
             (click)="prevQuestion()">
             <i class="bi bi-arrow-left me-2"></i> Back
           </button>
 
           @if (currentQuestionIdx() < exam.questions.length - 1) { 
-            <button type="button" class="btn-nav next rounded-pill px-4 py-2.5 fw-bold d-inline-flex align-items-center" (click)="nextQuestion()">
+            <button type="button" class="btn-nav next rounded-pill px-5 py-2.5 fw-bold d-inline-flex align-items-center" (click)="nextQuestion()">
               Next <i class="bi bi-arrow-right ms-2"></i>
             </button>
           } @else {
-            <button type="button" class="btn-submit rounded-pill px-4 py-2.5 fw-bold d-inline-flex align-items-center" (click)="submitAttempt()">
+            <button type="button" class="btn-submit rounded-pill px-5 py-2.5 fw-bold d-inline-flex align-items-center" (click)="submitAttempt()">
               Submit Exam <i class="bi bi-send-fill ms-2"></i>
             </button>
           }
@@ -100,30 +97,29 @@
 
     <!-- ==================== ERROR SCREEN ==================== -->
     @if (gameState() === 'error') {
-    <div
-      class="glass-container text-center animate-fade-in p-5 rounded-4 shadow-lg border border-secondary bg-opacity-25 bg-dark">
+    <div class="glass-container text-center animate-fade-in p-5 rounded-4 shadow-sm border border-light-subtle">
       <div class="mb-4">
         <div
-          class="bg-danger bg-opacity-25 text-danger rounded-circle d-flex align-items-center justify-content-center mx-auto"
+          class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center mx-auto"
           style="width: 80px; height: 80px;">
           <i class="bi bi-exclamation-triangle-fill fs-1"></i>
         </div>
       </div>
 
-      <h1 class="display-6 fw-bold mb-3">Error</h1>
+      <h1 class="display-6 fw-bold mb-3 text-dark">Error</h1>
       <p class="text-secondary fs-5 mb-5">{{ errorMessage() || 'The requested assessment could not be loaded.' }}</p>
 
-      <button type="button" class="btn btn-outline-light rounded-pill px-5 py-3 fw-bold fs-5 shadow-lg"
+      <button type="button" class="btn btn-outline-secondary rounded-pill px-5 py-3 fw-bold fs-5 shadow-sm"
         (click)="goBackToCourse()">
-        <i class="bi bi-arrow-left me-2"></i> Back to Course
+        <i class="bi bi-arrow-left me-2"></i> Back to Assessments
       </button>
     </div>
     }
+
     <!-- ==================== SCORECARD RESULTS VIEW ==================== -->
     @if (gameState() === 'results' && resultsData(); as results) {
     <div class="results-container animate-fade-in">
-      <div
-        class="glass-container p-5 rounded-4 shadow-lg border border-secondary bg-opacity-25 bg-dark text-center mb-5">
+      <div class="glass-container p-4 p-md-5 rounded-4 shadow-sm border border-light-subtle text-center mb-5">
 
         <!-- Circular animated percentage progress chart -->
         <div class="percentage-chart-box mb-4">
@@ -143,7 +139,7 @@
         <div class="mb-4 animate-scale-in">
           <div
             class="text-success mx-auto rounded-circle d-flex align-items-center justify-content-center"
-            style="width: 70px; height: 70px; background-color: rgba(25, 135, 84, 0.2);">
+            style="width: 70px; height: 70px; background-color: rgba(25, 135, 84, 0.12);">
             <i class="bi bi-trophy-fill fs-2"></i>
           </div>
           <h2 class="display-6 fw-bold text-success mt-3 mb-2">Congratulations!</h2>
@@ -154,27 +150,26 @@
         <div class="mb-4 animate-scale-in">
           <div
             class="text-warning mx-auto rounded-circle d-flex align-items-center justify-content-center"
-            style="width: 70px; height: 70px; background-color: rgba(245, 158, 11, 0.2);">
+            style="width: 70px; height: 70px; background-color: rgba(245, 158, 11, 0.12);">
             <i class="bi bi-journal-x fs-2"></i>
           </div>
-          <h2 class="display-6 fw-bold text-warning mt-3 mb-2">Keep Practicing!</h2>
-          <p class="text-secondary fs-5">You're making progress, but you haven't quite met the passing score of {{
-            results.pass_percentage }}% yet. Review your answers and try again!</p>
+          <h2 class="display-6 fw-bold text-warning mt-3 mb-2">Assessment Completed</h2>
+          <p class="text-secondary fs-5">You scored {{ results.score }}% (passing score: {{ results.pass_percentage }}%). Assessment evaluation is finalized. Single attempt policy applies.</p>
         </div>
         }
 
         <!-- Review Questions details -->
-        <div class="text-start mt-5 border-top border-secondary pt-4">
-          <h4 class="fw-bold mb-4">Summary of Attempt</h4>
+        <div class="text-start mt-5 border-top border-light-subtle pt-4">
+          <h4 class="fw-bold text-dark mb-4">Summary of Attempt</h4>
           <div class="row g-3">
             <div class="col-6">
-              <div class="p-3 bg-dark bg-opacity-40 rounded-3 border border-secondary">
+              <div class="p-3 bg-light rounded-3 border border-light-subtle">
                 <div class="text-secondary small">Total Questions</div>
-                <div class="fs-5 fw-bold">{{ results.total_questions }}</div>
+                <div class="fs-5 fw-bold text-dark">{{ results.total_questions }}</div>
               </div>
             </div>
             <div class="col-6">
-              <div class="p-3 bg-dark bg-opacity-40 rounded-3 border border-secondary">
+              <div class="p-3 bg-light rounded-3 border border-light-subtle">
                 <div class="text-secondary small">Correct Answers</div>
                 <div class="fs-5 fw-bold text-success">{{ results.correct_answers }}</div>
               </div>
@@ -182,15 +177,11 @@
           </div>
         </div>
 
-        <!-- Button actions -->
+        <!-- Button actions (Single attempt only, no retry) -->
         <div class="d-flex flex-wrap gap-3 justify-content-center mt-5">
-          <button type="button" class="btn-action-results retry rounded-pill px-5 py-3 fw-bold"
-            (click)="retryAssessment()">
-            <i class="bi bi-arrow-clockwise me-2"></i> Retry Attempt
-          </button>
           <button type="button" class="btn-action-results course rounded-pill px-5 py-3 fw-bold"
             (click)="goBackToCourse()">
-            <i class="bi bi-house-door me-2"></i> Back to Course
+            <i class="bi bi-arrow-left-circle me-2"></i> Return to Assessments
           </button>
         </div>
 

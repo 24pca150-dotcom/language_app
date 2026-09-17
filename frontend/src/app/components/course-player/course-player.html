@@ -25,40 +25,63 @@
     <!-- Navigation Items -->
     <nav class="sidebar-nav d-flex flex-column gap-2 mt-4">
       <a class="nav-item-btn" routerLink="/learn/dashboard">
-        <i class="bi bi-house-door-fill"></i>
+        <div class="game-nav-icon game-icon-home">
+          <i class="bi bi-house-door-fill"></i>
+        </div>
         <span>Home</span>
       </a>
 
       <a class="nav-item-btn active" routerLink="/learn/courses">
-        <i class="bi bi-book-half"></i>
+        <div class="game-nav-icon game-icon-learn">
+          <i class="bi bi-book-half"></i>
+        </div>
         <span>Learn</span>
       </a>
 
+      <a class="nav-item-btn" routerLink="/learn/games">
+        <div class="game-nav-icon game-icon-games">
+          <i class="bi bi-controller"></i>
+        </div>
+        <span>Games</span>
+      </a>
+
       <a class="nav-item-btn" routerLink="/learn/practice">
-        <i class="bi bi-lightning-charge-fill"></i>
+        <div class="game-nav-icon game-icon-practice">
+          <i class="bi bi-lightning-charge-fill"></i>
+        </div>
         <span>Practice</span>
       </a>
 
-      <a class="nav-item-btn" routerLink="/learn/badges">
-        <i class="bi bi-trophy-fill"></i>
-        <span>Badges</span>
+      <a class="nav-item-btn" routerLink="/learn/assessments">
+        <div class="game-nav-icon game-icon-assessments">
+          <i class="bi bi-clipboard-check-fill"></i>
+        </div>
+        <span>Assessments</span>
       </a>
 
+
       <a class="nav-item-btn" routerLink="/learn/progress">
-        <i class="bi bi-bar-chart-fill"></i>
+        <div class="game-nav-icon game-icon-progress">
+          <i class="bi bi-bar-chart-fill"></i>
+        </div>
         <span>Progress</span>
       </a>
 
       <a class="nav-item-btn" routerLink="/learn/settings">
-        <i class="bi bi-gear-fill"></i>
+        <div class="game-nav-icon game-icon-settings">
+          <i class="bi bi-gear-fill"></i>
+        </div>
         <span>Settings</span>
       </a>
     </nav>
+    <!-- Navigation Items End -->
 
     <!-- 🚪 Logout Button (at bottom of sidebar) -->
     <div class="sidebar-footer mt-auto pt-3">
       <button class="nav-item-btn btn-logout-sidebar w-100" (click)="logout()">
-        <i class="bi bi-box-arrow-right"></i>
+        <div class="game-nav-icon game-icon-logout">
+          <i class="bi bi-box-arrow-right"></i>
+        </div>
         <span>Logout</span>
       </button>
     </div>
@@ -84,12 +107,23 @@
     </div>
     }
 
+    <!-- Mascot Loader when Course Structure is loading -->
+    @if (!courseStructure()) {
+      <div class="d-flex flex-column align-items-center justify-content-center h-100 text-center p-4">
+        <div class="mascot-loading-wrapper mb-3 animate-bounce">
+          <img src="/assets/images/mascot.png" alt="Loading Mascot" style="width: 140px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));">
+        </div>
+        <h3 class="mascot-loading-title animate-pulse text-dark" style="color: #0f172a !important;">Loading course adventure...</h3>
+        <p class="text-secondary small">Gathering lessons and chapter paths for you!</p>
+      </div>
+    }
+
     <!-- DASHBOARD VIEW: Green Game World Map with Winding SVG Path & Chapter Nodes -->
-    @if (currentView() === 'levels' || currentView() === 'map') {
+    @if (courseStructure() && (currentView() === 'levels' || currentView() === 'map')) {
     <app-kids-dashboard [structure]="courseStructure()" [currentView]="currentView()" [activeLevelId]="activeLevelId()"
       [activeChapterId]="activeChapterId()" [completedLevels]="completedLevelIds()"
       [completedChapters]="completedChapterIds()" (selectLevel)="selectLevel($event)"
-      (selectChapterNode)="selectChapterNode($event)">
+      (selectChapterNode)="selectChapterNode($event)" (backToLevels)="goToLevels()">
     </app-kids-dashboard>
     }
 
@@ -98,7 +132,7 @@
     <app-kids-lesson-player [lessonSequence]="lessonSequence()" [currentStepIndex]="currentStepIndex()"
       [highestStepIndex]="highestStepIndex()" [isChapterCompleted]="isChapterCompleted(activeChapterId() || 0)"
       [lessonFinished]="lessonFinished()" [showGameOver]="showGameOver()" [hearts]="hearts()" [xp]="xp()"
-      [coins]="coins()" [activityFeedbackState]="activityFeedbackState()" (quit)="goToMap()" (retry)="retryActivity()"
+      [coins]="coins()" [activityFeedbackState]="activityFeedbackState()" [courseId]="courseId()" [activeChapterId]="activeChapterId()" (quit)="goToMap()" (retry)="retryActivity()"
       (finish)="finishLesson()" (stepCompleted)="handleStepCompleted($event)" (nextStep)="nextLessonStep()"
       (prevStep)="prevLessonStep()" (activityAnswered)="onActivityAnswered($event)"
       (continueFeedback)="continueFromFeedback()" (jumpToStep)="currentStepIndex.set($event)"
@@ -119,12 +153,12 @@
           <span class="fw-bold text-white small">Menu</span>
         </button>
 
-        <!-- Back to Courses Button -->
+        <!-- Back to Courses / Levels Button -->
         <button
           class="btn btn-warning rounded-pill px-3 py-2 shadow-lg border border-2 border-white text-dark fw-bold d-flex align-items-center gap-2 hover-lift"
           (click)="goBack()">
           <i class="bi bi-arrow-left-circle-fill text-dark fs-5"></i>
-          <span>Back to Courses</span>
+          <span>{{ currentView() === 'map' ? 'Back to Levels' : 'Back to Courses' }}</span>
         </button>
       </div>
 

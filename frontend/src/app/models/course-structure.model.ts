@@ -21,6 +21,7 @@ export interface Chapter {
 export interface Level {
   id: number;
   name: string;
+  code?: string;
   chapters: Chapter[];
   is_expanded?: boolean;
 }

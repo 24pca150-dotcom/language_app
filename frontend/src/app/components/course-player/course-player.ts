@@ -248,7 +248,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
     this.courseStructure.set(structure);
     if (structure.levels && structure.levels.length > 0) {
       this.activeLevelId.set(structure.levels[0].id);
-      this.currentView.set('map');
+      this.currentView.set('levels');
     }
     this.loadDatabaseProgress();
   }
@@ -324,6 +324,8 @@ export class CoursePlayer implements OnInit, OnDestroy {
       this.goToMap();
     } else if (this.currentView() === 'activity') {
       this.currentView.set('content');
+    } else if (this.currentView() === 'map') {
+      this.goToLevels();
     } else {
       this.router.navigate(['/learn/courses']);
     }
@@ -529,23 +531,8 @@ export class CoursePlayer implements OnInit, OnDestroy {
               data: { isJson: true, blocks: groupedBlocks }
             });
           }
-          if (activityBlocks.length > 0) {
-            activityBlocks.forEach((block: any, idx: number) => {
-              let actName = 'Unknown';
-              if (block.data && block.data.type) {
-                actName = block.data.type.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-                if (block.data.type === 'mcq') actName = 'Multiple Choice';
-              }
-
-              const stepTitle = (block.data && block.data.title) ? block.data.title : `${idx + 1}. Activity - ${actName}`;
-
-              steps.push({
-                type: 'activity',
-                title: stepTitle,
-                data: block
-              });
-            });
-          }
+          // Note: Activity blocks added in admin content page are intentionally separated
+          // and displayed in the dedicated UserActivity component (/learn/activities)
         } else {
           steps.push({
             type: 'reading',

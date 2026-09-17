@@ -119,6 +119,7 @@ Route::middleware(['auth:sanctum', 'identify.tenant'])->group(function () {
         Route::post('assessments', [AssessmentController::class, 'store']);
         Route::put('assessments/{assessment}', [AssessmentController::class, 'update']);
         Route::delete('assessments/{assessment}', [AssessmentController::class, 'destroy']);
+        Route::get('assessments/{assessmentId}/student-scores', [AssessmentController::class, 'getStudentScores']);
 
         Route::post('learning-modes', [LearningModeController::class, 'store']);
         Route::put('learning-modes/{learning_mode}', [LearningModeController::class, 'update']);

@@ -233,6 +233,15 @@ export class LearnerDashboard implements OnInit {
   practiceStage = signal<'courses' | 'topics' | 'activity'>('courses');
   selectedPracticeCourse = signal<Course | null>(null);
   selectedPracticeTopic = signal<'match' | 'flashcards' | 'quiz' | 'scramble' | 'blanks'>('match');
+  gameLives = signal<number>(5);
+  mascotMood = signal<'happy' | 'cheer' | 'oops'>('happy');
+  mascotSpeech = signal<string>('Ready to play, Little Explorer? Let\'s win some stars! ⭐');
+
+  // 🖐️ Drag and Drop Child Game Interactive Signals
+  draggedItemType = signal<string | null>(null);
+  draggedItemId = signal<any>(null);
+  draggedItemData = signal<any>(null);
+  isDraggingOver = signal<string | null>(null);
 
   // 🧩 Match It State (5 Diverse Rounds with 5 Pairs Each)
   currentMatchSetIndex = signal<number>(0);
@@ -700,7 +709,9 @@ export class LearnerDashboard implements OnInit {
       routePath = 'practice';
       // Always reset back to course selection when clicking practice from menu
       this.practiceStage.set('courses');
-      this.fetchDynamicActivities();
+      if (this.allDynamicActivities().length === 0) {
+        this.fetchDynamicActivities();
+      }
     }
     else if (tab === 'assessments') routePath = 'assessments';
     else if (tab === 'badges') routePath = 'badges';
@@ -1001,24 +1012,38 @@ export class LearnerDashboard implements OnInit {
   openPracticeActivity(topic: 'match' | 'flashcards' | 'quiz' | 'scramble' | 'blanks') {
     this.selectedPracticeTopic.set(topic);
     this.practiceStage.set('activity');
+    this.gameLives.set(5);
+    this.mascotMood.set('happy');
 
     if (this.allDynamicActivities().length > 0) {
       this.processDynamicActivities(this.allDynamicActivities());
     }
 
     if (topic === 'match') {
+      this.mascotSpeech.set('Jungle Match Time! 🐾 Tap a card to listen and find its matching pair!');
       this.initMatchSet(0);
     } else if (topic === 'flashcards') {
+      this.mascotSpeech.set('Magic Wonder Cards! 🃏 Tap the card to flip, or tap 🔊 to hear it!');
       this.flashcardIndex.set(0);
       this.isCardFlipped.set(false);
     } else if (topic === 'quiz') {
+      this.mascotSpeech.set('Super Quiz Hero! ⚡ Pick the right colorful button to score XP!');
       this.quizStep.set(0);
       this.quizAnswered.set(false);
       this.quizFeedback.set(null);
     } else if (topic === 'scramble') {
+      this.mascotSpeech.set('Toy Train Builder! 🚂 Tap the word blocks in the right order!');
       this.initScrambleQuestion(0);
     } else if (topic === 'blanks') {
+      this.mascotSpeech.set('Bubble Pop Mystery! 🎈 Tap the bubble word that fits the blank!');
       this.initBlankQuestion(0);
+    }
+  }
+
+  speakWord(text: string, event?: Event) {
+    if (event) event.stopPropagation();
+    if (text) {
+      this.audioService.speak(text);
     }
   }
 
@@ -1028,12 +1053,12 @@ export class LearnerDashboard implements OnInit {
 
   getTopicTitle(topicId: string): string {
     switch (topicId) {
-      case 'match': return 'Match It (Pair Matching)';
-      case 'flashcards': return 'Interactive Flashcards';
-      case 'quiz': return 'Speed Quiz Challenge';
-      case 'scramble': return 'Word Scramble / Sentence Builder';
-      case 'blanks': return 'Fill in the Blanks';
-      default: return 'Practice Activity';
+      case 'match': return '🐾 Jungle Match Adventure';
+      case 'flashcards': return '🃏 Wonder Flip Cards';
+      case 'quiz': return '⚡ Super Quiz Hero';
+      case 'scramble': return '🚂 Toy Train Word Builder';
+      case 'blanks': return '🎈 Bubble Pop Sentences';
+      default: return '🎮 Kids Practice Game';
     }
   }
 
@@ -1085,6 +1110,21 @@ export class LearnerDashboard implements OnInit {
     return this.matchedPairIds().includes(pairId);
   }
 
+  triggerCorrectReaction(msg: string) {
+    this.mascotMood.set('cheer');
+    this.mascotSpeech.set(msg);
+  }
+
+  triggerMistakeReaction(msg: string) {
+    this.mascotMood.set('oops');
+    this.mascotSpeech.set(msg);
+    if (this.gameLives() > 1) {
+      this.gameLives.update(l => l - 1);
+    } else {
+      this.gameLives.set(5);
+    }
+  }
+
   checkMatchPair() {
     const left = this.selectedLeftPair();
     const right = this.selectedRightPair();
@@ -1098,6 +1138,7 @@ export class LearnerDashboard implements OnInit {
       this.matchStreak.update(st => st + 1);
       this.matchFeedback.set('Awesome Match! +10 XP');
       this.audioService.playSuccess();
+      this.triggerCorrectReaction('🌟 Super Match! You found it! +10 XP');
 
       this.selectedLeftPair.set(null);
       this.selectedRightPair.set(null);
@@ -1119,6 +1160,7 @@ export class LearnerDashboard implements OnInit {
       this.matchStreak.set(0);
       this.matchFeedback.set('Not a match! Try again.');
       this.audioService.playError();
+      this.triggerMistakeReaction('Oops! Those don\'t match. Try another! 💪');
 
       setTimeout(() => {
         this.shakeLeftId.set(null);
@@ -1177,10 +1219,12 @@ export class LearnerDashboard implements OnInit {
       this.xp.update(x => x + 10);
       this.quizFeedback.set('Correct! +10 XP');
       this.audioService.playSuccess();
+      this.triggerCorrectReaction('🎯 BULLSEYE! That\'s the right answer! +10 XP');
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
     } else {
       this.audioService.playError();
       this.quizFeedback.set(`Not quite! The correct answer was "${currentQ.options[currentQ.correct]}".`);
+      this.triggerMistakeReaction('Nice attempt! Keep your chin up! 🌟');
     }
   }
 
@@ -1219,6 +1263,7 @@ export class LearnerDashboard implements OnInit {
       updated.splice(index, 1);
       return updated;
     });
+    this.speakWord(word);
   }
 
   removeScrambleWord(word: string, index: number) {
@@ -1242,10 +1287,12 @@ export class LearnerDashboard implements OnInit {
       this.scrambleIsCorrect.set(true);
       this.xp.update(x => x + 15);
       this.audioService.playSuccess();
+      this.triggerCorrectReaction('🚂 CHOO CHOO! You built the sentence! +15 XP');
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
     } else {
       this.scrambleIsCorrect.set(false);
       this.audioService.playError();
+      this.triggerMistakeReaction('Almost! Look at the word order! 🧩');
     }
   }
 
@@ -1276,10 +1323,12 @@ export class LearnerDashboard implements OnInit {
       this.blankIsCorrect.set(true);
       this.xp.update(x => x + 10);
       this.audioService.playSuccess();
+      this.triggerCorrectReaction('🎈 POP! That completes the sentence! +10 XP');
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
     } else {
       this.blankIsCorrect.set(false);
       this.audioService.playError();
+      this.triggerMistakeReaction('Good try! Look closely at the clue! 🔍');
     }
   }
 
@@ -1289,6 +1338,103 @@ export class LearnerDashboard implements OnInit {
     } else {
       this.initBlankQuestion(0);
     }
+  }
+
+  // =========================================================================
+  // 🖐️ DRAG & DROP GAME INTERACTION HANDLERS (Child Gaming Mechanics)
+  // =========================================================================
+  onDragStart(type: string, id: any, data?: any, event?: any) {
+    this.draggedItemType.set(type);
+    this.draggedItemId.set(id);
+    this.draggedItemData.set(data);
+    if (event && event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', JSON.stringify({ type, id }));
+    }
+  }
+
+  onDragEnd() {
+    this.draggedItemType.set(null);
+    this.draggedItemId.set(null);
+    this.draggedItemData.set(null);
+    this.isDraggingOver.set(null);
+  }
+
+  onDragOverZone(zoneId: string, event?: any) {
+    if (event) {
+      event.preventDefault();
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = 'move';
+      }
+    }
+    if (this.isDraggingOver() !== zoneId) {
+      this.isDraggingOver.set(zoneId);
+    }
+  }
+
+  onDragLeaveZone(zoneId: string, event?: any) {
+    if (event) event.preventDefault();
+    if (this.isDraggingOver() === zoneId) {
+      this.isDraggingOver.set(null);
+    }
+  }
+
+  onDropMatch(rightId: number, event?: any) {
+    if (event) event.preventDefault();
+    this.isDraggingOver.set(null);
+    if (this.draggedItemType() === 'match_left') {
+      const leftId = this.draggedItemId();
+      this.selectedLeftPair.set(leftId);
+      this.selectedRightPair.set(rightId);
+      this.checkMatchPair();
+      this.onDragEnd();
+    }
+  }
+
+  onDropBlank(event?: any) {
+    if (event) event.preventDefault();
+    this.isDraggingOver.set(null);
+    if (this.draggedItemType() === 'blank_opt' && !this.blankAnswered()) {
+      const optIdx = this.draggedItemId();
+      this.selectBlankOption(optIdx);
+      this.onDragEnd();
+    }
+  }
+
+  onDropScramble(event?: any) {
+    if (event) event.preventDefault();
+    this.isDraggingOver.set(null);
+    if (this.draggedItemType() === 'scramble_word' && !this.scrambleAnswered()) {
+      const word = this.draggedItemData();
+      const idx = this.draggedItemId();
+      this.selectScrambleWord(word, idx);
+      this.onDragEnd();
+    }
+  }
+
+  onDropQuiz(event?: any) {
+    if (event) event.preventDefault();
+    this.isDraggingOver.set(null);
+    if (this.draggedItemType() === 'quiz_coin' && !this.quizAnswered()) {
+      const optIdx = this.draggedItemId();
+      this.answerQuiz(optIdx);
+      this.onDragEnd();
+    }
+  }
+
+  onDropFlashcard(bucket: 'mastered' | 'review', event?: any) {
+    if (event) event.preventDefault();
+    this.isDraggingOver.set(null);
+    if (bucket === 'mastered') {
+      this.xp.update(x => x + 10);
+      this.audioService.playSuccess();
+      this.triggerCorrectReaction('🌟 AWESOME! Card Mastered! +10 XP');
+      confetti({ particleCount: 40, spread: 50 });
+    } else {
+      this.triggerMistakeReaction('Keep reviewing, you will master it soon! 💪');
+    }
+    this.nextFlashcard();
+    this.onDragEnd();
   }
 
   saveSettings() {

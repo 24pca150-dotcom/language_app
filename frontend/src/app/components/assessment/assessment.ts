@@ -1,11 +1,13 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
 import { AssessmentService, AssessmentData } from '../../services/assessment';
 import { LevelService, LevelData } from '../../services/level';
 import { ChapterService, ChapterData } from '../../services/chapter';
 import { NotificationService } from '../../services/notification.service';
+import { environment } from '../../../environments/environment';
 import EditorJS from '@editorjs/editorjs';
 import { CustomList as List } from '../../editor-plugins/custom-list';
 import Table from '@editorjs/table';
@@ -21,6 +23,7 @@ import {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     McvInputField,
     McvToggleField,
     TranslateModule
@@ -30,6 +33,7 @@ import {
 })
 export class Assessment implements OnInit {
   private fb = inject(FormBuilder);
+  private http = inject(HttpClient);
   private assessmentService = inject(AssessmentService);
   private levelService = inject(LevelService);
   private chapterService = inject(ChapterService);
@@ -42,7 +46,52 @@ export class Assessment implements OnInit {
 
   isEditMode = signal(false);
   isFormVisible = signal(false);
+  isSaving = signal(false);
   currentAssessmentId = signal<number | null>(null);
+
+  // Student Marks / Scores Modal Signals
+  showScoresModal = signal<boolean>(false);
+  selectedAssessmentForScores = signal<AssessmentData | null>(null);
+  loadingScores = signal<boolean>(false);
+  scoresData = signal<{
+    assessment: {
+      id: number;
+      title: string;
+      pass_percentage: number;
+      course_name: string;
+      chapter_title: string;
+    };
+    stats: {
+      total_attempts: number;
+      passed_count: number;
+      pass_rate: number;
+      average_score: number;
+      highest_score: number;
+    };
+    attempts: Array<{
+      id: number;
+      user_id: number;
+      student_name: string;
+      student_email: string;
+      student_username: string;
+      score: number;
+      passed: boolean | number;
+      attempted_at: string;
+    }>;
+  } | null>(null);
+  scoresSearchQuery = signal<string>('');
+
+  filteredAttempts = computed(() => {
+    const data = this.scoresData();
+    if (!data) return [];
+    const q = this.scoresSearchQuery().trim().toLowerCase();
+    if (!q) return data.attempts;
+    return data.attempts.filter(a =>
+      (a.student_name && a.student_name.toLowerCase().includes(q)) ||
+      (a.student_username && a.student_username.toLowerCase().includes(q)) ||
+      (a.student_email && a.student_email.toLowerCase().includes(q))
+    );
+  });
 
   private preludeEditor: EditorJS | null = null;
   private questionEditors = new Map<string, EditorJS>();
@@ -55,7 +104,10 @@ export class Assessment implements OnInit {
       description: [''],
       pass_percentage: [70, [Validators.required, Validators.min(0), Validators.max(100)]],
       is_mandatory: [true],
-      duration_minutes: [null],
+      duration_minutes: [30, [Validators.required, Validators.min(1)]],
+      scheduled_date: [null],
+      open_hours: [24, [Validators.min(0.1)]],
+      due_date: [null],
       allow_restart: [true],
       review_mode: ['after_completion', Validators.required],
       activity_type: ['plain', Validators.required],
@@ -262,7 +314,21 @@ export class Assessment implements OnInit {
         return;
       }
 
+      this.isSaving.set(true);
+
       const assessmentData = JSON.parse(JSON.stringify(this.assessmentForm.value));
+      if (assessmentData.scheduled_date) {
+        assessmentData.scheduled_date = assessmentData.scheduled_date.replace('T', ' ');
+        if (assessmentData.scheduled_date.length === 16) {
+          assessmentData.scheduled_date += ':00';
+        }
+      }
+      if (assessmentData.due_date) {
+        assessmentData.due_date = assessmentData.due_date.replace('T', ' ');
+        if (assessmentData.due_date.length === 16) {
+          assessmentData.due_date += ':00';
+        }
+      }
       if (assessmentData.questions) {
         assessmentData.questions.forEach((q: any) => {
           delete q._editorId;
@@ -274,29 +340,46 @@ export class Assessment implements OnInit {
         if (id) {
           this.assessmentService.update(id, assessmentData).subscribe({
             next: () => {
+              this.isSaving.set(false);
               this.showFeedback('success', 'Assessment updated successfully');
               this.isFormVisible.set(false);
               this.loadAssessments();
               this.resetForm();
             },
-            error: (err) => this.showFeedback('error', err.error?.message || 'Failed to update assessment'),
+            error: (err) => {
+              this.isSaving.set(false);
+              this.showFeedback('error', err.error?.message || 'Failed to update assessment');
+            },
           });
         }
       } else {
         this.assessmentService.create(assessmentData).subscribe({
           next: () => {
+            this.isSaving.set(false);
             this.showFeedback('success', 'Assessment created successfully');
             this.isFormVisible.set(false);
             this.loadAssessments();
             this.resetForm();
           },
-          error: (err) => this.showFeedback('error', err.error?.message || 'Failed to create assessment'),
+          error: (err) => {
+            this.isSaving.set(false);
+            this.showFeedback('error', err.error?.message || 'Failed to create assessment');
+          },
         });
       }
     }).catch(error => {
+      this.isSaving.set(false);
       console.error('Saving editors failed: ', error);
       this.showFeedback('error', 'Failed to save rich text content.');
     });
+  }
+
+  toLocalDatetimeString(dateStr: string | null | undefined): string {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 
   editAssessment(assessment: AssessmentData): void {
@@ -312,7 +395,10 @@ export class Assessment implements OnInit {
       description: assessment.description,
       pass_percentage: assessment.pass_percentage,
       is_mandatory: assessment.is_mandatory,
-      duration_minutes: assessment.duration_minutes,
+      duration_minutes: assessment.duration_minutes || 30,
+      scheduled_date: this.toLocalDatetimeString(assessment.scheduled_date),
+      open_hours: assessment.open_hours || 24,
+      due_date: this.toLocalDatetimeString(assessment.due_date),
       allow_restart: assessment.allow_restart,
       review_mode: assessment.review_mode,
       activity_type: assessment.activity_type,
@@ -412,6 +498,10 @@ export class Assessment implements OnInit {
       is_active: true,
       pass_percentage: 70,
       is_mandatory: true,
+      duration_minutes: 30,
+      scheduled_date: null,
+      open_hours: 24,
+      due_date: null,
       allow_restart: true,
       review_mode: 'after_completion',
       activity_type: 'plain'
@@ -426,6 +516,38 @@ export class Assessment implements OnInit {
   cancelForm(): void {
     this.resetForm();
     this.isFormVisible.set(false);
+  }
+
+  viewScores(assessment: AssessmentData): void {
+    this.selectedAssessmentForScores.set(assessment);
+    this.showScoresModal.set(true);
+    this.loadingScores.set(true);
+    this.scoresData.set(null);
+    this.scoresSearchQuery.set('');
+
+    this.http.get<any>(`${environment.apiUrl}/assessments/${assessment.id}/student-scores`).subscribe({
+      next: (res) => {
+        this.scoresData.set(res);
+        this.loadingScores.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load assessment scores:', err);
+        this.showFeedback('error', 'Failed to load student scores for this assessment');
+        this.loadingScores.set(false);
+      }
+    });
+  }
+
+  closeScoresModal(): void {
+    this.showScoresModal.set(false);
+    this.selectedAssessmentForScores.set(null);
+    this.scoresData.set(null);
+    this.scoresSearchQuery.set('');
+  }
+
+  onScoresSearch(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.scoresSearchQuery.set(input.value);
   }
 
   private showFeedback(type: 'success' | 'error', text: string): void {

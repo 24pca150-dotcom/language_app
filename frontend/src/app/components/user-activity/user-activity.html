@@ -1,0 +1,413 @@
+<div class="langnest-layout d-flex w-100 min-vh-100 position-relative overflow-hidden">
+
+  <!-- 🌅 FIXED FULL-PAGE SCENERY BACKGROUND -->
+  <div class="fullpage-bg learner-study-room-bg">
+    <!-- ✨ Ambient Golden Blinking Stars (7 particles) -->
+    <div class="sparkles-container pointer-events-none" aria-hidden="true">
+      <div class="sparkle font-sparkle">✨</div>
+      <div class="sparkle font-sparkle">✨</div>
+      <div class="sparkle font-sparkle">✨</div>
+      <div class="sparkle font-sparkle">✨</div>
+      <div class="sparkle font-sparkle">✨</div>
+      <div class="sparkle font-sparkle">✨</div>
+      <div class="sparkle font-sparkle">✨</div>
+    </div>
+  </div>
+
+  <!-- 🎮 FLOATING DOCK LEFT (4 Buttons: Home, Learn, Games, Practice) -->
+  <aside class="floating-dock dock-left" aria-label="Learning Navigation">
+    <a class="floating-game-btn game-icon-home text-decoration-none" routerLink="/learn/dashboard" title="Home">
+      <i class="bi bi-house-door-fill"></i>
+      <span class="game-btn-tooltip">Home</span>
+    </a>
+
+    <a class="floating-game-btn game-icon-learn text-decoration-none" routerLink="/learn/courses" title="Learn">
+      <i class="bi bi-book-half"></i>
+      <span class="game-btn-tooltip">Learn</span>
+    </a>
+
+    <a class="floating-game-btn game-icon-games active text-decoration-none" routerLink="/learn/games" title="Games">
+      <i class="bi bi-controller"></i>
+      <span class="game-btn-tooltip">Games</span>
+    </a>
+
+    <a class="floating-game-btn game-icon-practice text-decoration-none" routerLink="/learn/practice" title="Practice">
+      <i class="bi bi-lightning-charge-fill"></i>
+      <span class="game-btn-tooltip">Practice</span>
+    </a>
+  </aside>
+
+  <!-- 🎮 FLOATING DOCK RIGHT (4 Buttons: Assessments, Progress, Settings, Logout) -->
+  <aside class="floating-dock dock-right" aria-label="Account Navigation">
+    <a class="floating-game-btn game-icon-assessments text-decoration-none" routerLink="/learn/assessments" title="Assessments">
+      <i class="bi bi-clipboard-check-fill"></i>
+      <span class="game-btn-tooltip">Assessments</span>
+    </a>
+
+    <a class="floating-game-btn game-icon-progress text-decoration-none" routerLink="/learn/progress" title="Progress">
+      <i class="bi bi-bar-chart-fill"></i>
+      <span class="game-btn-tooltip">Progress</span>
+    </a>
+
+    <a class="floating-game-btn game-icon-settings text-decoration-none" routerLink="/learn/settings" title="Settings">
+      <i class="bi bi-gear-fill"></i>
+      <span class="game-btn-tooltip">Settings</span>
+    </a>
+
+    <!-- Logout placed in Badges position as requested -->
+    <button class="floating-game-btn game-icon-logout" (click)="logout()" title="Logout">
+      <i class="bi bi-box-arrow-right"></i>
+      <span class="game-btn-tooltip">Logout</span>
+    </button>
+  </aside>
+
+  <!-- 🌟 MAIN ACTIVITY ARENA -->
+  <main class="langnest-main flex-grow-1 position-relative d-flex flex-column overflow-y-auto z-2 w-100">
+    <div class="content-container position-relative z-2 p-4 p-lg-5" style="max-width: 1280px; margin: 0 auto; width: 100%; padding-left: 105px !important; padding-right: 105px !important;">
+
+      <!-- 🌟 TOP HEADER (Matching Curriculum, Practice, Assessments & Badges) -->
+      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <!-- Back Button (Navigates Player -> Chapters -> Courses -> Dashboard) -->
+          <button class="btn-back-circle shadow-sm" (click)="goBack()" title="Back">
+            <i class="bi bi-arrow-left fs-5"></i>
+          </button>
+
+          @if (stage() === 'courses') {
+            <div>
+              <h2 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+                <i class="bi bi-controller text-warning"></i>
+                <span>Games & Interactive Activities</span>
+              </h2>
+              <p class="text-white-50 mb-0 small">Select a course to explore its chapter games and interactive challenges.</p>
+            </div>
+          } @else if (stage() === 'chapters') {
+            <div>
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-warning text-dark fw-bold rounded-pill px-3 py-0.5" style="font-size: 0.75rem;">
+                  {{ selectedCourse()?.name || 'Course' }}
+                </span>
+              </div>
+              <h2 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+                <i class="bi bi-journal-text text-warning"></i>
+                <span>Choose a Chapter</span>
+              </h2>
+              <p class="text-white-50 mb-0 small">Pick a chapter to start its interactive language drills and fun games.</p>
+            </div>
+          } @else if (stage() === 'player') {
+            <div>
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-warning text-dark fw-bold rounded-pill px-3 py-0.5" style="font-size: 0.75rem;">
+                  {{ selectedCourse()?.name || 'Course' }}
+                </span>
+                <span class="badge bg-white bg-opacity-25 text-white fw-bold rounded-pill px-2.5 py-0.5" style="font-size: 0.75rem;">
+                  {{ selectedChapter()?.name || 'Chapter' }}
+                </span>
+              </div>
+              <h2 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+                <i class="bi bi-joystick text-warning"></i>
+                <span>{{ selectedChapter()?.name || 'Chapter Games' }}</span>
+              </h2>
+            </div>
+          }
+        </div>
+
+        <!-- Right Header Pill -->
+        <div>
+          @if (stage() === 'courses') {
+            <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold fs-6 shadow-sm">
+              {{ courses().length }} Courses Available
+            </div>
+          } @else if (stage() === 'chapters') {
+            <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold fs-6 shadow-sm">
+              {{ availableChapters().length }} Chapters Available
+            </div>
+          } @else if (stage() === 'player' && filteredActivities().length > 0) {
+            <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold fs-6 shadow-sm">
+              Question {{ currentPlayIndex() + 1 }} of {{ filteredActivities().length }}
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- CENTER BODY CONTENT -->
+      <div class="activity-body-scroll pb-5 position-relative">
+
+      <!-- ============================================================== -->
+      <!-- 🧭 STAGE 1: COURSE SELECTION GRID (User Request: Like Practice) -->
+      <!-- ============================================================== -->
+      @if (stage() === 'courses') {
+        <div class="tab-fade-in">
+          @if (isLoading()) {
+            <!-- 🐰 Kid-Friendly Mascot Loader -->
+            <div class="mascot-loader-container py-5 my-4">
+              <div class="mascot-loading-wrapper mb-3 animate-bounce">
+                <img src="/assets/images/mascot.png" alt="Loading Mascot" style="width: 140px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));">
+              </div>
+              <h3 class="mascot-loading-title animate-pulse">Loading games & courses...</h3>
+              <p class="mascot-loading-sub">Gathering interactive exercises and adventures for you!</p>
+            </div>
+          } @else if (courses().length > 0) {
+            <div class="row justify-content-center g-4 mb-4">
+              @for (c of courses(); track c.id) {
+                <div class="col-12 col-sm-6 col-md-6 col-lg-5 col-xl-4" style="max-width: 380px;">
+                  <div class="modern-course-card p-4 rounded-4 cursor-pointer d-flex flex-column justify-content-between shadow-sm position-relative overflow-hidden hover-lift"
+                       (click)="pickCourse(c.id)"
+                       title="Explore games for {{ c.name }}">
+                    <div class="card-glow-bar"></div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <div class="modern-course-icon d-flex align-items-center justify-content-center shadow-sm">
+                        <i class="bi bi-controller fs-3 text-warning"></i>
+                      </div>
+                      <span class="badge bg-warning bg-opacity-20 text-dark px-3 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">
+                        {{ c.code || 'A1 · Beginner' }}
+                      </span>
+                    </div>
+                    <div class="mb-3">
+                      <h4 class="fw-bold course-card-heading mb-2">{{ c.name }}</h4>
+                      <p class="course-card-desc mb-3">
+                        {{ c.description || 'Master vocabulary, sentence structure, and interactive games.' }}
+                      </p>
+                      <div class="course-mini-stats d-flex align-items-center gap-2">
+                        <span class="d-flex align-items-center gap-1">
+                          <i class="bi bi-layers-fill text-warning"></i>
+                          <span>{{ c.no_of_levels || 1 }} Levels</span>
+                        </span>
+                        <span class="text-muted">•</span>
+                        <span class="d-flex align-items-center gap-1">
+                          <i class="bi bi-controller text-warning"></i>
+                          <span>Chapter Games</span>
+                        </span>
+                      </div>
+                    </div>
+                    <div class="pt-2" style="border-top: 1px solid rgba(0,0,0,0.06);">
+                      <button class="btn btn-warning rounded-pill py-2 px-3 fw-bold text-dark w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm modern-course-btn"
+                              (click)="pickCourse(c.id); $event.stopPropagation()">
+                        <span>Explore Chapters</span>
+                        <i class="bi bi-arrow-right-circle-fill fs-5"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-notice-glass p-5 rounded-4 text-center mx-auto shadow-lg my-5" style="max-width: 580px;">
+              <div class="empty-icon-circle mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 72px; height: 72px; background: rgba(255, 199, 39, 0.15); border: 1px solid rgba(255, 199, 39, 0.3);">
+                <i class="bi bi-controller fs-1 text-warning"></i>
+              </div>
+              <h3 class="fw-bold text-white mb-2">No Courses Available</h3>
+              <p class="text-white-50 mb-0" style="font-size: 0.95rem; line-height: 1.6;">
+                You currently have 0 active courses assigned to your account.
+              </p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ============================================================== -->
+      <!-- 📚 STAGE 2: CHAPTER SELECTION GRID (User Request: Chapter wise) -->
+      <!-- ============================================================== -->
+      @else if (stage() === 'chapters') {
+        <div class="tab-fade-in">
+          @if (isLoadingStructure()) {
+            <div class="mascot-loader-container py-5 my-4">
+              <div class="mascot-loading-wrapper mb-3 animate-bounce">
+                <img src="/assets/images/mascot.png" alt="Loading Mascot" style="width: 140px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));">
+              </div>
+              <h3 class="mascot-loading-title animate-pulse">Loading course chapters...</h3>
+              <p class="mascot-loading-sub">Gathering chapter adventures and games for you!</p>
+            </div>
+          } @else if (availableChapters().length > 0) {
+            <div class="row justify-content-center g-4 mb-4">
+              @for (ch of availableChapters(); track ch.id; let idx = $index) {
+                <div class="col-12 col-sm-6 col-md-6 col-lg-5 col-xl-4" style="max-width: 380px;">
+                  <div class="modern-course-card p-4 rounded-4 cursor-pointer d-flex flex-column justify-content-between shadow-sm position-relative overflow-hidden hover-lift"
+                       (click)="pickChapter(ch.id)"
+                       title="Play games for {{ ch.name }}">
+                    <div class="card-glow-bar"></div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <div class="topic-icon-circle rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                           style="width: 48px; height: 48px; background: rgba(255, 199, 39, 0.15); color: #FFC727;">
+                        <i class="bi bi-puzzle-fill fs-4"></i>
+                      </div>
+                      <span class="badge bg-warning bg-opacity-20 text-dark px-3 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">
+                        Chapter {{ idx + 1 }}
+                      </span>
+                    </div>
+                    <div class="mb-3">
+                      <span class="text-secondary small fw-bold text-uppercase d-block mb-1">{{ ch.levelName }}</span>
+                      <h4 class="fw-bold course-card-heading mb-2">{{ ch.name }}</h4>
+                      <div class="course-mini-stats d-flex align-items-center gap-2 mt-2">
+                        <span class="d-flex align-items-center gap-1">
+                          <i class="bi bi-controller text-warning"></i>
+                          <span>Interactive Games</span>
+                        </span>
+                      </div>
+                    </div>
+                    <div class="pt-2" style="border-top: 1px solid rgba(0,0,0,0.06);">
+                      <button class="btn btn-warning rounded-pill py-2 px-3 fw-bold text-dark w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm modern-course-btn"
+                              (click)="pickChapter(ch.id); $event.stopPropagation()">
+                        <span>Play Chapter Games</span>
+                        <i class="bi bi-play-circle-fill fs-5"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-notice-glass p-5 rounded-4 text-center mx-auto shadow-lg my-5" style="max-width: 580px;">
+              <div class="empty-icon-circle mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 72px; height: 72px; background: rgba(255, 199, 39, 0.15); border: 1px solid rgba(255, 199, 39, 0.3);">
+                <i class="bi bi-journal-x fs-1 text-warning"></i>
+              </div>
+              <h3 class="fw-bold text-white mb-2">No Chapters Found</h3>
+              <p class="text-white-50 mb-0" style="font-size: 0.95rem; line-height: 1.6;">
+                There are currently no chapters configured for this course.
+              </p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ============================================================== -->
+      <!-- 🎮 STAGE 3: INTERACTIVE QUESTIONS PLAYER                       -->
+      <!-- ============================================================== -->
+      @else if (stage() === 'player') {
+        <div class="tab-fade-in">
+          @if (isLoading()) {
+            <div class="d-flex flex-column align-items-center justify-content-center h-75 text-center p-4">
+              <div class="mascot-loading-wrapper mb-3 animate-bounce">
+                <img src="/assets/images/mascot.png" alt="Loading Mascot" style="width: 140px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));">
+              </div>
+              <h3 class="fw-bold text-white font-nunito animate-pulse">Loading chapter games...</h3>
+              <p class="text-white-50 small">Gathering interactive exercises and games for you!</p>
+            </div>
+          }
+
+          @else if (allActivities().length === 0) {
+            <div class="empty-activities-card glass-panel text-center p-5 mx-auto my-auto rounded-5 shadow-lg max-w-lg mt-5">
+              <div class="mb-3" style="font-size: 4.5rem;">🎮</div>
+              <h3 class="fw-bold text-white mb-2">No Games Yet!</h3>
+              <p class="text-white-50 mb-4" style="line-height: 1.6;">
+                There are currently no games added inside this chapter's content pages.
+                Admins add activities and games directly inside the content editor!
+              </p>
+              <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <button class="btn btn-warning rounded-pill px-4 py-2.5 fw-bold text-dark shadow-sm hover-lift"
+                  (click)="goBack()">
+                  <i class="bi bi-arrow-left me-2"></i> Choose Another Chapter
+                </button>
+              </div>
+            </div>
+          }
+
+          @else if (isSessionFinished()) {
+            <div class="victory-card glass-panel text-center p-5 mx-auto my-auto rounded-5 shadow-lg max-w-lg mt-4 animate-pop-in">
+              <img src="https://cdn-icons-png.flaticon.com/512/3176/3176294.png" alt="Trophy"
+                style="width: 130px; filter: drop-shadow(0 10px 15px rgba(255, 193, 7, 0.4));" class="mb-3">
+              <h2 class="display-6 fw-bold text-warning mb-2" style="text-shadow: 2px 2px 0px #b08d00;">Chapter Games Completed!</h2>
+              <p class="text-white-50 mb-4">You did a wonderful job practicing all the games for this chapter!</p>
+
+              <div class="d-flex justify-content-center gap-3 mb-4">
+                <div class="card stat-box border-0 shadow-sm rounded-4 p-3 text-center" style="min-width: 120px; background: rgba(255,255,255,0.9);">
+                  <span class="text-secondary small fw-bold text-uppercase mb-1">XP Earned</span>
+                  <h3 class="fw-bold text-success mb-0">+{{ xpEarned() }}</h3>
+                </div>
+                <div class="card stat-box border-0 shadow-sm rounded-4 p-3 text-center" style="min-width: 120px; background: rgba(255,255,255,0.9);">
+                  <span class="text-secondary small fw-bold text-uppercase mb-1">Exercises</span>
+                  <h3 class="fw-bold text-primary mb-0">{{ filteredActivities().length }}</h3>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <button class="btn btn-warning rounded-pill px-4 py-2.5 fw-bold text-dark shadow-sm hover-lift d-flex align-items-center gap-2"
+                  (click)="restartSession()">
+                  <i class="bi bi-arrow-repeat fs-5"></i>
+                  <span>Play Again</span>
+                </button>
+
+                <button class="btn btn-outline-light rounded-pill px-4 py-2.5 fw-bold hover-lift d-flex align-items-center gap-2"
+                  (click)="goBack()">
+                  <i class="bi bi-arrow-left fs-5"></i>
+                  <span>Back to Chapters</span>
+                </button>
+              </div>
+            </div>
+          }
+
+          @else if (currentActivity(); as act) {
+            <div class="activity-player-container mx-auto mt-2 d-flex flex-column align-items-center max-w-5xl animate-fade-in">
+
+              <!-- Question Stage Container (Glassmorphism Styled) -->
+              <div class="activity-stage-box glass-stage-card w-100 p-4 p-md-5 rounded-5 position-relative">
+
+                <!-- Title banner inside card -->
+                <div class="activity-card-title mb-4 pb-3 border-bottom d-flex align-items-center justify-content-between">
+                  <div>
+                    <h3 class="fw-bold text-dark mb-1 font-fredoka">{{ act.title }}</h3>
+                    <span class="text-secondary small">Follow instructions and submit your answer</span>
+                  </div>
+
+                  <!-- Mascot mini cheer badge -->
+                  <div class="mascot-mini-badge d-none d-md-flex align-items-center gap-2 px-3 py-1.5 rounded-pill bg-light border border-2 border-warning-subtle">
+                    <span style="font-size: 1.4rem;">🦊</span>
+                    <span class="small fw-bold text-dark">{{ mascotCheer() }}</span>
+                  </div>
+                </div>
+
+                <!-- Activity Renderer Core Component -->
+                <div class="activity-render-wrapper w-100 my-2">
+                  @if (activityRenderKey()) {
+                    <app-activity-renderer
+                      [activity]="act.data"
+                      [showFeedback]="true"
+                      (answered)="onActivityAnswered($event)">
+                    </app-activity-renderer>
+                  }
+                </div>
+
+                <!-- Success Splash Overlay -->
+                @if (showSuccessSplash()) {
+                  <div class="answer-splash-overlay success-splash animate-pop-in position-absolute top-50 start-50 translate-middle text-center p-4 rounded-5 shadow-2xl z-5">
+                    <div class="splash-icon mb-2" style="font-size: 4rem;">🎉</div>
+                    <h2 class="fw-bold text-success mb-1 font-fredoka">Awesome!</h2>
+                    <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold">+15 XP</span>
+                  </div>
+                }
+
+                <!-- Mistake Splash Overlay -->
+                @if (showFailureSplash()) {
+                  <div class="answer-splash-overlay failure-splash animate-pop-in position-absolute top-50 start-50 translate-middle text-center p-4 rounded-5 shadow-2xl z-5">
+                    <div class="splash-icon mb-2" style="font-size: 4rem;">💡</div>
+                    <h2 class="fw-bold text-danger mb-1 font-fredoka">Try Again!</h2>
+                    <span class="text-muted small">You lost 1 heart ❤️</span>
+                  </div>
+                }
+
+                <!-- Activity Card Internal Navigation Footer -->
+                <div class="activity-card-footer pt-4 mt-4 border-top d-flex align-items-center justify-content-between w-100">
+                  <!-- Left: Previous Button -->
+                  <button class="btn btn-light rounded-pill px-4 py-2.5 fw-bold text-secondary shadow-sm hover-lift border border-2 border-white d-flex align-items-center gap-2"
+                    [disabled]="currentPlayIndex() === 0"
+                    (click)="prevActivity()">
+                    <i class="bi bi-chevron-left"></i>
+                    <span>Previous</span>
+                  </button>
+
+                  <!-- Right: Next / Finish Button -->
+                  <button class="btn btn-warning rounded-pill px-4 py-2.5 fw-bold text-dark shadow-sm hover-lift border border-2 border-white d-flex align-items-center gap-2 ms-auto"
+                    (click)="nextActivity()">
+                    <span>{{ (currentPlayIndex() + 1 === filteredActivities().length) ? 'Finish' : 'Next Activity' }}</span>
+                    <i class="bi bi-chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+      </div>
+    </div>
+  </main>
+</div>

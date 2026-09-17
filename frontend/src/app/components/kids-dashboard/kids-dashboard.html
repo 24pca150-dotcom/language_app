@@ -99,40 +99,40 @@
       </p>
     </div>
 
-    <!-- Levels List -->
-    <div class="container-fluid px-4 px-lg-5 z-2">
-      <div class="row g-4 justify-content-center row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+    <!-- Levels List (6 in 1 Row) -->
+    <div class="container-fluid px-2 px-md-3 px-xl-4 z-2" style="max-width: 1560px;">
+      <div class="row g-2 g-xl-3 justify-content-center row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6">
         @for (level of structure?.levels; track level.id; let idx = $index) {
-        <div class="col animate-slide-down" [style.animation-delay]="idx * 0.1 + 's'">
+        <div class="col animate-slide-down" [style.animation-delay]="idx * 0.08 + 's'">
           <div class="chapter-card card border-0 h-100 position-relative text-center"
             [ngClass]="{'level-locked-card opacity-75': !isLevelUnlocked(level.id)}" (click)="onLevelClick(level.id)">
             <!-- Card Header -->
             <div class="chapter-card-header text-center text-white py-2 position-relative"
-              [style.background]="!isLevelUnlocked(level.id) ? 'linear-gradient(to bottom, #78909c, #455a64) !important' : ''"
-              [style.border-bottom-color]="!isLevelUnlocked(level.id) ? '#37474f !important' : ''">
-              <i class="bi course-icon" style="font-size: 2rem;"
-                [ngClass]="!isLevelUnlocked(level.id) ? 'bi-lock-fill' : (idx % 3 === 0 ? 'bi-compass-fill' : (idx % 3 === 1 ? 'bi-tree-fill' : 'bi-journal-richtext'))"></i>
+              [style.background]="!isLevelUnlocked(level.id) ? 'linear-gradient(to bottom, #78909c, #455a64) !important' : getLevelGradient(level.name)"
+              [style.border-bottom-color]="!isLevelUnlocked(level.id) ? '#37474f !important' : getLevelBorder(level.name)">
+              <i class="bi course-icon" style="font-size: 1.75rem;"
+                [ngClass]="!isLevelUnlocked(level.id) ? 'bi-lock-fill' : getLevelIcon(level.name)"></i>
             </div>
             <!-- Card Body -->
-            <div class="card-body p-3 d-flex flex-column flex-grow-1">
-              <h3 class="card-title fw-bold mb-1 fs-5">{{ level.name }}</h3>
-              <p class="card-text mb-2 flex-grow-1" style="font-size: 0.85rem;">
-                {{ level.chapters.length }} Chapters
+            <div class="card-body p-2 p-md-2.5 d-flex flex-column flex-grow-1">
+              <h3 class="card-title fw-bold mb-1" style="font-size: 0.95rem; line-height: 1.25;" [title]="level.name">{{ level.name }}</h3>
+              <p class="card-text mb-2 flex-grow-1 text-muted" style="font-size: 0.78rem;">
+                {{ level.chapters.length }} {{ level.chapters.length === 1 ? 'Chapter' : 'Chapters' }}
               </p>
-              <div class="d-flex align-items-center justify-content-between mt-auto">
-                <span class="badge badge-level rounded-pill px-2 py-1 fw-bold" style="font-size: 0.75rem;"
+              <div class="d-flex align-items-center justify-content-between mt-auto pt-1">
+                <span class="badge badge-level rounded-pill px-2 py-1 fw-bold" style="font-size: 0.7rem;"
                   [ngClass]="{'bg-secondary text-white border-secondary': !isLevelUnlocked(level.id)}">
-                  {{ !isLevelUnlocked(level.id) ? 'Locked' : 'Level ' + (idx + 1) }}
+                  {{ !isLevelUnlocked(level.id) ? 'Locked' : ('Level ' + (idx + 1)) }}
                 </span>
                 @if (isLevelUnlocked(level.id)) {
-                <div class="btn-play-bouncy" style="width: 35px; height: 35px; min-width: 35px; padding: 0;">
-                  <i class="bi bi-play-fill text-white fs-5"></i>
+                <div class="btn-play-bouncy">
+                  <i class="bi bi-play-fill text-white"></i>
                 </div>
                 } @else {
                 <div
                   class="btn-locked-bouncy d-flex align-items-center justify-content-center bg-secondary border border-2 border-white rounded-circle shadow-sm"
-                  style="width: 35px; height: 35px; min-width: 35px;">
-                  <i class="bi bi-lock-fill text-white fs-5"></i>
+                  style="width: 28px; height: 28px; min-width: 28px;">
+                  <i class="bi bi-lock-fill text-white" style="font-size: 0.85rem;"></i>
                 </div>
                 }
               </div>
@@ -156,18 +156,45 @@
       style="min-height: 100vh; padding-top: 60px; padding-bottom: 40px;">
 
       @if (selectedLevel(); as activeLevel) {
-      <!-- Level Header Banner (Pinned to the Top) -->
+      <!-- Level Header Banner (Pinned to the Top) with Quick Switcher -->
       <div
-        class="chapter-header-banner position-absolute top-0 start-50 translate-middle-x z-3 mt-4 pt-2 text-center pointer-events-none">
-        <span
-          class="chapter-badge bg-success text-white px-4 py-2 rounded-pill fw-bold shadow-lg border border-3 border-white d-inline-flex align-items-center gap-2 pointer-events-auto">
-          <i class="bi bi-journal-bookmark-fill text-warning fs-5"></i>
-          <span class="fs-5">{{ activeLevel.name }}</span>
-          <span class="badge bg-warning text-dark rounded-pill px-2.5 py-1 small ms-2 fw-bold"
-            style="font-size: 0.82rem;">
-            {{ completedChaptersCount() }}/{{ activeLevel.chapters.length }} Chapters Done
+        class="chapter-header-banner position-absolute top-0 start-50 translate-middle-x z-3 mt-3 pt-2 text-center pointer-events-none d-flex flex-column align-items-center gap-2"
+        style="max-width: 96vw;">
+        <div class="d-flex align-items-center gap-2 pointer-events-auto">
+          <!-- Back to All Levels Button -->
+          <button class="btn btn-warning rounded-pill px-3 py-1.5 fw-bold shadow-sm d-inline-flex align-items-center gap-1.5 border border-2 border-white text-dark"
+                  (click)="onBackToLevels()" title="View All Levels">
+            <i class="bi bi-grid-fill"></i>
+            <span>All Levels</span>
+          </button>
+
+          <!-- Current Level Badge -->
+          <span
+            class="chapter-badge bg-success text-white px-4 py-2 rounded-pill fw-bold shadow-lg border border-3 border-white d-inline-flex align-items-center gap-2">
+            <i class="bi text-warning fs-5" [ngClass]="getLevelIcon(activeLevel.name)"></i>
+            <span class="fs-5">{{ activeLevel.name }}</span>
+            <span class="badge bg-warning text-dark rounded-pill px-2.5 py-1 small ms-2 fw-bold"
+              style="font-size: 0.82rem;">
+              {{ completedChaptersCount() }}/{{ activeLevel.chapters.length }} Chapters Done
+            </span>
           </span>
-        </span>
+        </div>
+
+        <!-- Quick Level Switcher Pills for Instant Jumping Between All Course Levels -->
+        @if (structure && structure.levels && structure.levels.length > 1) {
+          <div class="level-pills-bar d-flex align-items-center gap-1.5 p-1.5 rounded-pill shadow-lg pointer-events-auto"
+               style="background: rgba(11, 25, 44, 0.75); backdrop-filter: blur(10px); border: 1.5px solid rgba(255, 255, 255, 0.3); max-width: 94vw; overflow-x: auto;">
+            @for (lvl of structure.levels; track lvl.id) {
+              <button class="btn btn-sm rounded-pill px-3 py-1 fw-bold d-flex align-items-center gap-1.5 transition-all text-nowrap"
+                      [ngClass]="lvl.id === activeLevel.id ? 'btn-warning text-dark shadow-sm' : 'text-white bg-transparent border-0 hover-bg-white-10'"
+                      (click)="onLevelClick(lvl.id)"
+                      [title]="lvl.name">
+                <i class="bi" [ngClass]="getLevelIcon(lvl.name)"></i>
+                <span class="small">{{ lvl.name }}</span>
+              </button>
+            }
+          </div>
+        }
       </div>
 
       <!-- Angry Birds Horizontal World Track -->

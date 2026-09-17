@@ -1,226 +1,291 @@
 <div class="learner-assessment-container tab-fade-in">
 
-  <!-- 🌟 Top Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-    <div>
-      <div class="d-flex align-items-center gap-2 mb-1">
-        <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold" style="font-size: 0.78rem;">
-          <i class="bi bi-mortarboard-fill me-1"></i>Official Evaluations
-        </span>
-        @if (passedCount() > 0) {
-          <span class="badge bg-success text-white px-3 py-1 rounded-pill fw-bold" style="font-size: 0.78rem;">
-            <i class="bi bi-check-circle-fill me-1"></i>{{ passedCount() }} Passed
+  <!-- 🎓 EMBEDDED ASSESSMENT PLAYER (Takes test right here on the same page!) -->
+  @if (activeAssessment(); as currentExam) {
+    <div class="embedded-player-container animate-fade-in mb-5">
+      <div class="d-flex justify-content-between align-items-center mb-4 p-3 px-4 bg-white rounded-4 border border-light shadow-sm flex-wrap gap-2">
+        <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold text-dark d-flex align-items-center gap-1.5 shadow-none hover-scale" (click)="closePlayer()">
+          <i class="bi bi-arrow-left"></i> <span>Exit Exam</span>
+        </button>
+        <div class="fw-bold text-dark fs-6 d-flex align-items-center gap-2">
+          <span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold">
+            <i class="bi bi-pencil-square me-1"></i> Assessment
           </span>
-        }
-      </div>
-      <h2 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
-        <i class="bi bi-clipboard-check-fill text-warning"></i>
-        <span>Assessments & Tests</span>
-      </h2>
-      <p class="text-white-50 mb-0 small">
-        Review your knowledge with official assessments and quizzes assigned by your academy.
-      </p>
-    </div>
-
-    <!-- Quick Stats Pill (Solid Dark for High Contrast on Sky Background) -->
-    <div class="d-flex align-items-center gap-2 flex-wrap">
-      <div class="stat-mini-pill px-3 py-1.5 rounded-pill d-flex align-items-center gap-2 shadow-sm">
-        <span class="text-white small fw-semibold">Total Tests:</span>
-        <span class="badge bg-warning text-dark fw-bold rounded-pill px-2 py-0.5 fs-6">{{ totalCount() }}</span>
-      </div>
-      <button class="btn btn-refresh-pill btn-sm rounded-pill px-3 py-1.5 d-flex align-items-center gap-1.5 shadow-sm fw-semibold"
-              (click)="fetchAssessments()"
-              [disabled]="isLoading()"
-              title="Refresh Assessments">
-        <i class="bi bi-arrow-clockwise" [class.spin-animate]="isLoading()"></i>
-        <span>Refresh</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- 🔍 Search & Filters Bar -->
-  <div class="filter-glass-card p-3 rounded-4 mb-4 shadow-sm">
-    <div class="row g-3 align-items-center">
-      <!-- Search Input (Clean White Background with High Readability) -->
-      <div class="col-12 col-md-6">
-        <div class="search-input-wrapper position-relative">
-          <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-          <input type="text"
-                 class="form-control rounded-pill ps-5 pe-3 bg-white text-dark border-0 shadow-sm custom-search-input"
-                 placeholder="Search assessment title, topic, or course..."
-                 [ngModel]="searchQuery()"
-                 (ngModelChange)="searchQuery.set($event)">
+          <span class="text-dark">{{ currentExam.title }}</span>
         </div>
+        <span class="badge bg-warning bg-opacity-25 text-dark border border-warning border-opacity-50 px-3 py-2 rounded-pill fw-bold">
+          Pass Threshold: {{ currentExam.pass_percentage }}%
+        </span>
       </div>
 
-      <!-- Status Filter Tabs -->
-      <div class="col-12 col-md-6">
-        <div class="d-flex gap-2 justify-content-start justify-content-md-end flex-wrap">
-          <button class="filter-tab-btn rounded-pill px-3 py-1.5 fw-semibold"
-                  [class.active]="selectedStatusFilter() === 'all'"
-                  (click)="selectedStatusFilter.set('all')">
-            All ({{ totalCount() }})
-          </button>
-          <button class="filter-tab-btn rounded-pill px-3 py-1.5 fw-semibold"
-                  [class.active]="selectedStatusFilter() === 'passed'"
-                  (click)="selectedStatusFilter.set('passed')">
-            Passed ({{ passedCount() }})
-          </button>
-          <button class="filter-tab-btn rounded-pill px-3 py-1.5 fw-semibold"
-                  [class.active]="selectedStatusFilter() === 'pending'"
-                  (click)="selectedStatusFilter.set('pending')">
-            Pending ({{ pendingCount() }})
-          </button>
+      <!-- The Embedded Player Component -->
+      <app-assessment-player [inputAssessmentId]="currentExam.id" (close)="closePlayer()"></app-assessment-player>
+    </div>
+  } @else {
+
+    <!-- 🌟 Top Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold" style="font-size: 0.78rem;">
+            <i class="bi bi-mortarboard-fill me-1"></i>Official Evaluations
+          </span>
+          @if (passedCount() > 0) {
+            <span class="badge bg-success text-white px-3 py-1 rounded-pill fw-bold" style="font-size: 0.78rem;">
+              <i class="bi bi-check-circle-fill me-1"></i>{{ passedCount() }} Passed
+            </span>
+          }
         </div>
+        <h2 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+          <i class="bi bi-clipboard-check-fill text-warning"></i>
+          <span>Assessments & Tests</span>
+        </h2>
+        <p class="text-white-50 mb-0 small">
+          Review your knowledge with official assessments and quizzes assigned by your academy.
+        </p>
+      </div>
+
+      <!-- Action Refresh Button -->
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <button class="btn btn-refresh-pill btn-sm rounded-pill px-3 py-1.5 d-flex align-items-center gap-1.5 shadow-sm fw-semibold"
+                (click)="fetchAssessments()"
+                [disabled]="isLoading()"
+                title="Refresh Assessments">
+          <i class="bi bi-arrow-clockwise" [class.spin-animate]="isLoading()"></i>
+          <span>Refresh</span>
+        </button>
       </div>
     </div>
-  </div>
 
-  <!-- ⏳ Loading State -->
-  @if (isLoading()) {
-    <div class="py-5 text-center">
-      <div class="spinner-border text-warning mb-3" style="width: 3rem; height: 3rem;" role="status">
-        <span class="visually-hidden">Loading assessments...</span>
+    <!-- ⏳ Loading State -->
+    @if (isLoading()) {
+      <div class="mascot-loader-container py-5 my-4">
+        <div class="mascot-loading-wrapper mb-3 animate-bounce">
+          <img src="/assets/images/mascot.png" alt="Loading Mascot" style="width: 140px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));">
+        </div>
+        <h3 class="mascot-loading-title animate-pulse">Loading official assessments...</h3>
+        <p class="mascot-loading-sub">Gathering tests and evaluation quizzes for you!</p>
       </div>
-      <p class="text-white-50">Loading available assessments...</p>
-    </div>
-  }
+    }
 
-  <!-- ⚠️ Error State -->
-  @else if (errorMessage()) {
-    <div class="alert alert-danger rounded-4 p-4 text-center my-4 shadow-sm">
-      <i class="bi bi-exclamation-triangle-fill fs-2 mb-2 d-block"></i>
-      <h5 class="fw-bold mb-1">{{ errorMessage() }}</h5>
-      <p class="mb-3 small">Please verify your internet connection or backend server status.</p>
-      <button class="btn btn-danger btn-sm rounded-pill px-4" (click)="fetchAssessments()">
-        <i class="bi bi-arrow-clockwise me-1"></i>Try Again
-      </button>
-    </div>
-  }
+    <!-- ⚠️ Error State -->
+    @else if (errorMessage()) {
+      <div class="alert alert-danger rounded-4 p-4 text-center my-4 shadow-sm">
+        <i class="bi bi-exclamation-triangle-fill fs-2 mb-2 d-block"></i>
+        <h5 class="fw-bold mb-1">{{ errorMessage() }}</h5>
+        <p class="mb-3 small">Please verify your internet connection or backend server status.</p>
+        <button class="btn btn-danger btn-sm rounded-pill px-4" (click)="fetchAssessments()">
+          <i class="bi bi-arrow-clockwise me-1"></i>Try Again
+        </button>
+      </div>
+    }
 
-  <!-- 📋 Assessments Grid (Sized & Aligned neatly matching Image 1 course cards) -->
-  @else if (filteredAssessments().length > 0) {
-    <div class="row g-4 mb-4">
-      @for (assessment of filteredAssessments(); track assessment.id) {
-        <div class="col-12 col-md-6 col-lg-5 col-xl-4">
-          <div class="modern-assessment-card p-4 rounded-4 cursor-pointer d-flex flex-column justify-content-between shadow-sm position-relative overflow-hidden"
-               (click)="startAssessment(assessment)"
-               title="Click to take {{ assessment.title }}">
+    <!-- 📋 Assessments Grid (Centered neatly in the viewport) -->
+    @else if (filteredAssessments().length > 0) {
+      <div class="row justify-content-center g-4 mb-4">
+        @for (assessment of filteredAssessments(); track assessment.id) {
+          <div class="col-12 col-md-6 col-lg-5 col-xl-4" style="max-width: 400px;">
+            <div class="modern-assessment-card p-4 rounded-4 d-flex flex-column justify-content-between shadow-sm position-relative overflow-hidden cursor-pointer"
+                 (click)="startAssessment(assessment)"
+                 [attr.title]="assessment.total_attempts_count && assessment.total_attempts_count > 0 ? 'Click to view result summary' : ('Click to take ' + assessment.title)">
 
-            <!-- Card Top Glow Accent -->
-            <div class="card-glow-bar" [class.glow-success]="assessment.is_passed"></div>
+              <!-- Card Top Glow Accent -->
+              <div class="card-glow-bar" [class.glow-success]="assessment.is_passed"></div>
 
-            <div>
-              <!-- Top Row: Icon on Left, Status on Right (Neat & Non-overlapping) -->
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="modern-assessment-icon d-flex align-items-center justify-content-center shadow-sm"
-                     [class.icon-passed]="assessment.is_passed">
-                  <i class="bi" [class.bi-patch-check-fill]="assessment.is_passed" [class.bi-journal-check]="!assessment.is_passed"></i>
+              <div>
+                <!-- Top Row: Icon on Left, Status on Right -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div class="modern-assessment-icon d-flex align-items-center justify-content-center shadow-sm"
+                       [class.icon-passed]="assessment.is_passed">
+                    <i class="bi" [class.bi-patch-check-fill]="assessment.is_passed" [class.bi-journal-check]="!assessment.is_passed"></i>
+                  </div>
+
+                  @if (assessment.is_passed) {
+                    <span class="badge bg-success text-white px-3 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">
+                      <i class="bi bi-check-circle-fill me-1"></i>Passed ({{ assessment.best_score }}%)
+                    </span>
+                  } @else if (assessment.total_attempts_count && assessment.total_attempts_count > 0) {
+                    <span class="badge bg-secondary text-white px-3 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">
+                      <i class="bi bi-check2-all me-1"></i>Completed ({{ assessment.best_score }}%)
+                    </span>
+                  } @else if (assessment.is_upcoming) {
+                    <span class="badge bg-info text-white px-3 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">
+                      <i class="bi bi-clock-history me-1"></i>Upcoming
+                    </span>
+                  } @else if (assessment.is_expired) {
+                    <span class="badge bg-danger text-white px-3 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">
+                      <i class="bi bi-x-circle me-1"></i>Closed
+                    </span>
+                  } @else {
+                    <span class="badge bg-warning bg-opacity-20 text-dark px-3 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">
+                      {{ getCourseBadge(assessment) }}
+                    </span>
+                  }
                 </div>
 
-                @if (assessment.is_passed) {
-                  <span class="badge bg-success text-white px-3 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">
-                    <i class="bi bi-check-lg me-1"></i>Passed ({{ assessment.best_score }}%)
-                  </span>
-                } @else if (assessment.total_attempts_count && assessment.total_attempts_count > 0) {
-                  <span class="badge bg-danger bg-opacity-15 text-danger border border-danger border-opacity-25 px-3 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">
-                    <i class="bi bi-arrow-repeat me-1"></i>Retake ({{ assessment.best_score }}%)
-                  </span>
-                } @else {
-                  <span class="badge bg-warning bg-opacity-20 text-dark px-3 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">
-                    {{ getCourseBadge(assessment) }}
-                  </span>
-                }
-              </div>
-
-              <!-- Course / Level Breadcrumb Tag (if attempted, show course name here) -->
-              @if (assessment.is_passed || (assessment.total_attempts_count && assessment.total_attempts_count > 0)) {
+                <!-- Course / Level Breadcrumb Tag -->
                 <div class="mb-1">
                   <span class="badge bg-light text-muted border px-2.5 py-0.5 rounded-pill" style="font-size: 0.7rem;">
                     {{ getCourseBadge(assessment) }}
                   </span>
                 </div>
-              }
 
-              <!-- Title (Clean and bold, description removed) -->
-              <h4 class="fw-bold assessment-card-heading mb-3 mt-1">
-                {{ assessment.title }}
-              </h4>
+                <!-- Title -->
+                <h4 class="fw-bold assessment-card-heading mb-3 mt-1">
+                  {{ assessment.title }}
+                </h4>
 
-              <!-- Mini Stats Row (Clean horizontal format matching course cards) -->
-              <div class="assessment-mini-stats d-flex align-items-center flex-wrap gap-2 mb-3">
-                <span class="d-flex align-items-center gap-1">
-                  <i class="bi bi-question-circle text-warning"></i>
-                  <span>{{ assessment.questions?.length || 0 }} Questions</span>
-                </span>
-                <span class="text-muted">•</span>
-                <span class="d-flex align-items-center gap-1">
-                  <i class="bi bi-clock text-warning"></i>
-                  <span>{{ assessment.duration_minutes ? assessment.duration_minutes + ' Mins' : 'Untimed' }}</span>
-                </span>
-                <span class="text-muted">•</span>
-                <span class="d-flex align-items-center gap-1">
-                  <i class="bi bi-bullseye text-warning"></i>
-                  <span>Pass: {{ assessment.pass_percentage }}%</span>
-                </span>
-                @if (assessment.is_mandatory) {
-                  <span class="text-muted">•</span>
-                  <span class="d-flex align-items-center gap-1 text-danger fw-bold">
-                    <i class="bi bi-star-fill text-danger"></i>
-                    <span>Mandatory</span>
+                <!-- Mini Stats Row: Questions, Timer, Pass %, Date & Window -->
+                <div class="assessment-mini-stats d-flex align-items-center flex-wrap gap-2 mb-3">
+                  <span class="d-flex align-items-center gap-1">
+                    <i class="bi bi-question-circle text-warning"></i>
+                    <span>{{ assessment.questions?.length || 0 }} Questions</span>
                   </span>
+                  <span class="text-muted">•</span>
+                  <span class="d-flex align-items-center gap-1">
+                    <i class="bi bi-stopwatch text-warning"></i>
+                    <span>{{ assessment.duration_minutes ? assessment.duration_minutes + ' Mins' : 'Untimed' }}</span>
+                  </span>
+                  <span class="text-muted">•</span>
+                  <span class="d-flex align-items-center gap-1">
+                    <i class="bi bi-bullseye text-warning"></i>
+                    <span>Pass: {{ assessment.pass_percentage }}%</span>
+                  </span>
+                  @if (assessment.scheduled_date) {
+                    <span class="text-muted">•</span>
+                    <span class="d-flex align-items-center gap-1">
+                      <i class="bi bi-calendar-event text-info"></i>
+                      <span>{{ assessment.scheduled_date | date:'mediumDate' }}</span>
+                    </span>
+                  }
+                  @if (assessment.open_hours) {
+                    <span class="text-muted">•</span>
+                    <span class="d-flex align-items-center gap-1">
+                      <i class="bi bi-hourglass-split text-warning"></i>
+                      <span>Window: {{ assessment.open_hours }}h</span>
+                    </span>
+                  }
+                  @if (assessment.is_mandatory) {
+                    <span class="text-muted">•</span>
+                    <span class="d-flex align-items-center gap-1 text-danger fw-bold">
+                      <i class="bi bi-star-fill text-danger"></i>
+                      <span>Mandatory</span>
+                    </span>
+                  }
+                </div>
+              </div>
+
+              <!-- Bottom Action Button -->
+              <div class="pt-2" style="border-top: 1px solid rgba(0,0,0,0.06);">
+                @if (assessment.total_attempts_count && assessment.total_attempts_count > 0) {
+                  <button class="btn btn-secondary rounded-pill py-2.5 px-3 fw-bold text-white w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm"
+                          (click)="viewResult(assessment); $event.stopPropagation()"
+                          style="background: #64748B; border: none;"
+                          title="Click to view your scorecard">
+                    <i class="bi bi-check-circle-fill fs-5"></i>
+                    <span>Completed ({{ assessment.best_score }}%)</span>
+                  </button>
+                } @else if (assessment.is_upcoming) {
+                  <button class="btn btn-info bg-opacity-25 text-info border border-info rounded-pill py-2.5 px-3 fw-bold w-100 d-flex align-items-center justify-content-center gap-2"
+                          disabled style="cursor: not-allowed;">
+                    <i class="bi bi-clock-history fs-5"></i>
+                    <span>Upcoming (Starts {{ assessment.scheduled_date | date:'short' }})</span>
+                  </button>
+                } @else if (assessment.is_expired) {
+                  <button class="btn btn-danger bg-opacity-10 text-danger border border-danger rounded-pill py-2.5 px-3 fw-bold w-100 d-flex align-items-center justify-content-center gap-2"
+                          disabled style="cursor: not-allowed;">
+                    <i class="bi bi-x-circle fs-5"></i>
+                    <span>Exam Window Closed</span>
+                  </button>
+                } @else {
+                  <button class="btn btn-warning rounded-pill py-2.5 px-3 fw-bold text-dark w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm modern-assessment-btn"
+                          (click)="startAssessment(assessment); $event.stopPropagation()">
+                    <span>Start Assessment</span>
+                    <i class="bi bi-play-circle-fill fs-5"></i>
+                  </button>
                 }
+              </div>
+
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- 📭 Empty State (No Assessments Found) -->
+    @else {
+      <div class="empty-notice-glass p-5 rounded-4 text-center mx-auto shadow-lg my-5" style="max-width: 580px;">
+        <div class="empty-icon-circle mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle"
+             style="width: 76px; height: 76px; background: rgba(255, 199, 39, 0.15); border: 1px solid rgba(255, 199, 39, 0.3);">
+          <i class="bi bi-clipboard-x fs-1 text-warning"></i>
+        </div>
+        @if (searchQuery() || selectedStatusFilter() !== 'all') {
+          <h3 class="fw-bold text-white mb-2">No Matching Assessments</h3>
+          <p class="text-white-50 mb-3" style="font-size: 0.95rem; line-height: 1.6;">
+            No tests match your current search or filter criteria. Try clearing the filters.
+          </p>
+          <button class="btn btn-outline-warning rounded-pill px-4 py-2"
+                  (click)="searchQuery.set(''); selectedStatusFilter.set('all')">
+            Clear All Filters
+          </button>
+        } @else {
+          <h3 class="fw-bold text-white mb-2">No Assessments Available Yet</h3>
+          <p class="text-white-50 mb-3" style="font-size: 0.95rem; line-height: 1.6;">
+            When an administrator or instructor creates assessments in the Admin Portal, they will instantly appear here for you to take and earn badges!
+          </p>
+          <button class="btn btn-outline-light rounded-pill px-4 py-2" (click)="fetchAssessments()">
+            <i class="bi bi-arrow-clockwise me-1"></i>Check for Updates
+          </button>
+        }
+      </div>
+    }
+  }
+
+  <!-- 🏆 COMPLETED ASSESSMENT RESULT MODAL (Opens on same page when clicking completed card) -->
+  @if (viewingResultAssessment(); as resItem) {
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+          
+          <div class="modal-header p-3 text-white" [class.bg-success]="resItem.is_passed" [class.bg-dark]="!resItem.is_passed">
+            <h5 class="modal-title fw-bold mb-0 d-flex align-items-center gap-2">
+              <i class="bi" [class.bi-check-circle-fill]="resItem.is_passed" [class.bi-patch-exclamation-fill]="!resItem.is_passed"></i>
+              Assessment Result Summary
+            </h5>
+            <button type="button" class="btn-close btn-close-white shadow-none" (click)="closeResultModal()"></button>
+          </div>
+
+          <div class="modal-body p-4 text-center bg-light">
+            <h4 class="fw-bold text-dark mb-1">{{ resItem.title }}</h4>
+            <p class="text-secondary small mb-3">{{ getCourseBadge(resItem) }}</p>
+
+            <div class="p-4 bg-white rounded-4 shadow-sm mb-3">
+              <div class="display-4 fw-bold mb-1" [class.text-success]="resItem.is_passed" [class.text-warning]="!resItem.is_passed">
+                {{ resItem.best_score }}%
+              </div>
+              <div class="badge px-3 py-1.5 rounded-pill fw-bold text-uppercase"
+                   [class.bg-success-subtle]="resItem.is_passed" [class.text-success]="resItem.is_passed"
+                   [class.bg-warning-subtle]="!resItem.is_passed" [class.text-warning]="!resItem.is_passed">
+                {{ resItem.is_passed ? 'PASSED' : 'NEEDS IMPROVEMENT' }}
+              </div>
+              <div class="text-muted small mt-2">
+                Passing Requirement: <strong>{{ resItem.pass_percentage }}%</strong>
               </div>
             </div>
 
-            <!-- Bottom Action Button (Golden pill button matching Image 1) -->
-            <div class="pt-2" style="border-top: 1px solid rgba(0,0,0,0.06);">
-              <button class="btn btn-warning rounded-pill py-2 px-3 fw-bold text-dark w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm modern-assessment-btn"
-                      (click)="startAssessment(assessment); $event.stopPropagation()">
-                @if (assessment.is_passed) {
-                  <span>Retake Assessment</span>
-                  <i class="bi bi-arrow-repeat fs-5"></i>
-                } @else if (assessment.total_attempts_count && assessment.total_attempts_count > 0) {
-                  <span>Try Again</span>
-                  <i class="bi bi-arrow-repeat fs-5"></i>
-                } @else {
-                  <span>Start Assessment</span>
-                  <i class="bi bi-play-circle-fill fs-5"></i>
-                }
-              </button>
+            <div class="alert alert-secondary border-0 rounded-3 text-start small mb-0">
+              <i class="bi bi-info-circle-fill text-primary me-1"></i>
+              <strong>Single-Attempt Policy:</strong> You have already completed this evaluation. Retakes are not allowed. Your score has been submitted to your instructors.
             </div>
-
           </div>
-        </div>
-      }
-    </div>
-  }
 
-  <!-- 📭 Empty State (No Assessments Found) -->
-  @else {
-    <div class="empty-notice-glass p-5 rounded-4 text-center mx-auto shadow-lg my-5" style="max-width: 580px;">
-      <div class="empty-icon-circle mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle"
-           style="width: 76px; height: 76px; background: rgba(255, 199, 39, 0.15); border: 1px solid rgba(255, 199, 39, 0.3);">
-        <i class="bi bi-clipboard-x fs-1 text-warning"></i>
+          <div class="modal-footer bg-white p-3 border-top">
+            <button type="button" class="btn btn-secondary px-4 rounded-pill fw-semibold" (click)="closeResultModal()">Close</button>
+          </div>
+
+        </div>
       </div>
-      @if (searchQuery() || selectedStatusFilter() !== 'all') {
-        <h3 class="fw-bold text-white mb-2">No Matching Assessments</h3>
-        <p class="text-white-50 mb-3" style="font-size: 0.95rem; line-height: 1.6;">
-          No tests match your current search or filter criteria. Try clearing the filters.
-        </p>
-        <button class="btn btn-outline-warning rounded-pill px-4 py-2"
-                (click)="searchQuery.set(''); selectedStatusFilter.set('all')">
-          Clear All Filters
-        </button>
-      } @else {
-        <h3 class="fw-bold text-white mb-2">No Assessments Available Yet</h3>
-        <p class="text-white-50 mb-3" style="font-size: 0.95rem; line-height: 1.6;">
-          When an administrator or instructor creates assessments in the Admin Portal, they will instantly appear here for you to take and earn badges!
-        </p>
-        <button class="btn btn-outline-light rounded-pill px-4 py-2" (click)="fetchAssessments()">
-          <i class="bi bi-arrow-clockwise me-1"></i>Check for Updates
-        </button>
-      }
     </div>
   }
 

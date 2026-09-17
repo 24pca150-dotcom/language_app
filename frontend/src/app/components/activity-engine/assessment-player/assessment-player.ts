@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -27,6 +27,12 @@ interface AssessmentData {
   pass_percentage: number;
   duration_minutes?: number;
   questions: Question[];
+  user_attempt?: {
+    id: number;
+    score: number;
+    passed: boolean;
+    attempted_at: string;
+  };
 }
 
 @Component({
@@ -41,6 +47,15 @@ export class AssessmentPlayerComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private authService = inject(AuthService);
+
+  @Input() set inputAssessmentId(val: number | null | undefined) {
+    if (val) {
+      this.assessmentId.set(val);
+      this.loadAssessmentDetails();
+    }
+  }
+
+  @Output() close = new EventEmitter<void>();
 
   assessmentId = signal<number | null>(null);
   assessment = signal<AssessmentData | null>(null);
@@ -89,6 +104,18 @@ export class AssessmentPlayerComponent implements OnInit, OnDestroy {
     this.http.get<AssessmentData>(url).subscribe({
       next: (data) => {
         this.assessment.set(data);
+        if (data.user_attempt) {
+          const totalQ = data.questions?.length || 0;
+          const scoreNum = Number(data.user_attempt.score) || 0;
+          this.resultsData.set({
+            score: scoreNum,
+            passed: Boolean(data.user_attempt.passed),
+            total_questions: totalQ,
+            correct_answers: Math.round((scoreNum / 100) * totalQ),
+            pass_percentage: data.pass_percentage
+          });
+          this.gameState.set('results');
+        }
       },
       error: (err) => {
         console.error('Failed to fetch assessment details:', err);
@@ -235,11 +262,9 @@ export class AssessmentPlayerComponent implements OnInit, OnDestroy {
     return circumference - (score / 100) * circumference;
   }
 
-  retryAssessment(): void {
-    this.gameState.set('start');
-  }
-
   goBackToCourse(): void {
+    this.close.emit();
+
     // Read the stored courseId so we navigate back to the exact course
     const returnCourseId = localStorage.getItem('lang_app_assessment_return_course');
     localStorage.removeItem('lang_app_assessment_return_course');

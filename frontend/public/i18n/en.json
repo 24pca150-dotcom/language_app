@@ -155,8 +155,8 @@
   },
   "ASSESSMENT": {
     "CREATE_BTN": "Create Assessment",
-    "CREATE_TITLE": "Create Title",
-    "EDIT_TITLE": "Edit Title",
+    "CREATE_TITLE": "Create Assessment",
+    "EDIT_TITLE": "Edit Assessment",
     "PASS_PERCENTAGE": "Pass Percentage",
     "QUESTIONS": "Questions",
     "ADD_QUESTION": "Add Question",

@@ -91,6 +91,8 @@ class DatabaseSeeder extends Seeder
         $this->call(ListeningSkillSeeder::class);
         $this->call(ReadingSkillSeeder::class);
         $this->call(SpeakingSkillSeeder::class);
+        $this->call(InteractiveFeaturesTestSeeder::class);
+        $this->call(ActivitySeeder::class);
     }
 }
 
