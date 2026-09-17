@@ -315,6 +315,27 @@ class DashboardController extends Controller
         }
         $completedChapterIds = $completedChapterQuery->pluck('chapter_id')->toArray();
 
+        // 11. Individual Assessment Attempts & Marks for staff
+        $assessmentAttempts = DB::table('user_assessment_attempts')
+            ->join('assessments', 'user_assessment_attempts.assessment_id', '=', 'assessments.id')
+            ->leftJoin('levels', 'assessments.level_id', '=', 'levels.id')
+            ->leftJoin('course_package_levels', 'levels.id', '=', 'course_package_levels.level_id')
+            ->leftJoin('courses', 'course_package_levels.course_id', '=', 'courses.id')
+            ->where('user_assessment_attempts.user_id', $userId)
+            ->select(
+                'user_assessment_attempts.id',
+                'user_assessment_attempts.assessment_id',
+                'assessments.title as assessment_title',
+                'assessments.pass_percentage',
+                'courses.name as course_name',
+                'user_assessment_attempts.score',
+                'user_assessment_attempts.passed',
+                'user_assessment_attempts.attempted_at'
+            )
+            ->distinct()
+            ->orderBy('user_assessment_attempts.attempted_at', 'desc')
+            ->get();
+
         return response()->json([
             'completion_percentage' => $completionPercentage,
             'completed_chapters' => $completedChapters,
@@ -332,6 +353,7 @@ class DashboardController extends Controller
             'certificates' => $certificates,
             'badges' => $badges,
             'completed_chapter_ids' => $completedChapterIds,
+            'assessment_attempts' => $assessmentAttempts,
         ]);
     }
 
@@ -531,6 +553,27 @@ class DashboardController extends Controller
             ->avg('score');
         $averageScore = $averageScore ? round($averageScore, 1) : 0;
 
+        // Detailed assessment marks and attempts for this student
+        $assessmentAttempts = DB::table('user_assessment_attempts')
+            ->join('assessments', 'user_assessment_attempts.assessment_id', '=', 'assessments.id')
+            ->leftJoin('levels', 'assessments.level_id', '=', 'levels.id')
+            ->leftJoin('course_package_levels', 'levels.id', '=', 'course_package_levels.level_id')
+            ->leftJoin('courses', 'course_package_levels.course_id', '=', 'courses.id')
+            ->where('user_assessment_attempts.user_id', $userId)
+            ->select(
+                'user_assessment_attempts.id',
+                'user_assessment_attempts.assessment_id',
+                'assessments.title as assessment_title',
+                'assessments.pass_percentage',
+                'courses.name as course_name',
+                'user_assessment_attempts.score',
+                'user_assessment_attempts.passed',
+                'user_assessment_attempts.attempted_at'
+            )
+            ->distinct()
+            ->orderBy('user_assessment_attempts.attempted_at', 'desc')
+            ->get();
+
         return response()->json([
             'completion_percentage' => $completionPercentage,
             'completed_chapters' => $displayCompletedOverall,
@@ -539,6 +582,7 @@ class DashboardController extends Controller
             'average_score' => $averageScore,
             'total_courses' => count($coursesProgress),
             'courses_progress' => $coursesProgress,
+            'assessment_attempts' => $assessmentAttempts,
         ]);
     }
 

@@ -1,14 +1,17 @@
 .assessment-player-page {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: #0f172a;
-  min-height: 100vh;
+  background: transparent;
+  color: #0f172a;
 }
 
 .glass-container {
-  background: rgba(30, 41, 59, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.9);
+  border-radius: 24px;
+  color: #0f172a;
 }
 
 .btn-start-exam {
@@ -16,28 +19,31 @@
   border: none;
   color: white;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.35);
 }
 
 .btn-start-exam:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(59, 130, 246, 0.45);
 }
 
 /* Active timer and progress components */
 .timer-pill {
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
   border-radius: 50px;
   padding: 0.5rem 1.25rem;
   font-weight: 700;
-  color: #3b82f6;
+  color: #2563eb;
   display: flex;
   align-items: center;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
 }
 
 .timer-pill.warning {
   border-color: #ef4444;
   color: #ef4444;
+  background: #fef2f2;
   animation: pulse 1s infinite alternate;
 }
 
@@ -58,17 +64,35 @@
 }
 
 .btn-nav {
-  background: rgba(30, 41, 59, 0.8);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.2s ease;
 }
 
-.btn-nav:hover:not(:disabled) {
+.btn-nav.prev {
   background: #ffffff;
+  color: #475569;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.btn-nav.prev:hover:not(:disabled) {
+  background: #f8fafc;
   color: #0f172a;
-  border-color: transparent;
+  border-color: #cbd5e1;
   transform: translateY(-2px);
+}
+
+.btn-nav.next {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+}
+
+.btn-nav.next:hover {
+  background: #1d4ed8;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
 }
 
 .btn-nav:disabled {
@@ -80,12 +104,13 @@
   background: linear-gradient(135deg, #10b981, #059669);
   color: white;
   border: none;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
   transition: all 0.3s ease;
 }
 
 .btn-submit:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.45);
 }
 
 /* SVG Circular score percentage display */
@@ -104,7 +129,7 @@
 
 .bg-circle {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.05);
+  stroke: #f1f5f9;
   stroke-width: 8;
 }
 
@@ -132,12 +157,12 @@
 .percentage-label .pct {
   font-size: 2.25rem;
   font-weight: 800;
-  color: white;
+  color: #0f172a;
 }
 
 .percentage-label .lbl {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-top: -2px;
@@ -159,15 +184,17 @@
 }
 
 .btn-action-results.course {
-  background: rgba(255, 255, 255, 0.1);
+  background: #0f172a;
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid #0f172a;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
 }
 
 .btn-action-results.course:hover {
-  background: white;
-  color: #0f172a;
-  transform: translateY(-3px);
+  background: #1e293b;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.25);
 }
 
 /* Fade animations */
@@ -178,7 +205,7 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(15px);
+    transform: translateY(12px);
   }
 
   to {

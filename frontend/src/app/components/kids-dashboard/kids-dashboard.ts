@@ -21,6 +21,7 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
 
   @Output() selectLevel = new EventEmitter<number>();
   @Output() selectChapterNode = new EventEmitter<number>();
+  @Output() backToLevels = new EventEmitter<void>();
 
   isBrowser: boolean;
 
@@ -38,6 +39,9 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
     }
     if (changes['activeLevelId']) {
       this.activeLevelIdSignal.set(this.activeLevelId);
+      if (this.currentView === 'map') {
+        this.scrollToActiveNode();
+      }
     }
     if (changes['completedChapters']) {
       this.completedChaptersSignal.set(this.completedChapters || []);
@@ -201,5 +205,42 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
     if (this.isChapterUnlocked(id)) {
       this.selectChapterNode.emit(id);
     }
+  }
+
+  onBackToLevels() {
+    this.backToLevels.emit();
+  }
+
+  getLevelIcon(name: string): string {
+    const lower = (name || '').toLowerCase();
+    if (lower.includes('writing') || lower.includes('write')) return 'bi-pencil-fill';
+    if (lower.includes('listening') || lower.includes('listen')) return 'bi-headphones';
+    if (lower.includes('reading') || lower.includes('read')) return 'bi-book-half';
+    if (lower.includes('speaking') || lower.includes('speak')) return 'bi-mic-fill';
+    if (lower.includes('grammar') || lower.includes('vocab')) return 'bi-spellcheck';
+    if (lower.includes('interactive') || lower.includes('test') || lower.includes('demo')) return 'bi-controller';
+    return 'bi-journal-richtext';
+  }
+
+  getLevelGradient(name: string): string {
+    const lower = (name || '').toLowerCase();
+    if (lower.includes('writing') || lower.includes('write')) return 'linear-gradient(to bottom, #f59e0b, #d97706) !important';
+    if (lower.includes('listening') || lower.includes('listen')) return 'linear-gradient(to bottom, #06b6d4, #0891b2) !important';
+    if (lower.includes('reading') || lower.includes('read')) return 'linear-gradient(to bottom, #3b82f6, #1d4ed8) !important';
+    if (lower.includes('speaking') || lower.includes('speak')) return 'linear-gradient(to bottom, #8b5cf6, #6d28d9) !important';
+    if (lower.includes('grammar') || lower.includes('vocab')) return 'linear-gradient(to bottom, #10b981, #059669) !important';
+    if (lower.includes('interactive') || lower.includes('test') || lower.includes('demo')) return 'linear-gradient(to bottom, #ec4899, #be185d) !important';
+    return 'linear-gradient(to bottom, #4caf50, #2e7d32) !important';
+  }
+
+  getLevelBorder(name: string): string {
+    const lower = (name || '').toLowerCase();
+    if (lower.includes('writing') || lower.includes('write')) return '#b45309 !important';
+    if (lower.includes('listening') || lower.includes('listen')) return '#0e7490 !important';
+    if (lower.includes('reading') || lower.includes('read')) return '#1e40af !important';
+    if (lower.includes('speaking') || lower.includes('speak')) return '#5b21b6 !important';
+    if (lower.includes('grammar') || lower.includes('vocab')) return '#047857 !important';
+    if (lower.includes('interactive') || lower.includes('test') || lower.includes('demo')) return '#9d174d !important';
+    return '#1b5e20 !important';
   }
 }

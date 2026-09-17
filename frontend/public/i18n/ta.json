@@ -155,8 +155,8 @@
   },
   "ASSESSMENT": {
     "CREATE_BTN": "புதிய மதிப்பீடு",
-    "CREATE_TITLE": "புதிய பதிவு உருவாக்கு",
-    "EDIT_TITLE": "திருத்து",
+    "CREATE_TITLE": "மதிப்பீட்டை உருவாக்கு",
+    "EDIT_TITLE": "மதிப்பீட்டைத் திருத்து",
     "PASS_PERCENTAGE": "தேர்ச்சி சதவீதம்",
     "QUESTIONS": "கேள்விகள்",
     "ADD_QUESTION": "கேள்வி சேர்",

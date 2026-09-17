@@ -316,4 +316,310 @@ h1 strong, h2 strong, h3 strong, h4 strong, h5 strong, h6 strong {
   box-shadow: none !important;
   transform: none !important;
   opacity: 0.75 !important;
-}
+}
+
+/* ==========================================================================
+   Kid-Friendly Mascot Loader (Bouncing Bunny with Glow & Animations)
+   ========================================================================== */
+.mascot-loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3.5rem 1.5rem;
+  margin: auto;
+}
+
+.mascot-loading-wrapper {
+  display: inline-block;
+  position: relative;
+}
+
+.animate-bounce {
+  animation: gentleBounce 2s infinite ease-in-out;
+}
+
+@keyframes gentleBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.animate-pulse {
+  animation: mascotPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes mascotPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.mascot-loading-title {
+  font-family: 'Fredoka', 'Nunito', sans-serif !important;
+  font-weight: 700;
+  color: #ffffff;
+  font-size: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.35rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.mascot-loading-sub {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.95rem;
+  margin-bottom: 0;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* ==========================================================================
+   ✨ UNIFIED TRANSLUCENT FROSTED GLASS CARDS (Matching Image 5)
+   ========================================================================== */
+.modern-course-card,
+.modern-assessment-card {
+  background: rgba(255, 255, 255, 0.62) !important;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1.5px solid rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.85) !important;
+  border-radius: 22px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modern-course-card:hover,
+.modern-assessment-card:hover {
+  background: rgba(255, 255, 255, 0.76) !important;
+  box-shadow: 0 22px 48px rgba(245, 158, 11, 0.28) !important;
+  border-color: #F59E0B !important;
+}
+
+/* ==========================================================================
+   🎮 GLOSSY 3D GAMIFIED NAV BUTTONS (Matching 2nd Image)
+   ========================================================================== */
+.game-nav-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2.5px solid rgba(255, 255, 255, 0.88);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.32), 
+              inset 0 2px 2px rgba(255, 255, 255, 0.85), 
+              inset 0 -2px 3px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Glossy top-half shine reflection */
+.game-nav-icon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 52%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.12) 100%);
+  border-radius: 11px 11px 70px 70px / 11px 11px 22px 22px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.game-nav-icon i {
+  color: #FFFFFF !important;
+  font-size: 1.25rem;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
+  position: relative;
+  z-index: 2;
+  transition: transform 0.2s ease;
+}
+
+/* Individual Candy Colors (Matching 2nd image) */
+.game-icon-home {
+  background: linear-gradient(180deg, #42A5F5 0%, #1E88E5 50%, #1565C0 100%);
+}
+.game-icon-learn {
+  background: linear-gradient(180deg, #66BB6A 0%, #43A047 50%, #2E7D32 100%);
+}
+.game-icon-games {
+  background: linear-gradient(180deg, #4FC3F7 0%, #039BE5 50%, #0277BD 100%);
+}
+.game-icon-practice {
+  background: linear-gradient(180deg, #FFA726 0%, #FB8C00 50%, #E65100 100%);
+}
+.game-icon-assessments {
+  background: linear-gradient(180deg, #26C6DA 0%, #00ACC1 50%, #00838F 100%);
+}
+.game-icon-badges {
+  background: linear-gradient(180deg, #FFEE58 0%, #FDD835 50%, #FBC02D 100%);
+}
+.game-icon-badges i {
+  color: #5D4037 !important;
+  filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.8));
+}
+.game-icon-progress {
+  background: linear-gradient(180deg, #AB47BC 0%, #8E24AA 50%, #6A1B9A 100%);
+}
+.game-icon-settings {
+  background: linear-gradient(180deg, #8D6E63 0%, #6D4C41 50%, #4E342E 100%);
+}
+.game-icon-logout {
+  background: linear-gradient(180deg, #EF5350 0%, #E53935 50%, #C62828 100%);
+}
+
+/* ==========================================================================
+   🎮 FLOATING GAME DOCKS (Left 4 & Right 4 - Matching 2nd Image)
+   ========================================================================== */
+.floating-dock {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  pointer-events: auto;
+}
+
+.dock-left {
+  left: 20px;
+}
+
+.dock-right {
+  right: 20px;
+}
+
+.floating-game-btn {
+  width: 68px;
+  height: 68px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3.5px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.38), 
+              inset 0 3px 3px rgba(255, 255, 255, 0.9), 
+              inset 0 -3.5px 4px rgba(0, 0, 0, 0.38);
+  position: relative;
+  cursor: pointer;
+  background-color: transparent;
+  padding: 0;
+  text-decoration: none;
+  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  user-select: none;
+}
+
+/* Glossy top-half glassy shine reflection */
+.floating-game-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.12) 100%);
+  border-radius: 16px 16px 80px 80px / 16px 16px 26px 26px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.floating-game-btn i {
+  color: #FFFFFF !important;
+  font-size: 2.05rem;
+  filter: drop-shadow(0 2.5px 4px rgba(0, 0, 0, 0.5));
+  position: relative;
+  z-index: 2;
+  transition: transform 0.2s ease;
+}
+
+.floating-game-btn:hover {
+  transform: scale(1.12) translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4), 
+              inset 0 2.5px 3px rgba(255, 255, 255, 0.95), 
+              inset 0 -3px 4px rgba(0, 0, 0, 0.35);
+  border-color: #FFFFFF;
+}
+
+.floating-game-btn:active {
+  transform: scale(0.96) translateY(2px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* Active / Selected Glowing Halo */
+.floating-game-btn.active {
+  border-color: #FFD54F !important;
+  box-shadow: 0 0 22px rgba(255, 199, 39, 0.9), 
+              0 6px 16px rgba(0, 0, 0, 0.45), 
+              inset 0 2.5px 3px rgba(255, 255, 255, 0.95) !important;
+  transform: scale(1.08);
+}
+
+/* Sleek Tooltip Pills */
+.game-btn-tooltip {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(11, 25, 44, 0.92);
+  backdrop-filter: blur(12px);
+  color: #FFFFFF;
+  font-family: 'Fredoka', 'Nunito', sans-serif !important;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 50rem;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 10;
+}
+
+.dock-left .game-btn-tooltip {
+  left: calc(100% + 12px);
+  transform: translateY(-50%) translateX(-6px);
+}
+
+.dock-left .floating-game-btn:hover .game-btn-tooltip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+.dock-right .game-btn-tooltip {
+  right: calc(100% + 12px);
+  transform: translateY(-50%) translateX(6px);
+}
+
+.dock-right .floating-game-btn:hover .game-btn-tooltip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Responsive Mobile Float */
+@media (max-width: 768px) {
+  .floating-dock {
+    position: fixed;
+    top: auto;
+    bottom: 12px;
+    transform: none;
+    flex-direction: row;
+    gap: 10px;
+  }
+  .dock-left {
+    left: 12px;
+  }
+  .dock-right {
+    right: 12px;
+  }
+  .floating-game-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+  }
+  .floating-game-btn i {
+    font-size: 1.2rem;
+  }
+}
+

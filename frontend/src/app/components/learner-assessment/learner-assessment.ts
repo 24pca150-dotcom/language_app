@@ -42,12 +42,20 @@ export interface AssessmentItem {
   best_score?: number;
   is_passed?: boolean;
   total_attempts_count?: number;
+  scheduled_date?: string | null;
+  open_hours?: number | null;
+  due_date?: string | null;
+  is_upcoming?: boolean;
+  is_expired?: boolean;
+  is_available?: boolean;
 }
+
+import { AssessmentPlayerComponent } from '../activity-engine/assessment-player/assessment-player';
 
 @Component({
   selector: 'app-learner-assessment',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, AssessmentPlayerComponent],
   templateUrl: './learner-assessment.html',
   styleUrls: ['./learner-assessment.css']
 })
@@ -65,6 +73,10 @@ export class LearnerAssessmentComponent implements OnInit {
   assessments = signal<AssessmentItem[]>([]);
   isLoading = signal<boolean>(true);
   errorMessage = signal<string | null>(null);
+
+  // Embedded player & scorecard modal signals (stays in-page, no routing away)
+  activeAssessment = signal<AssessmentItem | null>(null);
+  viewingResultAssessment = signal<AssessmentItem | null>(null);
 
   // Search & Filter signals
   searchQuery = signal<string>('');
@@ -140,12 +152,32 @@ export class LearnerAssessmentComponent implements OnInit {
   }
 
   startAssessment(assessment: AssessmentItem): void {
-    // Clear previous return course, assessment player defaults to returning to assessments tab
-    localStorage.removeItem('lang_app_assessment_return_course');
-    if (assessment.level?.course?.id) {
-      localStorage.setItem('lang_app_assessment_return_course', assessment.level.course.id.toString());
+    // If completed: show result scorecard modal on the same page!
+    if (assessment.total_attempts_count && assessment.total_attempts_count > 0) {
+      this.viewResult(assessment);
+      return;
     }
-    this.router.navigate(['/assessments/play', assessment.id]);
+
+    // If upcoming or closed: do not launch
+    if (assessment.is_upcoming || assessment.is_expired) {
+      return;
+    }
+
+    // Launch assessment embedded right here on this page without navigating away
+    this.activeAssessment.set(assessment);
+  }
+
+  closePlayer(): void {
+    this.activeAssessment.set(null);
+    this.fetchAssessments();
+  }
+
+  viewResult(item: AssessmentItem): void {
+    this.viewingResultAssessment.set(item);
+  }
+
+  closeResultModal(): void {
+    this.viewingResultAssessment.set(null);
   }
 
   getCourseBadge(item: AssessmentItem): string {

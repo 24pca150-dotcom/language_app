@@ -10,11 +10,13 @@ class CourseController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
+        $query = Course::query()->withCount('levels');
+
         if ($user && $user->role === 'student' && $user->tenant_id) {
             $today = now()->toDateString();
-            $courses = Course::where('is_active', true)
-                ->whereIn('id', function($query) use ($user, $today) {
-                    $query->select('property_packages.course_id')
+            $query->where('is_active', true)
+                ->whereIn('id', function($subQuery) use ($user, $today) {
+                    $subQuery->select('property_packages.course_id')
                         ->from('property_packages')
                         ->join('properties', 'property_packages.property_id', '=', 'properties.id')
                         ->where('properties.tenant_id', $user->tenant_id)
@@ -28,10 +30,17 @@ class CourseController extends Controller
                             $q->whereNull('property_packages.end_date')
                               ->orWhere('property_packages.end_date', '>=', $today);
                         });
-                })->latest()->get();
-            return response()->json($courses);
+                });
         }
-        return response()->json(Course::latest()->get());
+
+        $courses = $query->latest()->get();
+        $courses->each(function ($course) {
+            if (isset($course->levels_count) && $course->levels_count > 0) {
+                $course->no_of_levels = $course->levels_count;
+            }
+        });
+
+        return response()->json($courses);
     }
 
     public function store(Request $request)

@@ -1,236 +1,87 @@
 <div class="langnest-layout d-flex w-100 min-vh-100 position-relative">
 
-  <!-- 🌅 FIXED FULL-PAGE LIGHT THEME SCENERY (From Image 2 Game World) -->
-  <div class="fullpage-bg light-game-world-bg">
-    <!-- Rotating Golden Sunburst -->
-    <div class="sunburst-rays"></div>
-
-    <!-- Drifting Fluffy Clouds -->
-    <div class="clouds-container position-absolute top-0 start-0 w-100 h-100 pointer-events-none z-0">
-      <i class="bi bi-cloud-fill text-white opacity-50 position-absolute cloud-1"
-        style="font-size: 4.5rem; top: 8%; left: -10%;"></i>
-      <i class="bi bi-cloud-fill text-white opacity-30 position-absolute cloud-2"
-        style="font-size: 6.5rem; top: 22%; left: -20%;"></i>
-      <i class="bi bi-cloud-fill text-white opacity-50 position-absolute cloud-3"
-        style="font-size: 3.5rem; top: 14%; left: -15%;"></i>
-    </div>
-
-    <!-- Sunny Sparkles & Floating Pollen -->
+  <!-- 🌅 FIXED FULL-PAGE 3D COZY STUDY ROOM SCENERY -->
+  <div class="fullpage-bg learner-study-room-bg">
+    <!-- Subtle Ambient Sunlight Particles -->
     <div class="sparkles-container pointer-events-none">
-      <div class="sparkle"></div>
-      <div class="sparkle"></div>
-      <div class="sparkle"></div>
-      <div class="sparkle"></div>
-      <div class="sparkle"></div>
-      <div class="sparkle"></div>
-      <div class="sparkle"></div>
       <div class="sparkle font-sparkle">✨</div>
       <div class="sparkle font-sparkle">✨</div>
-    </div>
-
-    <!-- Animated Falling Leaves -->
-    <div class="leaves-container pointer-events-none">
-      <div class="leaf-particle">🍃</div>
-      <div class="leaf-particle">🍁</div>
-      <div class="leaf-particle">🍃</div>
-      <div class="leaf-particle">🍂</div>
-      <div class="leaf-particle">🍃</div>
-    </div>
-
-    <!-- Layered Rolling Green Hills -->
-    <div class="hill-bg-3"></div>
-    <div class="hill-bg-2"></div>
-    <div class="hill-bg-1">
-      <div class="css-grass-clump" style="right: 15%; bottom: 50px;">
-        <div class="blade"></div>
-        <div class="blade"></div>
-        <div class="blade"></div>
-      </div>
-      <div class="css-flower" style="left: 25%; bottom: 70px;">
-        <div class="stem"></div>
-        <div class="petals"></div>
-        <div class="center"></div>
-      </div>
-      <div class="css-flower" style="right: 35%; bottom: 75px; transform: scale(1.15);">
-        <div class="stem"></div>
-        <div class="petals"></div>
-        <div class="center"></div>
-      </div>
-    </div>
-
-    <!-- CSS Pine Trees scattered on the hills -->
-    <div class="css-pine-tree" style="left: 8%; bottom: 18vh; transform: scale(0.75);">
-      <div class="leaf-1"></div>
-      <div class="leaf-2"></div>
-      <div class="leaf-3"></div>
-      <div class="trunk"></div>
-    </div>
-    <div class="css-pine-tree" style="left: 18%; bottom: 25vh; transform: scale(0.9) rotate(-3deg);">
-      <div class="leaf-1"></div>
-      <div class="leaf-2"></div>
-      <div class="leaf-3"></div>
-      <div class="trunk"></div>
-    </div>
-    <div class="css-pine-tree" style="right: 12%; bottom: 15vh; transform: scale(0.85) rotate(2deg);">
-      <div class="leaf-1"></div>
-      <div class="leaf-2"></div>
-      <div class="leaf-3"></div>
-      <div class="trunk"></div>
-    </div>
-    <div class="css-pine-tree" style="right: 22%; bottom: 22vh; transform: scale(1.15);">
-      <div class="leaf-1"></div>
-      <div class="leaf-2"></div>
-      <div class="leaf-3"></div>
-      <div class="trunk"></div>
+      <div class="sparkle"></div>
+      <div class="sparkle"></div>
     </div>
   </div>
 
-  <!-- 🧭 LEFT SIDEBAR -->
-  <aside class="langnest-sidebar d-flex flex-column flex-shrink-0 position-relative z-3">
-    <!-- Brand Logo -->
-    <div class="sidebar-brand d-flex align-items-center gap-3 mb-2">
-      <div class="brand-icon d-flex align-items-center justify-content-center">
-        <!-- Yellow Open Book Logo -->
-        <svg width="34" height="34" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M6 10C6 8.89543 6.89543 8 8 8H22C23.1046 8 24 8.89543 24 10V38C24 39.1046 23.1046 40 22 40H8C6.89543 40 6 39.1046 6 38V10Z" fill="#FFC727"/>
-          <path d="M24 10C24 8.89543 24.8954 8 26 8H40C41.1046 8 42 8.89543 42 10V38C42 39.1046 41.1046 40 40 40H26C24.8954 40 24 39.1046 24 38V10Z" fill="#FFD768"/>
-          <path d="M10 14H20M10 20H20M10 26H18" stroke="#0B192C" stroke-width="2.5" stroke-linecap="round"/>
-          <path d="M28 14H38M28 20H38M28 26H36" stroke="#0B192C" stroke-width="2.5" stroke-linecap="round"/>
-          <path d="M24 8V40" stroke="#E5A800" stroke-width="2.5"/>
-        </svg>
-      </div>
-      <div class="brand-text">
-        <h2 class="brand-title mb-0">LangNest</h2>
-        <span class="brand-tagline">Learn • Practice • Grow</span>
-      </div>
-    </div>
+  <!-- 🎮 FLOATING DOCK LEFT (4 Buttons: Home, Learn, Games, Practice) -->
+  <aside class="floating-dock dock-left" aria-label="Learning Navigation">
+    <button class="floating-game-btn game-icon-home" [class.active]="activeTab() === 'home'" (click)="setTab('home')" title="Home">
+      <i class="bi bi-house-door-fill"></i>
+      <span class="game-btn-tooltip">Home</span>
+    </button>
 
-    <!-- Navigation Menu -->
-    <nav class="sidebar-nav d-flex flex-column gap-2 mt-4">
-      <button class="nav-item-btn" [class.active]="activeTab() === 'home'" (click)="setTab('home')">
-        <i class="bi bi-house-door-fill"></i>
-        <span>Home</span>
-      </button>
+    <button class="floating-game-btn game-icon-learn" [class.active]="activeTab() === 'learn'" (click)="setTab('learn')" title="Learn">
+      <i class="bi bi-book-half"></i>
+      <span class="game-btn-tooltip">Learn</span>
+    </button>
 
-      <button class="nav-item-btn" [class.active]="activeTab() === 'learn'" (click)="setTab('learn')">
-        <i class="bi bi-book-half"></i>
-        <span>Learn</span>
-      </button>
+    <a class="floating-game-btn game-icon-games text-decoration-none" routerLink="/learn/games" title="Games">
+      <i class="bi bi-controller"></i>
+      <span class="game-btn-tooltip">Games</span>
+    </a>
 
-      <button class="nav-item-btn" [class.active]="activeTab() === 'practice'" (click)="setTab('practice')">
-        <i class="bi bi-lightning-charge-fill"></i>
-        <span>Practice</span>
-      </button>
-
-      <button class="nav-item-btn" [class.active]="activeTab() === 'assessments'" (click)="setTab('assessments')">
-        <i class="bi bi-clipboard-check-fill"></i>
-        <span>Assessments</span>
-      </button>
-
-      <button class="nav-item-btn" [class.active]="activeTab() === 'badges'" (click)="setTab('badges')">
-        <i class="bi bi-trophy-fill"></i>
-        <span>Badges</span>
-      </button>
-
-      <button class="nav-item-btn" [class.active]="activeTab() === 'progress'" (click)="setTab('progress')">
-        <i class="bi bi-bar-chart-fill"></i>
-        <span>Progress</span>
-      </button>
-
-      <button class="nav-item-btn" [class.active]="activeTab() === 'settings'" (click)="setTab('settings')">
-        <i class="bi bi-gear-fill"></i>
-        <span>Settings</span>
-      </button>
-    </nav>
-
-    <!-- 🚪 Logout Button (at bottom of sidebar, circled in 3rd image) -->
-    <div class="sidebar-footer mt-auto pt-3">
-      <button class="nav-item-btn btn-logout-sidebar w-100" (click)="logout()">
-        <i class="bi bi-box-arrow-right"></i>
-        <span>Logout</span>
-      </button>
-    </div>
+    <button class="floating-game-btn game-icon-practice" [class.active]="activeTab() === 'practice'" (click)="setTab('practice')" title="Practice">
+      <i class="bi bi-lightning-charge-fill"></i>
+      <span class="game-btn-tooltip">Practice</span>
+    </button>
   </aside>
 
-  <!-- 🌟 MAIN CONTENT AREA (SCROLLS OVER FIXED FULL-PAGE BACKGROUND) -->
-  <main class="langnest-main flex-grow-1 position-relative d-flex flex-column overflow-y-auto z-2">
-    <!-- Content Area (Switches cleanly by activeTab) -->
-    <div class="content-container position-relative z-2 p-4 p-lg-5">
+  <!-- 🎮 FLOATING DOCK RIGHT (4 Buttons: Assessments, Progress, Settings, Logout) -->
+  <aside class="floating-dock dock-right" aria-label="Account Navigation">
+    <button class="floating-game-btn game-icon-assessments" [class.active]="activeTab() === 'assessments'" (click)="setTab('assessments')" title="Assessments">
+      <i class="bi bi-clipboard-check-fill"></i>
+      <span class="game-btn-tooltip">Assessments</span>
+    </button>
+
+    <button class="floating-game-btn game-icon-progress" [class.active]="activeTab() === 'progress'" (click)="setTab('progress')" title="Progress">
+      <i class="bi bi-bar-chart-fill"></i>
+      <span class="game-btn-tooltip">Progress</span>
+    </button>
+
+    <button class="floating-game-btn game-icon-settings" [class.active]="activeTab() === 'settings'" (click)="setTab('settings')" title="Settings">
+      <i class="bi bi-gear-fill"></i>
+      <span class="game-btn-tooltip">Settings</span>
+    </button>
+
+    <!-- Logout placed in Badges position as requested -->
+    <button class="floating-game-btn game-icon-logout" (click)="logout()" title="Logout">
+      <i class="bi bi-box-arrow-right"></i>
+      <span class="game-btn-tooltip">Logout</span>
+    </button>
+  </aside>
+
+  <!-- 🌟 MAIN CONTENT AREA (FULL SCREEN OVER FIXED FULL-PAGE BACKGROUND) -->
+  <main class="langnest-main flex-grow-1 position-relative d-flex flex-column overflow-y-auto z-2 w-100">
+    <!-- Content Area (Centered cleanly between the 4-left and 4-right floating buttons) -->
+    <div class="content-container position-relative z-2 p-4 p-lg-5" style="max-width: 1280px; margin: 0 auto; width: 100%; padding-left: 105px !important; padding-right: 105px !important;">
 
       <!-- ================================================================ -->
       <!-- 🏠 TAB 1: HOME (CLEAN LEARNER DASHBOARD - ZEROED STATS)          -->
       <!-- ================================================================ -->
       @if (activeTab() === 'home') {
-        <div class="tab-fade-in">
-          <!-- Welcome Headline -->
-          <div class="hero-text-block mb-4">
-            <h1 class="hero-title mb-2">
-              Welcome back, <span class="highlight-yellow">{{ learnerName() }}</span>! ✨
-            </h1>
-            <p class="hero-subtitle mb-0">
-              Your personal language learning dashboard. Keep up the great momentum today!
-            </p>
-          </div>
+        <div class="tab-fade-in pt-3">
+          <!-- Right-Aligned Card Layout: Leaves left side open for 3D Boy Illustration -->
+          <div class="row justify-content-end g-4 mb-4">
+            <div class="col-12 col-lg-7 col-xl-6">
+              <div class="d-flex flex-column gap-4">
 
-          <!-- Glassmorphic Key Stats Bar (Zeroed) -->
-          <div class="row g-3 mb-4">
-            <div class="col-6 col-lg-3">
-              <div class="stat-glass-card p-3 rounded-4 d-flex align-items-center gap-3">
-                <div class="stat-icon-circle bg-yellow-glow">
-                  <i class="bi bi-star-fill text-warning"></i>
-                </div>
-                <div>
-                  <div class="stat-num">{{ xp() }}</div>
-                  <div class="stat-label">Total XP Points</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-6 col-lg-3">
-              <div class="stat-glass-card p-3 rounded-4 d-flex align-items-center gap-3">
-                <div class="stat-icon-circle bg-red-glow">
-                  <i class="bi bi-fire text-danger"></i>
-                </div>
-                <div>
-                  <div class="stat-num">{{ streakDays() }} Days</div>
-                  <div class="stat-label">Daily Streak</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-6 col-lg-3">
-              <div class="stat-glass-card p-3 rounded-4 d-flex align-items-center gap-3">
-                <div class="stat-icon-circle bg-blue-glow">
-                  <i class="bi bi-clock-history text-info"></i>
-                </div>
-                <div>
-                  <div class="stat-num">{{ studyTimeMinutes() }} Mins</div>
-                  <div class="stat-label">Weekly Study Time</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-6 col-lg-3">
-              <div class="stat-glass-card p-3 rounded-4 d-flex align-items-center gap-3">
-                <div class="stat-icon-circle bg-green-glow">
-                  <i class="bi bi-award-fill text-success"></i>
-                </div>
-                <div>
-                  <div class="stat-num">{{ accuracyRate() }}%</div>
-                  <div class="stat-label">Quiz Accuracy</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 2 Columns: Daily Spark & Weekly Streak Activity -->
-          <div class="row g-4 mb-4">
-            <!-- Live Interactive Class Card -->
-            <div class="col-lg-6">
-              <div class="dashboard-glass-card p-4 rounded-4 h-100 d-flex flex-column justify-content-between">
-                <div>
-                  <!-- Header Badges -->
-                  <div class="d-flex justify-content-between align-items-center mb-3">
+                <!-- 📹 Live Interactive Class Card (Right-Side styled like Image 2) -->
+                <div class="dashboard-glass-card rounded-4 overflow-hidden shadow-lg border border-light">
+                  <!-- Gradient Top Header matching Image 2 -->
+                  <div class="p-3 px-4 text-white d-flex justify-content-between align-items-center flex-wrap gap-2"
+                       style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-camera-video-fill fs-5"></i>
+                      <span class="fw-bold fs-6">Live Interactive Class</span>
+                    </div>
                     @if (upcomingLiveClass(); as liveSession) {
                       @if (liveSession.status === 'live') {
                         <span class="badge bg-danger rounded-pill px-3 py-1 fw-bold d-inline-flex align-items-center gap-1 shadow-sm">
@@ -238,116 +89,122 @@
                         </span>
                       } @else {
                         <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold">
-                          <i class="bi bi-camera-video-fill me-1"></i>Next Live Class
+                          Next Session
                         </span>
                       }
-                      <span class="text-white-50 small d-inline-flex align-items-center gap-1">
-                        <i class="bi" [ngClass]="getPlatformBadgeInfo(liveSession.platform).icon"></i>
-                        {{ getPlatformBadgeInfo(liveSession.platform).name }}
-                      </span>
                     } @else {
-                      <span class="badge bg-light bg-opacity-25 text-white px-3 py-1 rounded-pill fw-semibold">
-                        <i class="bi bi-camera-video me-1"></i>Live Sessions
+                      <span class="badge bg-white bg-opacity-25 text-white rounded-pill px-3 py-1 fw-semibold small">
+                        Interactive Learning
                       </span>
-                      <span class="text-white-50 small">Interactive Learning</span>
                     }
                   </div>
 
-                  @if (upcomingLiveClass(); as liveSession) {
-                    <!-- Class Details -->
-                    <h2 class="display-6 fw-bold text-white mb-1" style="font-size: 1.75rem;">
-                      {{ liveSession.title }}
-                    </h2>
-                    <p class="text-warning small mb-3 d-flex align-items-center gap-2">
-                      <span class="badge bg-white bg-opacity-10 text-warning px-2 py-1 rounded-pill">
-                        <i class="bi bi-person-fill me-1"></i>{{ liveSession.instructor_name || 'Academy Instructor' }}
-                      </span>
-                      <span>•</span>
-                      <span><i class="bi bi-clock me-1"></i>{{ liveSession.duration_minutes }} Mins Session</span>
-                    </p>
+                  <!-- Card Body -->
+                  <div class="p-4 d-flex flex-column justify-content-between" style="min-height: 220px;">
+                    <div>
+                      @if (upcomingLiveClass(); as liveSession) {
+                        <!-- Class Details -->
+                        <h3 class="fw-bold text-dark mb-1" style="font-size: 1.45rem;">
+                          {{ liveSession.title }}
+                        </h3>
+                        <p class="text-secondary small mb-3 d-flex align-items-center gap-2 flex-wrap">
+                          <span class="badge bg-primary-subtle text-primary px-2.5 py-1 rounded-pill fw-bold">
+                            <i class="bi bi-person-fill me-1"></i>{{ liveSession.instructor_name || 'Academy Instructor' }}
+                          </span>
+                          <span>•</span>
+                          <span><i class="bi bi-clock me-1"></i>{{ liveSession.duration_minutes }} Mins</span>
+                          <span>•</span>
+                          <span class="d-inline-flex align-items-center gap-1">
+                            <i class="bi" [ngClass]="getPlatformBadgeInfo(liveSession.platform).icon"></i>
+                            {{ getPlatformBadgeInfo(liveSession.platform).name }}
+                          </span>
+                        </p>
 
-                    <!-- Timing Banner -->
-                    <div class="quote-box p-3 rounded-3 mb-3">
-                      <div class="d-flex align-items-start gap-2">
-                        <i class="bi bi-calendar-event-fill text-warning fs-5 mt-1"></i>
-                        <div>
-                          <div class="text-white fw-semibold">
-                            {{ liveSession.start_time | date:'EEEE, MMM d, y' }} at {{ liveSession.start_time | date:'shortTime' }}
-                          </div>
-                          @if (liveSession.description) {
-                            <div class="text-white-50 small mt-1" style="line-height: 1.4;">
-                              {{ liveSession.description }}
+                        <!-- Timing Banner -->
+                        <div class="p-3 rounded-3 mb-3 bg-light border-start border-warning border-3">
+                          <div class="d-flex align-items-start gap-2">
+                            <i class="bi bi-calendar-event-fill text-warning fs-5 mt-1"></i>
+                            <div>
+                              <div class="text-dark fw-bold">
+                                {{ liveSession.start_time | date:'EEEE, MMM d, y' }} at {{ liveSession.start_time | date:'shortTime' }}
+                              </div>
+                              @if (liveSession.description) {
+                                <div class="text-secondary small mt-1" style="line-height: 1.4;">
+                                  {{ liveSession.description }}
+                                </div>
+                              }
                             </div>
-                          }
+                          </div>
                         </div>
-                      </div>
+
+                        <!-- Attached Study Materials -->
+                        @if (liveSession.attachments && liveSession.attachments.length > 0) {
+                          <div class="mb-3">
+                            <div class="text-secondary small fw-semibold mb-2 d-flex align-items-center gap-1">
+                              <i class="bi bi-paperclip text-warning"></i>
+                              <span>Class Materials ({{ liveSession.attachments.length }}):</span>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                              @for (mat of liveSession.attachments; track mat.id) {
+                                <a [href]="mat.file_url" target="_blank" rel="noopener noreferrer"
+                                  class="badge bg-light text-dark border rounded-pill px-3 py-1.5 text-decoration-none d-inline-flex align-items-center gap-2 hover-scale">
+                                  <i [class]="'bi ' + getMaterialIcon(mat.file_type) + ' text-primary'"></i>
+                                  <span class="text-truncate" style="max-width: 140px;">{{ mat.original_name }}</span>
+                                </a>
+                              }
+                            </div>
+                          </div>
+                        }
+                      } @else {
+                        <!-- Empty State when no live class scheduled -->
+                        <div class="py-2">
+                          <h4 class="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
+                            <i class="bi bi-camera-video text-warning"></i>
+                            <span>No Live Classes Right Now</span>
+                          </h4>
+                          <p class="text-secondary small mb-3" style="line-height: 1.6;">
+                            Interactive live classes and tutor sessions scheduled by your academy will appear here. You can join the session directly with one click!
+                          </p>
+                          <div class="p-3 rounded-3 mb-2 bg-light border-start border-warning border-3">
+                            <span class="text-dark small">
+                              💡 <strong>Pro-Tip:</strong> Check back regularly for upcoming live conversation practice with certified instructors.
+                            </span>
+                          </div>
+                        </div>
+                      }
                     </div>
 
-                    <!-- Attached Study Materials (PDF, Video, Image, Audio) -->
-                    @if (liveSession.attachments && liveSession.attachments.length > 0) {
-                      <div class="mb-3">
-                        <div class="text-white-50 small fw-semibold mb-2 d-flex align-items-center gap-1">
-                          <i class="bi bi-paperclip text-warning"></i>
-                          <span>Class Materials & Resources ({{ liveSession.attachments.length }}):</span>
-                        </div>
-                        <div class="d-flex flex-wrap gap-2">
-                          @for (mat of liveSession.attachments; track mat.id) {
-                            <a [href]="mat.file_url" target="_blank" rel="noopener noreferrer"
-                              class="badge bg-white bg-opacity-10 text-white border border-white border-opacity-25 rounded-pill px-3 py-2 text-decoration-none d-inline-flex align-items-center gap-2">
-                              <i [class]="'bi ' + getMaterialIcon(mat.file_type)"></i>
-                              <span class="text-truncate" style="max-width: 150px;">{{ mat.original_name }}</span>
-                              <span class="text-white-50 small">({{ mat.file_size }})</span>
-                            </a>
-                          }
-                        </div>
-                      </div>
-                    }
-                  } @else {
-                    <!-- Empty State when no live class scheduled -->
-                    <div class="py-2">
-                      <h3 class="fw-bold text-white mb-2" style="font-size: 1.5rem;">
-                        <i class="bi bi-camera-video text-warning me-2"></i>No Live Classes Right Now
-                      </h3>
-                      <p class="text-white-50 mb-3" style="line-height: 1.6;">
-                        Interactive live classes and tutor sessions scheduled by your academy will appear here. You can join the session directly with one click!
-                      </p>
-                      <div class="quote-box p-3 rounded-3 mb-3">
-                        <span class="text-white small">
-                          💡 <strong>Pro-Tip:</strong> Check back regularly for upcoming live conversation practice with certified instructors.
-                        </span>
-                      </div>
+                    <!-- Action Button -->
+                    <div class="pt-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                      @if (upcomingLiveClass(); as liveSession) {
+                        <a [href]="liveSession.meeting_link" target="_blank" rel="noopener noreferrer"
+                          class="btn btn-warning text-dark fw-bold rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2 shadow-sm live-join-btn"
+                          [class.btn-danger]="liveSession.status === 'live'"
+                          [class.text-white]="liveSession.status === 'live'">
+                          <i class="bi bi-box-arrow-up-right"></i>
+                          {{ liveSession.status === 'live' ? 'Join Live Class Now' : 'Join Live Class' }}
+                        </a>
+                      } @else {
+                        <button class="btn btn-light btn-sm rounded-pill px-3 py-1.5 border shadow-none text-dark fw-semibold" (click)="loadUpcomingLiveClasses()">
+                          <i class="bi bi-arrow-clockwise me-1 text-primary"></i> Refresh Schedule
+                        </button>
+                      }
                     </div>
-                  }
-                </div>
-
-                <!-- Action Button -->
-                <div class="pt-2">
-                  @if (upcomingLiveClass(); as liveSession) {
-                    <a [href]="liveSession.meeting_link" target="_blank" rel="noopener noreferrer"
-                      class="btn btn-warning text-dark fw-bold rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2 shadow-sm live-join-btn"
-                      [class.btn-danger]="liveSession.status === 'live'"
-                      [class.text-white]="liveSession.status === 'live'">
-                      <i class="bi bi-box-arrow-up-right"></i>
-                      {{ liveSession.status === 'live' ? 'Join Live Class Now' : 'Join Live Class' }}
-                    </a>
-                  } @else {
-                    <button class="btn btn-outline-light btn-sm rounded-pill px-3 py-1" (click)="loadUpcomingLiveClasses()">
-                      <i class="bi bi-arrow-clockwise me-1"></i> Refresh Live Schedule
-                    </button>
-                  }
-                </div>
-              </div>
-            </div>
-
-            <!-- Weekly Activity Consistency -->
-            <div class="col-lg-6">
-              <div class="dashboard-glass-card p-4 rounded-4 h-100 d-flex flex-column justify-content-between">
-                <div>
-                  <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold text-white mb-0"><i class="bi bi-calendar-check text-warning me-2"></i>Weekly Consistency</h5>
-                    <span class="badge bg-secondary-subtle text-white border border-secondary px-3 py-1 rounded-pill">{{ daysMetCount() }}/7 Days Met</span>
                   </div>
-                  <p class="text-white-50 small mb-4">
+                </div>
+
+                <!-- 📅 Weekly Consistency Card (Right Side) -->
+                <div class="dashboard-glass-card p-4 rounded-4 shadow-sm border border-light">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                      <i class="bi bi-calendar-check text-warning"></i>
+                      <span>Weekly Consistency</span>
+                    </h5>
+                    <span class="badge bg-warning-subtle text-dark border border-warning-subtle px-3 py-1 rounded-pill fw-bold">
+                      {{ daysMetCount() }}/7 Days Met
+                    </span>
+                  </div>
+                  <p class="text-secondary small mb-3">
                     Consistency is key to mastering any language. Complete at least 1 lesson per day to start your streak!
                   </p>
 
@@ -355,7 +212,7 @@
                   <div class="d-flex justify-content-between gap-2 text-center mb-4">
                     @for (day of weeklyDays(); track day.dayName) {
                       <div class="day-tracker" [class.today]="day.isToday" [class.active]="day.isCompleted && !day.isToday">
-                        <div class="day-check">
+                        <div class="day-check shadow-sm">
                           @if (day.isCompleted) {
                             <i class="bi bi-check-lg"></i>
                           } @else if (day.isToday) {
@@ -370,18 +227,19 @@
                       </div>
                     }
                   </div>
+
+                  <!-- Daily Target Progress -->
+                  <div>
+                    <div class="d-flex justify-content-between text-secondary small mb-1 fw-semibold">
+                      <span>Daily Goal Progress</span>
+                      <span class="text-dark fw-bold">{{ todayProgressMinutes() }} / {{ dailyGoal() }} Mins ({{ todayProgressPercent() }}%)</span>
+                    </div>
+                    <div class="progress rounded-pill" style="height: 8px; background: #e2e8f0;">
+                      <div class="progress-bar bg-warning rounded-pill" role="progressbar" [style.width.%]="todayProgressPercent()"></div>
+                    </div>
+                  </div>
                 </div>
 
-                <!-- Daily Target Progress -->
-                <div>
-                  <div class="d-flex justify-content-between text-white-50 small mb-1">
-                    <span>Daily Goal Progress</span>
-                    <span class="text-warning fw-bold">{{ todayProgressMinutes() }} / {{ dailyGoal() }} Mins ({{ todayProgressPercent() }}%)</span>
-                  </div>
-                  <div class="progress rounded-pill" style="height: 8px; background: rgba(255,255,255,0.15);">
-                    <div class="progress-bar bg-warning rounded-pill" role="progressbar" [style.width.%]="todayProgressPercent()"></div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -393,74 +251,78 @@
           <!-- ⚠️ BALANCE COURSE INTIMATION - COMPACT & SIMPLE BOX             -->
           <!-- ================================================================ -->
           <div class="balance-course-section mb-4">
-            @if (balanceCourses().length > 0) {
-              @for (item of balanceCourses(); track item.id) {
-                <div class="balance-simple-box p-3 px-4 rounded-4 d-flex align-items-center justify-content-between flex-wrap gap-3 mb-2 shadow-sm">
-                  <!-- Left: Warning Icon + Course Info & Incomplete notice -->
-                  <div class="d-flex align-items-center gap-3">
-                    <div class="balance-simple-icon d-flex align-items-center justify-content-center rounded-circle">
-                      <i class="bi bi-clock-history text-warning fs-4"></i>
-                    </div>
-                    <div>
-                      <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                        <span class="badge bg-warning text-dark fw-bold px-2.5 py-0.5 rounded-pill" style="font-size: 0.72rem;">
-                          Balance Course
-                        </span>
-                        <h6 class="text-dark fw-bold mb-0" style="font-size: 0.95rem;">{{ item.name }}</h6>
-                        <span class="badge bg-light text-secondary border px-2 py-0.5 rounded-pill" style="font-size: 0.7rem;">
-                          {{ item.code }}
-                        </span>
-                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-0.5 rounded-pill" style="font-size: 0.7rem;">
-                          Incomplete
-                        </span>
+            <div class="row justify-content-end">
+              <div class="col-12 col-lg-7 col-xl-6">
+                @if (balanceCourses().length > 0) {
+                  @for (item of balanceCourses(); track item.id) {
+                    <div class="balance-simple-box p-3 px-4 rounded-4 d-flex align-items-center justify-content-between flex-wrap gap-3 mb-2 shadow-sm">
+                      <!-- Left: Warning Icon + Course Info & Incomplete notice -->
+                      <div class="d-flex align-items-center gap-3">
+                        <div class="balance-simple-icon d-flex align-items-center justify-content-center rounded-circle">
+                          <i class="bi bi-clock-history text-warning fs-4"></i>
+                        </div>
+                        <div>
+                          <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                            <span class="badge bg-warning text-dark fw-bold px-2.5 py-0.5 rounded-pill" style="font-size: 0.72rem;">
+                              Balance Course
+                            </span>
+                            <h6 class="text-dark fw-bold mb-0" style="font-size: 0.95rem;">{{ item.name }}</h6>
+                            <span class="badge bg-light text-secondary border px-2 py-0.5 rounded-pill" style="font-size: 0.7rem;">
+                              {{ item.code }}
+                            </span>
+                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-0.5 rounded-pill" style="font-size: 0.7rem;">
+                              Incomplete
+                            </span>
+                          </div>
+                          <p class="text-muted small mb-0 d-flex align-items-center gap-1">
+                            <i class="bi bi-exclamation-circle-fill text-warning"></i>
+                            <span>
+                              <strong>{{ item.completedChapters }} of {{ item.totalChapters }}</strong> chapters completed
+                              ({{ item.remainingChapters > 0 ? item.remainingChapters + ' remaining' : 'in progress' }}).
+                              Finish your balance lessons!
+                            </span>
+                          </p>
+                        </div>
                       </div>
-                      <p class="text-muted small mb-0 d-flex align-items-center gap-1">
-                        <i class="bi bi-exclamation-circle-fill text-warning"></i>
-                        <span>
-                          <strong>{{ item.completedChapters }} of {{ item.totalChapters }}</strong> chapters completed
-                          ({{ item.remainingChapters > 0 ? item.remainingChapters + ' remaining' : 'in progress' }}).
-                          Finish your balance lessons!
-                        </span>
-                      </p>
-                    </div>
-                  </div>
 
-                  <!-- Right: Mini Progress + Action Button -->
-                  <div class="d-flex align-items-center gap-3 ms-auto">
-                    <div class="d-none d-md-block" style="width: 140px;">
-                      <div class="d-flex justify-content-between small text-muted mb-1" style="font-size: 0.75rem;">
-                        <span>Progress</span>
-                        <span class="fw-bold text-dark">{{ item.percentage }}%</span>
-                      </div>
-                      <div class="progress rounded-pill" style="height: 6px; background: #e2e8f0;">
-                        <div class="progress-bar bg-warning rounded-pill" [style.width.%]="item.percentage > 0 ? item.percentage : 6"></div>
+                      <!-- Right: Mini Progress + Action Button -->
+                      <div class="d-flex align-items-center gap-3 ms-auto">
+                        <div class="d-none d-md-block" style="width: 140px;">
+                          <div class="d-flex justify-content-between small text-muted mb-1" style="font-size: 0.75rem;">
+                            <span>Progress</span>
+                            <span class="fw-bold text-dark">{{ item.percentage }}%</span>
+                          </div>
+                          <div class="progress rounded-pill" style="height: 6px; background: #e2e8f0;">
+                            <div class="progress-bar bg-warning rounded-pill" [style.width.%]="item.percentage > 0 ? item.percentage : 6"></div>
+                          </div>
+                        </div>
+                        <button class="btn btn-warning rounded-pill px-3 py-1.5 fw-bold text-dark d-flex align-items-center gap-1.5 shadow-sm balance-action-btn"
+                                (click)="playCourse(item.course, $event)">
+                          <span>{{ item.percentage > 0 ? 'Resume' : 'Start Course' }}</span>
+                          <i class="bi bi-play-fill fs-5"></i>
+                        </button>
                       </div>
                     </div>
-                    <button class="btn btn-warning rounded-pill px-3 py-1.5 fw-bold text-dark d-flex align-items-center gap-1.5 shadow-sm balance-action-btn"
-                            (click)="playCourse(item.course, $event)">
-                      <span>{{ item.percentage > 0 ? 'Resume' : 'Start Course' }}</span>
-                      <i class="bi bi-play-fill fs-5"></i>
+                  }
+                } @else if (courses().length > 0) {
+                  <!-- All completed state -->
+                  <div class="balance-simple-box p-3 px-4 rounded-4 d-flex align-items-center justify-content-between flex-wrap gap-3 shadow-sm" style="border-left-color: #10B981 !important;">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="balance-simple-icon bg-success-subtle d-flex align-items-center justify-content-center rounded-circle">
+                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                      </div>
+                      <div>
+                        <h6 class="text-dark fw-bold mb-0">Balance Course: None Pending</h6>
+                        <p class="text-muted small mb-0">All your enrolled courses are 100% completed! Great job!</p>
+                      </div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-1.5 fw-semibold" (click)="setTab('learn')">
+                      Explore Courses
                     </button>
                   </div>
-                </div>
-              }
-            } @else if (courses().length > 0) {
-              <!-- All completed state -->
-              <div class="balance-simple-box p-3 px-4 rounded-4 d-flex align-items-center justify-content-between flex-wrap gap-3 shadow-sm" style="border-left-color: #10B981 !important;">
-                <div class="d-flex align-items-center gap-3">
-                  <div class="balance-simple-icon bg-success-subtle d-flex align-items-center justify-content-center rounded-circle">
-                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
-                  </div>
-                  <div>
-                    <h6 class="text-dark fw-bold mb-0">Balance Course: None Pending</h6>
-                    <p class="text-muted small mb-0">All your enrolled courses are 100% completed! Great job!</p>
-                  </div>
-                </div>
-                <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-1.5 fw-semibold" (click)="setTab('learn')">
-                  Explore Courses
-                </button>
+                }
               </div>
-            }
+            </div>
           </div>
         </div>
       }
@@ -485,11 +347,20 @@
             </div>
           </div>
 
-          @if (courses().length > 0) {
-            <!-- Modern Course Grid (Sized to User Box with Premium CSS Design) -->
-            <div class="row g-4 mb-4">
+          @if (isLoading()) {
+            <!-- 🐰 Kid-Friendly Mascot Loader (Matching Image 1) -->
+            <div class="mascot-loader-container py-5 my-4">
+              <div class="mascot-loading-wrapper mb-3 animate-bounce">
+                <img src="/assets/images/mascot.png" alt="Loading Mascot" style="width: 140px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));">
+              </div>
+              <h3 class="mascot-loading-title animate-pulse">Loading curriculum & courses...</h3>
+              <p class="mascot-loading-sub">Getting your magical learning adventure ready!</p>
+            </div>
+          } @else if (courses().length > 0) {
+            <!-- Modern Course Grid (Centered neatly in the viewport) -->
+            <div class="row justify-content-center g-4 mb-4">
               @for (c of courses(); track c.id) {
-                <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
+                <div class="col-12 col-sm-6 col-md-6 col-lg-5 col-xl-4" style="max-width: 380px;">
                   <div class="modern-course-card p-4 rounded-4 cursor-pointer d-flex flex-column justify-content-between shadow-sm position-relative overflow-hidden"
                        (click)="playCourse(c, $event)"
                        title="Click to start {{ c.name }}">
@@ -515,7 +386,7 @@
                       <div class="course-mini-stats d-flex align-items-center gap-2">
                         <span class="d-flex align-items-center gap-1">
                           <i class="bi bi-layers-fill text-warning"></i>
-                          <span>{{ c.no_of_levels || 1 }} Level</span>
+                          <span>{{ c.no_of_levels || 1 }} {{ (c.no_of_levels === 1) ? 'Level' : 'Levels' }}</span>
                         </span>
                         <span class="text-muted">•</span>
                         <span class="d-flex align-items-center gap-1">
@@ -538,7 +409,7 @@
               }
             </div>
           } @else {
-            <!-- Clean 0 Courses Empty State (Static cards removed as requested in 2nd image) -->
+            <!-- Clean 0 Courses Empty State (Only shown when not loading AND genuinely 0 courses) -->
             <div class="empty-notice-glass p-5 rounded-4 text-center mx-auto shadow-lg my-5" style="max-width: 580px;">
               <div class="empty-icon-circle mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 72px; height: 72px; background: rgba(255, 199, 39, 0.15); border: 1px solid rgba(255, 199, 39, 0.3);">
                 <i class="bi bi-journal-x fs-1 text-warning"></i>
@@ -582,57 +453,78 @@
                 </div>
               </div>
 
-              <!-- Modern Courses Grid for Practice (Sized to User Box with Rich CSS Design) -->
-              <div class="row g-4 mb-4">
-                @for (c of practiceCoursesList; track c.id) {
-                  <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
-                    <div class="modern-course-card p-4 rounded-4 cursor-pointer d-flex flex-column justify-content-between shadow-sm position-relative overflow-hidden"
-                         (click)="selectPracticeCourse(c)"
-                         title="Click to practice {{ c.name }}">
-                      <!-- Card Top Glow Accent -->
-                      <div class="card-glow-bar"></div>
+              @if (isLoading()) {
+                <!-- 🐰 Kid-Friendly Mascot Loader (Matching Image 1) -->
+                <div class="mascot-loader-container py-5 my-4">
+                  <div class="mascot-loading-wrapper mb-3 animate-bounce">
+                    <img src="/assets/images/mascot.png" alt="Loading Mascot" style="width: 140px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));">
+                  </div>
+                  <h3 class="mascot-loading-title animate-pulse">Loading practice courses...</h3>
+                  <p class="mascot-loading-sub">Gathering interactive exercises and drills for you!</p>
+                </div>
+              } @else if (practiceCoursesList.length > 0) {
+                <!-- Modern Courses Grid for Practice (Centered neatly in the viewport) -->
+                <div class="row justify-content-center g-4 mb-4">
+                  @for (c of practiceCoursesList; track c.id) {
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-5 col-xl-4" style="max-width: 380px;">
+                      <div class="modern-course-card p-4 rounded-4 cursor-pointer d-flex flex-column justify-content-between shadow-sm position-relative overflow-hidden"
+                           (click)="selectPracticeCourse(c)"
+                           title="Click to practice {{ c.name }}">
+                        <!-- Card Top Glow Accent -->
+                        <div class="card-glow-bar"></div>
 
-                      <!-- Top Row: Icon + Level Badge -->
-                      <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="modern-course-icon d-flex align-items-center justify-content-center shadow-sm">
-                          <i class="bi bi-controller fs-3 text-warning"></i>
-                        </div>
-                        <span class="badge bg-warning bg-opacity-20 text-dark px-3 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">
-                          {{ c.code || 'A1 · Beginner' }}
-                        </span>
-                      </div>
-
-                      <!-- Middle Content: Title + Description + Mini Info -->
-                      <div class="mb-3">
-                        <h4 class="fw-bold course-card-heading mb-2">{{ c.name }}</h4>
-                        <p class="course-card-desc mb-3">
-                          {{ c.description || 'Master essential vocabulary, practical conversation, and interactive lessons.' }}
-                        </p>
-                        <div class="course-mini-stats d-flex align-items-center gap-2">
-                          <span class="d-flex align-items-center gap-1">
-                            <i class="bi bi-puzzle-fill text-warning"></i>
-                            <span>5 Match Sets</span>
-                          </span>
-                          <span class="text-muted">•</span>
-                          <span class="d-flex align-items-center gap-1">
-                            <i class="bi bi-lightning-charge-fill text-warning"></i>
-                            <span>5 Practice Modes</span>
+                        <!-- Top Row: Icon + Level Badge -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                          <div class="modern-course-icon d-flex align-items-center justify-content-center shadow-sm">
+                            <i class="bi bi-controller fs-3 text-warning"></i>
+                          </div>
+                          <span class="badge bg-warning bg-opacity-20 text-dark px-3 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">
+                            {{ c.code || 'A1 · Beginner' }}
                           </span>
                         </div>
-                      </div>
 
-                      <!-- Bottom Action Button -->
-                      <div class="pt-2" style="border-top: 1px solid rgba(0,0,0,0.06);">
-                        <button class="btn btn-warning rounded-pill py-2 px-3 fw-bold text-dark w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm modern-course-btn"
-                                (click)="selectPracticeCourse(c); $event.stopPropagation()">
-                          <span>Practice Course</span>
-                          <i class="bi bi-arrow-right-circle-fill fs-5"></i>
-                        </button>
+                        <!-- Middle Content: Title + Description + Mini Info -->
+                        <div class="mb-3">
+                          <h4 class="fw-bold course-card-heading mb-2">{{ c.name }}</h4>
+                          <p class="course-card-desc mb-3">
+                            {{ c.description || 'Master essential vocabulary, practical conversation, and interactive lessons.' }}
+                          </p>
+                          <div class="course-mini-stats d-flex align-items-center gap-2">
+                            <span class="d-flex align-items-center gap-1">
+                              <i class="bi bi-puzzle-fill text-warning"></i>
+                              <span>5 Match Sets</span>
+                            </span>
+                            <span class="text-muted">•</span>
+                            <span class="d-flex align-items-center gap-1">
+                              <i class="bi bi-lightning-charge-fill text-warning"></i>
+                              <span>5 Practice Modes</span>
+                            </span>
+                          </div>
+                        </div>
+
+                        <!-- Bottom Action Button -->
+                        <div class="pt-2" style="border-top: 1px solid rgba(0,0,0,0.06);">
+                          <button class="btn btn-warning rounded-pill py-2 px-3 fw-bold text-dark w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm modern-course-btn"
+                                  (click)="selectPracticeCourse(c); $event.stopPropagation()">
+                            <span>Practice Course</span>
+                            <i class="bi bi-arrow-right-circle-fill fs-5"></i>
+                          </button>
+                        </div>
                       </div>
                     </div>
+                  }
+                </div>
+              } @else {
+                <div class="empty-notice-glass p-5 rounded-4 text-center mx-auto shadow-lg my-5" style="max-width: 580px;">
+                  <div class="empty-icon-circle mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 72px; height: 72px; background: rgba(255, 199, 39, 0.15); border: 1px solid rgba(255, 199, 39, 0.3);">
+                    <i class="bi bi-controller fs-1 text-warning"></i>
                   </div>
-                }
-              </div>
+                  <h3 class="fw-bold text-white mb-2">No Practice Courses Available</h3>
+                  <p class="text-white-50 mb-0" style="font-size: 0.95rem; line-height: 1.6;">
+                    There are currently no active courses assigned to your account.
+                  </p>
+                </div>
+              }
             </div>
           }
 
@@ -665,56 +557,67 @@
                 </button>
               </div>
 
-              <!-- Topics Grid (Matching Course Card Size, Descriptions Removed) -->
-              <div class="row g-4 mb-4">
-                @for (topic of practiceTopics; track topic.id) {
-                  <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
-                    <div class="modern-course-card p-4 rounded-4 cursor-pointer d-flex flex-column justify-content-between shadow-sm position-relative overflow-hidden"
-                         (click)="openPracticeActivity(topic.id)"
-                         title="Play {{ topic.title }}">
-                      <!-- Card Top Glow Accent -->
-                      <div class="card-glow-bar"></div>
+              @if (isLoadingActivities()) {
+                <!-- 🐰 Kid-Friendly Mascot Loader (Matching Image 1) -->
+                <div class="mascot-loader-container py-5 my-4">
+                  <div class="mascot-loading-wrapper mb-3 animate-bounce">
+                    <img src="/assets/images/mascot.png" alt="Loading Mascot" style="width: 140px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));">
+                  </div>
+                  <h3 class="mascot-loading-title animate-pulse">Loading practice topics...</h3>
+                  <p class="mascot-loading-sub">Gathering vocabulary and interactive drills for you!</p>
+                </div>
+              } @else {
+                <!-- Topics Grid (Centered neatly in the viewport) -->
+                <div class="row justify-content-center g-4 mb-4">
+                  @for (topic of practiceTopics; track topic.id) {
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-5 col-xl-4" style="max-width: 380px;">
+                      <div class="modern-course-card p-4 rounded-4 cursor-pointer d-flex flex-column justify-content-between shadow-sm position-relative overflow-hidden"
+                           (click)="openPracticeActivity(topic.id)"
+                           title="Play {{ topic.title }}">
+                        <!-- Card Top Glow Accent -->
+                        <div class="card-glow-bar"></div>
 
-                      <!-- Top Row: Icon + Badge -->
-                      <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="topic-icon-circle rounded-circle d-flex align-items-center justify-content-center shadow-sm"
-                             [style.background-color]="topic.color + '22'"
-                             [style.color]="topic.color">
-                          <i [class]="'bi ' + topic.icon + ' fs-3'"></i>
-                        </div>
-                        <span class="badge bg-warning bg-opacity-20 text-dark px-3 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">
-                          {{ topic.badge }}
-                        </span>
-                      </div>
-
-                      <!-- Middle Content: Title + Mini Stats (Description removed per user request) -->
-                      <div class="mb-3">
-                        <h4 class="fw-bold course-card-heading mb-2">{{ topic.title }}</h4>
-                        <div class="course-mini-stats d-flex align-items-center gap-2">
-                          <span class="d-flex align-items-center gap-1">
-                            <i class="bi bi-award text-warning"></i>
-                            <span>{{ topic.countLabel }}</span>
-                          </span>
-                          <span class="text-muted">•</span>
-                          <span class="d-flex align-items-center gap-1">
-                            <i class="bi bi-lightning-charge-fill text-warning"></i>
-                            <span>Interactive Drill</span>
+                        <!-- Top Row: Icon + Badge -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                          <div class="topic-icon-circle rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                               [style.background-color]="topic.color + '22'"
+                               [style.color]="topic.color">
+                            <i [class]="'bi ' + topic.icon + ' fs-3'"></i>
+                          </div>
+                          <span class="badge bg-warning bg-opacity-20 text-dark px-3 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">
+                            {{ topic.badge }}
                           </span>
                         </div>
-                      </div>
 
-                      <!-- Bottom Action Button -->
-                      <div class="pt-2" style="border-top: 1px solid rgba(0,0,0,0.06);">
-                        <button class="btn btn-warning rounded-pill py-2 px-3 fw-bold text-dark w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm modern-course-btn"
-                                (click)="openPracticeActivity(topic.id); $event.stopPropagation()">
-                          <span>Play {{ topic.title }}</span>
-                          <i class="bi bi-arrow-right-circle-fill fs-5"></i>
-                        </button>
+                        <!-- Middle Content: Title + Mini Stats (Description removed per user request) -->
+                        <div class="mb-3">
+                          <h4 class="fw-bold course-card-heading mb-2">{{ topic.title }}</h4>
+                          <div class="course-mini-stats d-flex align-items-center gap-2">
+                            <span class="d-flex align-items-center gap-1">
+                              <i class="bi bi-award text-warning"></i>
+                              <span>{{ topic.countLabel }}</span>
+                            </span>
+                            <span class="text-muted">•</span>
+                            <span class="d-flex align-items-center gap-1">
+                              <i class="bi bi-lightning-charge-fill text-warning"></i>
+                              <span>Interactive Drill</span>
+                            </span>
+                          </div>
+                        </div>
+
+                        <!-- Bottom Action Button -->
+                        <div class="pt-2" style="border-top: 1px solid rgba(0,0,0,0.06);">
+                          <button class="btn btn-warning rounded-pill py-2 px-3 fw-bold text-dark w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm modern-course-btn"
+                                  (click)="openPracticeActivity(topic.id); $event.stopPropagation()">
+                            <span>Play {{ topic.title }}</span>
+                            <i class="bi bi-arrow-right-circle-fill fs-5"></i>
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                }
-              </div>
+                  }
+                </div>
+              }
             </div>
           }
 
@@ -723,63 +626,85 @@
           <!-- ------------------------------------------------------------- -->
           @else if (practiceStage() === 'activity') {
             <div class="practice-stage-fade">
-              <!-- Top Navigation & Breadcrumb -->
-              <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+              <!-- 🎮 TOP GAME HUD (Child Game Style) -->
+              <div class="kids-game-hud p-3 mb-4 rounded-4 d-flex justify-content-between align-items-center flex-wrap gap-3 shadow-lg"
+                   style="background: linear-gradient(135deg, #0B192C 0%, #1E3E62 100%); border: 3px solid #FFC727;">
+                <!-- Left: Exit Button + Game Title -->
                 <div class="d-flex align-items-center gap-3">
-                  <button class="btn-back-circle shadow-sm" (click)="backToPracticeTopics()" title="Back to Topics">
-                    <i class="bi bi-arrow-left fs-5"></i>
+                  <button class="btn btn-warning rounded-circle shadow-md hover-lift d-flex align-items-center justify-content-center p-0"
+                          style="width: 44px; height: 44px; border: 2px solid white;"
+                          (click)="backToPracticeTopics()" title="Back to Game Selection">
+                    <i class="bi bi-arrow-left-short text-dark fs-3 fw-bold"></i>
                   </button>
                   <div>
-                    <span class="badge bg-primary text-white rounded-pill px-3 py-1 mb-1">
-                      {{ selectedPracticeCourse()?.name }} • Practice
+                    <span class="badge bg-warning text-dark rounded-pill px-2.5 py-0.5 fw-bold small text-uppercase">
+                      🎮 {{ selectedPracticeCourse()?.name || 'English' }}
                     </span>
-                    <h2 class="fw-bold text-white mb-0">
+                    <h3 class="fw-bold text-white mb-0 fs-5 letter-spacing-tight">
                       {{ getTopicTitle(selectedPracticeTopic()) }}
-                    </h2>
+                    </h3>
                   </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-2">
-                  <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold fs-6">
-                    <i class="bi bi-trophy-fill me-1"></i>Score: {{ matchScore() }} XP
+                <!-- Center: Animated Mascot Speech Bubble -->
+                <div class="d-none d-md-flex align-items-center gap-2 bg-white bg-opacity-10 px-3 py-1.5 rounded-pill border border-warning border-opacity-50 animate-pulse">
+                  <span style="font-size: 1.6rem; line-height: 1;">
+                    {{ mascotMood() === 'cheer' ? '🦊🎉' : (mascotMood() === 'oops' ? '🦊🤔' : '🦊✨') }}
                   </span>
-                  <button class="btn btn-outline-light rounded-pill px-3 py-2" (click)="backToPracticeTopics()">
-                    <i class="bi bi-grid-fill me-1"></i>All Topics
-                  </button>
+                  <span class="text-warning fw-bold small" style="letter-spacing: 0.2px;">
+                    {{ mascotSpeech() }}
+                  </span>
+                </div>
+
+                <!-- Right: Hearts + Stars/XP -->
+                <div class="d-flex align-items-center gap-2">
+                  <!-- Hearts Bar -->
+                  <div class="hearts-box d-flex align-items-center gap-1 bg-black bg-opacity-30 px-3 py-1.5 rounded-pill border border-danger border-opacity-40"
+                       title="{{ gameLives() }} Hearts Remaining">
+                    @for (h of [1,2,3,4,5]; track h) {
+                      <i class="bi fs-5" [ngClass]="h <= gameLives() ? 'bi-heart-fill text-danger animate-beat' : 'bi-heart text-secondary opacity-40'"></i>
+                    }
+                  </div>
+
+                  <!-- Stars & XP Meter -->
+                  <div class="score-pill bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold d-flex align-items-center gap-1.5 shadow-sm">
+                    <i class="bi bi-star-fill text-dark fs-6"></i>
+                    <span>{{ matchScore() + xp() }} XP</span>
+                  </div>
                 </div>
               </div>
 
               <!-- ========================================================= -->
-              <!-- 🧩 1. MATCH IT: 5 INTERACTIVE SETS (EXACT USER REQUEST)   -->
+              <!-- 🐾 1. MATCH IT: JUNGLE PAIR MATCHING GAME                 -->
               <!-- ========================================================= -->
               @if (selectedPracticeTopic() === 'match') {
-                <div class="dashboard-glass-card p-4 p-md-5 rounded-4 shadow-lg mb-4">
+                <div class="kids-game-arena p-4 p-md-5 rounded-4 shadow-lg mb-4">
                   <!-- Match Set Header & 5 Set Tabs -->
                   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
                     <div>
                       <div class="d-flex align-items-center gap-2 mb-1">
                         <span class="badge bg-success text-white px-3 py-1 rounded-pill fw-bold">
-                          Set {{ currentMatchSetIndex() + 1 }} of {{ matchSets.length }}
+                          🌟 Round {{ currentMatchSetIndex() + 1 }} of {{ matchSets.length }}
                         </span>
                         <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold">
-                          +10 XP per match
+                          ⭐ +10 XP per match
                         </span>
                         @if (matchStreak() > 1) {
                           <span class="badge bg-danger text-white px-3 py-1 rounded-pill fw-bold animate-pulse">
-                            🔥 {{ matchStreak() }} Match Streak!
+                            🔥 {{ matchStreak() }}X COMBO STREAK!
                           </span>
                         }
                       </div>
-                      <h3 class="fw-bold text-white mb-1">
+                      <h3 class="fw-bold text-dark mb-1">
                         {{ matchSets[currentMatchSetIndex()].title }}
                       </h3>
-                      <p class="text-white-50 small mb-0">
-                        Tap any word on the left, then tap its matching translation or meaning on the right!
+                      <p class="text-secondary small mb-0 fw-semibold">
+                        🖐️ <strong>Drag & Drop Match:</strong> Drag an English card on the left and drop it into its partner on the right! (Or tap to pair)
                       </p>
                     </div>
 
-                    <!-- Dynamic Set Quick Navigator Tabs -->
-                    <div class="d-flex gap-2 flex-wrap">
+                    <!-- Dynamic Set Tabs -->
+                    <div class="d-flex gap-1.5 flex-wrap">
                       @for (set of matchSets; track set.id; let idx = $index) {
                         <button class="match-set-tab-btn rounded-pill px-3 py-1 fw-bold text-nowrap"
                                 [class.active]="currentMatchSetIndex() === idx"
@@ -791,7 +716,7 @@
                   </div>
 
                   <!-- Progress Bar for Current Set -->
-                  <div class="progress mb-4 rounded-pill" style="height: 10px; background: rgba(0,0,0,0.06);">
+                  <div class="progress mb-4 rounded-pill" style="height: 12px; background: #E2E8F0;">
                     <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated rounded-pill"
                          role="progressbar"
                          [style.width.%]="(matchedPairIds().length / matchSets[currentMatchSetIndex()].pairs.length) * 100">
@@ -807,39 +732,55 @@
 
                   <!-- Matching Arena: Left Column & Right Column -->
                   <div class="row g-4">
-                    <!-- Left Column (English words) -->
+                    <!-- Left Column (English words - Draggable) -->
                     <div class="col-md-6">
                       <div class="column-header mb-3 d-flex align-items-center justify-content-between">
-                        <span class="fw-bold text-white fs-6">
-                          <i class="bi bi-flag-fill text-primary me-2"></i>English Word / Phrase
+                        <span class="fw-bold text-dark fs-6">
+                          <i class="bi bi-hand-index-thumb text-primary me-2"></i>🖐️ 1. Drag English Card
                         </span>
-                        <span class="badge bg-light text-dark rounded-pill">{{ matchSets[currentMatchSetIndex()].pairs.length }} Items</span>
+                        <span class="badge bg-light text-dark rounded-pill border">{{ matchSets[currentMatchSetIndex()].pairs.length }} Cards</span>
                       </div>
 
                       <div class="d-flex flex-column gap-3">
                         @for (p of matchSets[currentMatchSetIndex()].pairs; track p.id) {
-                          <div class="match-card p-3 rounded-4 cursor-pointer d-flex align-items-center justify-content-between"
-                                [class.matched]="isPairMatched(p.id)"
-                                [class.selected]="selectedLeftPair() === p.id"
-                                [class.shake-card]="shakeLeftId() === p.id"
-                                (click)="selectLeft(p.id)">
-                            <div>
-                              <h5 class="fw-bold mb-1 card-word-title">{{ p.leftText }}</h5>
-                              @if (p.leftHint) {
-                                <span class="small text-white-50">{{ p.leftHint }}</span>
-                              }
+                          <div class="kids-match-tile d-flex align-items-center justify-content-between"
+                               [draggable]="!isPairMatched(p.id) && !isSetComplete()"
+                               (dragstart)="onDragStart('match_left', p.id, p, $event)"
+                               (dragend)="onDragEnd()"
+                               [class.is-dragging]="draggedItemId() === p.id && draggedItemType() === 'match_left'"
+                               [class.matched]="isPairMatched(p.id)"
+                               [class.selected]="selectedLeftPair() === p.id"
+                               [class.shake-card]="shakeLeftId() === p.id"
+                               (click)="selectLeft(p.id)"
+                               title="Drag to right side or tap to select">
+                            <div class="d-flex align-items-center gap-2">
+                              <span class="drag-grip text-muted me-1" title="Drag me!">⠿</span>
+                              <button class="btn btn-sm btn-light rounded-circle shadow-sm border p-0 d-flex align-items-center justify-content-center"
+                                      style="width: 32px; height: 32px;"
+                                      (click)="speakWord(p.leftText, $event)"
+                                      title="Listen Pronunciation">
+                                <i class="bi bi-volume-up-fill text-primary"></i>
+                              </button>
+                              <div>
+                                <h5 class="fw-bold mb-0 text-dark" style="font-size: 1.15rem;">{{ p.leftText }}</h5>
+                                @if (p.leftHint) {
+                                  <span class="small text-muted">{{ p.leftHint }}</span>
+                                }
+                              </div>
                             </div>
                             <div>
                               @if (isPairMatched(p.id)) {
-                                <span class="badge bg-success rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                                  <i class="bi bi-check-lg text-white fs-5"></i>
+                                <span class="badge bg-success rounded-pill px-2.5 py-1 text-white fw-bold d-flex align-items-center gap-1">
+                                  <i class="bi bi-check-circle-fill"></i> MATCH!
                                 </span>
                               } @else if (selectedLeftPair() === p.id) {
-                                <span class="badge bg-warning text-dark rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                <span class="badge bg-warning text-dark rounded-circle p-1.5 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
                                   <i class="bi bi-hand-index-thumb-fill fs-6"></i>
                                 </span>
                               } @else {
-                                <i class="bi bi-circle text-muted fs-5"></i>
+                                <span class="badge bg-light text-muted border rounded-pill px-2 py-0.5 small d-none d-sm-inline">
+                                  🖐️ Drag
+                                </span>
                               }
                             </div>
                           </div>
@@ -847,41 +788,57 @@
                       </div>
                     </div>
 
-                    <!-- Right Column (Translations - Randomly Shuffled) -->
+                    <!-- Right Column (Translations - Drop Zones) -->
                     <div class="col-md-6">
                       <div class="column-header mb-3 d-flex align-items-center justify-content-between">
-                        <span class="fw-bold text-white fs-6">
-                          <i class="bi bi-translate text-warning me-2"></i>Matching Translation / Meaning
+                        <span class="fw-bold text-dark fs-6">
+                          <i class="bi bi-box-arrow-in-down text-success me-2"></i>📥 2. Drop Target Meaning
                         </span>
-                        <span class="badge bg-light text-dark rounded-pill">
-                          {{ matchedPairIds().length }} / {{ matchSets[currentMatchSetIndex()].pairs.length }} Matched
+                        <span class="badge bg-light text-dark rounded-pill border">
+                          {{ matchedPairIds().length }} / {{ matchSets[currentMatchSetIndex()].pairs.length }} Solved
                         </span>
                       </div>
 
                       <div class="d-flex flex-column gap-3">
                         @for (r of shuffledRightItems(); track r.id) {
-                          <div class="match-card p-3 rounded-4 cursor-pointer d-flex align-items-center justify-content-between"
-                                [class.matched]="isPairMatched(r.id)"
-                                [class.selected]="selectedRightPair() === r.id"
-                                [class.shake-card]="shakeRightId() === r.id"
-                                (click)="selectRight(r.id)">
+                          <div class="kids-match-tile d-flex align-items-center justify-content-between"
+                               [class.matched]="isPairMatched(r.id)"
+                               [class.selected]="selectedRightPair() === r.id"
+                               [class.shake-card]="shakeRightId() === r.id"
+                               [class.drag-over-active]="isDraggingOver() === 'match_right_' + r.id"
+                               (dragover)="onDragOverZone('match_right_' + r.id, $event)"
+                               (dragleave)="onDragLeaveZone('match_right_' + r.id, $event)"
+                               (drop)="onDropMatch(r.id, $event)"
+                               (click)="selectRight(r.id)"
+                               title="Drop English card here">
                             <div>
-                              <h5 class="fw-bold mb-1 card-word-title">{{ r.text }}</h5>
+                              <div class="d-flex align-items-center gap-2">
+                                @if (isDraggingOver() === 'match_right_' + r.id) {
+                                  <span class="badge bg-warning text-dark animate-pulse">📥 Drop Here!</span>
+                                }
+                                <h5 class="fw-bold mb-0 text-dark" style="font-size: 1.15rem;">{{ r.text }}</h5>
+                              </div>
                               @if (r.hint) {
-                                <span class="small text-white-50">{{ r.hint }}</span>
+                                <span class="small text-muted">{{ r.hint }}</span>
                               }
                             </div>
                             <div>
                               @if (isPairMatched(r.id)) {
-                                <span class="badge bg-success rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                <span class="badge bg-success rounded-circle p-1.5 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
                                   <i class="bi bi-check-lg text-white fs-5"></i>
                                 </span>
+                              } @else if (isDraggingOver() === 'match_right_' + r.id) {
+                                <span class="badge bg-warning text-dark rounded-circle p-1.5 d-flex align-items-center justify-content-center animate-bounce" style="width: 32px; height: 32px;">
+                                  <i class="bi bi-box-arrow-in-down fs-5"></i>
+                                </span>
                               } @else if (selectedRightPair() === r.id) {
-                                <span class="badge bg-warning text-dark rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                <span class="badge bg-warning text-dark rounded-circle p-1.5 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
                                   <i class="bi bi-hand-index-thumb-fill fs-6"></i>
                                 </span>
                               } @else {
-                                <i class="bi bi-circle text-muted fs-5"></i>
+                                <span class="badge bg-light text-muted border rounded-pill px-2 py-0.5 small">
+                                  📥 Drop Target
+                                </span>
                               }
                             </div>
                           </div>
@@ -892,39 +849,41 @@
 
                   <!-- Round Completed Celebration Banner -->
                   @if (isSetComplete()) {
-                    <div class="set-completed-banner mt-4 p-4 rounded-4 text-center animate-fade-in shadow-lg">
-                      <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-warning p-3 mb-2">
-                        <i class="bi bi-trophy-fill fs-2 text-dark"></i>
+                    <div class="set-completed-banner mt-4 p-4 rounded-4 text-center animate-fade-in shadow-lg"
+                         style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); border: 3px solid #6EE7B7; border-radius: 24px;">
+                      <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-warning p-3 mb-2 shadow-sm"
+                           style="width: 70px; height: 70px;">
+                        <i class="bi bi-trophy-fill fs-1 text-dark"></i>
                       </div>
                       <h3 class="fw-bold text-white mb-1">
                         @if (isAllSetsComplete()) {
-                          🎉 Outstanding! You Mastered All {{ matchSets.length }} Match It Sets!
+                          🎉 YAY! You Completed All {{ matchSets.length }} Jungle Match Sets!
                         } @else {
-                          🎉 Set {{ currentMatchSetIndex() + 1 }} Completed! (+50 XP)
+                          🎉 Super Job! Set {{ currentMatchSetIndex() + 1 }} Cleared! (+50 XP)
                         }
                       </h3>
                       <p class="text-white-50 mb-3 small">
                         @if (isAllSetsComplete()) {
-                          You have completed all {{ matchSets.length }} vocabulary matching sets for {{ selectedPracticeCourse()?.name }}!
+                          You are a true vocabulary master! High five! ✋
                         } @else {
-                          Great job! Ready for Set {{ currentMatchSetIndex() + 2 }}?
+                          Ready for the next adventure?
                         }
                       </p>
 
                       <div class="d-flex justify-content-center gap-3 flex-wrap">
                         @if (!isAllSetsComplete()) {
-                          <button class="btn btn-warning rounded-pill px-4 py-2 fw-bold text-dark shadow-sm"
+                          <button class="btn btn-warning rounded-pill px-4 py-2.5 fw-bold text-dark shadow-md hover-lift"
                                   (click)="nextMatchSet()">
-                            Next Set (Set {{ currentMatchSetIndex() + 2 }} of {{ matchSets.length }}) <i class="bi bi-arrow-right ms-1"></i>
+                            Next Round (Set {{ currentMatchSetIndex() + 2 }}) <i class="bi bi-arrow-right ms-1"></i>
                           </button>
                         } @else {
-                          <button class="btn btn-warning rounded-pill px-4 py-2 fw-bold text-dark shadow-sm"
+                          <button class="btn btn-warning rounded-pill px-4 py-2.5 fw-bold text-dark shadow-md hover-lift"
                                   (click)="restartMatchSets()">
-                            <i class="bi bi-arrow-repeat me-1"></i>Play All Sets Again
+                            <i class="bi bi-arrow-repeat me-1"></i>Play Again
                           </button>
                         }
-                        <button class="btn btn-outline-light rounded-pill px-4 py-2" (click)="backToPracticeTopics()">
-                          <i class="bi bi-grid-fill me-1"></i>Back to Topics
+                        <button class="btn btn-outline-light rounded-pill px-4 py-2.5 fw-bold hover-lift" (click)="backToPracticeTopics()">
+                          <i class="bi bi-grid-fill me-1"></i>All Games
                         </button>
                       </div>
                     </div>
@@ -933,144 +892,281 @@
               }
 
               <!-- ========================================================= -->
-              <!-- 🗂️ 2. FLASHCARDS DECK                                     -->
+              <!-- 🃏 2. FLASHCARDS: WONDER FLIP & DRAG BASKETS              -->
               <!-- ========================================================= -->
               @else if (selectedPracticeTopic() === 'flashcards') {
-                <div class="dashboard-glass-card p-4 p-md-5 rounded-4 shadow-lg mb-4 text-center">
+                <div class="kids-game-arena p-4 p-md-5 rounded-4 shadow-lg mb-4 text-center">
                   <div class="d-flex justify-content-between align-items-center mb-4">
-                    <span class="badge bg-primary text-white rounded-pill px-3 py-1 fw-bold">
-                      Card {{ flashcardIndex() + 1 }} of {{ flashcardDeck.length }}
+                    <span class="badge bg-primary text-white rounded-pill px-3 py-1.5 fw-bold fs-6">
+                      🃏 Card {{ flashcardIndex() + 1 }} of {{ flashcardDeck.length }}
                     </span>
-                    <span class="badge bg-light text-dark rounded-pill px-3 py-1">
-                      Tap Card to Flip
+                    <span class="badge bg-warning text-dark rounded-pill px-3 py-1.5 fw-bold">
+                      💡 Tap to flip or Drag to baskets!
                     </span>
                   </div>
 
-                  <!-- 3D Flip Card -->
-                  <div class="flashcard-box my-4 cursor-pointer mx-auto" style="max-width: 520px;" (click)="toggleFlipCard()">
+                  <!-- 3D Draggable Flip Card -->
+                  <div class="flashcard-box my-4 cursor-pointer mx-auto"
+                       style="max-width: 520px;"
+                       [draggable]="true"
+                       (dragstart)="onDragStart('flashcard', flashcardIndex(), flashcardDeck[flashcardIndex()], $event)"
+                       (dragend)="onDragEnd()"
+                       [class.is-dragging]="draggedItemType() === 'flashcard'"
+                       (click)="toggleFlipCard()"
+                       title="Tap to flip or drag to baskets below">
                     @if (!isCardFlipped()) {
-                      <div class="flashcard-face flashcard-front p-5 rounded-4 text-center">
-                        <span class="badge bg-warning text-dark px-3 py-1 rounded-pill mb-3">
+                      <div class="flashcard-face flashcard-front p-5 rounded-4 text-center shadow-lg position-relative"
+                           style="background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); border: 4px solid #93C5FD; border-radius: 28px;">
+                        <span class="badge bg-warning text-dark px-3 py-1 rounded-pill mb-3 fw-bold">
                           {{ flashcardDeck[flashcardIndex()].frontLanguage }}
                         </span>
-                        <h2 class="display-5 fw-bold text-white mb-2">
+                        <h2 class="display-4 fw-bold text-white mb-2">
                           {{ flashcardDeck[flashcardIndex()].front }}
                         </h2>
-                        <p class="text-white-50 small">Tap card to see English translation ↺</p>
+                        <!-- Audio Button -->
+                        <div class="mt-3">
+                          <button class="btn btn-warning rounded-pill px-3 py-1.5 fw-bold text-dark shadow-sm hover-lift d-inline-flex align-items-center gap-1"
+                                  (click)="speakWord(flashcardDeck[flashcardIndex()].front, $event)">
+                            <i class="bi bi-volume-up-fill fs-5"></i>
+                            <span>Hear It 🔊</span>
+                          </button>
+                        </div>
+                        <p class="text-white-50 small mt-3 mb-0">🖐️ Drag this card to a basket below, or tap to flip ↺</p>
                       </div>
                     } @else {
-                      <div class="flashcard-face flashcard-back p-5 rounded-4 text-center">
-                        <span class="badge bg-success text-white px-3 py-1 rounded-pill mb-3">
-                          {{ flashcardDeck[flashcardIndex()].backLanguage }} Translation
+                      <div class="flashcard-face flashcard-back p-5 rounded-4 text-center shadow-lg position-relative"
+                           style="background: linear-gradient(135deg, #10B981 0%, #047857 100%); border: 4px solid #6EE7B7; border-radius: 28px;">
+                        <span class="badge bg-warning text-dark px-3 py-1 rounded-pill mb-3 fw-bold">
+                          {{ flashcardDeck[flashcardIndex()].backLanguage }} Meaning
                         </span>
-                        <h2 class="display-5 fw-bold text-warning mb-2">
+                        <h2 class="display-4 fw-bold text-warning mb-2">
                           {{ flashcardDeck[flashcardIndex()].back }}
                         </h2>
-                        <p class="text-white-50 small">
-                          Pronunciation: {{ flashcardDeck[flashcardIndex()].pronunciation }}
+                        <p class="text-white fw-bold mb-2">
+                          🗣️ Pronunciation: {{ flashcardDeck[flashcardIndex()].pronunciation }}
                         </p>
+                        <div class="mt-2">
+                          <button class="btn btn-light rounded-pill px-3 py-1.5 fw-bold text-dark shadow-sm hover-lift d-inline-flex align-items-center gap-1"
+                                  (click)="speakWord(flashcardDeck[flashcardIndex()].back, $event)">
+                            <i class="bi bi-volume-up-fill fs-5 text-success"></i>
+                            <span>Hear Meaning 🔊</span>
+                          </button>
+                        </div>
+                        <p class="text-white-50 small mt-3 mb-0">🖐️ Drag this card to a basket below</p>
                       </div>
                     }
                   </div>
 
+                  <!-- Drag Baskets: Review vs Mastered -->
+                  <div class="d-flex justify-content-center gap-4 flex-wrap my-4">
+                    <div class="card-drop-basket basket-review text-center shadow-sm cursor-pointer hover-lift"
+                         [class.drag-over-active]="isDraggingOver() === 'card_review'"
+                         (dragover)="onDragOverZone('card_review', $event)"
+                         (dragleave)="onDragLeaveZone('card_review', $event)"
+                         (drop)="onDropFlashcard('review', $event)"
+                         (click)="nextFlashcard()">
+                      <span class="fs-3">🔄</span>
+                      <h6 class="fw-bold mb-0 mt-1">Need Practice</h6>
+                      <span class="small opacity-75">📥 Drop Card Here</span>
+                    </div>
+
+                    <div class="card-drop-basket basket-mastered text-center shadow-sm cursor-pointer hover-lift"
+                         [class.drag-over-active]="isDraggingOver() === 'card_mastered'"
+                         (dragover)="onDragOverZone('card_mastered', $event)"
+                         (dragleave)="onDragLeaveZone('card_mastered', $event)"
+                         (drop)="onDropFlashcard('mastered', $event)"
+                         (click)="onDropFlashcard('mastered', $event)">
+                      <span class="fs-3">⭐</span>
+                      <h6 class="fw-bold mb-0 mt-1">Mastered! (+10 XP)</h6>
+                      <span class="small opacity-75">📥 Drop Card Here</span>
+                    </div>
+                  </div>
+
                   <!-- Deck Controls -->
-                  <div class="d-flex justify-content-center gap-3">
-                    <button class="btn btn-outline-light rounded-pill px-4" (click)="prevFlashcard()">
+                  <div class="d-flex justify-content-center gap-3 flex-wrap mt-2">
+                    <button class="btn btn-outline-secondary rounded-pill px-4 py-2.5 fw-bold hover-lift" (click)="prevFlashcard()">
                       <i class="bi bi-arrow-left me-1"></i>Previous
                     </button>
-                    <button class="btn btn-warning rounded-pill px-4 fw-bold text-dark" (click)="toggleFlipCard()">
-                      <i class="bi bi-arrow-repeat me-1"></i>Flip Card
+                    <button class="btn btn-warning rounded-pill px-4 py-2.5 fw-bold text-dark shadow-sm hover-lift" (click)="toggleFlipCard()">
+                      <i class="bi bi-arrow-repeat me-1"></i>Flip Card 🔄
                     </button>
-                    <button class="btn btn-outline-light rounded-pill px-4" (click)="nextFlashcard()">
-                      Next<i class="bi bi-arrow-right ms-1"></i>
+                    <button class="btn btn-success rounded-pill px-4 py-2.5 fw-bold text-white shadow-sm hover-lift" (click)="nextFlashcard()">
+                      Next Card 🚀<i class="bi bi-arrow-right ms-1"></i>
                     </button>
                   </div>
                 </div>
               }
 
               <!-- ========================================================= -->
-              <!-- ⚡ 3. SPEED QUIZ CHALLENGE                                 -->
+              <!-- ⚡ 3. SPEED QUIZ: DRAG COIN INTO TREASURE CHEST            -->
               <!-- ========================================================= -->
               @else if (selectedPracticeTopic() === 'quiz') {
-                <div class="dashboard-glass-card p-4 p-md-5 rounded-4 shadow-lg mb-4" style="max-width: 720px; margin: 0 auto;">
+                <div class="kids-game-arena p-4 p-md-5 rounded-4 shadow-lg mb-4" style="max-width: 780px; margin: 0 auto;">
                   <div class="d-flex justify-content-between align-items-center mb-4">
-                    <span class="badge bg-success text-white px-3 py-1 rounded-pill fw-bold">
-                      Question {{ quizStep() + 1 }} of {{ quizQuestions.length }}
+                    <span class="badge bg-success text-white px-3 py-1.5 rounded-pill fw-bold fs-6">
+                      ⚡ Question {{ quizStep() + 1 }} of {{ quizQuestions.length }}
                     </span>
-                    <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold">
-                      +10 XP per correct answer
+                    <span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold">
+                      ⭐ +10 XP
                     </span>
                   </div>
 
-                  <h3 class="text-white fw-bold mb-4">
-                    {{ quizQuestions[quizStep()].question }}
-                  </h3>
-
-                  <div class="d-flex flex-column gap-3 mb-4">
-                    @for (opt of quizQuestions[quizStep()].options; track $index; let i = $index) {
-                      <button class="quiz-option-btn text-start p-3 rounded-3 d-flex align-items-center"
-                              [disabled]="quizAnswered()"
-                              (click)="answerQuiz(i)">
-                        <span class="badge bg-light text-dark me-3">{{ i + 1 }}</span>
-                        <span class="text-white fw-semibold fs-6">{{ opt }}</span>
+                  <!-- Question Bubble -->
+                  <div class="p-4 rounded-4 text-center mb-3 shadow-sm"
+                       style="background: #FFFDE7; border: 3px solid #FDE047; border-radius: 24px;">
+                    <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+                      <span class="badge bg-warning text-dark rounded-pill px-2.5 py-1 fw-bold">Question</span>
+                      <button class="btn btn-sm btn-warning rounded-circle p-0 d-flex align-items-center justify-content-center"
+                              style="width: 28px; height: 28px;"
+                              (click)="speakWord(quizQuestions[quizStep()].question, $event)"
+                              title="Listen Question">
+                        <i class="bi bi-volume-up-fill text-dark"></i>
                       </button>
+                    </div>
+                    <h3 class="text-dark fw-bold mb-0" style="line-height: 1.4;">
+                      {{ quizQuestions[quizStep()].question }}
+                    </h3>
+                  </div>
+
+                  <!-- 🎁 Treasure Chest Drop Goal -->
+                  <div class="quiz-drop-chest p-3 rounded-4 mb-4 text-center d-flex align-items-center justify-content-center gap-3 shadow-sm"
+                       [class.drag-over-active]="isDraggingOver() === 'quiz_chest'"
+                       (dragover)="onDragOverZone('quiz_chest', $event)"
+                       (dragleave)="onDragLeaveZone('quiz_chest', $event)"
+                       (drop)="onDropQuiz($event)">
+                    <span class="fs-1 animate-bounce">🎁</span>
+                    <div class="text-start">
+                      <h5 class="fw-bold mb-0 text-dark">
+                        @if (isDraggingOver() === 'quiz_chest') {
+                          ✨ DROP COIN INTO THE CHEST! ✨
+                        } @else {
+                          🎁 Drag & Drop Answer Coin Here!
+                        }
+                      </h5>
+                      <span class="small text-muted fw-semibold">🖐️ Drag your chosen answer coin from below and drop it into the box (or tap below)</span>
+                    </div>
+                  </div>
+
+                  <!-- 4 Draggable Candy Buttons Grid -->
+                  <div class="row g-3 mb-4">
+                    @for (opt of quizQuestions[quizStep()].options; track $index; let i = $index) {
+                      <div class="col-sm-6">
+                        <button class="candy-btn w-100 text-start d-flex align-items-center justify-content-between"
+                                [ngClass]="i === 0 ? 'candy-red' : (i === 1 ? 'candy-blue' : (i === 2 ? 'candy-yellow' : 'candy-green'))"
+                                [draggable]="!quizAnswered()"
+                                (dragstart)="onDragStart('quiz_coin', i, opt, $event)"
+                                (dragend)="onDragEnd()"
+                                [class.is-dragging]="draggedItemId() === i && draggedItemType() === 'quiz_coin'"
+                                [disabled]="quizAnswered()"
+                                (click)="answerQuiz(i)"
+                                title="Drag to chest or tap">
+                          <div class="d-flex align-items-center gap-2">
+                            <span class="drag-grip text-white me-1 opacity-75">⠿</span>
+                            <span class="badge bg-white text-dark rounded-circle p-1 fw-bold d-flex align-items-center justify-content-center"
+                                  style="width: 28px; height: 28px; font-size: 0.95rem;">
+                              {{ i + 1 }}
+                            </span>
+                            <span class="fs-6 fw-bold">{{ opt }}</span>
+                          </div>
+                          <button class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center flex-shrink-0"
+                                  style="width: 28px; height: 28px;"
+                                  (click)="speakWord(opt, $event)"
+                                  title="Listen Option">
+                            <i class="bi bi-volume-up-fill text-dark small"></i>
+                          </button>
+                        </button>
+                      </div>
                     }
                   </div>
 
                   @if (quizFeedback()) {
-                    <div class="alert alert-dark border border-secondary text-white py-2 px-3 rounded-3 small mb-3 animate-fade-in">
+                    <div class="alert py-2.5 px-3 rounded-3 text-center fw-bold small mb-3 animate-fade-in shadow-sm"
+                         [class.alert-success]="quizFeedback()?.includes('Correct')"
+                         [class.alert-warning]="!quizFeedback()?.includes('Correct')">
                       {{ quizFeedback() }}
                     </div>
                   }
 
                   @if (quizAnswered()) {
-                    <button class="btn btn-warning rounded-pill py-2 px-4 fw-bold text-dark w-100 shadow-sm" (click)="nextQuizQuestion()">
-                      Next Question <i class="bi bi-arrow-right ms-1"></i>
+                    <button class="btn btn-warning rounded-pill py-2.5 px-4 fw-bold text-dark w-100 shadow-md hover-lift fs-6"
+                            (click)="nextQuizQuestion()">
+                      Next Question 🚀<i class="bi bi-arrow-right ms-1"></i>
                     </button>
                   }
                 </div>
               }
 
               <!-- ========================================================= -->
-              <!-- 🔤 4. WORD SCRAMBLE / SENTENCE BUILDER                    -->
+              <!-- 🚂 4. WORD SCRAMBLE: DRAG & DROP TRAIN CARS               -->
               <!-- ========================================================= -->
               @else if (selectedPracticeTopic() === 'scramble') {
-                <div class="dashboard-glass-card p-4 p-md-5 rounded-4 shadow-lg mb-4" style="max-width: 760px; margin: 0 auto;">
+                <div class="kids-game-arena p-4 p-md-5 rounded-4 shadow-lg mb-4" style="max-width: 780px; margin: 0 auto;">
                   <div class="d-flex justify-content-between align-items-center mb-4">
-                    <span class="badge bg-purple text-white px-3 py-1 rounded-pill fw-bold" style="background-color: #8B5CF6;">
-                      Puzzle {{ scrambleIndex() + 1 }} of {{ wordScrambleSets.length }}
+                    <span class="badge bg-purple text-white px-3 py-1.5 rounded-pill fw-bold fs-6" style="background-color: #8B5CF6;">
+                      🚂 Train Puzzle {{ scrambleIndex() + 1 }} of {{ wordScrambleSets.length }}
                     </span>
-                    <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold">
-                      +15 XP per correct sentence
+                    <span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold">
+                      ⭐ +15 XP
                     </span>
                   </div>
 
-                  <h5 class="text-white-50 mb-2 small">Target English Meaning:</h5>
-                  <h4 class="text-white fw-bold mb-4">
-                    "{{ wordScrambleSets[scrambleIndex()].englishMeaning }}"
-                  </h4>
+                  <!-- Sentence Meaning Target -->
+                  <div class="p-3 rounded-4 mb-4 text-center" style="background: #F3E8FF; border: 2px dashed #C084FC;">
+                    <span class="text-muted small fw-bold text-uppercase d-block mb-1">Make this sentence:</span>
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                      <h4 class="text-dark fw-bold mb-0">
+                        "{{ wordScrambleSets[scrambleIndex()].englishMeaning }}"
+                      </h4>
+                      <button class="btn btn-sm btn-purple rounded-circle p-0 d-flex align-items-center justify-content-center text-white"
+                              style="width: 28px; height: 28px; background: #8B5CF6;"
+                              (click)="speakWord(wordScrambleSets[scrambleIndex()].englishMeaning, $event)"
+                              title="Listen Meaning">
+                        <i class="bi bi-volume-up-fill small"></i>
+                      </button>
+                    </div>
+                  </div>
 
-                  <!-- Assembled Sentence Box -->
-                  <div class="assembled-box p-3 rounded-4 mb-4 min-h-60 d-flex flex-wrap gap-2 align-items-center">
+                  <!-- Assembled Train Cars (Sentence Drop Box) -->
+                  <div class="assembled-box p-3.5 rounded-4 mb-4 min-h-60 d-flex flex-wrap gap-2 align-items-center shadow-sm"
+                       style="background: #F8FAFC; border: 3px dashed #94A3B8; border-radius: 20px;"
+                       [class.drag-over-active]="isDraggingOver() === 'train_depot'"
+                       (dragover)="onDragOverZone('train_depot', $event)"
+                       (dragleave)="onDragLeaveZone('train_depot', $event)"
+                       (drop)="onDropScramble($event)">
                     @if (scrambleSelectedWords().length === 0) {
-                      <span class="text-white-50 small fst-italic">Tap words below to assemble the sentence in order...</span>
+                      <div class="d-flex align-items-center gap-2 text-muted fw-bold">
+                        <span class="fs-4">🚂</span>
+                        <span>
+                          @if (isDraggingOver() === 'train_depot') {
+                            ✨ DROP WORD BLOCK HERE TO LOAD TRAIN! ✨
+                          } @else {
+                            🖐️ Drag word blocks from below and drop here into the train cars! (Or tap)
+                          }
+                        </span>
+                      </div>
                     }
                     @for (w of scrambleSelectedWords(); track $index; let idx = $index) {
-                      <span class="word-chip selected-chip px-3 py-2 rounded-pill fw-bold cursor-pointer"
+                      <span class="toy-word-block shadow-sm"
                             (click)="removeScrambleWord(w, idx)"
-                            title="Click to remove">
-                        {{ w }} <i class="bi bi-x ms-1"></i>
+                            title="Tap to remove">
+                        {{ w }} <i class="bi bi-x-circle-fill text-danger ms-1"></i>
                       </span>
                     }
                   </div>
 
-                  <!-- Available Scrambled Words -->
-                  <h6 class="text-white-50 mb-3 small">Available Word Pieces:</h6>
+                  <!-- Available Scrambled Words (Draggable) -->
+                  <h6 class="text-dark fw-bold mb-3 small">📦 🖐️ Drag Blocks into Train (or tap):</h6>
                   <div class="d-flex flex-wrap gap-2 mb-4">
                     @for (w of scrambleAvailableWords(); track $index; let idx = $index) {
-                      <button class="word-chip available-chip px-3 py-2 rounded-pill fw-bold border-0"
+                      <button class="toy-word-block"
+                              [draggable]="!scrambleAnswered()"
+                              (dragstart)="onDragStart('scramble_word', idx, w, $event)"
+                              (dragend)="onDragEnd()"
+                              [class.is-dragging]="draggedItemId() === idx && draggedItemType() === 'scramble_word'"
                               [disabled]="scrambleAnswered()"
-                              (click)="selectScrambleWord(w, idx)">
+                              (click)="selectScrambleWord(w, idx)"
+                              title="Drag to train above or tap">
+                        <span class="drag-grip me-1 text-dark opacity-50">⠿</span>
                         {{ w }}
                       </button>
                     }
@@ -1078,28 +1174,28 @@
 
                   <!-- Feedback & Actions -->
                   @if (scrambleAnswered()) {
-                    <div class="alert py-2 px-3 rounded-3 small mb-3 animate-fade-in"
+                    <div class="alert py-2.5 px-3 rounded-3 small mb-3 animate-fade-in text-center fw-bold"
                          [class.alert-success]="scrambleIsCorrect()"
                          [class.alert-danger]="!scrambleIsCorrect()">
                       @if (scrambleIsCorrect()) {
-                        🎉 Correct sentence! +15 XP
+                        🎉 AWESOME! Sentence completed! +15 XP
                       } @else {
-                        ❌ Not quite right. Correct: "{{ wordScrambleSets[scrambleIndex()].correctSentence }}"
+                        ❌ Keep trying! Correct order: "{{ wordScrambleSets[scrambleIndex()].correctSentence }}"
                       }
                     </div>
                   }
 
                   <div class="d-flex gap-3">
                     @if (!scrambleAnswered()) {
-                      <button class="btn btn-warning rounded-pill px-4 py-2 fw-bold text-dark w-100 shadow-sm"
+                      <button class="btn btn-warning rounded-pill px-4 py-2.5 fw-bold text-dark w-100 shadow-md hover-lift"
                               [disabled]="scrambleSelectedWords().length === 0"
                               (click)="checkScrambleAnswer()">
-                        Check Answer <i class="bi bi-check-circle ms-1"></i>
+                        Check Answer 🚂<i class="bi bi-check-circle ms-1"></i>
                       </button>
                     } @else {
-                      <button class="btn btn-warning rounded-pill px-4 py-2 fw-bold text-dark w-100 shadow-sm"
+                      <button class="btn btn-warning rounded-pill px-4 py-2.5 fw-bold text-dark w-100 shadow-md hover-lift"
                               (click)="nextScrambleQuestion()">
-                        Next Puzzle <i class="bi bi-arrow-right ms-1"></i>
+                        Next Puzzle 🚀<i class="bi bi-arrow-right ms-1"></i>
                       </button>
                     }
                   </div>
@@ -1107,55 +1203,96 @@
               }
 
               <!-- ========================================================= -->
-              <!-- ✍️ 5. FILL IN THE BLANKS                                  -->
+              <!-- 🎈 5. FILL IN THE BLANKS: DRAG & DROP BUBBLES             -->
               <!-- ========================================================= -->
               @else if (selectedPracticeTopic() === 'blanks') {
-                <div class="dashboard-glass-card p-4 p-md-5 rounded-4 shadow-lg mb-4" style="max-width: 720px; margin: 0 auto;">
+                <div class="kids-game-arena p-4 p-md-5 rounded-4 shadow-lg mb-4" style="max-width: 780px; margin: 0 auto;">
                   <div class="d-flex justify-content-between align-items-center mb-4">
-                    <span class="badge bg-pink text-white px-3 py-1 rounded-pill fw-bold" style="background-color: #EC4899;">
-                      Sentence {{ blankIndex() + 1 }} of {{ blankQuestions.length }}
+                    <span class="badge bg-pink text-white px-3 py-1.5 rounded-pill fw-bold fs-6" style="background-color: #EC4899;">
+                      🎈 Balloon Sentence {{ blankIndex() + 1 }} of {{ blankQuestions.length }}
                     </span>
-                    <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold">
-                      +10 XP
+                    <span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold">
+                      ⭐ +10 XP
                     </span>
                   </div>
 
-                  <h3 class="text-white fw-bold mb-4" style="line-height: 1.6;">
-                    {{ blankQuestions[blankIndex()].prompt }}
-                  </h3>
+                  <!-- Prompt & Drop Blank Zone -->
+                  <div class="p-4 rounded-4 text-center mb-4 shadow-sm"
+                       style="background: #FDF2F8; border: 3px solid #F472B6; border-radius: 24px;">
+                    <h3 class="text-dark fw-bold mb-3" style="line-height: 1.6;">
+                      {{ blankQuestions[blankIndex()].prompt }}
+                    </h3>
 
-                  <div class="row g-3 mb-4">
+                    <!-- Drop Target Inside Sentence Area -->
+                    <div class="blank-drop-target p-3 rounded-pill mx-auto d-inline-flex align-items-center justify-content-center gap-2 mb-3 shadow-sm"
+                         [class.drag-over-active]="isDraggingOver() === 'blank_slot'"
+                         [class.filled]="blankAnswered()"
+                         (dragover)="onDragOverZone('blank_slot', $event)"
+                         (dragleave)="onDragLeaveZone('blank_slot', $event)"
+                         (drop)="onDropBlank($event)">
+                      @if (!blankAnswered()) {
+                        <span class="fs-4 animate-bounce">🎈</span>
+                        <span class="fw-bold">
+                          @if (isDraggingOver() === 'blank_slot') {
+                            ✨ DROP BUBBLE HERE! ✨
+                          } @else {
+                            📥 Drag Bubble Word Here! (Or tap below)
+                          }
+                        </span>
+                      } @else {
+                        <span class="fs-4">✨</span>
+                        <span class="fw-bold text-dark fs-5">
+                          {{ blankQuestions[blankIndex()].options[selectedBlankOption()!] }}
+                        </span>
+                      }
+                    </div>
+
+                    <div>
+                      <button class="btn btn-sm btn-pink rounded-pill px-3 py-1 text-white fw-bold shadow-sm d-inline-flex align-items-center gap-1"
+                              style="background: #EC4899;"
+                              (click)="speakWord(blankQuestions[blankIndex()].prompt, $event)">
+                        <i class="bi bi-volume-up-fill"></i> Hear Sentence 🔊
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Bubble Word Pills Options (Draggable) -->
+                  <h6 class="text-dark fw-bold mb-3 small text-center">🎈 🖐️ Drag Bubble to the Sentence (or tap):</h6>
+                  <div class="d-flex justify-content-center flex-wrap gap-3 mb-4">
                     @for (opt of blankQuestions[blankIndex()].options; track $index; let idx = $index) {
-                      <div class="col-sm-6">
-                        <button class="quiz-option-btn text-start p-3 rounded-3 w-100 d-flex align-items-center"
-                                [disabled]="blankAnswered()"
-                                (click)="selectBlankOption(idx)">
-                          <span class="badge bg-light text-dark me-2">{{ idx + 1 }}</span>
-                          <span class="text-white fw-semibold">{{ opt }}</span>
-                        </button>
-                      </div>
+                      <button class="bubble-pill-btn d-flex align-items-center gap-2"
+                              [draggable]="!blankAnswered()"
+                              (dragstart)="onDragStart('blank_opt', idx, opt, $event)"
+                              (dragend)="onDragEnd()"
+                              [class.is-dragging]="draggedItemId() === idx && draggedItemType() === 'blank_opt'"
+                              [disabled]="blankAnswered()"
+                              (click)="selectBlankOption(idx)"
+                              title="Drag to sentence blank or tap">
+                        <span class="drag-grip text-white me-1 opacity-75">⠿</span>
+                        <span>{{ opt }}</span>
+                        <i class="bi bi-volume-up-fill small" (click)="speakWord(opt, $event)"></i>
+                      </button>
                     }
                   </div>
 
                   @if (blankAnswered()) {
-                    <div class="alert py-2 px-3 rounded-3 small mb-3 animate-fade-in"
+                    <div class="alert py-2.5 px-3 rounded-3 small mb-3 animate-fade-in text-center fw-bold"
                          [class.alert-success]="blankIsCorrect()"
                          [class.alert-danger]="!blankIsCorrect()">
                       @if (blankIsCorrect()) {
-                        🎉 Correct! {{ blankQuestions[blankIndex()].explanation }}
+                        🎉 POP! Perfect word! {{ blankQuestions[blankIndex()].explanation }}
                       } @else {
                         ❌ The correct answer was "{{ blankQuestions[blankIndex()].options[blankQuestions[blankIndex()].correctIndex] }}". {{ blankQuestions[blankIndex()].explanation }}
                       }
                     </div>
 
-                    <button class="btn btn-warning rounded-pill py-2 px-4 fw-bold text-dark w-100 shadow-sm"
+                    <button class="btn btn-warning rounded-pill py-2.5 px-4 fw-bold text-dark w-100 shadow-md hover-lift"
                             (click)="nextBlankQuestion()">
-                      Next Sentence <i class="bi bi-arrow-right ms-1"></i>
+                      Next Sentence 🚀<i class="bi bi-arrow-right ms-1"></i>
                     </button>
                   }
                 </div>
               }
-
             </div>
           }
 

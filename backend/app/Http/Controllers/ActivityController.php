@@ -20,6 +20,11 @@ class ActivityController extends Controller
             });
         }
 
+        if ($request->has('ids') && $request->ids) {
+            $ids = is_array($request->ids) ? $request->ids : explode(',', $request->ids);
+            $query->whereIn('id', $ids);
+        }
+
         if ($request->has('type') && $request->type) {
             $query->where('type', $request->type);
         }
