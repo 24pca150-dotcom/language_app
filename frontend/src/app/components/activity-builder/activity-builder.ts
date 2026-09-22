@@ -60,29 +60,159 @@ export class ActivityBuilder {
   isPreviewMode = signal(false);
   isTitleManuallyEdited = signal(false);
   viewMode = signal<'grid' | 'list'>('grid');
+  isTemplatePickerVisible = signal(false);
+  testingActivity = signal<Activity | null>(null);
 
   // Search & Filter State
   searchQuery = signal('');
   filterType = signal('all');
+  selectedSkillTab = signal<'all' | 'listening' | 'speaking' | 'reading' | 'writing' | 'games'>('all');
+  selectedCourseFilter = signal<number | 'all'>('all');
+  selectedStatusFilter = signal<'all' | 'linked' | 'unassigned'>('all');
+
+  // Pagination State
+  currentPage = signal<number>(1);
+  pageSize = signal<number>(12);
 
   // Data State
   savedActivities = signal<Activity[]>([]);
 
+  // Skill categorization helper
+  getActivitySkill(type: string): 'listening' | 'speaking' | 'reading' | 'writing' | 'games' {
+    switch (type) {
+      case 'mcq':
+      case 'match':
+        return 'listening';
+      case 'speaking':
+      case 'role_play':
+        return 'speaking';
+      case 'flashcard':
+      case 'sequencing':
+      case 'mind_map':
+        return 'reading';
+      case 'writing':
+      case 'parts_of_speech':
+      case 'word_arrange':
+      case 'fill_blanks':
+        return 'writing';
+      case 'crossword':
+      case 'custom':
+        return 'games';
+      default:
+        return 'listening';
+    }
+  }
+
+  // Dynamic Skill Counts
+  skillCounts = computed(() => {
+    const all = this.savedActivities();
+    const counts = {
+      all: all.length,
+      listening: 0,
+      speaking: 0,
+      reading: 0,
+      writing: 0,
+      games: 0
+    };
+    for (const act of all) {
+      const skill = this.getActivitySkill(act.type);
+      if (counts[skill] !== undefined) {
+        counts[skill]++;
+      }
+    }
+    return counts;
+  });
+
   // Filtered Activities
   filteredActivities = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
+    const skill = this.selectedSkillTab();
     const type = this.filterType();
+    const courseId = this.selectedCourseFilter();
+    
     let list = this.savedActivities();
     
+    // 1. Skill Tab Filter
+    if (skill !== 'all') {
+      list = list.filter(act => this.getActivitySkill(act.type) === skill);
+    }
+
+    // 2. Type Dropdown Filter
     if (type !== 'all') {
       list = list.filter(act => act.type === type);
     }
     
+    // 3. Course Filter
+    if (courseId !== 'all') {
+      if (courseId === null) {
+        list = list.filter(act => !act.course_id);
+      } else {
+        list = list.filter(act => act.course_id === courseId);
+      }
+    }
+
+    // 4. Search Query Filter
     if (query) {
-      list = list.filter(act => act.title.toLowerCase().includes(query));
+      list = list.filter(act => 
+        act.title.toLowerCase().includes(query) ||
+        (act.id && act.id.toString().includes(query)) ||
+        (act.type && act.type.toLowerCase().includes(query)) ||
+        (act.course?.name && act.course.name.toLowerCase().includes(query))
+      );
     }
     
     return list;
+  });
+
+  // Total Pages
+  totalPages = computed(() => {
+    const total = this.filteredActivities().length;
+    const size = this.pageSize();
+    if (size === 0) return 1;
+    return Math.ceil(total / size) || 1;
+  });
+
+  // Paginated Activities
+  paginatedActivities = computed(() => {
+    const list = this.filteredActivities();
+    const size = this.pageSize();
+    if (size === 0) return list;
+    const page = this.currentPage();
+    const start = (page - 1) * size;
+    return list.slice(start, start + size);
+  });
+
+  // Display indices
+  startIndex = computed(() => {
+    if (this.filteredActivities().length === 0) return 0;
+    return (this.currentPage() - 1) * this.pageSize() + 1;
+  });
+
+  endIndex = computed(() => {
+    const total = this.filteredActivities().length;
+    const size = this.pageSize();
+    if (size === 0) return total;
+    return Math.min(this.currentPage() * size, total);
+  });
+
+  // Smart Page Numbers for Pagination Bar
+  pageNumbers = computed(() => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const pages: number[] = [];
+    
+    if (total <= 7) {
+      for (let i = 1; i <= total; i++) pages.push(i);
+    } else {
+      if (current <= 4) {
+        pages.push(1, 2, 3, 4, 5, -1, total);
+      } else if (current >= total - 3) {
+        pages.push(1, -1, total - 4, total - 3, total - 2, total - 1, total);
+      } else {
+        pages.push(1, -1, current - 1, current, current + 1, -1, total);
+      }
+    }
+    return pages;
   });
 
   // Current Activity State
@@ -127,6 +257,72 @@ export class ActivityBuilder {
     this.loadCourses();
   }
 
+  setSkillTab(tab: 'all' | 'listening' | 'speaking' | 'reading' | 'writing' | 'games') {
+    this.selectedSkillTab.set(tab);
+    this.currentPage.set(1);
+  }
+
+  onFilterChange() {
+    this.currentPage.set(1);
+  }
+
+  setPage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+    }
+  }
+
+  clearFilters() {
+    this.searchQuery.set('');
+    this.filterType.set('all');
+    this.selectedSkillTab.set('all');
+    this.selectedCourseFilter.set('all');
+    this.currentPage.set(1);
+  }
+
+  openTemplatePicker() {
+    this.isTemplatePickerVisible.set(true);
+  }
+
+  closeTemplatePicker() {
+    this.isTemplatePickerVisible.set(false);
+  }
+
+  selectTemplate(type: string) {
+    this.isTemplatePickerVisible.set(false);
+    this.showCreateForm(type);
+  }
+
+  openTestModal(activity: Activity) {
+    this.testingActivity.set(activity);
+  }
+
+  closeTestModal() {
+    this.testingActivity.set(null);
+  }
+
+  getSkillBadgeClass(skill: string): string {
+    switch (skill) {
+      case 'listening': return 'badge-listening';
+      case 'speaking': return 'badge-speaking';
+      case 'reading': return 'badge-reading';
+      case 'writing': return 'badge-writing';
+      case 'games': return 'badge-games';
+      default: return 'bg-secondary';
+    }
+  }
+
+  getSkillIcon(skill: string): string {
+    switch (skill) {
+      case 'listening': return 'bi-headphones';
+      case 'speaking': return 'bi-mic-fill';
+      case 'reading': return 'bi-book-half';
+      case 'writing': return 'bi-pencil-fill';
+      case 'games': return 'bi-controller';
+      default: return 'bi-collection';
+    }
+  }
+
   loadCourses() {
     this.courseService.getAll().subscribe({
       next: (courses) => this.coursesList.set(courses || []),
@@ -166,16 +362,16 @@ export class ActivityBuilder {
     });
   }
 
-  showCreateForm() {
+  showCreateForm(type: string = 'mcq') {
     this.activityId.set(null);
     this.isTitleManuallyEdited.set(false);
-    this.activityType.set('mcq');
+    this.activityType.set(type);
     this.activityCourseId.set(null);
-    this.activityTitle.set(this.generateNextTitle('mcq'));
+    this.activityTitle.set(this.generateNextTitle(type));
     this.nodes.set([]);
     this.customQuestion.set('');
     this.selectedContainerId.set(null);
-    this.engineData = { type: 'mcq' };
+    this.engineData = { type: type };
     this.activityBlockInstance = null;
     this.isFormVisible.set(true);
   }
