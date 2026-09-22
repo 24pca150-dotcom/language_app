@@ -1,10 +1,10 @@
 <div class="langnest-shell d-flex w-100 position-relative overflow-hidden" style="height: 100vh;">
 
   <!-- 🌿 SLIDING LEFT SIDEBAR (Collapsed by default on this page, slides out when arrow is clicked) -->
-  <aside class="langnest-sidebar d-flex flex-column p-4" [class.player-sidebar-open]="isNavSidebarOpen()"
+  <aside class="langnest-sidebar d-flex flex-column p-3" [class.player-sidebar-open]="isNavSidebarOpen()"
     [class.player-sidebar-collapsed]="!isNavSidebarOpen()">
     <!-- Brand / Logo -->
-    <div class="brand-block d-flex align-items-center justify-content-between mb-4">
+    <div class="brand-block d-flex align-items-center justify-content-between mb-3">
       <div class="d-flex align-items-center gap-3">
         <div class="logo-box d-flex align-items-center justify-content-center rounded-3">
           <i class="bi bi-journal-bookmark-fill text-warning fs-4"></i>
@@ -23,7 +23,7 @@
     </div>
 
     <!-- Navigation Items -->
-    <nav class="sidebar-nav d-flex flex-column gap-2 mt-4">
+    <nav class="sidebar-nav d-flex flex-column gap-1 mt-2 flex-grow-1">
       <a class="nav-item-btn" routerLink="/learn/dashboard">
         <div class="game-nav-icon game-icon-home">
           <i class="bi bi-house-door-fill"></i>
@@ -92,8 +92,8 @@
   <div class="player-nav-backdrop" (click)="closeNavSidebar()"></div>
   }
 
-  <!-- 🎮 COURSE PLAYER MAIN WORKSPACE (Green game world map with winding line & lesson player) -->
-  <main class="course-player-main flex-grow-1 position-relative h-100 overflow-hidden bg-light">
+  <!-- 🎮 COURSE PLAYER MAIN WORKSPACE (Scenic study room with dark theme) -->
+  <main class="course-player-main flex-grow-1 position-relative h-100 overflow-hidden">
 
     <!-- Mascot Progression Warning Bubble -->
     @if (showMascotWarning()) {
@@ -123,7 +123,7 @@
     <app-kids-dashboard [structure]="courseStructure()" [currentView]="currentView()" [activeLevelId]="activeLevelId()"
       [activeChapterId]="activeChapterId()" [completedLevels]="completedLevelIds()"
       [completedChapters]="completedChapterIds()" (selectLevel)="selectLevel($event)"
-      (selectChapterNode)="selectChapterNode($event)" (backToLevels)="goToLevels()">
+      (selectChapterNode)="selectChapterNode($event)" (backToLevels)="goToLevels()" (backToCourses)="goBack()">
     </app-kids-dashboard>
     }
 
@@ -140,37 +140,77 @@
     </app-kids-lesson-player>
     }
 
-    <!-- Top HUD (Floating widgets inside Course Player) -->
-    <header class="position-absolute top-0 start-0 w-100 pe-none" style="z-index: 1050; height: 80px;"
-      [class.d-none]="currentView() === 'content'">
-      <!-- Left Navigation Actions (Floating Top Left) -->
-      <div class="position-absolute pe-auto d-flex align-items-center gap-2" style="top: 20px; left: 20px;">
-        <!-- Menu Toggle Button -->
-        <button class="btn btn-dark rounded-pill px-3 py-2 shadow-lg d-flex align-items-center gap-2 hover-lift"
-          style="background: #0B192C; border: 2px solid #FFC727;" (click)="toggleNavSidebar()"
-          title="Open Navigation Menu">
-          <i class="bi bi-arrow-right-circle-fill text-warning fs-5"></i>
-          <span class="fw-bold text-white small">Menu</span>
-        </button>
+    <!-- Top HUD on Map View (Back to Levels & Fullscreen) -->
+    @if (currentView() === 'map') {
+      <header class="position-absolute top-0 start-0 w-100 pe-none" style="z-index: 1050; height: 80px;">
+        <!-- Left Navigation Actions (Floating Top Left) -->
+        <div class="position-absolute pe-auto d-flex align-items-center gap-2" style="top: 20px; left: 20px;">
+          <button
+            class="btn btn-warning rounded-pill px-3 py-2 shadow-lg border border-2 border-white text-dark fw-bold d-flex align-items-center gap-2 hover-lift"
+            (click)="goBack()">
+            <i class="bi bi-arrow-left-circle-fill text-dark fs-5"></i>
+            <span>Back to Levels</span>
+          </button>
+        </div>
 
-        <!-- Back to Courses / Levels Button -->
-        <button
-          class="btn btn-warning rounded-pill px-3 py-2 shadow-lg border border-2 border-white text-dark fw-bold d-flex align-items-center gap-2 hover-lift"
-          (click)="goBack()">
-          <i class="bi bi-arrow-left-circle-fill text-dark fs-5"></i>
-          <span>{{ currentView() === 'map' ? 'Back to Levels' : 'Back to Courses' }}</span>
-        </button>
-      </div>
+        <!-- Actions (Floating Top Right) -->
+        <div class="position-absolute d-flex gap-2 pe-auto" style="top: 20px; right: 20px;">
+          <button class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+            style="width: 34px; height: 34px; border: 2px solid white; padding: 0;" (click)="toggleFullscreen()"
+            title="Fullscreen">
+            <i class="bi" [ngClass]="isFullscreen() ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'"
+              style="font-size: 0.9rem;"></i>
+          </button>
+        </div>
+      </header>
+    }
 
-      <!-- Actions (Floating Top Right) -->
-      <div class="position-absolute d-flex gap-2 pe-auto" style="top: 20px; right: 20px;">
-        <button class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center"
-          style="width: 34px; height: 34px; border: 2px solid white; padding: 0;" (click)="toggleFullscreen()"
-          title="Fullscreen">
-          <i class="bi" [ngClass]="isFullscreen() ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'"
-            style="font-size: 0.9rem;"></i>
+    <!-- 🎮 FLOATING DOCK LEFT (4 Buttons: Home, Learn, Games, Practice) -->
+    @if (currentView() !== 'content') {
+      <aside class="floating-dock dock-left" aria-label="Learning Navigation">
+        <a class="floating-game-btn game-icon-home text-decoration-none" routerLink="/learn/dashboard" title="Home">
+          <i class="bi bi-house-door-fill"></i>
+          <span class="game-btn-tooltip">Home</span>
+        </a>
+
+        <a class="floating-game-btn game-icon-learn text-decoration-none active" routerLink="/learn/courses" title="Learn">
+          <i class="bi bi-book-half"></i>
+          <span class="game-btn-tooltip">Learn</span>
+        </a>
+
+        <a class="floating-game-btn game-icon-games text-decoration-none" routerLink="/learn/games" title="Games">
+          <i class="bi bi-controller"></i>
+          <span class="game-btn-tooltip">Games</span>
+        </a>
+
+        <a class="floating-game-btn game-icon-practice text-decoration-none" routerLink="/learn/practice" title="Practice">
+          <i class="bi bi-lightning-charge-fill"></i>
+          <span class="game-btn-tooltip">Practice</span>
+        </a>
+      </aside>
+
+      <!-- 🎮 FLOATING DOCK RIGHT (4 Buttons: Assessments, Progress, Settings, Logout) -->
+      <aside class="floating-dock dock-right" aria-label="Account Navigation">
+        <a class="floating-game-btn game-icon-assessments text-decoration-none" routerLink="/learn/assessments" title="Assessments">
+          <i class="bi bi-clipboard-check-fill"></i>
+          <span class="game-btn-tooltip">Assessments</span>
+        </a>
+
+        <a class="floating-game-btn game-icon-progress text-decoration-none" routerLink="/learn/progress" title="Progress">
+          <i class="bi bi-bar-chart-fill"></i>
+          <span class="game-btn-tooltip">Progress</span>
+        </a>
+
+        <a class="floating-game-btn game-icon-settings text-decoration-none" routerLink="/learn/settings" title="Settings">
+          <i class="bi bi-gear-fill"></i>
+          <span class="game-btn-tooltip">Settings</span>
+        </a>
+
+        <button class="floating-game-btn game-icon-logout" (click)="logout()" title="Logout">
+          <i class="bi bi-box-arrow-right"></i>
+          <span class="game-btn-tooltip">Logout</span>
         </button>
-      </div>
-    </header>
+      </aside>
+    }
   </main>
 </div>

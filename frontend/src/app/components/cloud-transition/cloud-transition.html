@@ -1,0 +1,45 @@
+<!-- ☁️ Game-Style Cartoon Cloud Transition Overlay -->
+<div class="cloud-transition-overlay"
+     [class.active]="transitionService.isVisible()"
+     [class.phase-enter]="transitionService.phase() === 'enter'"
+     [class.phase-covered]="transitionService.phase() === 'covered'"
+     [class.phase-reveal]="transitionService.phase() === 'reveal'"
+     aria-hidden="true">
+
+  <!-- Solid sky backdrop that guarantees 100% viewport coverage with zero peek-through -->
+  <div class="cloud-sky-backdrop"></div>
+
+  <!-- ☁️ Background Layer: Soft Blue-Tinted Depth Clouds -->
+  <div class="cloud-layer layer-bg">
+    <div class="cartoon-cloud cloud-bg-tl"></div>
+    <div class="cartoon-cloud cloud-bg-tr"></div>
+    <div class="cartoon-cloud cloud-bg-bl"></div>
+    <div class="cartoon-cloud cloud-bg-br"></div>
+  </div>
+
+  <!-- ☁️ Midground Layer: Big Billowing White Cartoon Clouds -->
+  <div class="cloud-layer layer-mid">
+    <div class="cartoon-cloud cloud-mid-left"></div>
+    <div class="cartoon-cloud cloud-mid-right"></div>
+    <div class="cartoon-cloud cloud-mid-top"></div>
+    <div class="cartoon-cloud cloud-mid-bottom"></div>
+  </div>
+
+  <!-- ☁️ Foreground Layer: Fluffy Crisp White Front Clouds & Center Sealer -->
+  <div class="cloud-layer layer-fg">
+    <div class="cartoon-cloud cloud-fg-tl"></div>
+    <div class="cartoon-cloud cloud-fg-tr"></div>
+    <div class="cartoon-cloud cloud-fg-bl"></div>
+    <div class="cartoon-cloud cloud-fg-br"></div>
+    <div class="cartoon-cloud cloud-fg-center"></div>
+  </div>
+
+  <!-- ✨ Subtle Magical Floating Sparkles -->
+  <div class="cloud-sparkles">
+    <span class="cloud-star star-1">✦</span>
+    <span class="cloud-star star-2">✨</span>
+    <span class="cloud-star star-3">✦</span>
+    <span class="cloud-star star-4">✨</span>
+  </div>
+
+</div>

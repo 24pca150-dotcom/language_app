@@ -70,8 +70,17 @@
       <!-- 🏠 TAB 1: HOME (CLEAN LEARNER DASHBOARD - ZEROED STATS)          -->
       <!-- ================================================================ -->
       @if (activeTab() === 'home') {
-        <div class="tab-fade-in pt-3">
-          <!-- Home screen background & character scenery unobstructed -->
+        <div class="tab-fade-in pt-2">
+          <!-- 🌟 Student Name & Jumping Cartoon Mascot in the Circled Top-Left Area -->
+          <div class="home-student-hero d-inline-flex align-items-center gap-3">
+            <div class="mascot-cartoon-jumper">
+              <img src="/assets/images/mascot.png" alt="Happy Mascot" class="mascot-cartoon-img">
+            </div>
+            <div class="d-flex flex-column justify-content-center">
+              <span class="home-student-badge">Welcome back! ✨</span>
+              <h1 class="home-student-name">{{ learnerName() }}</h1>
+            </div>
+          </div>
         </div>
       }
 
@@ -105,53 +114,50 @@
               <p class="mascot-loading-sub">Getting your magical learning adventure ready!</p>
             </div>
           } @else if (courses().length > 0) {
-            <!-- Modern Course Grid (Centered neatly in the viewport) -->
-            <div class="row justify-content-center g-4 mb-4">
-              @for (c of courses(); track c.id) {
-                <div class="col-12 col-sm-6 col-md-6 col-lg-5 col-xl-4" style="max-width: 380px;">
-                  <div class="modern-course-card p-4 rounded-4 cursor-pointer d-flex flex-column justify-content-between shadow-sm position-relative overflow-hidden"
+            <!-- 🌟 Gamified Adventure Portals (2 Per Row, Corner Aligned, Clean & Boxless) -->
+            <div class="row g-4 justify-content-start py-2">
+              @for (c of courses(); track c.id; let idx = $index) {
+                <div class="col-12 col-md-6">
+                  <div class="adventure-portal-stage cursor-pointer d-flex align-items-center gap-3 position-relative"
                        (click)="playCourse(c, $event)"
                        title="Click to start {{ c.name }}">
-                    <!-- Card Top Glow Accent -->
-                    <div class="card-glow-bar"></div>
-
-                    <!-- Top Row: Icon + Level Badge -->
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                      <div class="modern-course-icon d-flex align-items-center justify-content-center shadow-sm">
-                        <i class="bi bi-journal-bookmark-fill fs-3 text-warning"></i>
+                    
+                    <!-- Circular 3D Adventure Portal Avatar -->
+                    <div class="adventure-portal-avatar-wrap position-relative flex-shrink-0">
+                      <div class="adventure-portal-glow-ring"></div>
+                      <div class="adventure-portal-circle">
+                        <img [src]="(idx % 2 === 0) ? '/assets/images/kid_adventure_banner.jpg' : '/assets/images/kid_adventure_banner_2.jpg'"
+                             alt="Course Adventure"
+                             class="adventure-portal-img">
                       </div>
-                      <span class="badge bg-warning bg-opacity-20 text-dark px-3 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">
-                        {{ c.code || 'A1 · Beginner' }}
+                      <span class="adventure-level-badge">
+                        <i class="bi bi-star-fill text-warning me-1"></i>{{ c.no_of_levels || 6 }} Levels
                       </span>
                     </div>
 
-                    <!-- Middle Content: Title + Description + Mini Info -->
-                    <div class="mb-3">
-                      <h4 class="fw-bold course-card-heading mb-2">{{ c.name }}</h4>
-                      <p class="course-card-desc mb-3">
-                        {{ c.description || 'Master essential vocabulary, practical conversation, and interactive lessons.' }}
-                      </p>
-                      <div class="course-mini-stats d-flex align-items-center gap-2">
-                        <span class="d-flex align-items-center gap-1">
-                          <i class="bi bi-layers-fill text-warning"></i>
-                          <span>{{ c.no_of_levels || 1 }} {{ (c.no_of_levels === 1) ? 'Level' : 'Levels' }}</span>
-                        </span>
-                        <span class="text-muted">•</span>
-                        <span class="d-flex align-items-center gap-1">
-                          <i class="bi bi-lightning-charge-fill text-warning"></i>
-                          <span>Interactive</span>
-                        </span>
+                    <!-- Floating Info (Zero Box / Left-Aligned) -->
+                    <div class="adventure-portal-details flex-grow-1 text-start">
+                      <!-- Big Playful Course Title -->
+                      <h3 class="adventure-portal-title mb-2 text-truncate">{{ c.name }}</h3>
+
+                      <!-- Cute Skill Stickers -->
+                      <div class="adventure-skills-strip d-flex align-items-center gap-2 mb-3 flex-wrap">
+                        <span class="adventure-skill-pill"><i class="bi bi-pencil-fill text-warning me-1"></i>Writing</span>
+                        <span class="adventure-skill-pill"><i class="bi bi-headphones text-info me-1"></i>Listening</span>
+                        <span class="adventure-skill-pill"><i class="bi bi-book-half text-success me-1"></i>Reading</span>
+                        <span class="adventure-skill-pill"><i class="bi bi-mic-fill text-danger me-1"></i>Speaking</span>
+                      </div>
+
+                      <!-- Bottom Action Launch Button -->
+                      <div class="adventure-portal-action d-flex align-items-center pt-1">
+                        <button class="btn btn-adventure-start d-flex align-items-center gap-2 px-4 py-2"
+                                (click)="playCourse(c, $event)">
+                          <span>Start Learning</span>
+                          <i class="bi bi-play-circle-fill fs-5"></i>
+                        </button>
                       </div>
                     </div>
 
-                    <!-- Bottom Action Button -->
-                    <div class="pt-2" style="border-top: 1px solid rgba(0,0,0,0.06);">
-                      <button class="btn btn-warning rounded-pill py-2 px-3 fw-bold text-dark w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm modern-course-btn"
-                              (click)="playCourse(c, $event)">
-                        <span>Start Learning</span>
-                        <i class="bi bi-play-circle-fill fs-5"></i>
-                      </button>
-                    </div>
                   </div>
                 </div>
               }
@@ -211,53 +217,49 @@
                   <p class="mascot-loading-sub">Gathering interactive exercises and drills for you!</p>
                 </div>
               } @else if (practiceCoursesList.length > 0) {
-                <!-- Modern Courses Grid for Practice (Centered neatly in the viewport) -->
-                <div class="row justify-content-center g-4 mb-4">
-                  @for (c of practiceCoursesList; track c.id) {
-                    <div class="col-12 col-sm-6 col-md-6 col-lg-5 col-xl-4" style="max-width: 380px;">
-                      <div class="modern-course-card p-4 rounded-4 cursor-pointer d-flex flex-column justify-content-between shadow-sm position-relative overflow-hidden"
+                <!-- 🌟 Gamified Practice Adventure Portals (2 Per Row, Corner Aligned, Clean & Boxless) -->
+                <div class="row g-4 justify-content-start py-2">
+                  @for (c of practiceCoursesList; track c.id; let idx = $index) {
+                    <div class="col-12 col-md-6">
+                      <div class="adventure-portal-stage cursor-pointer d-flex align-items-center gap-3 position-relative"
                            (click)="selectPracticeCourse(c)"
                            title="Click to practice {{ c.name }}">
-                        <!-- Card Top Glow Accent -->
-                        <div class="card-glow-bar"></div>
-
-                        <!-- Top Row: Icon + Level Badge -->
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                          <div class="modern-course-icon d-flex align-items-center justify-content-center shadow-sm">
-                            <i class="bi bi-controller fs-3 text-warning"></i>
+                        
+                        <!-- Circular 3D Adventure Portal Avatar -->
+                        <div class="adventure-portal-avatar-wrap position-relative flex-shrink-0">
+                          <div class="adventure-portal-glow-ring"></div>
+                          <div class="adventure-portal-circle">
+                            <img [src]="(idx % 2 === 0) ? '/assets/images/kid_adventure_banner_2.jpg' : '/assets/images/kid_adventure_banner.jpg'"
+                                 alt="Practice Adventure"
+                                 class="adventure-portal-img">
                           </div>
-                          <span class="badge bg-warning bg-opacity-20 text-dark px-3 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">
-                            {{ c.code || 'A1 · Beginner' }}
+                          <span class="adventure-level-badge">
+                            <i class="bi bi-controller text-warning me-1"></i>Arena
                           </span>
                         </div>
 
-                        <!-- Middle Content: Title + Description + Mini Info -->
-                        <div class="mb-3">
-                          <h4 class="fw-bold course-card-heading mb-2">{{ c.name }}</h4>
-                          <p class="course-card-desc mb-3">
-                            {{ c.description || 'Master essential vocabulary, practical conversation, and interactive lessons.' }}
-                          </p>
-                          <div class="course-mini-stats d-flex align-items-center gap-2">
-                            <span class="d-flex align-items-center gap-1">
-                              <i class="bi bi-puzzle-fill text-warning"></i>
-                              <span>5 Match Sets</span>
-                            </span>
-                            <span class="text-muted">•</span>
-                            <span class="d-flex align-items-center gap-1">
-                              <i class="bi bi-lightning-charge-fill text-warning"></i>
-                              <span>5 Practice Modes</span>
-                            </span>
+                        <!-- Floating Info (Zero Box / Left-Aligned) -->
+                        <div class="adventure-portal-details flex-grow-1 text-start">
+                          <!-- Big Playful Course Title -->
+                          <h3 class="adventure-portal-title mb-2 text-truncate">{{ c.name }}</h3>
+
+                          <!-- Cute Practice Stickers -->
+                          <div class="adventure-skills-strip d-flex align-items-center gap-2 mb-3 flex-wrap">
+                            <span class="adventure-skill-pill"><i class="bi bi-puzzle-fill text-warning me-1"></i>Puzzles</span>
+                            <span class="adventure-skill-pill"><i class="bi bi-chat-dots-fill text-info me-1"></i>Drills</span>
+                            <span class="adventure-skill-pill"><i class="bi bi-trophy-fill text-success me-1"></i>Challenges</span>
+                          </div>
+
+                          <!-- Bottom Action Launch Button -->
+                          <div class="adventure-portal-action d-flex align-items-center pt-1">
+                            <button class="btn btn-adventure-start d-flex align-items-center gap-2 px-4 py-2"
+                                    (click)="selectPracticeCourse(c)">
+                              <span>Enter Arena</span>
+                              <i class="bi bi-arrow-right-circle-fill fs-5"></i>
+                            </button>
                           </div>
                         </div>
 
-                        <!-- Bottom Action Button -->
-                        <div class="pt-2" style="border-top: 1px solid rgba(0,0,0,0.06);">
-                          <button class="btn btn-warning rounded-pill py-2 px-3 fw-bold text-dark w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm modern-course-btn"
-                                  (click)="selectPracticeCourse(c); $event.stopPropagation()">
-                            <span>Practice Course</span>
-                            <i class="bi bi-arrow-right-circle-fill fs-5"></i>
-                          </button>
-                        </div>
                       </div>
                     </div>
                   }
@@ -318,47 +320,51 @@
                 <!-- Topics Grid (Centered neatly in the viewport) -->
                 <div class="row justify-content-center g-4 mb-4">
                   @for (topic of practiceTopics; track topic.id) {
-                    <div class="col-12 col-sm-6 col-md-6 col-lg-5 col-xl-4" style="max-width: 380px;">
-                      <div class="modern-course-card p-4 rounded-4 cursor-pointer d-flex flex-column justify-content-between shadow-sm position-relative overflow-hidden"
+                    <div class="col-12 col-sm-8 col-md-6 col-lg-5 col-xl-4" style="max-width: 420px;">
+                      <div class="modern-course-card kids-quest-card p-4 rounded-4 cursor-pointer d-flex flex-column justify-content-between shadow-lg position-relative overflow-hidden"
                            (click)="openPracticeActivity(topic.id)"
                            title="Play {{ topic.title }}">
-                        <!-- Card Top Glow Accent -->
+                        <!-- Card Top Glow Accent & Sparkle -->
                         <div class="card-glow-bar"></div>
+                        <div class="quest-sparkle-decor quest-sparkle-1">⭐</div>
 
                         <!-- Top Row: Icon + Badge -->
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                          <div class="topic-icon-circle rounded-circle d-flex align-items-center justify-content-center shadow-sm"
-                               [style.background-color]="topic.color + '22'"
-                               [style.color]="topic.color">
-                            <i [class]="'bi ' + topic.icon + ' fs-3'"></i>
+                          <div class="topic-icon-circle rounded-circle d-flex align-items-center justify-content-center shadow-md"
+                               [style.background-color]="topic.color + '33'"
+                               [style.color]="topic.color"
+                               style="width: 58px; height: 58px; border: 2.5px solid currentColor;">
+                            <i [class]="'bi ' + topic.icon + ' fs-2'"></i>
                           </div>
-                          <span class="badge bg-warning bg-opacity-20 text-dark px-3 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">
+                          <span class="badge kids-quest-badge px-3 py-1 rounded-pill fw-bolder">
                             {{ topic.badge }}
                           </span>
                         </div>
 
-                        <!-- Middle Content: Title + Mini Stats (Description removed per user request) -->
+                        <!-- Middle Content: Title + Mini Stats -->
                         <div class="mb-3">
-                          <h4 class="fw-bold course-card-heading mb-2">{{ topic.title }}</h4>
-                          <div class="course-mini-stats d-flex align-items-center gap-2">
-                            <span class="d-flex align-items-center gap-1">
-                              <i class="bi bi-award text-warning"></i>
+                          <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="kids-badge-pill">🔥 Challenge Arena</span>
+                          </div>
+                          <h3 class="fw-black course-card-heading mb-2">{{ topic.title }}</h3>
+                          <div class="kids-feature-tags d-flex flex-wrap gap-2">
+                            <span class="kids-tag-pill tag-levels">
+                              <i class="bi bi-award-fill text-warning"></i>
                               <span>{{ topic.countLabel }}</span>
                             </span>
-                            <span class="text-muted">•</span>
-                            <span class="d-flex align-items-center gap-1">
-                              <i class="bi bi-lightning-charge-fill text-warning"></i>
+                            <span class="kids-tag-pill tag-games">
+                              <i class="bi bi-lightning-charge-fill text-info"></i>
                               <span>Interactive Drill</span>
                             </span>
                           </div>
                         </div>
 
                         <!-- Bottom Action Button -->
-                        <div class="pt-2" style="border-top: 1px solid rgba(0,0,0,0.06);">
-                          <button class="btn btn-warning rounded-pill py-2 px-3 fw-bold text-dark w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm modern-course-btn"
+                        <div class="pt-3 kids-card-action-bar">
+                          <button class="kids-3d-play-btn w-100 d-flex align-items-center justify-content-center gap-2"
                                   (click)="openPracticeActivity(topic.id); $event.stopPropagation()">
-                            <span>Play {{ topic.title }}</span>
-                            <i class="bi bi-arrow-right-circle-fill fs-5"></i>
+                            <span class="btn-text">PLAY DRILL</span>
+                            <span class="btn-icon">⚡</span>
                           </button>
                         </div>
                       </div>

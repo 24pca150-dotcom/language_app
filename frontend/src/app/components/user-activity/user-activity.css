@@ -149,6 +149,19 @@
 
 .learner-study-room-bg {
   background: url('/assets/images/learner-study-bg.png') center right / cover no-repeat fixed;
+  position: relative;
+}
+
+.learner-study-room-bg::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(11, 25, 44, 0.28);
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* ✨ Stationary Blinking Ambient Sparkles (10 particles in fixed cozy room spots) */
@@ -245,33 +258,241 @@
   box-shadow: 0 4px 16px rgba(255, 199, 39, 0.45);
 }
 
-/* Activity Body Scroll Area with plenty of bottom padding */
+/* Activity Body Scroll Area with compact bottom padding so everything fits on one screen */
 .activity-body-scroll {
-  padding-bottom: 140px !important;
+  padding-bottom: 20px !important;
   min-height: min-content;
+}
+
+/* ==========================================================================
+   ✨ BOXLESS GAMIFIED ADVENTURE PORTAL (ZERO BOX CONTAINER, PURE GAME UI)
+   ========================================================================== */
+.adventure-portal-stage {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0.5rem 0.25rem !important;
+  width: 100%;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+
+.adventure-portal-stage:hover {
+  transform: translateY(-4px);
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* 🌀 Circular 3D Adventure Portal Avatar */
+.adventure-portal-avatar-wrap {
+  width: 115px;
+  height: 115px;
+  min-width: 115px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.adventure-portal-glow-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #FFD200, #FF9800, #FF5722, #FFD200);
+  filter: blur(8px);
+  opacity: 0.85;
+  animation: rotatePortalRing 7s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rotatePortalRing {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.adventure-portal-circle {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3.5px solid #FFF9C4;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55), inset 0 0 10px rgba(0, 0, 0, 0.2);
+  background: #1E293B;
+}
+
+.adventure-portal-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.adventure-portal-stage:hover .adventure-portal-img {
+  transform: scale(1.12);
+}
+
+.adventure-level-badge {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  background: linear-gradient(135deg, #FF6B6B, #EE5253);
+  color: #FFFFFF;
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+}
+
+/* 🏰 Track / Quest Tag */
+.adventure-track-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 199, 39, 0.18);
+  border: 1px solid rgba(255, 199, 39, 0.4);
+  color: #FDE047;
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 2px 9px;
+  border-radius: 999px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* 📝 Floating Info (Zero Box / Left-Aligned) */
+.adventure-portal-details {
+  overflow: visible;
+}
+
+.adventure-portal-title {
+  font-family: 'Fredoka', 'Nunito', sans-serif !important;
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: #FFFFFF !important;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.85), 0 1px 4px rgba(0, 0, 0, 0.95);
+}
+
+.adventure-skills-strip {
+  gap: 6px;
+}
+
+.adventure-skill-pill {
+  background: rgba(15, 23, 42, 0.65) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #FFFFFF;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 3px 11px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.adventure-skill-pill:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.btn-adventure-start {
+  background: linear-gradient(180deg, #FFD200 0%, #FF9800 100%) !important;
+  color: #3C1900 !important;
+  font-family: 'Fredoka', 'Nunito', sans-serif !important;
+  font-size: 0.92rem !important;
+  font-weight: 900 !important;
+  border: 2px solid #FFF9C4 !important;
+  box-shadow: 0 4px 0 #B45309, 0 8px 24px rgba(245, 158, 11, 0.5) !important;
+  border-radius: 999px !important;
+  padding: 7px 22px !important;
+  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  letter-spacing: 0.02em;
+}
+
+.btn-adventure-start:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 7px 0 #B45309, 0 12px 28px rgba(245, 158, 11, 0.7) !important;
+  background: linear-gradient(180deg, #FFE082 0%, #FFA726 100%) !important;
+}
+
+.btn-adventure-start:active {
+  transform: translateY(2px) scale(0.97);
+  box-shadow: 0 2px 0 #B45309, 0 4px 10px rgba(245, 158, 11, 0.3) !important;
 }
 
 /* ==========================================================================
    ✨ TRANSLUCENT FROSTED GLASS CARDS (Matching Image 5 Badges Look)
    ========================================================================== */
+/* ==========================================================================
+   ✨ MODERN COURSE CARDS (Gamified 3D Kid-Friendly Adventure Cards)
+   ========================================================================== */
 .modern-course-card {
-  background: rgba(255, 255, 255, 0.62) !important;
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1.5px solid rgba(255, 255, 255, 0.8) !important;
-  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.85) !important;
+  background: linear-gradient(165deg, rgba(20, 30, 55, 0.93) 0%, rgba(12, 18, 36, 0.97) 100%) !important;
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 2px solid rgba(255, 199, 39, 0.5) !important;
+  box-shadow: 0 6px 0 #92400E, 0 14px 28px rgba(0, 0, 0, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.2) !important;
   border-radius: 22px !important;
-  min-height: 255px;
+  min-height: 220px;
   position: relative;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: kidCardFloat 4.5s ease-in-out infinite alternate;
+}
+
+@keyframes kidCardFloat {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-5px); }
 }
 
 .modern-course-card:hover {
-  transform: translateY(-6px);
-  background: rgba(255, 255, 255, 0.76) !important;
-  box-shadow: 0 22px 48px rgba(245, 158, 11, 0.28) !important;
-  border-color: #F59E0B !important;
+  transform: translateY(-6px) scale(1.02) !important;
+  border-color: #FBBF24 !important;
+  box-shadow: 0 8px 0 #92400E, 0 18px 36px rgba(0, 0, 0, 0.6), 0 0 24px rgba(251, 191, 36, 0.35) !important;
+}
+
+.quest-sparkle-decor {
+  position: absolute;
+  pointer-events: none;
+  font-size: 1.15rem;
+  opacity: 0.8;
+  animation: sparkleTwinkle 2.5s ease-in-out infinite;
+  user-select: none;
+}
+
+.quest-sparkle-1 {
+  top: 14px;
+  right: 140px;
+  animation-delay: 0.2s;
+}
+
+.quest-sparkle-2 {
+  bottom: 82px;
+  right: 18px;
+  animation-delay: 1.2s;
+}
+
+@keyframes sparkleTwinkle {
+  0%, 100% { opacity: 0.35; transform: scale(0.8) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.25) rotate(20deg); filter: drop-shadow(0 0 8px #FBBF24); }
 }
 
 .card-glow-bar {
@@ -279,57 +500,143 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
+  height: 5px;
   background: linear-gradient(90deg, #F59E0B 0%, #FBBF24 50%, #10B981 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  opacity: 0.85;
 }
 
-.modern-course-card:hover .card-glow-bar {
-  opacity: 1;
-}
-
-.modern-course-icon {
-  width: 54px;
-  height: 54px;
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.08) 100%);
-  border: 1.5px solid rgba(245, 158, 11, 0.35);
-  border-radius: 16px;
-  transition: transform 0.3s ease, background 0.3s ease;
+.kids-course-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #FBBF24 0%, #D97706 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.45), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   flex-shrink: 0;
 }
 
-.modern-course-card:hover .modern-course-icon {
-  transform: scale(1.08) rotate(4deg);
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.3) 0%, rgba(245, 158, 11, 0.15) 100%);
+.modern-course-card:hover .kids-course-icon {
+  transform: scale(1.1) rotate(4deg);
+}
+
+.kids-quest-badge {
+  background: linear-gradient(135deg, #FFD200 0%, #FF9800 100%) !important;
+  color: #3C1900 !important;
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  box-shadow: 0 3px 8px rgba(245, 158, 11, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 3px 8px !important;
+}
+
+.kids-badge-pill {
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #FDE047;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
 }
 
 .course-card-heading {
-  color: #0F172A !important;
-  font-size: 1.18rem;
-  font-weight: 800;
-  line-height: 1.35;
+  color: #FFFFFF !important;
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 1.08rem;
+  font-weight: 900;
+  line-height: 1.25;
   letter-spacing: -0.01em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 
 .course-card-desc {
-  color: #475569 !important;
-  font-size: 0.85rem;
-  line-height: 1.45;
+  color: #CBD5E1 !important;
+  font-size: 0.76rem;
+  line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  font-weight: 500;
 }
 
-.course-mini-stats {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #475569 !important;
+.kids-feature-tags {
+  margin-top: 4px;
+}
+
+.kids-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.7rem;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #F8FAFC;
+  transition: all 0.2s ease;
+}
+
+.kids-tag-pill:hover {
+  background: rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
+}
+
+.kids-card-action-bar {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 8px !important;
+}
+
+/* 🎮 JUICY 3D ARCADE PLAY BUTTON */
+.kids-3d-play-btn {
+  background: linear-gradient(180deg, #FFD000 0%, #FF9100 100%) !important;
+  color: #3C1900 !important;
+  border: none !important;
+  border-radius: 999px !important;
+  padding: 8px 16px !important;
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.82rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.03em !important;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #B45309, 0 8px 16px rgba(245, 158, 11, 0.4) !important;
+  transition: all 0.15s ease-out;
+  position: relative;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.kids-3d-play-btn:hover {
+  transform: translateY(1px) !important;
+  box-shadow: 0 3px 0 #B45309, 0 6px 12px rgba(245, 158, 11, 0.45) !important;
+  background: linear-gradient(180deg, #FFE033 0%, #FFA01A 100%) !important;
+}
+
+.kids-3d-play-btn:active {
+  transform: translateY(4px) !important;
+  box-shadow: 0 0px 0 #B45309, 0 2px 4px rgba(245, 158, 11, 0.3) !important;
+}
+
+.kids-3d-play-btn .btn-icon {
+  font-size: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.kids-3d-play-btn:hover .btn-icon {
+  transform: scale(1.25) rotate(10deg);
 }
 
 .modern-course-btn {
-  font-size: 0.92rem;
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.95rem;
+  font-weight: 800;
   letter-spacing: 0.01em;
   transition: all 0.2s ease;
 }
@@ -356,13 +663,13 @@
 /* Activity Stage Card - Premium Glassmorphic Design (Matching Image 5 Translucent Glass) */
 .activity-stage-box,
 .glass-stage-card {
-  min-height: 480px;
-  background: rgba(255, 255, 255, 0.62) !important;
+  min-height: auto;
+  background: rgba(255, 255, 255, 0.72) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
   border: 1.8px solid rgba(255, 255, 255, 0.8) !important;
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.85) !important;
-  border-radius: 32px !important;
+  border-radius: 28px !important;
 }
 
 .activity-stage-box .activity-card-title {
@@ -412,22 +719,128 @@
   50% { transform: translateY(-12px); }
 }
 
-/* Answer Splash Overlay */
-.answer-splash-overlay {
-  width: 260px;
-  background: rgba(255, 255, 255, 0.98);
-  border: 4px solid;
+/* ==========================================================================
+   🦊 CARTOON MASCOT FEEDBACK OVERLAY (Zero Box, Pure Character Animation)
+   ========================================================================== */
+.cartoon-feedback-overlay {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
   pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
-.success-splash {
-  border-color: #10b981;
-  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+.cartoon-mascot-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.failure-splash {
-  border-color: #ef4444;
-  box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+.cartoon-speech-bubble {
+  position: relative;
+  background: #FFFFFF;
+  font-family: 'Fredoka', 'Nunito', cursive, sans-serif !important;
+  font-weight: 900;
+  font-size: 1.6rem;
+  padding: 8px 24px;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  margin-bottom: 8px;
+  white-space: nowrap;
+  animation: bubblePop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cartoon-speech-bubble.super-bubble {
+  color: #15803D;
+  border: 3.5px solid #22C55E;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F0FDF4 100%);
+  text-shadow: 0 1px 2px rgba(34, 197, 94, 0.2);
+}
+
+.cartoon-speech-bubble.wrong-bubble {
+  color: #B91C1C;
+  border: 3.5px solid #EF4444;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FEF2F2 100%);
+  text-shadow: 0 1px 2px rgba(239, 68, 68, 0.2);
+}
+
+/* Comic Speech Tail */
+.cartoon-speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top: 11px solid #FFFFFF;
+}
+
+.cartoon-speech-bubble.super-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+  border-top: 15px solid #22C55E;
+}
+
+.cartoon-speech-bubble.wrong-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+  border-top: 15px solid #EF4444;
+}
+
+.cartoon-mascot-img {
+  width: 140px;
+  height: auto;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.5));
+  display: block;
+}
+
+.mascot-super-anim {
+  animation: mascotSuperJump 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) infinite alternate;
+}
+
+.mascot-wrong-anim {
+  animation: mascotWrongWiggle 0.35s ease-in-out infinite alternate;
+}
+
+@keyframes mascotSuperJump {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-18px) scale(1.08) rotate(3deg); }
+}
+
+@keyframes mascotWrongWiggle {
+  0% { transform: rotate(-9deg) scale(0.96); }
+  100% { transform: rotate(9deg) scale(1); }
+}
+
+@keyframes bubblePop {
+  0% { transform: scale(0.3) translateY(20px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
 }
 
 /* Badge Styling */

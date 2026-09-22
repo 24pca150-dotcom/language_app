@@ -22,6 +22,7 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
   @Output() selectLevel = new EventEmitter<number>();
   @Output() selectChapterNode = new EventEmitter<number>();
   @Output() backToLevels = new EventEmitter<void>();
+  @Output() backToCourses = new EventEmitter<void>();
 
   isBrowser: boolean;
 
@@ -211,6 +212,10 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
     this.backToLevels.emit();
   }
 
+  onBackToCourses() {
+    this.backToCourses.emit();
+  }
+
   getLevelIcon(name: string): string {
     const lower = (name || '').toLowerCase();
     if (lower.includes('writing') || lower.includes('write')) return 'bi-pencil-fill';
@@ -242,5 +247,31 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
     if (lower.includes('grammar') || lower.includes('vocab')) return '#047857 !important';
     if (lower.includes('interactive') || lower.includes('test') || lower.includes('demo')) return '#9d174d !important';
     return '#1b5e20 !important';
+  }
+
+  getLevelImage(name: string, index: number = 0): string {
+    const lower = (name || '').toLowerCase();
+    if (lower.includes('writing') || lower.includes('write')) return '/assets/images/level_writing.jpg';
+    if (lower.includes('listening') || lower.includes('listen')) return '/assets/images/level_listening.jpg';
+    if (lower.includes('reading') || lower.includes('read')) return '/assets/images/level_reading.jpg';
+    if (lower.includes('speaking') || lower.includes('speak')) return '/assets/images/level_speaking.jpg';
+    if (lower.includes('grammar') || lower.includes('vocab')) return '/assets/images/level_grammar.jpg';
+    if (lower.includes('interactive') || lower.includes('test') || lower.includes('demo') || lower.includes('game')) return '/assets/images/level_games.jpg';
+
+    const fallbackList = [
+      '/assets/images/level_writing.jpg',
+      '/assets/images/level_listening.jpg',
+      '/assets/images/level_reading.jpg',
+      '/assets/images/level_speaking.jpg',
+      '/assets/images/level_grammar.jpg',
+      '/assets/images/level_games.jpg'
+    ];
+    return fallbackList[index % fallbackList.length];
+  }
+
+  scrollLevels(track: HTMLElement, delta: number) {
+    if (track) {
+      track.scrollBy({ left: delta, behavior: 'smooth' });
+    }
   }
 }

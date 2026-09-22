@@ -1,34 +1,107 @@
-/* ── IMMERSIVE GAME MAP UI ── */
+/* ── IMMERSIVE STUDY ROOM & DARK THEME UI ── */
+
+/* 🔙 Circular Back Button Matching Course Page */
+.btn-back-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  color: #0F172A !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
+}
+
+.btn-back-circle:hover {
+  background: #FFC727 !important;
+  color: #0B192C !important;
+  border-color: #FFC727;
+  transform: translateX(-4px);
+  box-shadow: 0 4px 16px rgba(255, 199, 39, 0.45);
+}
 
 .game-world-container {
-  background: linear-gradient(to bottom, #7dd3fc 0%, #bae6fd 40%, #e0f2fe 70%, #f0fdf4 100%);
+  background: transparent;
   position: relative;
   overflow-y: hidden;
   min-height: 100vh;
   overflow-x: hidden;
+  color: #FFFFFF;
 }
 
-/* Magical Rotating Sunbeams (warm golden overlay) */
-.game-world-container::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: repeating-conic-gradient(
-    from 0deg,
-    rgba(255, 253, 224, 0.18) 0deg 15deg,
-    transparent 15deg 30deg
-  );
-  animation: rotateSunburst 140s linear infinite;
-  z-index: 0;
+/* Background overlay handled cleanly by parent container */
+.game-world-container::before {
+  display: none !important;
+}
+
+/* Course Main Title & Subtitle */
+.course-main-title {
+  font-family: 'Fredoka One', 'Nunito', sans-serif !important;
+  color: #FFFFFF !important;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 199, 39, 0.35) !important;
+  letter-spacing: -0.5px;
+}
+
+.course-main-desc {
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95), 0 0 4px rgba(0,0,0,0.8) !important;
+}
+
+/* ✨ Stationary Blinking Ambient Sparkles across the cozy study room */
+.sparkles-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
   pointer-events: none;
+  overflow: hidden;
 }
 
-@keyframes rotateSunburst {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.sparkle.font-sparkle {
+  position: absolute;
+  font-size: 1.35rem;
+  line-height: 1;
+  color: #FFD54F;
+  filter: drop-shadow(0 0 6px #FFD700) drop-shadow(0 0 14px rgba(255, 193, 7, 0.7));
+  user-select: none;
+  pointer-events: none;
+  animation-name: blinkSparkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+/* 8 Stationary Blinking Ambient Stars across the room */
+.sparkle.font-sparkle:nth-child(1) { top: 16%; left: 12%; font-size: 1.35rem; animation-duration: 2.4s; animation-delay: 0s;   }
+.sparkle.font-sparkle:nth-child(2) { top: 22%; left: 36%; font-size: 1.45rem; animation-duration: 3.1s; animation-delay: 0.8s; }
+.sparkle.font-sparkle:nth-child(3) { top: 20%; left: 62%; font-size: 1.25rem; animation-duration: 2.6s; animation-delay: 1.5s; }
+.sparkle.font-sparkle:nth-child(4) { top: 15%; left: 92%; font-size: 1.5rem;  animation-duration: 3.4s; animation-delay: 0.4s; }
+.sparkle.font-sparkle:nth-child(5) { top: 72%; left: 48%; font-size: 1.25rem; animation-duration: 2.9s; animation-delay: 0.2s; }
+.sparkle.font-sparkle:nth-child(6) { top: 75%; left: 86%; font-size: 1.45rem; animation-duration: 3.0s; animation-delay: 1.4s; }
+.sparkle.font-sparkle:nth-child(7) { top: 84%; left: 8%;  font-size: 1.3rem;  animation-duration: 2.7s; animation-delay: 0.9s; }
+.sparkle.font-sparkle:nth-child(8) { top: 88%; left: 70%; font-size: 1.35rem; animation-duration: 2.8s; animation-delay: 0.6s; }
+
+@keyframes blinkSparkle {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(0.7);
+    filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.4));
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.25);
+    filter: drop-shadow(0 0 8px #FFD700) drop-shadow(0 0 16px rgba(255, 193, 7, 0.9));
+  }
 }
 
 .map-background {
@@ -38,438 +111,334 @@
   min-height: 100vh;
 }
 
-/* Layered CSS Hills for 3D depth - Bright Daylight */
-.hill-bg-3 {
-  position: absolute;
-  bottom: 0;
-  left: -20%;
-  width: 140%;
-  height: 55vh;
-  background: linear-gradient(180deg, #2e7d32 0%, #1b5e20 100%);
-  border-radius: 60% 60% 0 0 / 100% 100% 0 0;
-  z-index: 1;
-  opacity: 0.75;
-  filter: blur(2px);
-  pointer-events: none;
+/* ==========================================================================
+   🎯 BOXED LEVEL SELECTION GRID (Vertical Down-Scroll, No Side-Scroll, No Arrows)
+   ========================================================================== */
+.levels-boxed-grid {
+  max-width: 960px !important;
+  width: 100%;
+  margin: 0 auto 30px auto;
 }
 
-.hill-bg-2 {
-  position: absolute;
-  bottom: 0;
-  right: -20%;
-  width: 140%;
-  height: 45vh;
-  background: linear-gradient(180deg, #4caf50 0%, #2e7d32 100%);
-  border-radius: 55% 55% 0 0 / 100% 100% 0 0;
-  z-index: 1;
-  opacity: 0.9;
-  pointer-events: none;
+.map-container {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(245, 158, 11, 0.6) rgba(15, 23, 42, 0.4);
 }
 
-.hill-bg-1 {
-  position: absolute;
-  bottom: 0;
-  left: -10%;
-  width: 120%;
-  height: 35vh;
-  background: linear-gradient(180deg, #81c784 0%, #4caf50 100%);
-  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-  z-index: 1;
-  border-top: 8px solid #a5d6a7;
-  box-shadow: inset 0 15px 30px rgba(255,255,255,0.35), 0 -10px 20px rgba(0,0,0,0.15);
-  pointer-events: none;
+.map-container::-webkit-scrollbar {
+  width: 8px;
 }
 
-/* Swaying Grass Clumps */
-.css-grass-clump {
-  position: absolute;
-  display: flex;
-  align-items: flex-end;
-  pointer-events: none;
-  z-index: 10;
-}
-.css-grass-clump .blade {
-  width: 4px;
-  height: 25px;
-  background: linear-gradient(to top, #4caf50, #a5d6a7);
-  border-radius: 4px 4px 0 0;
-  transform-origin: bottom center;
-  animation: swayGrass 4s ease-in-out infinite alternate;
-}
-.css-grass-clump .blade:nth-child(1) {
-  height: 20px;
-  transform: rotate(-15deg);
-  animation-delay: -0.5s;
-}
-.css-grass-clump .blade:nth-child(2) {
-  height: 25px;
-  transform: rotate(0deg);
-  animation-delay: 0s;
-}
-.css-grass-clump .blade:nth-child(3) {
-  height: 18px;
-  transform: rotate(15deg);
-  animation-delay: -1s;
+.map-container::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 999px;
 }
 
-@keyframes swayGrass {
-  0% { transform: rotate(-15deg) skewX(-5deg); }
-  100% { transform: rotate(15deg) skewX(5deg); }
+.map-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #F59E0B, #FFD54F);
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.4);
 }
 
-/* Swaying Flower */
-.css-flower {
-  position: absolute;
-  width: 30px;
-  height: 45px;
-  pointer-events: none;
-  z-index: 11;
-  transform-origin: bottom center;
-  animation: swayFlower 3s ease-in-out infinite alternate;
-}
-.css-flower .stem {
-  position: absolute;
-  bottom: 0; left: 14px;
-  width: 3px;
-  height: 30px;
-  background: #4caf50;
-  border-radius: 2px;
-}
-.css-flower .petals {
-  position: absolute;
-  bottom: 24px; left: 5px;
-  width: 20px;
-  height: 20px;
-  background: #e91e63;
-  border-radius: 50%;
-  box-shadow: 
-    0 -8px 0 #e91e63,
-    0 8px 0 #e91e63,
-    -8px 0 0 #e91e63,
-    8px 0 0 #e91e63,
-    -6px -6px 0 #e91e63,
-    6px 6px 0 #e91e63,
-    -6px 6px 0 #e91e63,
-    6px -6px 0 #e91e63;
-}
-.css-flower .center {
-  position: absolute;
-  bottom: 29px; left: 10px;
-  width: 10px;
-  height: 10px;
-  background: #ffeb3b;
-  border-radius: 50%;
+.map-container::-webkit-scrollbar-thumb:hover {
+  background: #FFC727;
 }
 
-.css-flower:nth-child(even) .petals { 
-  background: #ab47bc; 
-  box-shadow: 
-    0 -8px 0 #ab47bc, 
-    0 8px 0 #ab47bc, 
-    -8px 0 0 #ab47bc, 
-    8px 0 0 #ab47bc, 
-    -6px -6px 0 #ab47bc, 
-    6px 6px 0 #ab47bc, 
-    -6px 6px 0 #ab47bc, 
-    6px -6px 0 #ab47bc; 
-}
-
-@keyframes swayFlower {
-  0% { transform: rotate(-8deg); }
-  100% { transform: rotate(8deg); }
-}
-
-/* CSS-drawn Pine Trees */
-.css-pine-tree {
-  position: absolute;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  pointer-events: none;
-}
-.css-pine-tree .leaf-1 {
-  width: 0;
-  height: 0;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
-  border-bottom: 25px solid #81c784;
-}
-.css-pine-tree .leaf-2 {
-  width: 0;
-  height: 0;
-  border-left: 30px solid transparent;
-  border-right: 30px solid transparent;
-  border-bottom: 35px solid #4caf50;
-  margin-top: -15px;
-}
-.css-pine-tree .leaf-3 {
-  width: 0;
-  height: 0;
-  border-left: 40px solid transparent;
-  border-right: 40px solid transparent;
-  border-bottom: 45px solid #2e7d32;
-  margin-top: -20px;
-}
-.css-pine-tree .trunk {
-  width: 12px;
-  height: 20px;
-  background: #5d4037;
-  border-radius: 2px;
-}
-
-/* Sunny Sparkles & Floating Pollen */
-.sparkles-container {
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 60vh;
-  z-index: 0;
-  pointer-events: none;
-}
-.sparkle {
-  position: absolute;
-  background: #ffeb3b;
-  border-radius: 50%;
-  width: 3px;
-  height: 3px;
-  opacity: 0.6;
-  filter: drop-shadow(0 0 4px #ffeb3b);
-  animation: floatSparkle 6s infinite ease-in-out;
-}
-.sparkle.font-sparkle {
-  background: transparent;
-  width: auto;
-  height: auto;
-  font-size: 0.9rem;
-  color: #ffca28;
-  opacity: 0.65;
-  filter: drop-shadow(0 0 2px #ffca28);
-}
-.sparkle:nth-child(1) { top: 15%; left: 10%; animation-delay: 0.2s; width: 4px; height: 4px; }
-.sparkle:nth-child(2) { top: 30%; left: 25%; animation-delay: 1.5s; }
-.sparkle:nth-child(3) { top: 10%; left: 45%; animation-delay: 2.5s; width: 5px; height: 5px; }
-.sparkle:nth-child(4) { top: 22%; left: 60%; animation-delay: 0.7s; }
-.sparkle:nth-child(5) { top: 35%; left: 80%; animation-delay: 3s; }
-.sparkle:nth-child(6) { top: 18%; left: 90%; animation-delay: 1.8s; width: 4px; height: 4px; }
-.sparkle:nth-child(7) { top: 8%; left: 75%; animation-delay: 1.1s; }
-.sparkle:nth-child(8) { top: 12%; left: 32%; animation-delay: 2.8s; }
-.sparkle:nth-child(9) { top: 28%; left: 68%; animation-delay: 1.4s; }
-
-@keyframes floatSparkle {
-  0%, 100% { opacity: 0.3; transform: translateY(0) scale(0.8); }
-  50% { opacity: 0.9; transform: translateY(-15px) scale(1.2); }
-}
-
-/* Animated Falling Leaves */
-.leaves-container {
-  position: absolute;
-  top: -50px; left: 0; width: 100%; height: 100%;
-  z-index: 2;
-  pointer-events: none;
-  overflow: hidden;
-}
-.leaf-particle {
-  position: absolute;
-  font-size: 1.5rem;
-  opacity: 0.85;
-  animation: driftLeaf 15s linear infinite;
-  transform-style: preserve-3d;
-}
-.leaf-particle:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 18s; }
-.leaf-particle:nth-child(2) { left: 30%; animation-delay: 3s; animation-duration: 14s; }
-.leaf-particle:nth-child(3) { left: 50%; animation-delay: 1.5s; animation-duration: 20s; }
-.leaf-particle:nth-child(4) { left: 70%; animation-delay: 5s; animation-duration: 16s; }
-.leaf-particle:nth-child(5) { left: 85%; animation-delay: 2.5s; animation-duration: 12s; }
-.leaf-particle:nth-child(6) { left: 20%; animation-delay: 7s; animation-duration: 19s; }
-.leaf-particle:nth-child(7) { left: 60%; animation-delay: 4.5s; animation-duration: 15s; }
-
-@keyframes driftLeaf {
-  0% {
-    transform: translateY(-50px) translateX(0) rotate(0deg) rotateY(0deg);
-    opacity: 0;
-  }
-  10% { opacity: 0.9; }
-  90% { opacity: 0.9; }
-  100% {
-    transform: translateY(105vh) translateX(-200px) rotate(540deg) rotateY(360deg);
-    opacity: 0;
-  }
-}
-
-/* Cloud Animations */
-.cloud-1 { animation: floatCloud1 45s linear infinite; }
-.cloud-2 { animation: floatCloud2 70s linear infinite; }
-.cloud-3 { animation: floatCloud3 35s linear infinite; }
-
-@keyframes floatCloud1 {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(120vw); }
-}
-@keyframes floatCloud2 {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(120vw); }
-}
-@keyframes floatCloud3 {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(120vw); }
-}
-
-/* 3D grid context for chapter card rotations */
-.col-md-6.col-lg-5 {
-  perspective: 1000px;
-}
-
-/* Chapter Card - Clean Style with 3D Tilt */
-.chapter-card {
-  background: #e8f5e9 !important;
-  border: 3px solid #a5d6a7 !important;
-  border-radius: 18px !important;
-  box-shadow: 0 5px 0 #cbd5e1, 0 10px 20px rgba(0,0,0,0.12) !important;
-  margin-bottom: 15px;
+/* ==========================================================================
+   ✨ BOXLESS GAMIFIED ADVENTURE LEVEL PORTAL (MATCHING COURSE PAGE)
+   ========================================================================== */
+.adventure-portal-stage {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0.5rem 0.25rem !important;
+  width: 100%;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
-  overflow: visible !important;
-  cursor: pointer;
+}
+
+.adventure-portal-stage:hover {
+  transform: translateY(-4px);
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* 🌀 Circular 3D Adventure Portal Avatar */
+.adventure-portal-avatar-wrap {
+  width: 115px;
+  height: 115px;
+  min-width: 115px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.adventure-portal-glow-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #FFD200, #FF9800, #FF5722, #FFD200);
+  filter: blur(8px);
+  opacity: 0.85;
+  animation: rotatePortalRing 7s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rotatePortalRing {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.adventure-portal-circle {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3.5px solid #FFF9C4;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55), inset 0 0 10px rgba(0, 0, 0, 0.2);
+  background: #1E293B;
+}
+
+.adventure-portal-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   display: block;
-  transform-style: preserve-3d;
-  transition: transform 0.35s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.35s;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.chapter-card:hover {
-  transform: translateY(-8px) rotateX(4deg) rotateY(-2deg) translateZ(8px) !important;
-  box-shadow: 
-    0 8px 0 #cbd5e1, 
-    0 16px 25px rgba(0,0,0,0.18), 
-    0 0 16px rgba(76, 175, 80, 0.2) !important;
+.adventure-portal-stage:hover .adventure-portal-img {
+  transform: scale(1.12);
 }
 
-.chapter-card:active {
-  transform: translateY(2px) rotateX(1deg) rotateY(-1deg);
-  box-shadow: 0 3px 0 #cbd5e1, 0 4px 10px rgba(0,0,0,0.1) !important;
+.adventure-level-badge {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  background: linear-gradient(135deg, #FF6B6B, #EE5253);
+  color: #FFFFFF;
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
 }
 
-/* Parallax pops for hover elements */
-.chapter-card .card-title {
-  transform: translateZ(20px);
+/* 📝 Floating Info (Zero Box / Left-Aligned) */
+.adventure-portal-details {
+  overflow: visible;
 }
-.chapter-card .btn-play-bouncy {
-  transform: translateZ(30px);
+
+.adventure-portal-title {
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: #FFFFFF !important;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.85), 0 1px 4px rgba(0, 0, 0, 0.95);
 }
-.chapter-card .chapter-card-header .course-icon {
-  transform: translateZ(35px);
-  transition: transform 0.3s ease;
+
+.adventure-skill-pill {
+  background: rgba(15, 23, 42, 0.65) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #FFFFFF;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 3px 11px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  display: inline-flex;
+  align-items: center;
 }
-.chapter-card:hover .chapter-card-header .course-icon {
-  transform: translateZ(45px) scale(1.12) rotate(4deg);
+
+.btn-adventure-start {
+  background: linear-gradient(180deg, #FFD200 0%, #FF9800 100%) !important;
+  color: #3C1900 !important;
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.92rem !important;
+  font-weight: 900 !important;
+  border: 2px solid #FFF9C4 !important;
+  box-shadow: 0 4px 0 #B45309, 0 8px 24px rgba(245, 158, 11, 0.5) !important;
+  border-radius: 999px !important;
+  padding: 6px 20px !important;
+  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  letter-spacing: 0.02em;
+}
+
+.btn-adventure-start:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 7px 0 #B45309, 0 12px 28px rgba(245, 158, 11, 0.7) !important;
+  background: linear-gradient(180deg, #FFE082 0%, #FFA726 100%) !important;
+}
+
+.btn-adventure-start:active {
+  transform: translateY(2px) scale(0.97);
+  box-shadow: 0 2px 0 #B45309, 0 4px 10px rgba(245, 158, 11, 0.3) !important;
+}
+
+/* 3D Cartoon Header for Kid-Friendly Level Cards */
+.level-cartoon-header {
+  height: 124px !important;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px 20px 0 0;
+  background: #1E293B;
+}
+
+.level-cartoon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.chapter-card:hover .level-cartoon-img {
+  transform: scale(1.12);
+}
+
+.level-cartoon-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(15, 23, 42, 0.65) 100%);
+  pointer-events: none;
+}
+
+.level-number-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(15, 23, 42, 0.82);
+  backdrop-filter: blur(8px);
+  color: #FFD54F;
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 199, 39, 0.4);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+}
+
+.level-mini-icon-circle {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  z-index: 2;
 }
 
 .chapter-card-header {
-  background: linear-gradient(to bottom, #4caf50, #2e7d32) !important;
-  border-bottom: 4px solid #1b5e20 !important;
-  border-radius: 14px 14px 0 0;
+  border-radius: 20px 20px 0 0;
   height: 80px !important;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
-  transform-style: preserve-3d;
-}
-
-.chapter-card-header::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; width: 100%; height: 8px;
-  background: #81c784;
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.25);
+  border-bottom: 3px solid rgba(0, 0, 0, 0.2) !important;
 }
 
 .chapter-card-header .course-icon {
   font-size: 1.85rem !important;
   color: white;
-  filter: drop-shadow(0 2px 0 #1b5e20);
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+  transition: transform 0.3s ease;
+}
+
+.chapter-card:hover .chapter-card-header .course-icon {
+  transform: scale(1.15) rotate(4deg);
 }
 
 .chapter-card .card-body {
-  background: #e8f5e9 !important;
-  border-radius: 0 0 16px 16px;
+  background: rgba(15, 23, 42, 0.7) !important;
+  border-radius: 0 0 20px 20px;
   border: none;
-  transform-style: preserve-3d;
-  padding: 10px 12px 12px 12px !important;
+  padding: 12px 14px 14px 14px !important;
 }
 
 .chapter-card .card-title {
-  color: #1e293b !important;
+  color: #FFFFFF !important;
   font-weight: 800;
-  font-size: 0.95rem !important;
+  font-size: 0.98rem !important;
   line-height: 1.25;
   min-height: 2.5em;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .chapter-card .card-text {
-  color: #64748b;
+  color: #94A3B8 !important;
   font-weight: 600;
-  font-size: 0.78rem !important;
-  margin-bottom: 6px !important;
-}
-
-/* Corner foliage overlays */
-.chapter-card::before {
-  content: '🌿';
-  position: absolute;
-  top: -10px;
-  left: 6px;
-  font-size: 1.25rem;
-  z-index: 3;
-  filter: drop-shadow(0 1px 0 rgba(0,0,0,0.2));
-}
-
-.chapter-card::after {
-  content: '🍃';
-  position: absolute;
-  top: -8px;
-  right: 6px;
-  font-size: 1.15rem;
-  z-index: 3;
-  filter: drop-shadow(0 1px 0 rgba(0,0,0,0.2));
+  font-size: 0.8rem !important;
+  margin-bottom: 8px !important;
 }
 
 /* Badge level styling */
 .badge-level {
-  background-color: #e8f5e9 !important;
-  color: #2e7d32 !important;
-  border: 1.5px solid #81c784 !important;
+  background-color: rgba(255, 199, 39, 0.15) !important;
+  color: #FFD54F !important;
+  border: 1px solid rgba(255, 199, 39, 0.35) !important;
   font-weight: 700;
   font-size: 0.72rem !important;
-  padding: 3px 8px !important;
-  transform: translateZ(10px);
+  padding: 4px 9px !important;
 }
 
-/* Bouncy Play Button - Gold Coin style */
+/* Bouncy Play Button - Golden Glowing Orb */
 .btn-play-bouncy {
-  background: #ffb300 !important;
-  border: 2.5px solid white !important;
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%) !important;
+  border: 2px solid #FFE082 !important;
   color: white !important;
   border-radius: 50% !important;
   width: 34px !important;
   height: 34px !important;
   min-width: 34px !important;
-  box-shadow: 0 4px 0 #ff6f00, 0 6px 10px rgba(0,0,0,0.15) !important;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.5) !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.1s, box-shadow 0.1s;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s;
 }
 
 .btn-play-bouncy i {
   margin-left: 2px;
   font-size: 1.15rem !important;
-  filter: drop-shadow(0 1px 0 #ff6f00);
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
 }
 
 .chapter-card:hover .btn-play-bouncy {
-  transform: translateZ(35px) scale(1.1) rotate(5deg);
+  transform: scale(1.15) rotate(5deg);
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.7) !important;
 }
 
 .chapter-group {
@@ -544,6 +513,25 @@
 }
 .custom-horizontal-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(245, 158, 11, 0.9);
+}
+
+/* ── ANIMATED MOVING GAME PATH (Dashed road moving towards next chapter) ── */
+.animated-game-path-dash {
+  stroke: #FFFDE7 !important;
+  stroke-width: 6.5 !important;
+  stroke-linecap: round !important;
+  stroke-dasharray: 14, 14 !important;
+  animation: moveGameRoadDashes 0.85s linear infinite !important;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 12px rgba(255, 215, 0, 0.8)) !important;
+}
+
+@keyframes moveGameRoadDashes {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -28;
+  }
 }
 
 .angry-node-wrapper {
@@ -628,27 +616,29 @@
 
 /* Chapter Label Banner (Below Node) */
 .angry-chapter-label {
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(8px);
-  border: 3px solid #f59e0b;
+  background: rgba(11, 25, 44, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 2px solid #F59E0B;
   border-radius: 20px;
-  color: #451a03;
-  font-family: 'Nunito', 'Comic Sans MS', sans-serif;
+  color: #F8FAFC;
+  font-family: 'Nunito', 'Fredoka One', sans-serif;
   font-size: 0.86rem;
   font-weight: 800;
-  padding: 5px 12px;
+  padding: 6px 12px;
   width: 175px;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
   transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   cursor: pointer;
   pointer-events: auto;
 }
 
 .angry-node-wrapper:hover .angry-chapter-label {
-  background: #fef08a;
-  border-color: #d97706;
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 10px 20px rgba(245, 158, 11, 0.35);
+  background: rgba(19, 42, 74, 0.95);
+  border-color: #FFC727;
+  color: #FFFFFF;
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 12px 25px rgba(245, 158, 11, 0.35), 0 0 15px rgba(255, 199, 39, 0.2);
 }
 
 /* Stars Arc */

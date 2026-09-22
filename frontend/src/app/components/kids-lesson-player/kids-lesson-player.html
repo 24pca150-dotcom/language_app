@@ -14,14 +14,14 @@
 
     <!-- Quit Button -->
     <button
-      class="btn btn-light rounded-circle shadow-md hover-lift d-flex align-items-center justify-content-center border border-2 border-secondary"
-      style="width: 42px; height: 42px;" (click)="goToMap()" title="Back to Map">
-      <i class="bi bi-x-lg fw-bold text-secondary fs-6"></i>
+      class="btn rounded-circle shadow-md hover-lift d-flex align-items-center justify-content-center border border-1 border-white border-opacity-25"
+      style="width: 42px; height: 42px; background: rgba(11, 25, 44, 0.85); backdrop-filter: blur(10px);" (click)="goToMap()" title="Back to Map">
+      <i class="bi bi-x-lg fw-bold text-white fs-6"></i>
     </button>
 
     <!-- Expand Steps Drawer Arrow Button -->
     <button
-      class="btn btn-warning rounded-pill shadow-md hover-lift d-flex align-items-center gap-2 px-3 py-2 fw-bold text-dark border border-2 border-dark"
+      class="btn btn-warning rounded-pill shadow-md hover-lift d-flex align-items-center gap-2 px-3 py-2 fw-bold text-dark border border-1 border-white border-opacity-25"
       (click)="toggleStepsDrawer()" title="Show Adventure Steps">
       <i class="bi bi-chevron-right fw-bold"></i>
       <span>Steps 🗺️</span>
@@ -33,34 +33,34 @@
   <header class="position-absolute top-0 start-0 w-100 h-100 pe-none kids-header-hud" style="z-index: 1000;">
     <!-- Quit Button (Floating Top Left) -->
     <button
-      class="btn btn-light rounded-circle shadow-lg position-absolute d-flex align-items-center justify-content-center border border-2 border-secondary hover-lift pe-auto"
-      [class.d-lg-none]="isSidebarOpen()" style="width: 45px; height: 45px; top: 15px; left: 15px; z-index: 1100;"
+      class="btn rounded-circle shadow-lg position-absolute d-flex align-items-center justify-content-center border border-1 border-white border-opacity-25 hover-lift pe-auto"
+      [class.d-lg-none]="isSidebarOpen()" style="width: 45px; height: 45px; top: 15px; left: 15px; z-index: 1100; background: rgba(11, 25, 44, 0.85); backdrop-filter: blur(10px);"
       (click)="goToMap()">
-      <i class="bi bi-x-lg fw-bold text-secondary fs-5"></i>
+      <i class="bi bi-x-lg fw-bold text-white fs-5"></i>
     </button>
 
     <!-- Expand Sidebar Button (Floating Top Left - Desktop Only) -->
     @if (!isSidebarOpen() && !showGameOver() && !lessonFinished()) {
     <button
-      class="btn btn-light rounded-circle shadow-lg position-absolute d-none d-lg-flex align-items-center justify-content-center border border-2 border-secondary hover-lift pe-auto"
-      style="width: 45px; height: 45px; top: 15px; left: 70px; z-index: 1100;" (click)="toggleSidebar()"
+      class="btn rounded-circle shadow-lg position-absolute d-none d-lg-flex align-items-center justify-content-center border border-1 border-white border-opacity-25 hover-lift pe-auto"
+      style="width: 45px; height: 45px; top: 15px; left: 70px; z-index: 1100; background: rgba(11, 25, 44, 0.85); backdrop-filter: blur(10px);" (click)="toggleSidebar()"
       title="Expand Sidebar">
-      <i class="bi bi-chevron-right fw-bold text-secondary fs-5"></i>
+      <i class="bi bi-chevron-right fw-bold text-white fs-5"></i>
     </button>
     }
   </header>
 
   <!-- Main Layout Body -->
   <div class="flex-grow-1 d-flex overflow-hidden w-100" style="min-height: 0;">
-    <!-- Sidebar: Kids Lesson steps list -->
-    <aside class="kids-sidebar-steps d-none d-lg-block border-end border-2 bg-white"
+    <!-- Sidebar: Kids Lesson steps list - Dark Glass Theme -->
+    <aside class="kids-sidebar-steps d-none d-lg-block border-end border-0"
       [class.steps-collapsed]="isStepsDrawerCollapsed()"
       style="width: 280px; z-index: 10; display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden;">
       <!-- Sidebar Fixed Header (Aligned with top HUD height) -->
-      <div class="p-3 border-bottom border-2 d-flex align-items-center justify-content-between bg-white"
-        style="height: 85px; border-color: #cbd5e1 !important;">
+      <div class="p-3 border-bottom border-0 d-flex align-items-center justify-content-between kids-sidebar-header"
+        style="height: 85px;">
         <div class="d-flex align-items-center gap-2">
-          <!-- Main Menu Arrow Button (User Request: "mela oru arrow vachiru venum na eduthukura mathiri intha page vantha matoom scroll aagiranum") -->
+          <!-- Main Menu Arrow Button -->
           <button
             class="btn btn-dark rounded-circle shadow-sm hover-lift d-flex align-items-center justify-content-center flex-shrink-0"
             style="width: 38px; height: 38px; background: #0B192C; border: 1.5px solid #FFC727;"
@@ -70,20 +70,20 @@
 
           <!-- Quit Button inside sidebar header -->
           <button
-            class="btn btn-light rounded-circle border border-2 border-secondary hover-lift d-flex align-items-center justify-content-center flex-shrink-0"
-            style="width: 38px; height: 38px;" (click)="goToMap()" title="Back to Map">
-            <i class="bi bi-x-lg fw-bold text-secondary fs-6"></i>
+            class="btn rounded-circle border border-1 border-white border-opacity-25 hover-lift d-flex align-items-center justify-content-center flex-shrink-0"
+            style="width: 38px; height: 38px; background: rgba(255,255,255,0.08);" (click)="goToMap()" title="Back to Map">
+            <i class="bi bi-x-lg fw-bold text-white fs-6"></i>
           </button>
 
-          <span class="text-secondary small fw-bold text-uppercase mb-0 text-truncate"
-            style="letter-spacing: 0.5px; font-family: 'Nunito', sans-serif; font-size: 0.88rem;">Steps 🗺️</span>
+          <span class="text-white-50 small fw-bold text-uppercase mb-0 text-truncate"
+            style="letter-spacing: 1px; font-family: 'Nunito', sans-serif; font-size: 0.88rem;">Steps 🗺️</span>
         </div>
 
         <!-- Collapse Steps Drawer Arrow Button -->
         <button
-          class="btn btn-light rounded-circle border border-2 border-secondary hover-lift d-flex align-items-center justify-content-center flex-shrink-0"
-          style="width: 34px; height: 34px;" (click)="toggleStepsDrawer()" title="Collapse Steps Panel">
-          <i class="bi bi-chevron-left fw-bold text-secondary fs-6"></i>
+          class="btn rounded-circle border border-1 border-white border-opacity-25 hover-lift d-flex align-items-center justify-content-center flex-shrink-0 text-white-50 hover-text-white"
+          style="width: 34px; height: 34px; background: rgba(255,255,255,0.05);" (click)="toggleStepsDrawer()" title="Collapse Steps Panel">
+          <i class="bi bi-chevron-left fw-bold fs-6"></i>
         </button>
       </div>
 
@@ -92,7 +92,7 @@
         <div class="d-flex flex-column gap-2">
           @for (step of lessonSequence(); track $index) {
           <button
-            class="kids-step-btn text-start p-3 rounded-4 border-2 transition-all d-flex align-items-center gap-3 w-100"
+            class="kids-step-btn text-start p-3 rounded-4 transition-all d-flex align-items-center gap-3 w-100"
             [class.active]="$index === currentStepIndex()"
             [class.completed]="$index < highestStepIndex() || lessonFinished() || isChapterCompleted()"
             [disabled]="$index > highestStepIndex() && !lessonFinished() && !isChapterCompleted()"
@@ -105,9 +105,9 @@
                 }
             </div>
             <div class="flex-grow-1 overflow-hidden">
-              <span class="kids-step-title fw-bold d-block text-dark"
+              <span class="kids-step-title fw-bold d-block text-white"
                 style="font-family: 'Nunito', sans-serif; font-size: 0.95rem;">{{ step.title }}</span>
-              <span class="kids-step-type text-capitalize text-muted small"
+              <span class="kids-step-type text-capitalize text-white-50 small"
                 style="font-family: 'Nunito', sans-serif; font-size: 0.8rem;">{{ step.type }}</span>
             </div>
           </button>
@@ -168,9 +168,10 @@
           <button class="btn btn-warning rounded-pill px-4 py-3 fw-bold text-dark shadow-md border border-2 border-white hover-lift fs-5 d-flex align-items-center gap-2"
             (click)="goToActivities()" title="Play interactive games for this chapter">
             <i class="bi bi-controller fs-4"></i>
-            <span>Play Chapter Games</span>
+            <span>Play</span>
           </button>
-          <button class="btn btn-light rounded-pill px-4 py-3 fw-bold text-secondary shadow-sm border border-2 border-secondary hover-lift fs-5"
+          <button class="btn rounded-pill px-4 py-3 fw-bold text-white shadow-sm border border-1 border-white border-opacity-25 hover-lift fs-5"
+            style="background: rgba(11, 25, 44, 0.85); backdrop-filter: blur(10px);"
             (click)="goToMap()">
             <i class="bi bi-map-fill me-2"></i> Back to Map
           </button>
@@ -180,9 +181,9 @@
       <!-- OUT OF HEARTS SCREEN -->
       <div class="text-center animate-pop-in w-100 max-w-md mx-auto my-auto pb-5">
         <i class="bi bi-heartbreak-fill text-danger mb-4"
-          style="font-size: 6rem; filter: drop-shadow(0 4px 0 #c62828);"></i>
-        <h2 class="fw-bold text-dark mb-3">Out of Hearts!</h2>
-        <p class="fs-5 text-secondary mb-5">You made too many mistakes. Don't worry, refill your hearts and try again!
+          style="font-size: 6rem; filter: drop-shadow(0 4px 15px rgba(239, 68, 68, 0.6));"></i>
+        <h2 class="fw-bold text-white mb-3">Out of Hearts!</h2>
+        <p class="fs-5 text-white-50 mb-5">You made too many mistakes. Don't worry, refill your hearts and try again!
         </p>
 
         <button
@@ -190,7 +191,7 @@
           (click)="retryActivity()">
           <i class="bi bi-suit-heart-fill text-danger me-2"></i> Refill Hearts
         </button>
-        <button class="btn btn-outline-secondary rounded-pill w-100 py-3 fw-bold hover-lift" (click)="goToMap()">
+        <button class="btn btn-outline-light rounded-pill w-100 py-3 fw-bold hover-lift" (click)="goToMap()">
           Quit to Map
         </button>
       </div>
@@ -200,8 +201,8 @@
         @if (currentStep(); as step) {
         @if (step.type !== 'reading') {
         <div class="position-relative w-100 d-flex justify-content-center align-items-center mb-4">
-          <h3 class="fw-bold text-dark text-center m-0 px-4 py-2 bg-white rounded-pill shadow-sm"
-            style="font-family: 'Nunito', sans-serif; border: 3px solid #bbf7d0; font-size: 1.3rem;">
+          <h3 class="fw-bold text-white text-center m-0 px-4 py-2 rounded-pill shadow-lg"
+            style="font-family: 'Nunito', sans-serif; background: rgba(11, 25, 44, 0.92); border: 2px solid #FFC727; font-size: 1.25rem; backdrop-filter: blur(12px); box-shadow: 0 8px 25px rgba(0,0,0,0.5), 0 0 15px rgba(255,199,39,0.2) !important;">
             ✨ {{ step.title }}
           </h3>
         </div>
@@ -210,71 +211,70 @@
         @if (step.type === 'video') {
         <!-- Premium Video Player -->
         <div
-          class="w-100 rounded-5 shadow-lg overflow-hidden position-relative d-flex flex-column mx-auto mt-auto mb-auto bg-dark border border-4 border-secondary transition-all"
-          style="max-width: 900px; max-height: 60vh; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+          class="w-100 rounded-5 shadow-lg overflow-hidden position-relative d-flex flex-column mx-auto mt-auto mb-auto bg-dark border border-2 border-secondary transition-all"
+          style="max-width: 900px; max-height: 60vh; box-shadow: 0 15px 40px rgba(0,0,0,0.7);">
           <div class="w-100 position-relative" style="aspect-ratio: 16/9; background: #000;">
             <video #lessonVideo [src]="step.data" controls class="w-100 h-100" style="object-fit: contain;"
               (ended)="onVideoEnded()"></video>
           </div>
           <div class="p-4 d-flex justify-content-between align-items-center"
-            style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+            style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-top: 1px solid rgba(255,255,255,0.1);">
             <div>
               <h4 class="mb-1 fw-bold text-white"><i class="bi bi-camera-video me-2 text-warning"></i> {{ step.title }}
               </h4>
-              <small class="text-white opacity-75">Watch the video to learn the concept!</small>
+              <small class="text-white-50">Watch the video to learn the concept!</small>
             </div>
           </div>
         </div>
         }
 
         @if (step.type === 'pdf') {
-        <!-- Premium Document Resource -->
+        <!-- Premium Document Resource - Dark Theme -->
         <div
-          class="w-100 rounded-5 shadow-lg position-relative d-flex flex-column align-items-center justify-content-center p-5 mx-auto mt-auto mb-auto bg-white transition-all overflow-hidden"
-          style="max-width: 650px; border: 4px solid #fecdd3; transition: transform 0.3s;"
+          class="w-100 rounded-5 shadow-lg position-relative d-flex flex-column align-items-center justify-content-center p-5 mx-auto mt-auto mb-auto transition-all overflow-hidden"
+          style="max-width: 650px; background: rgba(15, 23, 42, 0.9); border: 2px solid rgba(239, 68, 68, 0.4); backdrop-filter: blur(20px); transition: transform 0.3s; box-shadow: 0 20px 50px rgba(0,0,0,0.6);"
           onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
           <div
             class="position-absolute top-0 end-0 bg-danger text-white px-4 py-2 rounded-bottom-start-4 fw-bold shadow-sm z-2">
             <i class="bi bi-bookmark-star-fill me-1"></i> Resource
           </div>
           <!-- Background decorations -->
-          <div class="position-absolute start-0 bottom-0 opacity-10"
+          <div class="position-absolute start-0 bottom-0 opacity-10 text-white"
             style="transform: rotate(-15deg); margin-left: -50px; margin-bottom: -50px;">
             <i class="bi bi-file-earmark-text" style="font-size: 15rem;"></i>
           </div>
 
           <i class="bi bi-file-earmark-pdf-fill text-danger mb-4 z-1"
-            style="font-size: 7rem; filter: drop-shadow(0 10px 15px rgba(239,68,68,0.3));"></i>
-          <h3 class="fw-bold text-dark mb-2 z-1" style="font-size: 2rem;">Read the Story</h3>
-          <p class="text-secondary text-center mb-5 fs-5 z-1">Open this magic document to learn something new!</p>
+            style="font-size: 7rem; filter: drop-shadow(0 10px 20px rgba(239,68,68,0.4));"></i>
+          <h3 class="fw-bold text-white mb-2 z-1" style="font-size: 2rem;">Read the Story</h3>
+          <p class="text-white-50 text-center mb-5 fs-5 z-1">Open this document to explore new lessons!</p>
           <button
-            class="btn btn-danger btn-lg rounded-pill px-5 py-3 shadow-lg fw-bold d-flex align-items-center gap-3 border-bottom border-4 z-1"
-            style="font-size: 1.25rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'"
-            onmouseout="this.style.transform='scale(1)'">
+            class="btn btn-danger btn-lg rounded-pill px-5 py-3 shadow-lg fw-bold d-flex align-items-center gap-3 border-bottom border-4 z-1 hover-lift"
+            style="font-size: 1.25rem;">
             <i class="bi bi-cloud-download-fill fs-3"></i> Open Document
           </button>
         </div>
         }
 
         @if (step.type === 'reading') {
-        <!-- Reading Content (Card Box) -->
+        <!-- Reading Content (Dark Luxury Glass Box) -->
         <div
-          class="w-100 d-flex flex-column align-items-center justify-content-between mx-auto bg-white bg-opacity-75 shadow-lg position-relative"
-          style="max-width: 1200px; height: 75vh; padding: 2rem 3rem; border-radius: 40px; border: 6px solid rgba(255, 255, 255, 0.8); backdrop-filter: blur(5px);">
+          class="w-100 d-flex flex-column align-items-center justify-content-between mx-auto shadow-lg position-relative"
+          style="max-width: 1200px; height: 75vh; padding: 2rem 3rem; border-radius: 36px; background: rgba(15, 23, 42, 0.9); border: 1.5px solid rgba(255, 255, 255, 0.15); border-top: 3px solid #FFC727; backdrop-filter: blur(24px); box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 30px rgba(255, 199, 39, 0.12) !important;">
 
           <!-- Read Aloud Button (Top Right Corner) -->
           <button
             class="btn rounded-circle shadow-lg position-absolute d-flex align-items-center justify-content-center hover-lift transition-all"
-            [ngClass]="isSpeaking() ? 'btn-success border-success text-white' : 'btn-warning border-white'"
-            style="top: -20px; right: -15px; width: 65px; height: 65px; border: 5px solid; z-index: 15;"
+            [ngClass]="isSpeaking() ? 'btn-success border-success text-white' : 'btn-warning border-white text-dark'"
+            style="top: -20px; right: -15px; width: 60px; height: 60px; border: 4px solid; z-index: 15;"
             (click)="toggleSpeech(rawReadingHtml())">
-            <i class="bi fs-2" [ngClass]="isSpeaking() ? 'bi-volume-up-fill' : 'bi-volume-mute-fill text-dark'"></i>
+            <i class="bi fs-3" [ngClass]="isSpeaking() ? 'bi-volume-up-fill' : 'bi-volume-mute-fill'"></i>
           </button>
 
           <!-- Lesson Title (Top Left Corner) -->
           <div class="position-absolute" style="top: -20px; left: -15px; z-index: 15;">
-            <h3 class="fw-bold text-dark text-center m-0 px-4 py-2 bg-white rounded-pill shadow-sm"
-              style="font-family: 'Fredoka One', cursive; border: 4px solid #fcd34d; font-size: 1.4rem;">
+            <h3 class="fw-bold text-white text-center m-0 px-4 py-2 rounded-pill shadow-lg"
+              style="font-family: 'Fredoka One', cursive; background: #0B192C; border: 2.5px solid #FFC727; font-size: 1.25rem; box-shadow: 0 8px 20px rgba(0,0,0,0.5);">
               ✨ {{ currentStepIndex() + 1 }}. {{ step.title }}
             </h3>
           </div>
@@ -284,17 +284,17 @@
             style="min-height: 0;">
             <!-- Mascot Presentation Pose -->
             <div class="d-none d-lg-block position-relative animate-bounce align-self-end mb-4"
-              style="width: 180px; z-index: 5;">
+              style="width: 170px; z-index: 5;">
               <img src="/assets/images/mascot.png" alt="Mascot" class="w-100"
-                style="filter: drop-shadow(0 15px 25px rgba(0,0,0,0.2))">
+                style="filter: drop-shadow(0 15px 25px rgba(0,0,0,0.4))">
             </div>
 
             <!-- Floating Text Area -->
             <div
               class="flex-grow-1 position-relative p-3 w-100 h-100 d-flex flex-column align-items-center justify-content-center overflow-hidden">
-              <!-- Huge Floating Content Area -->
+              <!-- Content Area -->
               <div class="reading-content w-100 text-center px-4 py-3 h-100 d-flex flex-column hide-scrollbar"
-                style="overflow-y: auto; justify-content: flex-start; font-size: 1.3rem; line-height: 1.7; color: #1e293b; font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; text-shadow: 0px 4px 15px rgba(255,255,255,0.8); font-weight: 600; letter-spacing: 0.5px;">
+                style="overflow-y: auto; justify-content: flex-start; font-size: 1.35rem; line-height: 1.75; color: #F8FAFC; font-family: 'Fredoka', 'Nunito', sans-serif; text-shadow: 0 2px 10px rgba(0,0,0,0.8); font-weight: 600; letter-spacing: 0.5px;">
                 <div class="mt-auto mb-auto">
                   <span [innerHTML]="rawReadingHtml()"></span>
                 </div>
@@ -305,24 +305,26 @@
           <!-- Navigation Controls -->
           <div class="d-flex justify-content-between align-items-center w-100 mt-2 px-2 px-md-4">
             <button
-              class="btn btn-light rounded-circle shadow-sm hover-lift d-flex align-items-center justify-content-center"
-              style="width: 50px; height: 50px; border: 3px solid #cbd5e1;" (click)="prevContentPage()"
+              class="btn rounded-circle shadow-sm hover-lift d-flex align-items-center justify-content-center border border-1 border-white border-opacity-25"
+              style="width: 48px; height: 48px; background: rgba(255,255,255,0.08);" (click)="prevContentPage()"
               [disabled]="currentContentPage() === 0">
-              <i class="bi bi-chevron-left fs-4 text-secondary fw-bold"></i>
+              <i class="bi bi-chevron-left fs-4 text-white fw-bold"></i>
             </button>
-            <div class="d-flex gap-3 bg-white px-4 py-2 rounded-pill shadow-sm border border-2 border-light">
+            <div class="d-flex gap-3 px-4 py-2 rounded-pill shadow-sm border border-1 border-white border-opacity-20"
+                 style="background: rgba(11, 25, 44, 0.85); backdrop-filter: blur(10px);">
               @if (step.data.isJson) {
               @for (b of step.data.blocks; track $index) {
               <div class="rounded-pill"
-                style="height: 12px; transition: all 0.3s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);"
-                [style.width]="$index === currentContentPage() ? '40px' : '12px'"
-                [ngClass]="$index === currentContentPage() ? 'bg-primary' : 'bg-secondary opacity-25'"></div>
+                style="height: 12px; transition: all 0.3s ease;"
+                [style.width]="$index === currentContentPage() ? '38px' : '12px'"
+                [style.background]="$index === currentContentPage() ? '#FFC727' : 'rgba(255,255,255,0.2)'"
+                [style.box-shadow]="$index === currentContentPage() ? '0 0 10px rgba(255,199,39,0.8)' : 'none'"></div>
               }
               }
             </div>
             <button
-              class="btn btn-primary rounded-circle shadow-sm hover-lift d-flex align-items-center justify-content-center text-white"
-              style="width: 50px; height: 50px; border: 3px solid white;" (click)="nextContentPage()"
+              class="btn btn-warning rounded-circle shadow-sm hover-lift d-flex align-items-center justify-content-center text-dark"
+              style="width: 48px; height: 48px; border: 2px solid white;" (click)="nextContentPage()"
               [disabled]="(step.data.isJson && currentContentPage() === step.data.blocks.length - 1) || !step.data.isJson">
               <i class="bi bi-chevron-right fs-4 fw-bold"></i>
             </button>
@@ -339,39 +341,6 @@
           }
         </div>
         }
-
-        @if (step.type === 'assessment') {
-        <!-- Premium Boss Challenge -->
-        <div
-          class="w-100 rounded-5 shadow-lg position-relative d-flex flex-column align-items-center justify-content-center p-5 mx-auto mt-auto mb-auto overflow-hidden transition-all"
-          style="max-width: 700px; background: linear-gradient(135deg, #2e1065 0%, #4c1d95 100%); border: 4px solid #a78bfa;">
-          <!-- Animated glowing background rings -->
-          <div class="position-absolute rounded-circle border border-5 border-white opacity-10"
-            style="width: 400px; height: 400px; animation: ping 3s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
-          <div class="position-absolute rounded-circle border border-5 border-white opacity-20"
-            style="width: 300px; height: 300px;"></div>
-
-          <div class="bg-warning rounded-circle p-4 mb-4 shadow-lg z-1 position-relative">
-            <i class="bi bi-joystick text-dark" style="font-size: 6rem;"></i>
-            <div
-              class="position-absolute top-0 end-0 bg-danger rounded-circle d-flex align-items-center justify-content-center shadow"
-              style="width: 35px; height: 35px; margin-top: 5px; margin-right: 5px; animation: bounce 2s infinite;">
-              <i class="bi bi-star-fill text-white fs-5"></i>
-            </div>
-          </div>
-
-          <h2 class="fw-bold text-white mb-3 z-1" style="font-size: 2.5rem; text-shadow: 0 4px 10px rgba(0,0,0,0.5);">
-            Final Challenge!</h2>
-          <p class="text-white opacity-75 text-center mb-5 fs-4 z-1">You've learned so much. Are you ready to win?</p>
-          <button
-            class="btn btn-warning btn-lg rounded-pill px-5 py-3 fw-bold shadow-lg border-bottom border-4 border-dark z-1"
-            style="font-size: 1.5rem; color: #4c1d95; transition: transform 0.2s;"
-            onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"
-            (click)="startAssessment(step)">
-            <i class="bi bi-lightning-charge-fill me-2"></i> Start Assessment
-          </button>
-        </div>
-        }
         }
       </div>
       }
@@ -386,7 +355,7 @@
       <div class="position-absolute start-50 translate-middle-x animate-bounce-in pe-auto"
         style="bottom: 30px; width: 90%; max-width: 800px; z-index: 1050;">
         <div class="rounded-pill p-3 px-5 d-flex justify-content-between align-items-center position-relative shadow-lg"
-          style="background: #d7ffb8; border: 4px solid #bbf7d0; box-shadow: 0 20px 40px rgba(74, 222, 128, 0.3) !important;">
+          style="background: rgba(6, 78, 59, 0.95); border: 2px solid #10b981; backdrop-filter: blur(20px); box-shadow: 0 20px 45px rgba(16, 185, 129, 0.45) !important;">
 
           <!-- Mascot Reaction -->
           <div class="position-absolute" style="bottom: -10px; left: -20px;">
@@ -398,14 +367,14 @@
 
           <!-- Message -->
           <div class="d-flex align-items-center gap-4" style="margin-left: 130px;">
-            <div class="bg-white text-success rounded-circle d-flex align-items-center justify-content-center shadow-sm"
-              style="width: 60px; height: 60px;">
-              <i class="bi bi-check-lg" style="font-size: 2.5rem; -webkit-text-stroke: 3px;"></i>
+            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+              style="width: 56px; height: 56px; border: 2px solid white;">
+              <i class="bi bi-check-lg" style="font-size: 2.2rem; -webkit-text-stroke: 1.5px;"></i>
             </div>
             <div>
-              <h2 class="text-success fw-bold mb-0" style="font-size: 2rem; font-family: 'Nunito', sans-serif;">
+              <h2 class="text-white fw-bold mb-0" style="font-size: 1.9rem; font-family: 'Nunito', sans-serif;">
                 Awesome!</h2>
-              <p class="text-success text-opacity-75 mb-0 fw-bold fs-5">You got it right. <span
+              <p class="text-white-50 mb-0 fw-bold fs-5">You got it right. <span
                   class="text-warning text-shadow">+10 XP</span></p>
             </div>
           </div>
@@ -422,7 +391,7 @@
       <div class="position-absolute start-50 translate-middle-x animate-bounce-in pe-auto"
         style="bottom: 30px; width: 90%; max-width: 800px; z-index: 1050;">
         <div class="rounded-pill p-3 px-5 d-flex justify-content-between align-items-center position-relative shadow-lg"
-          style="background: #fee2e2; border: 4px solid #fecaca; box-shadow: 0 20px 40px rgba(248, 113, 113, 0.3) !important;">
+          style="background: rgba(127, 29, 29, 0.95); border: 2px solid #ef4444; backdrop-filter: blur(20px); box-shadow: 0 20px 45px rgba(239, 68, 68, 0.45) !important;">
 
           <!-- Mascot Reaction -->
           <div class="position-absolute" style="bottom: -10px; left: -20px;">
@@ -432,14 +401,14 @@
 
           <!-- Message -->
           <div class="d-flex align-items-center gap-4" style="margin-left: 120px;">
-            <div class="bg-white text-danger rounded-circle d-flex align-items-center justify-content-center shadow-sm"
-              style="width: 60px; height: 60px;">
-              <i class="bi bi-x-lg" style="font-size: 2.5rem; -webkit-text-stroke: 3px;"></i>
+            <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+              style="width: 56px; height: 56px; border: 2px solid white;">
+              <i class="bi bi-x-lg" style="font-size: 2rem; -webkit-text-stroke: 1.5px;"></i>
             </div>
             <div>
-              <h2 class="text-danger fw-bold mb-0" style="font-size: 2rem; font-family: 'Nunito', sans-serif;">Not quite
+              <h2 class="text-white fw-bold mb-0" style="font-size: 1.9rem; font-family: 'Nunito', sans-serif;">Not quite
                 right</h2>
-              <p class="text-danger text-opacity-75 mb-0 fw-bold fs-5">Let's try that again!</p>
+              <p class="text-white-50 mb-0 fw-bold fs-5">Let's try that again!</p>
             </div>
           </div>
 
@@ -460,8 +429,8 @@
         <div class="position-absolute d-flex align-items-center gap-3 pe-auto kids-prev-btn" style="bottom: 20px;">
           @if (currentStepIndex() > 0 && !lessonFinished()) {
           <button
-            class="btn btn-light rounded-pill px-4 py-2 fw-bold fs-5 text-secondary shadow-lg hover-lift border border-4 border-light transition-all"
-            style="min-width: 140px;" (click)="prevLessonStep()">
+            class="btn rounded-pill px-4 py-2 fw-bold fs-5 text-white shadow-lg hover-lift border border-1 border-white border-opacity-25 transition-all"
+            style="min-width: 140px; background: rgba(11, 25, 44, 0.85); backdrop-filter: blur(10px);" (click)="prevLessonStep()">
             <i class="bi bi-chevron-left me-2"></i> PREV
           </button>
           }

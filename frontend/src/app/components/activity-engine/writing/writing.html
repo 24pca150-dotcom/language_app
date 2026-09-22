@@ -1,29 +1,29 @@
-<div class="mb-4 glass-card writing-container">
+<div class="mb-1 writing-container">
 
   <!-- Instruction Question -->
-  <h5 class="text-dark fw-bold mb-3" [innerHTML]="activity?.question || 'Write a short composition based on the prompt:'"></h5>
+  <h5 class="text-dark fw-bold mb-2 fs-6" [innerHTML]="activity?.question || 'Write a short composition based on the prompt:'"></h5>
 
   <!-- Prompt Passage or Hints List Box -->
   @if (activity?.text) {
-    <div class="card bg-light border-0 rounded-4 p-4 mb-4">
-      <div class="d-flex align-items-center gap-2 mb-2 text-primary fw-bold" style="font-size: 0.85rem;">
+    <div class="card bg-light border-0 rounded-4 p-3 mb-2">
+      <div class="d-flex align-items-center gap-2 mb-1 text-primary fw-bold" style="font-size: 0.85rem;">
         <i class="bi bi-file-text-fill"></i>
         <span>Writing Prompt / Hints:</span>
       </div>
-      <p class="m-0 text-secondary fw-semibold" style="font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap;">{{ activity?.text }}</p>
+      <p class="m-0 text-secondary fw-semibold" style="font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap;">{{ activity?.text }}</p>
     </div>
   }
 
-  <!-- Writing Editor Box / Image Fill Grid -->
+  <!-- Writing Editor Box / Image Fill Grid (Compact Single-Screen Layout) -->
   @if (activity?.mode === 'image_fill') {
-    <div class="row g-4 mb-4">
+    <div class="row g-2 mb-2">
       <!-- Left Column items -->
-      <div class="col-12 col-md-6 d-flex flex-column gap-3">
+      <div class="col-12 col-md-6 d-flex flex-column gap-2">
         @for (item of leftItems(); track item.id) {
-          <div class="card p-3 border rounded-4 bg-white shadow-sm d-flex flex-column align-items-center gap-2">
-            <img [src]="item.image" alt="Identify image" class="img-fluid rounded-3 bg-light p-2" style="max-height: 120px; object-fit: contain;">
+          <div class="card p-2 px-3 border rounded-4 bg-white shadow-sm d-flex flex-row align-items-center gap-3">
+            <img [src]="item.image" alt="Identify image" class="rounded-3 bg-light p-1 shadow-xs" style="width: 68px; height: 68px; object-fit: cover; flex-shrink: 0;">
             
-            <div class="w-100 mt-2">
+            <div class="flex-grow-1">
               <input type="text"
                      class="form-control text-center rounded-pill fw-bold border-2"
                      [class.is-valid]="hasSubmitted() && item.isCorrect"
@@ -31,14 +31,14 @@
                      [disabled]="hasSubmitted()"
                      [(ngModel)]="item.userAnswer"
                      placeholder="Type what you see here..."
-                     style="font-size: 1rem; border-color: #cbd5e1;" />
+                     style="font-size: 0.92rem; border-color: #cbd5e1; height: 38px;" />
               
               @if (hasSubmitted()) {
-                <div class="text-center mt-2" [class.text-success]="item.isCorrect" [class.text-danger]="!item.isCorrect" style="font-size: 0.85rem; font-weight: 600;">
+                <div class="text-center mt-1" [class.text-success]="item.isCorrect" [class.text-danger]="!item.isCorrect" style="font-size: 0.8rem; font-weight: 600;">
                   @if (item.isCorrect) {
-                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill"><i class="bi bi-check-circle-fill"></i> Correct</span>
+                    <span class="badge bg-success bg-opacity-10 text-success px-2 py-1 rounded-pill"><i class="bi bi-check-circle-fill"></i> Correct</span>
                   } @else {
-                    <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill"><i class="bi bi-x-circle-fill"></i> Incorrect (Ans: {{ item.correctAnswer }})</span>
+                    <span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1 rounded-pill"><i class="bi bi-x-circle-fill"></i> Incorrect (Ans: {{ item.correctAnswer }})</span>
                   }
                 </div>
               }
@@ -48,12 +48,12 @@
       </div>
 
       <!-- Right Column items -->
-      <div class="col-12 col-md-6 d-flex flex-column gap-3">
+      <div class="col-12 col-md-6 d-flex flex-column gap-2">
         @for (item of rightItems(); track item.id) {
-          <div class="card p-3 border rounded-4 bg-white shadow-sm d-flex flex-column align-items-center gap-2">
-            <img [src]="item.image" alt="Identify image" class="img-fluid rounded-3 bg-light p-2" style="max-height: 120px; object-fit: contain;">
+          <div class="card p-2 px-3 border rounded-4 bg-white shadow-sm d-flex flex-row align-items-center gap-3">
+            <img [src]="item.image" alt="Identify image" class="rounded-3 bg-light p-1 shadow-xs" style="width: 68px; height: 68px; object-fit: cover; flex-shrink: 0;">
             
-            <div class="w-100 mt-2">
+            <div class="flex-grow-1">
               <input type="text"
                      class="form-control text-center rounded-pill fw-bold border-2"
                      [class.is-valid]="hasSubmitted() && item.isCorrect"
@@ -61,14 +61,14 @@
                      [disabled]="hasSubmitted()"
                      [(ngModel)]="item.userAnswer"
                      placeholder="Type what you see here..."
-                     style="font-size: 1rem; border-color: #cbd5e1;" />
+                     style="font-size: 0.92rem; border-color: #cbd5e1; height: 38px;" />
               
               @if (hasSubmitted()) {
-                <div class="text-center mt-2" [class.text-success]="item.isCorrect" [class.text-danger]="!item.isCorrect" style="font-size: 0.85rem; font-weight: 600;">
+                <div class="text-center mt-1" [class.text-success]="item.isCorrect" [class.text-danger]="!item.isCorrect" style="font-size: 0.8rem; font-weight: 600;">
                   @if (item.isCorrect) {
-                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill"><i class="bi bi-check-circle-fill"></i> Correct</span>
+                    <span class="badge bg-success bg-opacity-10 text-success px-2 py-1 rounded-pill"><i class="bi bi-check-circle-fill"></i> Correct</span>
                   } @else {
-                    <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill"><i class="bi bi-x-circle-fill"></i> Incorrect (Ans: {{ item.correctAnswer }})</span>
+                    <span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1 rounded-pill"><i class="bi bi-x-circle-fill"></i> Incorrect (Ans: {{ item.correctAnswer }})</span>
                   }
                 </div>
               }
@@ -78,17 +78,17 @@
       </div>
     </div>
   } @else {
-    <div class="mb-4">
+    <div class="mb-2">
       <textarea 
-        class="form-control rounded-4 p-4 border shadow-sm editor-textarea" 
-        rows="8"
+        class="form-control rounded-4 p-3 border shadow-sm editor-textarea" 
+        rows="5"
         [placeholder]="activity?.starterText ? 'Continue the story...' : 'Type your answer here...'"
         [(ngModel)]="userText"
         [disabled]="hasSubmitted()"
-        style="font-size: 1.05rem; line-height: 1.6; min-height: 200px; resize: vertical;"></textarea>
+        style="font-size: 1rem; line-height: 1.5; min-height: 140px; resize: vertical;"></textarea>
       
       <!-- Counters Footer -->
-      <div class="d-flex justify-content-between align-items-center mt-2 px-2 text-secondary" style="font-size: 0.85rem; font-weight: 500;">
+      <div class="d-flex justify-content-between align-items-center mt-1 px-2 text-secondary" style="font-size: 0.8rem; font-weight: 500;">
         <div>
           <span>Words: <strong>{{ wordCount() }}</strong></span>
           @if (activity?.minWords) {
@@ -101,22 +101,24 @@
   }
 
   <!-- Controls -->
-  <div class="d-flex gap-3 justify-content-center mt-3">
+  <div class="d-flex gap-2 justify-content-center mt-2">
     @if (!hasSubmitted()) {
       <button type="button" 
-              class="btn-action check-btn border-0 py-3 px-5 rounded-pill fw-bold text-white d-inline-flex align-items-center gap-2 shadow" 
+              class="btn-action check-btn border-0 py-2 px-4 rounded-pill fw-bold text-white d-inline-flex align-items-center gap-2 shadow-sm" 
               [disabled]="activity?.mode !== 'image_fill' && !isValidLength()"
-              (click)="submitWriting()">
+              (click)="submitWriting()"
+              style="font-size: 0.9rem;">
         <i class="bi bi-shield-check"></i> Submit Answers
       </button>
     } @else {
-      <div class="animate-fade-in card border-0 bg-success bg-opacity-5 rounded-4 p-3 text-center text-success mb-0 flex-grow-1">
-        <h5 class="fw-bold m-0"><i class="bi bi-check-circle-fill me-1"></i> Answers Submitted!</h5>
+      <div class="animate-fade-in card border-0 bg-success bg-opacity-5 rounded-pill px-3 py-1 text-center text-success mb-0 d-inline-flex align-items-center">
+        <span class="fw-bold fs-6"><i class="bi bi-check-circle-fill me-1"></i> Answers Submitted!</span>
       </div>
     }
     <button type="button" 
-            class="btn-action reset-btn border-0 py-3 px-4 rounded-pill fw-bold d-inline-flex align-items-center gap-2 shadow" 
-            (click)="reset()">
+            class="btn-action reset-btn border-0 py-2 px-3 rounded-pill fw-bold d-inline-flex align-items-center gap-2 shadow-sm" 
+            (click)="reset()"
+            style="font-size: 0.9rem;">
       <i class="bi bi-arrow-counterclockwise"></i> Reset
     </button>
   </div>
