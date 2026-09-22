@@ -26,24 +26,33 @@ export class AudioService {
     });
   }
 
-  playSuccess() {
+  playSuccess(speechText: string = "Super!") {
     this.stopAll();
     if (this.successSound.state() === 'loaded') {
       this.successSound.play();
     } else {
       this.synthesizeSuccess();
     }
-    this.speak("Yes, you are right!");
+    this.speak(speechText);
   }
 
-  playError() {
+  playSuccessSoundOnly() {
+    this.stopAll();
+    if (this.successSound.state() === 'loaded') {
+      this.successSound.play();
+    } else {
+      this.synthesizeSuccess();
+    }
+  }
+
+  playError(speechText: string = "Wrong!") {
     this.stopAll();
     if (this.errorSound.state() === 'loaded') {
       this.errorSound.play();
     } else {
       this.synthesizeError();
     }
-    this.speak("No, you are wrong!");
+    this.speak(speechText);
   }
 
   speak(text: string) {

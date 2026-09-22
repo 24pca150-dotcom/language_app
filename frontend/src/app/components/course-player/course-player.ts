@@ -23,7 +23,7 @@ import confetti from 'canvas-confetti';
 import { gsap } from 'gsap';
 import { AudioService } from '../../services/audio.service';
 import { AuthService } from '../../services/auth';
-
+import { CloudTransitionService } from '../../services/cloud-transition.service';
 
 @Component({
   selector: 'app-course-player',
@@ -39,6 +39,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
   private courseService = inject(CourseService);
   private audioService = inject(AudioService);
   private authService = inject(AuthService);
+  private cloudTransition = inject(CloudTransitionService);
 
   courseId = signal<number | null>(null);
   userId = signal<number>(1);
@@ -336,8 +337,10 @@ export class CoursePlayer implements OnInit, OnDestroy {
       this.triggerMascotWarning('🔒 Level is locked! Complete all chapters of the previous level to unlock.');
       return;
     }
-    this.activeLevelId.set(id);
-    this.currentView.set('map');
+    this.cloudTransition.triggerTransition(() => {
+      this.activeLevelId.set(id);
+      this.currentView.set('map');
+    });
   }
 
   selectChapterNode(id: number) {
@@ -345,7 +348,9 @@ export class CoursePlayer implements OnInit, OnDestroy {
       this.triggerMascotWarning('🔒 Chapter is locked! Complete preceding chapters to unlock.');
       return;
     }
-    this.startLesson(id);
+    this.cloudTransition.triggerTransition(() => {
+      this.startLesson(id);
+    });
   }
 
   resolveActivityReferences(contents: Content[]): Observable<Content[]> {
@@ -541,23 +546,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
           });
         }
       }
-
-      if (content.assessments && content.assessments.length > 0) {
-        steps.push({
-          type: 'assessment',
-          title: content.title || content.name + ' - Quiz',
-          data: content.assessments
-        });
-      }
     });
-
-    if (chapterAssessments.length > 0) {
-      steps.push({
-        type: 'assessment',
-        title: 'Chapter Quiz',
-        data: chapterAssessments
-      });
-    }
 
     this.lessonSequence.set(steps);
     if (this.currentStepIndex() >= steps.length) {
@@ -596,7 +585,9 @@ export class CoursePlayer implements OnInit, OnDestroy {
   }
 
   goToLevels() {
-    this.currentView.set('levels');
+    this.cloudTransition.triggerTransition(() => {
+      this.currentView.set('levels');
+    });
   }
 
   selectTopic(id: number): void {
@@ -607,21 +598,27 @@ export class CoursePlayer implements OnInit, OnDestroy {
     this.http.get<Content>(url).subscribe({
       next: (content) => {
         this.fullContent.set(content);
-        this.currentView.set('content'); // Switch to content overlay
+        this.cloudTransition.triggerTransition(() => {
+          this.currentView.set('content'); // Switch to content overlay
+        });
       },
       error: (err) => console.error('Failed to load topic content:', err)
     });
   }
 
   goToMap(): void {
-    this.currentView.set('map');
+    this.cloudTransition.triggerTransition(() => {
+      this.currentView.set('map');
+    });
   }
 
   goToActivity(): void {
-    this.hearts.set(5);
-    this.showGameOver.set(false);
-    this.currentActivityIndex.set(0);
-    this.currentView.set('activity');
+    this.cloudTransition.triggerTransition(() => {
+      this.hearts.set(5);
+      this.showGameOver.set(false);
+      this.currentActivityIndex.set(0);
+      this.currentView.set('activity');
+    });
   }
 
 

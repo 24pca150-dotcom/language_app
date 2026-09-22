@@ -1,47 +1,59 @@
-  /* ── LESSON PLAYER BACKGROUND ── */
+  /* ── LESSON PLAYER BACKGROUND (Dark Scenic Study Room) ── */
   .lesson-bg-pattern {
-    background-color: #f0fdf4;
-    /* Soft mint/green-ish background */
-    background-image: radial-gradient(#dcfce7 20%, transparent 20%), radial-gradient(#dcfce7 20%, transparent 20%);
-    background-size: 60px 60px;
-    background-position: 0 0, 30px 30px;
+    background: url('/assets/images/learner-study-bg.png') center right / cover no-repeat fixed !important;
+    background-color: #0b192c;
+    position: relative;
   }
 
-  /* Overlay & Parchment Content Styles */
+  .lesson-bg-pattern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(11, 25, 44, 0.28);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Overlay & Dark Glass Content Styles */
   .overlay-view {
     animation: fadeIn 0.3s ease-out;
   }
 
   .premium-card {
-    background: #FFF9C4 !important;
-    /* Parchment yellow */
-    border: 6px solid #FBC02D !important;
-    border-radius: 24px !important;
-    box-shadow: 0 10px 0 rgba(251, 192, 45, 0.5), 0 25px 50px rgba(0, 0, 0, 0.5) !important;
-    color: #5D4037 !important;
+    background: rgba(15, 23, 42, 0.88) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
+    border-top: 3px solid #FFC727 !important;
+    border-radius: 26px !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 25px rgba(255, 199, 39, 0.15) !important;
+    color: #F8FAFC !important;
   }
 
   .premium-card::-webkit-scrollbar {
-    width: 12px;
+    width: 10px;
   }
 
   .premium-card::-webkit-scrollbar-track {
-    background: rgba(251, 192, 45, 0.2);
+    background: rgba(11, 25, 44, 0.5);
     border-radius: 10px;
   }
 
   .premium-card::-webkit-scrollbar-thumb {
-    background: #FBC02D;
+    background: #F59E0B;
     border-radius: 10px;
-    border: 3px solid #FFF9C4;
+    border: 2px solid rgba(15, 23, 42, 0.8);
   }
 
   .text-dark {
-    color: #3E2723 !important;
+    color: #F8FAFC !important;
   }
 
   .text-secondary {
-    color: #5D4037 !important;
+    color: #CBD5E1 !important;
   }
 
   .hover-lift {
@@ -108,17 +120,25 @@
     scrollbar-width: none;
   }
 
-  /* Kids Steps Sidebar Styles */
+  /* Kids Steps Sidebar Styles - Premium Dark Glass */
   .kids-sidebar-steps {
-    background-color: #ffffff;
+    background: rgba(11, 25, 44, 0.94) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 0;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.45);
+  }
+
+  .kids-sidebar-header {
+    background: rgba(11, 25, 44, 0.96) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
   }
 
   .kids-step-btn {
-    background: #f8fafc;
-    border: 3px solid #cbd5e1;
-    color: #475569;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
+    color: #CBD5E1 !important;
     border-radius: 16px !important;
     font-family: 'Nunito', sans-serif;
     font-weight: 700;
@@ -130,31 +150,34 @@
   }
 
   .kids-step-btn:not([disabled]):hover {
-    background: #f0fdf4;
-    border-color: #22c55e;
-    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.09) !important;
+    border-color: rgba(255, 199, 39, 0.4) !important;
+    color: #FFFFFF !important;
+    transform: translateX(4px);
   }
 
   .kids-step-btn.active {
-    background: #f0fdf4;
-    border-color: #22c55e;
-    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+    background: linear-gradient(90deg, rgba(255, 199, 39, 0.22) 0%, rgba(255, 199, 39, 0.06) 100%) !important;
+    border-color: #FFC727 !important;
+    box-shadow: 0 4px 18px rgba(255, 199, 39, 0.25) !important;
   }
 
   .kids-step-btn.completed {
-    border-color: #22c55e;
+    border-color: rgba(16, 185, 129, 0.35) !important;
   }
 
   .kids-step-btn.completed .kids-step-bullet {
-    background: #22c55e !important;
-    border-color: #22c55e !important;
+    background: #10B981 !important;
+    border-color: #10B981 !important;
     color: white !important;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important;
   }
 
   .kids-step-btn[disabled] {
     cursor: not-allowed;
-    opacity: 0.55;
-    background: #f1f5f9;
+    opacity: 0.35;
+    background: rgba(255, 255, 255, 0.02) !important;
+    border-color: transparent !important;
   }
 
   .kids-step-bullet {
@@ -162,9 +185,9 @@
     height: 34px;
     min-width: 34px;
     flex-shrink: 0;
-    background: #ffffff;
-    border: 3px solid #cbd5e1;
-    color: #64748b;
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 2px solid rgba(255, 255, 255, 0.15) !important;
+    color: #94A3B8 !important;
     font-weight: 800;
     font-size: 0.95rem;
     border-radius: 50%;
@@ -172,9 +195,84 @@
   }
 
   .kids-step-btn.active .kids-step-bullet {
-    border-color: #22c55e;
-    color: #22c55e;
-    background: #ffffff;
+    border-color: #FFC727 !important;
+    color: #0B192C !important;
+    background: #FFC727 !important;
+    box-shadow: 0 0 12px rgba(255, 199, 39, 0.6) !important;
+  }
+
+  /* Activity Engine Dark Theme Rules */
+  .lesson-player .glass-card {
+    background: rgba(15, 23, 42, 0.88) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
+    border-top: 3px solid #FFC727 !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 199, 39, 0.12) !important;
+    color: #F8FAFC !important;
+    border-radius: 28px !important;
+  }
+
+  .lesson-player .glass-card h2,
+  .lesson-player .glass-card h3,
+  .lesson-player .glass-card h4,
+  .lesson-player .glass-card h5,
+  .lesson-player .glass-card p,
+  .lesson-player .glass-card span {
+    color: #F8FAFC;
+  }
+
+  .lesson-player .option-row {
+    background-color: rgba(30, 41, 59, 0.85) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.1) !important;
+    color: #F1F5F9 !important;
+    border-radius: 18px !important;
+  }
+
+  .lesson-player .option-row:hover:not(:disabled):not(.selected) {
+    background-color: rgba(51, 65, 85, 0.95) !important;
+    border-color: #FFC727 !important;
+    box-shadow: 0 4px 18px rgba(255, 199, 39, 0.25) !important;
+    color: #FFFFFF !important;
+  }
+
+  .lesson-player .option-row.selected {
+    border-color: #FFC727 !important;
+    background: rgba(255, 199, 39, 0.18) !important;
+    box-shadow: 0 4px 18px rgba(255, 199, 39, 0.3) !important;
+    color: #FFFFFF !important;
+  }
+
+  .lesson-player .option-row .bubble {
+    background-color: rgba(15, 23, 42, 0.8) !important;
+    color: #94A3B8 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .lesson-player .option-row.selected .bubble {
+    background-color: #FFC727 !important;
+    color: #0B192C !important;
+    font-weight: 800;
+  }
+
+  .lesson-player .option-row.correct {
+    border-color: #10B981 !important;
+    background-color: rgba(16, 185, 129, 0.2) !important;
+  }
+
+  .lesson-player .option-row.correct .bubble {
+    background-color: #10B981 !important;
+    color: #FFFFFF !important;
+  }
+
+  .lesson-player .option-row.incorrect {
+    border-color: #EF4444 !important;
+    background-color: rgba(239, 68, 68, 0.2) !important;
+  }
+
+  .lesson-player .option-row.incorrect .bubble {
+    background-color: #EF4444 !important;
+    color: #FFFFFF !important;
   }
 
   /* Responsive PREV Button placement */
@@ -208,23 +306,23 @@
   }
 
   .kids-sidebar-steps ::-webkit-scrollbar-track {
-    background: #f1f5f9 !important;
+    background: rgba(11, 25, 44, 0.5) !important;
     border-radius: 4px;
   }
 
   .kids-sidebar-steps ::-webkit-scrollbar-thumb {
-    background: #cbd5e1 !important;
+    background: rgba(255, 255, 255, 0.2) !important;
     border-radius: 4px;
-    border: 2px solid #f1f5f9;
+    border: 2px solid transparent;
   }
 
   .kids-sidebar-steps ::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8 !important;
+    background: rgba(255, 199, 39, 0.6) !important;
   }
 
   .kids-sidebar-steps * {
     scrollbar-width: thin !important;
-    scrollbar-color: #cbd5e1 #f1f5f9 !important;
+    scrollbar-color: rgba(255, 255, 255, 0.2) rgba(11, 25, 44, 0.5) !important;
   }
 
   /* ── Smooth Sliding Transition for Steps Drawer ── */

@@ -1,0 +1,441 @@
+/* ==========================================================================
+   ☁️ GAME-STYLE CARTOON CLOUD TRANSITION OVERLAY
+   ========================================================================== */
+
+:host {
+  display: contents;
+}
+
+.cloud-transition-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999999;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  overflow: hidden;
+  will-change: opacity, visibility;
+  transition: visibility 0s 0.7s, opacity 0.2s ease;
+}
+
+/* When transition is active, capture all clicks to prevent double clicks */
+.cloud-transition-overlay.active {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: all;
+  transition: visibility 0s, opacity 0.15s ease;
+}
+
+/* 🌅 Soft Translucent Pastel Sky Backdrop (Allows background room to peek through lightly) */
+.cloud-sky-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.45) 0%, rgba(224, 242, 254, 0.35) 60%, rgba(186, 230, 253, 0.28) 100%);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity;
+}
+
+.cloud-transition-overlay.phase-enter .cloud-sky-backdrop,
+.cloud-transition-overlay.phase-covered .cloud-sky-backdrop {
+  opacity: 0.58;
+}
+
+.cloud-transition-overlay.phase-reveal .cloud-sky-backdrop {
+  opacity: 0;
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Layers Container */
+.cloud-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   ☁️ FLUFFY TRANSLUCENT CARTOON CLOUDS (Soft, dim, gentle background visibility)
+   ========================================================================== */
+.cartoon-cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 50rem;
+  will-change: transform, opacity;
+  box-shadow: 0 10px 24px rgba(12, 74, 110, 0.06), 
+              inset 0 -8px 16px rgba(224, 242, 254, 0.45),
+              inset 0 6px 12px rgba(255, 255, 255, 0.75);
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Multi-puff overlapping bubbles for cloud body */
+.cartoon-cloud::before,
+.cartoon-cloud::after {
+  content: '';
+  position: absolute;
+  background: inherit;
+  border-radius: 50%;
+  box-shadow: inherit;
+}
+
+/* ☁️ BACKGROUND LAYER (Soft Sky-Tinted Light Clouds) */
+.layer-bg .cartoon-cloud {
+  background: rgba(224, 242, 254, 0.42);
+  box-shadow: 0 8px 20px rgba(14, 116, 144, 0.05),
+              inset 0 -8px 14px rgba(186, 230, 253, 0.35);
+  opacity: 0.5;
+}
+
+/* ☁️ MIDGROUND LAYER (Soft Translucent Clouds) */
+.layer-mid .cartoon-cloud {
+  background: rgba(240, 249, 255, 0.55);
+  opacity: 0.6;
+}
+
+/* ☁️ FOREGROUND LAYER (Light Fluffy Clouds) */
+.layer-fg .cartoon-cloud {
+  background: rgba(255, 255, 255, 0.68);
+  opacity: 0.7;
+}
+
+.cloud-bg-tl {
+  width: 65vw;
+  height: 55vh;
+  top: -12vh;
+  left: -12vw;
+  transform: translate3d(-110%, -110%, 0);
+}
+.cloud-bg-tl::before {
+  width: 38vw;
+  height: 38vw;
+  top: 15%;
+  left: 20%;
+}
+.cloud-bg-tl::after {
+  width: 32vw;
+  height: 32vw;
+  top: 30%;
+  left: 55%;
+}
+
+.cloud-bg-tr {
+  width: 65vw;
+  height: 55vh;
+  top: -14vh;
+  right: -14vw;
+  transform: translate3d(110%, -110%, 0);
+}
+.cloud-bg-tr::before {
+  width: 36vw;
+  height: 36vw;
+  top: 20%;
+  right: 25%;
+}
+.cloud-bg-tr::after {
+  width: 30vw;
+  height: 30vw;
+  top: 35%;
+  right: 58%;
+}
+
+.cloud-bg-bl {
+  width: 68vw;
+  height: 58vh;
+  bottom: -15vh;
+  left: -12vw;
+  transform: translate3d(-110%, 110%, 0);
+}
+.cloud-bg-bl::before {
+  width: 40vw;
+  height: 40vw;
+  bottom: 20%;
+  left: 20%;
+}
+.cloud-bg-bl::after {
+  width: 32vw;
+  height: 32vw;
+  bottom: 35%;
+  left: 55%;
+}
+
+.cloud-bg-br {
+  width: 70vw;
+  height: 60vh;
+  bottom: -15vh;
+  right: -15vw;
+  transform: translate3d(110%, 110%, 0);
+}
+.cloud-bg-br::before {
+  width: 42vw;
+  height: 42vw;
+  bottom: 22%;
+  right: 22%;
+}
+.cloud-bg-br::after {
+  width: 34vw;
+  height: 34vw;
+  bottom: 38%;
+  right: 55%;
+}
+
+/* ☁️ MIDGROUND LAYER (Lateral Rushing Clouds) */
+.cloud-mid-left {
+  width: 58vw;
+  height: 62vh;
+  top: 20vh;
+  left: -15vw;
+  transform: translate3d(-120%, 0, 0);
+}
+.cloud-mid-left::before {
+  width: 34vw;
+  height: 34vw;
+  top: -20%;
+  left: 30%;
+}
+.cloud-mid-left::after {
+  width: 30vw;
+  height: 30vw;
+  bottom: -20%;
+  left: 35%;
+}
+
+.cloud-mid-right {
+  width: 58vw;
+  height: 62vh;
+  top: 18vh;
+  right: -15vw;
+  transform: translate3d(120%, 0, 0);
+}
+.cloud-mid-right::before {
+  width: 34vw;
+  height: 34vw;
+  top: -18%;
+  right: 30%;
+}
+.cloud-mid-right::after {
+  width: 32vw;
+  height: 32vw;
+  bottom: -18%;
+  right: 35%;
+}
+
+.cloud-mid-top {
+  width: 75vw;
+  height: 48vh;
+  top: -20vh;
+  left: 12vw;
+  transform: translate3d(0, -120%, 0);
+}
+.cloud-mid-top::before {
+  width: 40vw;
+  height: 40vw;
+  bottom: -25%;
+  left: 25%;
+}
+
+.cloud-mid-bottom {
+  width: 75vw;
+  height: 48vh;
+  bottom: -20vh;
+  left: 12vw;
+  transform: translate3d(0, 120%, 0);
+}
+.cloud-mid-bottom::before {
+  width: 42vw;
+  height: 42vw;
+  top: -25%;
+  left: 30%;
+}
+
+/* ☁️ FOREGROUND LAYER (Fluffy Crisp White Clouds & Center Sealer) */
+.cloud-fg-tl {
+  width: 55vw;
+  height: 50vh;
+  top: -8vh;
+  left: -8vw;
+  transform: translate3d(-115%, -115%, 0);
+}
+.cloud-fg-tl::before {
+  width: 32vw;
+  height: 32vw;
+  top: 25%;
+  left: 30%;
+}
+
+.cloud-fg-tr {
+  width: 55vw;
+  height: 50vh;
+  top: -8vh;
+  right: -8vw;
+  transform: translate3d(115%, -115%, 0);
+}
+.cloud-fg-tr::before {
+  width: 32vw;
+  height: 32vw;
+  top: 25%;
+  right: 30%;
+}
+
+.cloud-fg-bl {
+  width: 55vw;
+  height: 50vh;
+  bottom: -8vh;
+  left: -8vw;
+  transform: translate3d(-115%, 115%, 0);
+}
+.cloud-fg-bl::before {
+  width: 34vw;
+  height: 34vw;
+  bottom: 25%;
+  left: 30%;
+}
+
+.cloud-fg-br {
+  width: 55vw;
+  height: 50vh;
+  bottom: -8vh;
+  right: -8vw;
+  transform: translate3d(115%, 115%, 0);
+}
+.cloud-fg-br::before {
+  width: 34vw;
+  height: 34vw;
+  bottom: 25%;
+  right: 30%;
+}
+
+/* Center Sealer Cloud */
+.cloud-fg-center {
+  width: 55vw;
+  height: 55vw;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  transform: translate3d(-50%, -50%, 0) scale(0);
+  opacity: 0;
+  transition: transform 0.48s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+}
+.cloud-fg-center::before {
+  width: 44vw;
+  height: 44vw;
+  top: -15%;
+  left: 15%;
+}
+.cloud-fg-center::after {
+  width: 46vw;
+  height: 46vw;
+  bottom: -15%;
+  left: 20%;
+}
+
+/* ==========================================================================
+   ✨ SUBTLE GOLDEN SPARKLING PARTICLES
+   ========================================================================== */
+.cloud-sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.cloud-star {
+  position: absolute;
+  font-size: 1.6rem;
+  color: #FFD54F;
+  filter: drop-shadow(0 0 10px #FFC107);
+  animation: starPulse 1.2s infinite ease-in-out;
+}
+.star-1 { top: 25%; left: 35%; animation-delay: 0.1s; font-size: 1.8rem; }
+.star-2 { top: 32%; right: 30%; animation-delay: 0.4s; font-size: 1.4rem; }
+.star-3 { bottom: 35%; left: 32%; animation-delay: 0.25s; font-size: 1.7rem; }
+.star-4 { bottom: 28%; right: 36%; animation-delay: 0.5s; font-size: 1.5rem; }
+
+@keyframes starPulse {
+  0%, 100% { transform: scale(0.85) rotate(0deg); opacity: 0.7; }
+  50% { transform: scale(1.25) rotate(15deg); opacity: 1; }
+}
+
+/* ==========================================================================
+   🎬 ANIMATION PHASES
+   ========================================================================== */
+
+/* 1️⃣ ENTER PHASE & 2️⃣ COVERED PHASE: Clouds Meet In The Center */
+.cloud-transition-overlay.phase-enter .cartoon-cloud,
+.cloud-transition-overlay.phase-covered .cartoon-cloud {
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.cloud-transition-overlay.phase-enter .cloud-fg-center,
+.cloud-transition-overlay.phase-covered .cloud-fg-center {
+  transform: translate3d(-50%, -50%, 0) scale(1.65);
+  opacity: 0.72;
+}
+
+.cloud-transition-overlay.phase-enter .cloud-sparkles,
+.cloud-transition-overlay.phase-covered .cloud-sparkles {
+  opacity: 0.85;
+}
+
+/* 3️⃣ REVEAL PHASE: Clouds Part Away Smoothly To Edges */
+.cloud-transition-overlay.phase-reveal .cartoon-cloud {
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.65s ease;
+}
+
+.cloud-transition-overlay.phase-reveal .cloud-bg-tl { transform: translate3d(-125%, -125%, 0); }
+.cloud-transition-overlay.phase-reveal .cloud-bg-tr { transform: translate3d(125%, -125%, 0); }
+.cloud-transition-overlay.phase-reveal .cloud-bg-bl { transform: translate3d(-125%, 125%, 0); }
+.cloud-transition-overlay.phase-reveal .cloud-bg-br { transform: translate3d(125%, 125%, 0); }
+
+.cloud-transition-overlay.phase-reveal .cloud-mid-left { transform: translate3d(-130%, 0, 0); }
+.cloud-transition-overlay.phase-reveal .cloud-mid-right { transform: translate3d(130%, 0, 0); }
+.cloud-transition-overlay.phase-reveal .cloud-mid-top { transform: translate3d(0, -130%, 0); }
+.cloud-transition-overlay.phase-reveal .cloud-mid-bottom { transform: translate3d(0, 130%, 0); }
+
+.cloud-transition-overlay.phase-reveal .cloud-fg-tl { transform: translate3d(-125%, -125%, 0); }
+.cloud-transition-overlay.phase-reveal .cloud-fg-tr { transform: translate3d(125%, -125%, 0); }
+.cloud-transition-overlay.phase-reveal .cloud-fg-bl { transform: translate3d(-125%, 125%, 0); }
+.cloud-transition-overlay.phase-reveal .cloud-fg-br { transform: translate3d(125%, 125%, 0); }
+
+.cloud-transition-overlay.phase-reveal .cloud-fg-center {
+  transform: translate3d(-50%, -50%, 0) scale(2.4);
+  opacity: 0;
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+}
+
+.cloud-transition-overlay.phase-reveal .cloud-sparkles {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* ==========================================================================
+   ♿ ACCESSIBILITY: PREFERS-REDUCED-MOTION
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .cartoon-cloud,
+  .cloud-sparkles {
+    display: none !important;
+  }
+  .cloud-sky-backdrop {
+    background: #FFFFFF !important;
+  }
+  .cloud-transition-overlay.phase-enter .cloud-sky-backdrop,
+  .cloud-transition-overlay.phase-covered .cloud-sky-backdrop {
+    opacity: 0.95;
+    transition: opacity 0.15s ease;
+  }
+  .cloud-transition-overlay.phase-reveal .cloud-sky-backdrop {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+}

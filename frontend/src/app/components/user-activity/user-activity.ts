@@ -11,6 +11,7 @@ import { environment } from '../../../environments/environment';
 import { ActivityRenderer } from '../activity-engine/activity-renderer/activity-renderer';
 import { AudioService } from '../../services/audio.service';
 import { AuthService } from '../../services/auth';
+import { CloudTransitionService } from '../../services/cloud-transition.service';
 
 export interface ExtractedActivityItem {
   id: string | number;
@@ -41,6 +42,7 @@ export class UserActivity implements OnInit, OnDestroy {
   private location = inject(Location);
   private audioService = inject(AudioService);
   private authService = inject(AuthService);
+  private cloudTransition = inject(CloudTransitionService);
 
   // User state
   userId = signal<number>(1);
@@ -145,6 +147,28 @@ export class UserActivity implements OnInit, OnDestroy {
     return Array.from(types);
   });
 
+  getChapterImage(name: string, idx: number): string {
+    const lower = (name || '').toLowerCase();
+    if (lower.includes('writing') || lower.includes('write') || lower.includes('noun')) return '/assets/images/level_writing.jpg';
+    if (lower.includes('listening') || lower.includes('listen') || lower.includes('sound')) return '/assets/images/level_listening.jpg';
+    if (lower.includes('reading') || lower.includes('read')) return '/assets/images/level_reading.jpg';
+    if (lower.includes('speaking') || lower.includes('speak')) return '/assets/images/level_speaking.jpg';
+    if (lower.includes('grammar') || lower.includes('vocab') || lower.includes('homophone')) return '/assets/images/level_grammar.jpg';
+    if (lower.includes('interactive') || lower.includes('test') || lower.includes('demo') || lower.includes('game')) return '/assets/images/level_games.jpg';
+    
+    const fallbackBanners = [
+      '/assets/images/level_writing.jpg',
+      '/assets/images/level_listening.jpg',
+      '/assets/images/level_reading.jpg',
+      '/assets/images/level_speaking.jpg',
+      '/assets/images/level_grammar.jpg',
+      '/assets/images/level_games.jpg',
+      '/assets/images/kid_adventure_banner.jpg',
+      '/assets/images/kid_adventure_banner_2.jpg'
+    ];
+    return fallbackBanners[idx % fallbackBanners.length];
+  }
+
   ngOnInit(): void {
     const user = this.authService.getUser();
     if (user) {
@@ -175,13 +199,17 @@ export class UserActivity implements OnInit, OnDestroy {
 
   goBack(): void {
     if (this.stage() === 'player') {
-      this.stage.set('chapters');
-      if (this.selectedCourseId()) {
-        this.location.replaceState(`/learn/games/${this.selectedCourseId()}`);
-      }
+      this.cloudTransition.triggerTransition(() => {
+        this.stage.set('chapters');
+        if (this.selectedCourseId()) {
+          this.location.replaceState(`/learn/games/${this.selectedCourseId()}`);
+        }
+      });
     } else if (this.stage() === 'chapters') {
-      this.stage.set('courses');
-      this.location.replaceState('/learn/games');
+      this.cloudTransition.triggerTransition(() => {
+        this.stage.set('courses');
+        this.location.replaceState('/learn/games');
+      });
     } else {
       this.router.navigate(['/learn/dashboard']);
     }
@@ -219,41 +247,57 @@ export class UserActivity implements OnInit, OnDestroy {
   }
 
   pickCourse(courseId: number, updateUrl: boolean = true, targetChapterId: number | null = null): void {
-    this.selectedCourseId.set(courseId);
-    this.isLoadingStructure.set(true);
+    const doPick = () => {
+      this.selectedCourseId.set(courseId);
+      this.isLoadingStructure.set(true);
 
-    if (targetChapterId) {
-      this.stage.set('player');
-    } else {
-      this.stage.set('chapters');
-      if (updateUrl) {
-        this.location.replaceState(`/learn/games/${courseId}`);
-      }
-    }
-
-    this.http.get<any>(`${environment.apiUrl}/courses/${courseId}/player-structure`).subscribe({
-      next: (structure) => {
-        this.courseStructure.set(structure);
-        this.isLoadingStructure.set(false);
-
-        if (targetChapterId) {
-          this.pickChapter(targetChapterId, false);
+      if (targetChapterId) {
+        this.stage.set('player');
+      } else {
+        this.stage.set('chapters');
+        if (updateUrl) {
+          this.location.replaceState(`/learn/games/${courseId}`);
         }
-      },
-      error: (err) => {
-        console.error('Failed to load course player structure:', err);
-        this.isLoadingStructure.set(false);
       }
-    });
+
+      this.http.get<any>(`${environment.apiUrl}/courses/${courseId}/player-structure`).subscribe({
+        next: (structure) => {
+          this.courseStructure.set(structure);
+          this.isLoadingStructure.set(false);
+
+          if (targetChapterId) {
+            this.pickChapter(targetChapterId, false);
+          }
+        },
+        error: (err) => {
+          console.error('Failed to load course player structure:', err);
+          this.isLoadingStructure.set(false);
+        }
+      });
+    };
+
+    if (updateUrl) {
+      this.cloudTransition.triggerTransition(() => doPick());
+    } else {
+      doPick();
+    }
   }
 
   pickChapter(chapterId: number, updateUrl: boolean = true): void {
-    this.selectedChapterId.set(chapterId);
-    this.stage.set('player');
-    if (updateUrl && this.selectedCourseId()) {
-      this.location.replaceState(`/learn/games/${this.selectedCourseId()}/${chapterId}`);
+    const doPick = () => {
+      this.selectedChapterId.set(chapterId);
+      this.stage.set('player');
+      if (updateUrl && this.selectedCourseId()) {
+        this.location.replaceState(`/learn/games/${this.selectedCourseId()}/${chapterId}`);
+      }
+      this.selectChapter(chapterId);
+    };
+
+    if (updateUrl) {
+      this.cloudTransition.triggerTransition(() => doPick());
+    } else {
+      doPick();
     }
-    this.selectChapter(chapterId);
   }
 
   selectChapter(chapterId: number): void {
@@ -437,16 +481,29 @@ export class UserActivity implements OnInit, OnDestroy {
 
     if (isCorrect) {
       this.feedbackState.set('correct');
-      this.showSuccessSplash.set(true);
       this.xpEarned.update(x => x + 15);
-      this.audioService.playSuccess();
-      this.mascotCheer.set('Superb job! You nailed it! 🌟');
 
-      confetti({
-        particleCount: 50,
-        spread: 60,
-        origin: { y: 0.8 }
-      });
+      const isLastQuestion = (this.currentPlayIndex() + 1 >= this.filteredActivities().length);
+
+      if (isLastQuestion) {
+        // 🌟 Only at the very last when finished correctly: Cartoon says "Super!"
+        this.showSuccessSplash.set(true);
+        this.audioService.playSuccess("Super!");
+        this.mascotCheer.set('Super! 🌟');
+        confetti({
+          particleCount: 60,
+          spread: 70,
+          origin: { y: 0.7 }
+        });
+
+        setTimeout(() => {
+          this.showSuccessSplash.set(false);
+        }, 1800);
+      } else {
+        // Intermediate question: cheerful success chime without interrupting popup speech
+        this.audioService.playSuccessSoundOnly();
+        this.mascotCheer.set('Good Job! 🌟');
+      }
 
       // Record activity progress directly to backend
       const act = this.currentActivity();
@@ -460,20 +517,16 @@ export class UserActivity implements OnInit, OnDestroy {
           error: (err) => console.warn('Could not record activity progress:', err)
         });
       }
-
-      setTimeout(() => {
-        this.showSuccessSplash.set(false);
-      }, 1500);
     } else {
       this.feedbackState.set('incorrect');
       this.showFailureSplash.set(true);
-      this.audioService.playError();
-      this.mascotCheer.set("Almost there! Don't give up! 💪");
+      this.audioService.playError("Wrong!");
+      this.mascotCheer.set("Wrong! Try again! 💡");
       this.hearts.update(h => Math.max(0, h - 1));
 
       setTimeout(() => {
         this.showFailureSplash.set(false);
-      }, 1500);
+      }, 1600);
     }
   }
 

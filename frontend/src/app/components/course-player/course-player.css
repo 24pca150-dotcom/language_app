@@ -5,6 +5,7 @@
   width: 260px;
   min-width: 260px;
   height: 100vh;
+  max-height: 100vh;
   position: fixed;
   top: 0;
   left: 0;
@@ -17,6 +18,27 @@
   flex-shrink: 0;
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateX(-100%);
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 199, 39, 0.4) transparent;
+}
+
+.langnest-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.langnest-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.langnest-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 199, 39, 0.35);
+  border-radius: 999px;
+}
+
+.langnest-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 199, 39, 0.6);
 }
 
 .langnest-sidebar.player-sidebar-open {
@@ -75,8 +97,8 @@
 .nav-item-btn {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 12px 20px;
+  gap: 12px;
+  padding: 9px 16px;
   border-radius: 50px;
   border: none;
   background: transparent;
@@ -123,12 +145,23 @@
   transform: translateX(3px);
 }
 
-/* ── LESSON PLAYER BACKGROUND ── */
-.lesson-bg-pattern {
-  background-color: #f0fdf4; /* Soft mint/green-ish background */
-  background-image: radial-gradient(#dcfce7 20%, transparent 20%), radial-gradient(#dcfce7 20%, transparent 20%);
-  background-size: 60px 60px;
-  background-position: 0 0, 30px 30px;
+/* ── COURSE PLAYER WORKSPACE BACKGROUND ── */
+.course-player-main {
+  background: url('/assets/images/learner-study-bg.png') center right / cover no-repeat fixed !important;
+  background-color: #0b192c;
+  position: relative;
+}
+
+.course-player-main::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(11, 25, 44, 0.28);
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* ── IMMERSIVE GAME MAP UI ── */

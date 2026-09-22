@@ -63,10 +63,10 @@
 
   <!-- 🌟 MAIN ACTIVITY ARENA -->
   <main class="langnest-main flex-grow-1 position-relative d-flex flex-column overflow-y-auto z-2 w-100">
-    <div class="content-container position-relative z-2 p-4 p-lg-5" style="max-width: 1280px; margin: 0 auto; width: 100%; padding-left: 105px !important; padding-right: 105px !important;">
+    <div class="content-container position-relative z-2 px-3 px-lg-4 py-2 py-lg-3" style="max-width: 1200px; margin: 0 auto; width: 100%; padding-left: 90px !important; padding-right: 90px !important;">
 
       <!-- 🌟 TOP HEADER (Matching Curriculum, Practice, Assessments & Badges) -->
-      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+      <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
         <div class="d-flex align-items-center gap-3">
           <!-- Back Button (Navigates Player -> Chapters -> Courses -> Dashboard) -->
           <button class="btn-back-circle shadow-sm" (click)="goBack()" title="Back">
@@ -148,45 +148,39 @@
               <p class="mascot-loading-sub">Gathering interactive exercises and adventures for you!</p>
             </div>
           } @else if (courses().length > 0) {
-            <div class="row justify-content-center g-4 mb-4">
-              @for (c of courses(); track c.id) {
-                <div class="col-12 col-sm-6 col-md-6 col-lg-5 col-xl-4" style="max-width: 380px;">
-                  <div class="modern-course-card p-4 rounded-4 cursor-pointer d-flex flex-column justify-content-between shadow-sm position-relative overflow-hidden hover-lift"
+            <div class="row g-4 justify-content-start py-2">
+              @for (c of courses(); track c.id; let idx = $index) {
+                <div class="col-12 col-md-6 animate-slide-down" [style.animation-delay]="idx * 0.08 + 's'">
+                  <div class="adventure-portal-stage cursor-pointer d-flex align-items-center gap-3 position-relative"
                        (click)="pickCourse(c.id)"
                        title="Explore games for {{ c.name }}">
-                    <div class="card-glow-bar"></div>
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                      <div class="modern-course-icon d-flex align-items-center justify-content-center shadow-sm">
-                        <i class="bi bi-controller fs-3 text-warning"></i>
+                    
+                    <!-- Circular 3D Adventure Portal Avatar -->
+                    <div class="adventure-portal-avatar-wrap position-relative flex-shrink-0">
+                      <div class="adventure-portal-glow-ring"></div>
+                      <div class="adventure-portal-circle">
+                        <img [src]="(idx % 2 === 0) ? '/assets/images/kid_adventure_banner.jpg' : '/assets/images/kid_adventure_banner_2.jpg'"
+                             alt="Course Games"
+                             class="adventure-portal-img">
                       </div>
-                      <span class="badge bg-warning bg-opacity-20 text-dark px-3 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">
-                        {{ c.code || 'A1 · Beginner' }}
+                      <span class="adventure-level-badge">
+                        <i class="bi bi-controller text-warning me-1"></i>Arena
                       </span>
                     </div>
-                    <div class="mb-3">
-                      <h4 class="fw-bold course-card-heading mb-2">{{ c.name }}</h4>
-                      <p class="course-card-desc mb-3">
-                        {{ c.description || 'Master vocabulary, sentence structure, and interactive games.' }}
-                      </p>
-                      <div class="course-mini-stats d-flex align-items-center gap-2">
-                        <span class="d-flex align-items-center gap-1">
-                          <i class="bi bi-layers-fill text-warning"></i>
-                          <span>{{ c.no_of_levels || 1 }} Levels</span>
-                        </span>
-                        <span class="text-muted">•</span>
-                        <span class="d-flex align-items-center gap-1">
-                          <i class="bi bi-controller text-warning"></i>
-                          <span>Chapter Games</span>
-                        </span>
+
+                    <!-- Floating Info (Zero Box / Left-Aligned) -->
+                    <div class="adventure-portal-details flex-grow-1 text-start">
+                      <h3 class="adventure-portal-title mb-2 text-truncate">{{ c.name }}</h3>
+
+                      <div class="adventure-portal-action d-flex align-items-center pt-2">
+                        <button class="btn btn-adventure-start d-flex align-items-center gap-2 px-4 py-2"
+                                (click)="pickCourse(c.id); $event.stopPropagation()">
+                          <span>Explore Chapters</span>
+                          <i class="bi bi-arrow-right-circle-fill fs-5"></i>
+                        </button>
                       </div>
                     </div>
-                    <div class="pt-2" style="border-top: 1px solid rgba(0,0,0,0.06);">
-                      <button class="btn btn-warning rounded-pill py-2 px-3 fw-bold text-dark w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm modern-course-btn"
-                              (click)="pickCourse(c.id); $event.stopPropagation()">
-                        <span>Explore Chapters</span>
-                        <i class="bi bi-arrow-right-circle-fill fs-5"></i>
-                      </button>
-                    </div>
+
                   </div>
                 </div>
               }
@@ -206,7 +200,7 @@
       }
 
       <!-- ============================================================== -->
-      <!-- 📚 STAGE 2: CHAPTER SELECTION GRID (User Request: Chapter wise) -->
+      <!-- 📚 STAGE 2: CHAPTER SELECTION (Boxless Gamified Adventure Portals) -->
       <!-- ============================================================== -->
       @else if (stage() === 'chapters') {
         <div class="tab-fade-in">
@@ -219,39 +213,47 @@
               <p class="mascot-loading-sub">Gathering chapter adventures and games for you!</p>
             </div>
           } @else if (availableChapters().length > 0) {
-            <div class="row justify-content-center g-4 mb-4">
+            <div class="row g-4 justify-content-start py-2">
               @for (ch of availableChapters(); track ch.id; let idx = $index) {
-                <div class="col-12 col-sm-6 col-md-6 col-lg-5 col-xl-4" style="max-width: 380px;">
-                  <div class="modern-course-card p-4 rounded-4 cursor-pointer d-flex flex-column justify-content-between shadow-sm position-relative overflow-hidden hover-lift"
+                <div class="col-12 col-md-6 animate-slide-down" [style.animation-delay]="idx * 0.06 + 's'">
+                  <div class="adventure-portal-stage cursor-pointer d-flex align-items-center gap-3 position-relative"
                        (click)="pickChapter(ch.id)"
                        title="Play games for {{ ch.name }}">
-                    <div class="card-glow-bar"></div>
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                      <div class="topic-icon-circle rounded-circle d-flex align-items-center justify-content-center shadow-sm"
-                           style="width: 48px; height: 48px; background: rgba(255, 199, 39, 0.15); color: #FFC727;">
-                        <i class="bi bi-puzzle-fill fs-4"></i>
+                    
+                    <!-- Circular 3D Adventure Portal Avatar -->
+                    <div class="adventure-portal-avatar-wrap position-relative flex-shrink-0">
+                      <div class="adventure-portal-glow-ring"></div>
+                      <div class="adventure-portal-circle">
+                        <img [src]="getChapterImage(ch.name, idx)"
+                             [alt]="ch.name"
+                             class="adventure-portal-img">
                       </div>
-                      <span class="badge bg-warning bg-opacity-20 text-dark px-3 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">
-                        Chapter {{ idx + 1 }}
+                      <span class="adventure-level-badge">
+                        <i class="bi bi-star-fill text-warning me-1"></i>Ch {{ idx + 1 }}
                       </span>
                     </div>
-                    <div class="mb-3">
-                      <span class="text-secondary small fw-bold text-uppercase d-block mb-1">{{ ch.levelName }}</span>
-                      <h4 class="fw-bold course-card-heading mb-2">{{ ch.name }}</h4>
-                      <div class="course-mini-stats d-flex align-items-center gap-2 mt-2">
-                        <span class="d-flex align-items-center gap-1">
-                          <i class="bi bi-controller text-warning"></i>
-                          <span>Interactive Games</span>
+
+                    <!-- Floating Info (Zero Box / Left-Aligned) -->
+                    <div class="adventure-portal-details flex-grow-1 text-start">
+                      <!-- Level Quest Tag -->
+                      <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="adventure-track-tag">
+                          🏰 {{ ch.levelName || 'Level Quest' }}
                         </span>
                       </div>
+
+                      <!-- Big Playful Chapter Title -->
+                      <h3 class="adventure-portal-title mb-2 text-truncate" [title]="ch.name">{{ ch.name }}</h3>
+
+                      <div class="adventure-portal-action d-flex align-items-center pt-2">
+                        <button class="btn btn-adventure-start d-flex align-items-center gap-2 px-4 py-2"
+                                (click)="pickChapter(ch.id); $event.stopPropagation()">
+                          <span>Play</span>
+                          <i class="bi bi-play-circle-fill fs-5"></i>
+                        </button>
+                      </div>
                     </div>
-                    <div class="pt-2" style="border-top: 1px solid rgba(0,0,0,0.06);">
-                      <button class="btn btn-warning rounded-pill py-2 px-3 fw-bold text-dark w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm modern-course-btn"
-                              (click)="pickChapter(ch.id); $event.stopPropagation()">
-                        <span>Play Chapter Games</span>
-                        <i class="bi bi-play-circle-fill fs-5"></i>
-                      </button>
-                    </div>
+
                   </div>
                 </div>
               }
@@ -303,10 +305,14 @@
           }
 
           @else if (isSessionFinished()) {
-            <div class="victory-card glass-panel text-center p-5 mx-auto my-auto rounded-5 shadow-lg max-w-lg mt-4 animate-pop-in">
-              <img src="https://cdn-icons-png.flaticon.com/512/3176/3176294.png" alt="Trophy"
-                style="width: 130px; filter: drop-shadow(0 10px 15px rgba(255, 193, 7, 0.4));" class="mb-3">
-              <h2 class="display-6 fw-bold text-warning mb-2" style="text-shadow: 2px 2px 0px #b08d00;">Chapter Games Completed!</h2>
+            <div class="victory-card glass-panel text-center p-4 p-md-5 mx-auto my-auto rounded-5 shadow-lg max-w-lg mt-3 animate-pop-in">
+              <div class="cartoon-mascot-wrap mb-3 d-flex flex-column align-items-center">
+                <div class="cartoon-speech-bubble super-bubble">
+                  <span>Super! ⭐</span>
+                </div>
+                <img src="/assets/images/mascot.png" alt="Super Mascot" class="cartoon-mascot-img mascot-super-anim" style="width: 140px;">
+              </div>
+              <h2 class="display-6 fw-bold text-warning mb-2 font-fredoka" style="text-shadow: 2px 2px 0px #b08d00;">Chapter Games Completed!</h2>
               <p class="text-white-50 mb-4">You did a wonderful job practicing all the games for this chapter!</p>
 
               <div class="d-flex justify-content-center gap-3 mb-4">
@@ -337,27 +343,27 @@
           }
 
           @else if (currentActivity(); as act) {
-            <div class="activity-player-container mx-auto mt-2 d-flex flex-column align-items-center max-w-5xl animate-fade-in">
+            <div class="activity-player-container mx-auto d-flex flex-column align-items-center max-w-5xl animate-fade-in w-100">
 
               <!-- Question Stage Container (Glassmorphism Styled) -->
-              <div class="activity-stage-box glass-stage-card w-100 p-4 p-md-5 rounded-5 position-relative">
+              <div class="activity-stage-box glass-stage-card w-100 p-3 p-md-4 rounded-4 position-relative">
 
                 <!-- Title banner inside card -->
-                <div class="activity-card-title mb-4 pb-3 border-bottom d-flex align-items-center justify-content-between">
+                <div class="activity-card-title mb-2 pb-2 border-bottom d-flex align-items-center justify-content-between">
                   <div>
-                    <h3 class="fw-bold text-dark mb-1 font-fredoka">{{ act.title }}</h3>
-                    <span class="text-secondary small">Follow instructions and submit your answer</span>
+                    <h4 class="fw-bold text-dark mb-0 font-fredoka fs-5">{{ act.title }}</h4>
+                    <span class="text-secondary small" style="font-size: 0.8rem;">Follow instructions and submit your answer</span>
                   </div>
 
                   <!-- Mascot mini cheer badge -->
-                  <div class="mascot-mini-badge d-none d-md-flex align-items-center gap-2 px-3 py-1.5 rounded-pill bg-light border border-2 border-warning-subtle">
-                    <span style="font-size: 1.4rem;">🦊</span>
-                    <span class="small fw-bold text-dark">{{ mascotCheer() }}</span>
+                  <div class="mascot-mini-badge d-none d-md-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-light border border-2 border-warning-subtle">
+                    <span style="font-size: 1.2rem;">🦊</span>
+                    <span class="small fw-bold text-dark" style="font-size: 0.8rem;">{{ mascotCheer() }}</span>
                   </div>
                 </div>
 
                 <!-- Activity Renderer Core Component -->
-                <div class="activity-render-wrapper w-100 my-2">
+                <div class="activity-render-wrapper w-100 my-1">
                   @if (activityRenderKey()) {
                     <app-activity-renderer
                       [activity]="act.data"
@@ -367,37 +373,44 @@
                   }
                 </div>
 
-                <!-- Success Splash Overlay -->
+                <!-- 🦊 Cartoon Mascot Feedback (Zero Box, Animated Mascot Companion) -->
                 @if (showSuccessSplash()) {
-                  <div class="answer-splash-overlay success-splash animate-pop-in position-absolute top-50 start-50 translate-middle text-center p-4 rounded-5 shadow-2xl z-5">
-                    <div class="splash-icon mb-2" style="font-size: 4rem;">🎉</div>
-                    <h2 class="fw-bold text-success mb-1 font-fredoka">Awesome!</h2>
-                    <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold">+15 XP</span>
+                  <div class="cartoon-feedback-overlay animate-pop-in">
+                    <div class="cartoon-mascot-wrap">
+                      <div class="cartoon-speech-bubble super-bubble">
+                        <span>Super! ⭐</span>
+                      </div>
+                      <img src="/assets/images/mascot.png" alt="Super Mascot" class="cartoon-mascot-img mascot-super-anim">
+                    </div>
                   </div>
                 }
 
-                <!-- Mistake Splash Overlay -->
                 @if (showFailureSplash()) {
-                  <div class="answer-splash-overlay failure-splash animate-pop-in position-absolute top-50 start-50 translate-middle text-center p-4 rounded-5 shadow-2xl z-5">
-                    <div class="splash-icon mb-2" style="font-size: 4rem;">💡</div>
-                    <h2 class="fw-bold text-danger mb-1 font-fredoka">Try Again!</h2>
-                    <span class="text-muted small">You lost 1 heart ❤️</span>
+                  <div class="cartoon-feedback-overlay animate-pop-in">
+                    <div class="cartoon-mascot-wrap">
+                      <div class="cartoon-speech-bubble wrong-bubble">
+                        <span>Wrong! 💡</span>
+                      </div>
+                      <img src="/assets/images/mascot.png" alt="Wrong Mascot" class="cartoon-mascot-img mascot-wrong-anim">
+                    </div>
                   </div>
                 }
 
                 <!-- Activity Card Internal Navigation Footer -->
-                <div class="activity-card-footer pt-4 mt-4 border-top d-flex align-items-center justify-content-between w-100">
+                <div class="activity-card-footer pt-2 mt-2 border-top d-flex align-items-center justify-content-between w-100">
                   <!-- Left: Previous Button -->
-                  <button class="btn btn-light rounded-pill px-4 py-2.5 fw-bold text-secondary shadow-sm hover-lift border border-2 border-white d-flex align-items-center gap-2"
+                  <button class="btn btn-light rounded-pill px-3 py-1.5 fw-bold text-secondary shadow-sm hover-lift border border-2 border-white d-flex align-items-center gap-2"
                     [disabled]="currentPlayIndex() === 0"
-                    (click)="prevActivity()">
+                    (click)="prevActivity()"
+                    style="font-size: 0.9rem;">
                     <i class="bi bi-chevron-left"></i>
                     <span>Previous</span>
                   </button>
 
                   <!-- Right: Next / Finish Button -->
-                  <button class="btn btn-warning rounded-pill px-4 py-2.5 fw-bold text-dark shadow-sm hover-lift border border-2 border-white d-flex align-items-center gap-2 ms-auto"
-                    (click)="nextActivity()">
+                  <button class="btn btn-warning rounded-pill px-4 py-1.5 fw-bold text-dark shadow-sm hover-lift border border-2 border-white d-flex align-items-center gap-2 ms-auto"
+                    (click)="nextActivity()"
+                    style="font-size: 0.9rem;">
                     <span>{{ (currentPlayIndex() + 1 === filteredActivities().length) ? 'Finish' : 'Next Activity' }}</span>
                     <i class="bi bi-chevron-right"></i>
                   </button>

@@ -139,6 +139,19 @@
 
 .learner-study-room-bg {
   background: url('/assets/images/learner-study-bg.png') center right / cover no-repeat fixed;
+  position: relative;
+}
+
+.learner-study-room-bg::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(11, 25, 44, 0.28);
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* Rotating Golden Sunburst */
@@ -429,6 +442,74 @@
 @keyframes tabFadeIn {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* 🐰 Student Greeting Hero with Jumping Cartoon Mascot (White text & Playful Jump) */
+.home-student-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 20px 8px 12px;
+  user-select: none;
+  background: rgba(15, 23, 42, 0.28);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  margin-bottom: 24px;
+}
+
+.mascot-cartoon-jumper {
+  display: inline-block;
+  animation: cartoonJump 1.6s infinite ease-in-out;
+  transform-origin: bottom center;
+}
+
+.mascot-cartoon-img {
+  width: 65px;
+  height: auto;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
+}
+
+.home-student-badge {
+  font-family: 'Fredoka', 'Nunito', sans-serif !important;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #FFD54F !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.5px;
+}
+
+.home-student-name {
+  font-family: 'Fredoka', 'Nunito', sans-serif !important;
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #FFFFFF !important;
+  line-height: 1.1;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.75), 0 1px 3px rgba(0, 0, 0, 0.9) !important;
+  margin: 0;
+}
+
+@keyframes cartoonJump {
+  0%, 100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  18% {
+    transform: translateY(2px) scale(1.08, 0.92);
+  }
+  42% {
+    transform: translateY(-24px) scale(0.94, 1.08) rotate(-4deg);
+  }
+  58% {
+    transform: translateY(-26px) scale(1, 1) rotate(3deg);
+  }
+  78% {
+    transform: translateY(0) scale(1.1, 0.9);
+  }
+  88% {
+    transform: translateY(-5px) scale(0.98, 1.02);
+  }
 }
 
 /* Headline Block on Light Theme */
@@ -1146,24 +1227,6 @@
   color: #0F172A !important;
 }
 
-/* ==========================================================================
-   📦 COMPACT COURSE CARDS (User Request: Small size, only heading)
-   ========================================================================== */
-.compact-course-card {
-  background: rgba(255, 255, 255, 0.92) !important;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07) !important;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  min-height: 76px;
-}
-
-.compact-course-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 14px 30px rgba(245, 158, 11, 0.22) !important;
-  border-color: #F59E0B !important;
-}
 
 .compact-course-icon {
   width: 46px;
@@ -1194,26 +1257,58 @@
 }
 
 /* ==========================================================================
-   ✨ MODERN COURSE CARDS (Matching User Drawn Box Size with Rich CSS Design)
+/* ==========================================================================
+   ✨ MODERN COURSE CARDS (Gamified 3D Kid-Friendly Adventure Cards)
    ========================================================================== */
 .modern-course-card {
-  background: rgba(255, 255, 255, 0.62) !important;
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1.5px solid rgba(255, 255, 255, 0.8) !important;
-  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.85) !important;
-  border-radius: 22px !important;
-  min-height: 255px;
+  background: linear-gradient(165deg, rgba(20, 30, 55, 0.93) 0%, rgba(12, 18, 36, 0.97) 100%) !important;
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 3.5px solid #F59E0B !important;
+  box-shadow: 0 10px 0 #92400E, 0 20px 40px rgba(0, 0, 0, 0.55), inset 0 2px 4px rgba(255, 255, 255, 0.2), 0 0 28px rgba(245, 158, 11, 0.28) !important;
+  border-radius: 28px !important;
+  min-height: 290px;
   position: relative;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: kidCardFloat 4.5s ease-in-out infinite alternate;
+}
+
+@keyframes kidCardFloat {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-7px); }
 }
 
 .modern-course-card:hover {
-  transform: translateY(-8px);
-  background: rgba(255, 255, 255, 0.76) !important;
-  box-shadow: 0 22px 48px rgba(245, 158, 11, 0.28) !important;
-  border-color: #F59E0B !important;
+  transform: translateY(-12px) scale(1.025) !important;
+  border-color: #FBBF24 !important;
+  box-shadow: 0 14px 0 #92400E, 0 26px 52px rgba(0, 0, 0, 0.65), 0 0 38px rgba(251, 191, 36, 0.5) !important;
+}
+
+.quest-sparkle-decor {
+  position: absolute;
+  pointer-events: none;
+  font-size: 1.15rem;
+  opacity: 0.8;
+  animation: sparkleTwinkle 2.5s ease-in-out infinite;
+  user-select: none;
+}
+
+.quest-sparkle-1 {
+  top: 14px;
+  right: 140px;
+  animation-delay: 0.2s;
+}
+
+.quest-sparkle-2 {
+  bottom: 82px;
+  right: 18px;
+  animation-delay: 1.2s;
+}
+
+@keyframes sparkleTwinkle {
+  0%, 100% { opacity: 0.35; transform: scale(0.8) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.25) rotate(20deg); filter: drop-shadow(0 0 8px #FBBF24); }
 }
 
 .card-glow-bar {
@@ -1221,57 +1316,142 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
+  height: 5px;
   background: linear-gradient(90deg, #F59E0B 0%, #FBBF24 50%, #10B981 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  opacity: 0.85;
 }
 
-.modern-course-card:hover .card-glow-bar {
-  opacity: 1;
-}
-
-.modern-course-icon {
-  width: 54px;
-  height: 54px;
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.08) 100%);
-  border: 1.5px solid rgba(245, 158, 11, 0.35);
-  border-radius: 16px;
-  transition: transform 0.3s ease, background 0.3s ease;
+.kids-course-icon {
+  width: 58px;
+  height: 58px;
+  background: linear-gradient(135deg, #FBBF24 0%, #D97706 100%);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 18px;
+  box-shadow: 0 6px 16px rgba(217, 119, 6, 0.45), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   flex-shrink: 0;
 }
 
-.modern-course-card:hover .modern-course-icon {
-  transform: scale(1.08) rotate(4deg);
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.3) 0%, rgba(245, 158, 11, 0.15) 100%);
+.modern-course-card:hover .kids-course-icon {
+  transform: scale(1.15) rotate(6deg);
+}
+
+.kids-quest-badge {
+  background: linear-gradient(135deg, #FFD200 0%, #FF9800 100%) !important;
+  color: #3C1900 !important;
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+}
+
+.kids-badge-pill {
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #FDE047;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .course-card-heading {
-  color: #0F172A !important;
-  font-size: 1.22rem;
-  font-weight: 800;
-  line-height: 1.35;
+  color: #FFFFFF !important;
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 1.35rem;
+  font-weight: 900;
+  line-height: 1.3;
   letter-spacing: -0.01em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
 }
 
 .course-card-desc {
-  color: #475569 !important;
+  color: #E2E8F0 !important;
   font-size: 0.88rem;
-  line-height: 1.5;
+  line-height: 1.55;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  font-weight: 500;
 }
 
-.course-mini-stats {
+.kids-feature-tags {
+  margin-top: 8px;
+}
+
+.kids-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif !important;
   font-size: 0.78rem;
-  font-weight: 700;
-  color: #475569 !important;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #F8FAFC;
+  transition: all 0.2s ease;
 }
 
+.kids-tag-pill:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.kids-card-action-bar {
+  border-top: 1.5px solid rgba(255, 255, 255, 0.12);
+}
+
+/* 🎮 JUICY 3D ARCADE PLAY BUTTON */
+.kids-3d-play-btn {
+  background: linear-gradient(180deg, #FFD000 0%, #FF9100 100%) !important;
+  color: #3C1900 !important;
+  border: none !important;
+  border-radius: 999px !important;
+  padding: 12px 22px !important;
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 1rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.04em !important;
+  cursor: pointer;
+  box-shadow: 0 6px 0 #B45309, 0 12px 24px rgba(245, 158, 11, 0.45) !important;
+  transition: all 0.15s ease-out;
+  position: relative;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.kids-3d-play-btn:hover {
+  transform: translateY(2px) !important;
+  box-shadow: 0 4px 0 #B45309, 0 8px 18px rgba(245, 158, 11, 0.45) !important;
+  background: linear-gradient(180deg, #FFE033 0%, #FFA01A 100%) !important;
+}
+
+.kids-3d-play-btn:active {
+  transform: translateY(6px) !important;
+  box-shadow: 0 0px 0 #B45309, 0 2px 6px rgba(245, 158, 11, 0.3) !important;
+}
+
+.kids-3d-play-btn .btn-icon {
+  font-size: 1.18rem;
+  transition: transform 0.2s ease;
+}
+
+.kids-3d-play-btn:hover .btn-icon {
+  transform: scale(1.25) rotate(10deg);
+}
+
+/* Fallback for legacy modern-course-btn */
 .modern-course-btn {
-  font-size: 0.92rem;
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.95rem;
+  font-weight: 800;
   letter-spacing: 0.01em;
   transition: all 0.2s ease;
 }
@@ -1280,6 +1460,160 @@
   background: #F59E0B !important;
   box-shadow: 0 6px 18px rgba(245, 158, 11, 0.42) !important;
   transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   ✨ BOXLESS GAMIFIED ADVENTURE PORTAL (ZERO BOX CONTAINER, PURE GAME UI)
+   ========================================================================== */
+.adventure-portal-stage {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0.5rem 0.25rem !important;
+  width: 100%;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+
+.adventure-portal-stage:hover {
+  transform: translateY(-4px);
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* 🌀 Circular 3D Adventure Portal Avatar */
+.adventure-portal-avatar-wrap {
+  width: 115px;
+  height: 115px;
+  min-width: 115px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.adventure-portal-glow-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #FFD200, #FF9800, #FF5722, #FFD200);
+  filter: blur(8px);
+  opacity: 0.85;
+  animation: rotatePortalRing 7s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rotatePortalRing {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.adventure-portal-circle {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3.5px solid #FFF9C4;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55), inset 0 0 10px rgba(0, 0, 0, 0.2);
+  background: #1E293B;
+}
+
+.adventure-portal-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.adventure-portal-stage:hover .adventure-portal-img {
+  transform: scale(1.12);
+}
+
+.adventure-level-badge {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  background: linear-gradient(135deg, #FF6B6B, #EE5253);
+  color: #FFFFFF;
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+}
+
+/* 📝 Floating Info (Zero Box / Left-Aligned) */
+.adventure-portal-details {
+  overflow: visible;
+}
+
+.adventure-portal-title {
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 1.55rem;
+  font-weight: 900;
+  color: #FFFFFF !important;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.85), 0 1px 4px rgba(0, 0, 0, 0.95);
+}
+
+.adventure-skills-strip {
+  gap: 6px;
+}
+
+.adventure-skill-pill {
+  background: rgba(15, 23, 42, 0.65) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #FFFFFF;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 3px 11px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.adventure-skill-pill:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.btn-adventure-start {
+  background: linear-gradient(180deg, #FFD200 0%, #FF9800 100%) !important;
+  color: #3C1900 !important;
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.92rem !important;
+  font-weight: 900 !important;
+  border: 2px solid #FFF9C4 !important;
+  box-shadow: 0 4px 0 #B45309, 0 8px 24px rgba(245, 158, 11, 0.5) !important;
+  border-radius: 999px !important;
+  padding: 7px 22px !important;
+  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  letter-spacing: 0.02em;
+}
+
+.btn-adventure-start:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 7px 0 #B45309, 0 12px 28px rgba(245, 158, 11, 0.7) !important;
+  background: linear-gradient(180deg, #FFE082 0%, #FFA726 100%) !important;
+}
+
+.btn-adventure-start:active {
+  transform: translateY(2px) scale(0.97);
+  box-shadow: 0 2px 0 #B45309, 0 4px 10px rgba(245, 158, 11, 0.3) !important;
 }
 
 /* ========================================================================== */
