@@ -106,9 +106,6 @@
                       <span class="neat-card-tag tag-course">
                         <i class="bi bi-journal-bookmark-fill"></i> Balance Course
                       </span>
-                      <span class="badge bg-warning bg-opacity-20 text-warning neat-card-badge">
-                        {{ cp.remainingChapters }} Left
-                      </span>
                     </div>
 
                     <!-- Course Switcher if multiple courses -->
@@ -189,15 +186,6 @@
                       <span class="neat-card-tag tag-live">
                         <i class="bi bi-broadcast"></i> Live Class
                       </span>
-                      @if (liveSession.status === 'live') {
-                        <span class="badge bg-danger text-white neat-card-badge animate-pulse">
-                          ● LIVE NOW
-                        </span>
-                      } @else {
-                        <span class="badge bg-info bg-opacity-20 text-info neat-card-badge">
-                          Scheduled
-                        </span>
-                      }
                     </div>
 
                     <!-- Live Class Info -->
