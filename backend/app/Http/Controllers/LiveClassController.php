@@ -16,7 +16,10 @@ class LiveClassController extends Controller
         $query = LiveClass::with('attachments');
 
         if ($user->role !== 'super_admin') {
-            $query->where('tenant_id', $user->tenant_id);
+            $query->where(function ($q) use ($user) {
+                $q->where('tenant_id', $user->tenant_id)
+                  ->orWhereNull('tenant_id');
+            });
         }
 
         $classes = $query->orderBy('start_time', 'desc')->get();
@@ -29,7 +32,10 @@ class LiveClassController extends Controller
         $query = LiveClass::with('attachments');
 
         if ($user->role !== 'super_admin') {
-            $query->where('tenant_id', $user->tenant_id);
+            $query->where(function ($q) use ($user) {
+                $q->where('tenant_id', $user->tenant_id)
+                  ->orWhereNull('tenant_id');
+            });
         }
 
         // Show live or future classes, or classes started within last 3 hours

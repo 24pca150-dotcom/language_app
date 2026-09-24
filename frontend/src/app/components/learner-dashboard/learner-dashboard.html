@@ -67,6 +67,7 @@
     <div class="content-container position-relative z-2 p-4 p-lg-5" style="max-width: 1280px; margin: 0 auto; width: 100%; padding-left: 105px !important; padding-right: 105px !important;">
 
       <!-- ================================================================ -->
+<<<<<<< HEAD
       <!-- 🏠 TAB 1: HOME (CLEAN LEARNER DASHBOARD: BALANCE COURSES & LIVE CLASS) -->
       <!-- ================================================================ -->
       @if (activeTab() === 'home') {
@@ -75,6 +76,17 @@
           <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
             <!-- Student Name & Jumping Cartoon Mascot -->
             <div class="home-student-hero d-inline-flex align-items-center gap-3 mb-0">
+=======
+      <!-- 🏠 TAB 1: HOME (LEARNER ADVENTURE HUB)                          -->
+      <!-- ================================================================ -->
+      @if (activeTab() === 'home') {
+        <div class="tab-fade-in pt-1">
+
+          <!-- 🌟 TOP ROW: Welcome Hero + Gamified Explorer Status Pills -->
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+            <!-- Left: Mascot & Student Greeting -->
+            <div class="home-student-hero d-inline-flex align-items-center gap-3">
+>>>>>>> f11c82d16ea4305e99c24acd2689526ece8f6da8
               <div class="mascot-cartoon-jumper">
                 <img src="/assets/images/mascot.png" alt="Happy Mascot" class="mascot-cartoon-img">
               </div>
@@ -84,6 +96,7 @@
               </div>
             </div>
 
+<<<<<<< HEAD
             <!-- Quick Status Badges -->
             <div class="d-flex align-items-center gap-2 flex-wrap">
               <div class="home-quick-stat-pill">
@@ -332,10 +345,353 @@
                   </div>
                 </div>
               }
+=======
+            <!-- Right: Quick Stat Badges (Streak, XP, Daily Goal) -->
+            <div class="d-inline-flex align-items-center gap-2 flex-wrap">
+              <!-- Streak Pill -->
+              <div class="hero-stat-pill flame-pill" title="Daily Learning Streak">
+                <span class="stat-pill-icon">🔥</span>
+                <span class="stat-pill-value">{{ streakDays() }}</span>
+                <span class="stat-pill-label">Days Streak</span>
+              </div>
+
+              <!-- XP Points Pill -->
+              <div class="hero-stat-pill star-pill" title="Total Stars & XP Points">
+                <span class="stat-pill-icon">⭐</span>
+                <span class="stat-pill-value">{{ xp() }}</span>
+                <span class="stat-pill-label">XP Stars</span>
+              </div>
+
+              <!-- Daily Goal Pill -->
+              <div class="hero-stat-pill goal-pill" title="Today's Practice Target">
+                <span class="stat-pill-icon">🎯</span>
+                <span class="stat-pill-value">{{ todayProgressMinutes() }}/{{ dailyGoal() }}m</span>
+                <span class="stat-pill-label">Daily Goal</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 🌟 CENTRAL MAGICAL HUB (Circled Area in User's Screenshot) -->
+          <div class="dashboard-hub-row row g-3 align-items-stretch">
+            
+            <!-- ============================================================ -->
+            <!-- 📚 CARD 1: USER'S COURSE COMPLETION & PROGRESS               -->
+            <!-- ============================================================ -->
+            <div class="col-12 col-lg-6">
+              <div class="hub-glass-card course-progress-card p-3 p-md-4 d-flex flex-column justify-content-between h-100">
+                
+                <!-- Card Header -->
+                <div>
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="card-icon-bubble bg-gradient-emerald">
+                        <i class="bi bi-mortarboard-fill text-white"></i>
+                      </div>
+                      <div>
+                        <h3 class="hub-card-title mb-0">My Learning Journey</h3>
+                        <span class="hub-card-subtitle">Course Progress & Milestones</span>
+                      </div>
+                    </div>
+                    
+                    @if (activeCourseProgress(); as cp) {
+                      <span class="completion-badge" [class.badge-complete]="cp.percentage >= 100">
+                        {{ cp.percentage }}% Done
+                      </span>
+                    }
+                  </div>
+
+                  <!-- Course Selector Chips (If user has multiple courses) -->
+                  @if (allCoursesProgress().length > 1) {
+                    <div class="course-chip-selector d-flex gap-2 overflow-x-auto pb-2 mb-2">
+                      @for (c of allCoursesProgress(); track c.id) {
+                        <button class="course-chip-btn" 
+                                [class.active]="(activeCourseProgress()?.id === c.id)"
+                                (click)="selectActiveCourse(c.id)">
+                          <i class="bi bi-book me-1"></i>{{ c.name }}
+                        </button>
+                      }
+                    </div>
+                  }
+
+                  <!-- Active Course Content -->
+                  @if (activeCourseProgress(); as cp) {
+                    <div class="course-active-info mt-2">
+                      <div class="d-flex justify-content-between align-items-baseline mb-1">
+                        <h4 class="active-course-name text-truncate mb-0" [title]="cp.name">
+                          {{ cp.name }}
+                        </h4>
+                        <span class="chapter-count-tag">
+                          <i class="bi bi-check2-circle text-success me-1"></i>
+                          <strong>{{ cp.completedChapters }}</strong> / {{ cp.totalChapters }} Chapters
+                        </span>
+                      </div>
+
+                      <!-- Animated Progress Track with Rocket Marker -->
+                      <div class="course-progress-track-wrapper my-2 position-relative">
+                        <div class="progress course-progress-bar-container" style="height: 14px;">
+                          <div class="progress-bar course-progress-bar-fill" 
+                               role="progressbar" 
+                               [style.width.%]="cp.percentage"
+                               [attr.aria-valuenow]="cp.percentage" 
+                               aria-valuemin="0" 
+                               aria-valuemax="100">
+                          </div>
+                        </div>
+                        <!-- Little glowing Rocket Pin on Progress -->
+                        <span class="progress-rocket-pin" [style.left.%]="cp.percentage">
+                          🚀
+                        </span>
+                      </div>
+
+                      <div class="d-flex justify-content-between align-items-center mt-2 text-white-50 small">
+                        <span>
+                          @if (cp.percentage >= 100) {
+                            🎉 Woohoo! Course fully mastered!
+                          } @else if (cp.completedChapters > 0) {
+                            🌟 {{ cp.remainingChapters }} chapter{{ cp.remainingChapters > 1 ? 's' : '' }} left to next level!
+                          } @else {
+                            ✨ Ready to start your adventure!
+                          }
+                        </span>
+                        <span class="text-warning fw-bold">
+                          <i class="bi bi-stars me-1"></i>{{ lessonsFinished() }} Lessons Done
+                        </span>
+                      </div>
+                    </div>
+                  } @else {
+                    <!-- Fallback if no course loaded yet -->
+                    <div class="py-3 text-center text-white-50">
+                      <i class="bi bi-journal-bookmark fs-1 text-warning d-block mb-2"></i>
+                      <p class="mb-1 text-white fw-bold">No active course selected</p>
+                      <small>Choose a course from Curriculum to begin learning!</small>
+                    </div>
+                  }
+                </div>
+
+                <!-- Card Actions -->
+                <div class="pt-3 mt-2 border-top border-white border-opacity-10 d-flex gap-2 flex-wrap align-items-center justify-content-between">
+                  @if (activeCourseProgress(); as cp) {
+                    <button class="btn btn-adventure-primary flex-grow-1" 
+                            (click)="playCourse(cp.course, $event)">
+                      <i class="bi bi-play-circle-fill me-2 fs-5"></i>
+                      {{ cp.percentage >= 100 ? 'Review Course' : 'Continue Learning' }}
+                    </button>
+                  } @else {
+                    <button class="btn btn-adventure-primary flex-grow-1" (click)="setTab('learn')">
+                      <i class="bi bi-compass me-2"></i>Explore Courses
+                    </button>
+                  }
+
+                  <button class="btn btn-adventure-secondary" (click)="setTab('learn')" title="View All Curriculum">
+                    <i class="bi bi-grid-fill me-1"></i>All Courses
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- 🎥 CARD 2: LIVE CLASSES (ADDED BY ADMIN / STAFF / SUPER ADMIN)-->
+            <!-- ============================================================ -->
+            <div class="col-12 col-lg-6">
+              <div class="hub-glass-card live-classes-card p-3 p-md-4 d-flex flex-column justify-content-between h-100">
+                
+                <!-- Card Header -->
+                <div>
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="card-icon-bubble bg-gradient-amber">
+                        <i class="bi bi-broadcast text-white"></i>
+                      </div>
+                      <div>
+                        <h3 class="hub-card-title mb-0">Live Classroom</h3>
+                        <span class="hub-card-subtitle">Interactive Sessions with Instructors</span>
+                      </div>
+                    </div>
+
+                    @if (upcomingLiveClass(); as live) {
+                      @if (live.status === 'live') {
+                        <span class="live-status-pill pill-live-now">
+                          <span class="live-pulse-dot"></span> LIVE NOW
+                        </span>
+                      } @else {
+                        <span class="live-status-pill pill-scheduled">
+                          <i class="bi bi-calendar-event me-1"></i>Scheduled
+                        </span>
+                      }
+                    } @else {
+                      <span class="live-status-pill pill-offline">
+                        <i class="bi bi-clock-history me-1"></i>Next Soon
+                      </span>
+                    }
+                  </div>
+
+                  <!-- Live Class Body Content -->
+                  @if (isLoadingLiveClass()) {
+                    <div class="py-4 text-center text-white-50">
+                      <div class="spinner-border text-warning spinner-border-sm mb-2" role="status"></div>
+                      <p class="small mb-0">Checking live schedule...</p>
+                    </div>
+                  } @else if (upcomingLiveClass(); as live) {
+                    <div class="live-class-active-box mt-2">
+                      <!-- Title & Platform Tag -->
+                      <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                        <h4 class="live-session-title text-truncate mb-0" [title]="live.title">
+                          {{ live.title }}
+                        </h4>
+                        <span class="platform-tag" [ngClass]="'platform-' + (live.platform || 'other')">
+                          <i class="bi {{ getPlatformBadgeInfo(live.platform).icon }} me-1"></i>
+                          {{ getPlatformBadgeInfo(live.platform).name }}
+                        </span>
+                      </div>
+
+                      <!-- Instructor & Time Meta Strip -->
+                      <div class="live-meta-strip d-flex flex-wrap gap-2 align-items-center text-white-75 mb-2">
+                        <span class="live-meta-item">
+                          <i class="bi bi-person-video3 text-warning me-1"></i>
+                          {{ live.instructor_name || 'Staff Instructor' }}
+                        </span>
+                        <span class="meta-dot">•</span>
+                        <span class="live-meta-item">
+                          <i class="bi bi-clock-fill text-info me-1"></i>
+                          {{ formatClassTime(live.start_time) }}
+                        </span>
+                        <span class="meta-dot">•</span>
+                        <span class="live-meta-item">
+                          <i class="bi bi-hourglass-split text-success me-1"></i>
+                          {{ live.duration_minutes || 45 }} mins
+                        </span>
+                      </div>
+
+                      @if (live.description) {
+                        <p class="live-class-desc text-white-50 small mb-2 text-truncate">
+                          {{ live.description }}
+                        </p>
+                      }
+
+                      <!-- Study Material Attachments (Inline Expandable Drawer - No Black Screen Overlay) -->
+                      @if (live.attachments && live.attachments.length > 0) {
+                        <div class="materials-inline-box mt-2">
+                          <button type="button" 
+                                  class="live-materials-chip clickable-chip" 
+                                  (click)="toggleMaterials()"
+                                  title="Toggle study materials">
+                            <i class="bi bi-folder2-open text-warning me-1"></i>
+                            <span>{{ live.attachments.length }} Study Material{{ live.attachments.length > 1 ? 's' : '' }} attached</span>
+                            <i class="bi ms-1" [ngClass]="showInlineMaterials() ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                          </button>
+
+                          @if (showInlineMaterials()) {
+                            <div class="materials-inline-drawer p-3 mt-2 rounded-4">
+                              <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="small fw-bold text-warning"><i class="bi bi-paperclip me-1"></i>Session Materials:</span>
+                                <button type="button" class="btn-close-inline" (click)="toggleMaterials()" title="Hide files">
+                                  <i class="bi bi-x-lg"></i>
+                                </button>
+                              </div>
+
+                              <div class="d-flex flex-column gap-2">
+                                @for (file of live.attachments; track file.id) {
+                                  <div class="material-inline-row d-flex align-items-center justify-content-between p-2 rounded-3">
+                                    <div class="d-flex align-items-center gap-2 text-truncate">
+                                      @if (file.file_type === 'image') {
+                                        <a [href]="file.file_url" target="_blank" class="material-inline-thumb" title="Click to view image">
+                                          <img [src]="file.file_url" [alt]="file.title || file.original_name" class="material-thumb-img">
+                                        </a>
+                                      } @else {
+                                        <div class="material-inline-icon">
+                                          <i [class]="'bi ' + getMaterialIcon(file.file_type)"></i>
+                                        </div>
+                                      }
+
+                                      <div class="text-truncate">
+                                        <div class="file-name-inline text-white fw-bold text-truncate">
+                                          {{ file.title || file.original_name }}
+                                        </div>
+                                        <div class="file-meta-inline text-white-50 small">
+                                          <span class="badge bg-white bg-opacity-10 text-uppercase me-1">{{ file.file_type }}</span>
+                                          <span>{{ file.file_size }}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <a [href]="file.file_url" 
+                                       target="_blank" 
+                                       rel="noopener noreferrer" 
+                                       class="btn btn-sm btn-open-inline ms-2 flex-shrink-0"
+                                       title="Open File">
+                                      <i class="bi bi-box-arrow-up-right me-1"></i> Open File
+                                    </a>
+                                  </div>
+                                }
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <!-- No Upcoming Live Classes Placeholder -->
+                    <div class="no-live-placeholder text-center py-3 my-1">
+                      <div class="no-live-icon-wrap mb-2">
+                        <span class="no-live-icon">🎈</span>
+                      </div>
+                      <h4 class="no-live-title mb-1">No Live Classes Right Now</h4>
+                      <p class="no-live-subtitle mb-0 small text-white-50">
+                        Instructors schedule interactive live sessions regularly. Check back soon or enjoy self-paced learning!
+                      </p>
+                    </div>
+                  }
+                </div>
+
+                <!-- Card Actions -->
+                <div class="pt-3 mt-2 border-top border-white border-opacity-10 d-flex align-items-center">
+                  @if (upcomingLiveClass(); as live) {
+                    <button class="btn btn-join-live w-100" 
+                            (click)="joinLiveClass(live)"
+                            title="Open class meeting room">
+                      <i class="bi bi-camera-video-fill me-2 fs-5"></i>
+                      {{ live.status === 'live' ? 'Join Live Class Now 🔴' : 'Join Classroom' }}
+                    </button>
+                  }
+                </div>
+
+              </div>
+>>>>>>> f11c82d16ea4305e99c24acd2689526ece8f6da8
             </div>
 
           </div>
 
+<<<<<<< HEAD
+=======
+          <!-- 🌟 BONUS EXTRA SECTION: DAILY CHALLENGE & QUICK QUEST BAR ("puthusa iruntha add panna nalla irukum") -->
+          <div class="daily-mission-bar hub-glass-card mt-3 p-3 d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+              <div class="mission-star-badge">
+                <span class="fs-4">🏆</span>
+              </div>
+              <div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge rounded-pill bg-warning text-dark fw-bold px-2 py-1" style="font-size: 0.72rem;">DAILY QUEST</span>
+                  <h4 class="mission-title mb-0 text-white fw-bold fs-6">Today's Explorer Mission</h4>
+                </div>
+                <p class="mission-desc text-white-50 mb-0 small">
+                  Complete 1 lesson chapter or play a word game to maintain your <strong class="text-warning">{{ streakDays() }}-day streak</strong>!
+                </p>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+              <a routerLink="/learn/games" class="btn btn-game-shortcut">
+                <i class="bi bi-controller me-1"></i>Play Games 🎮
+              </a>
+              <button class="btn btn-practice-shortcut" (click)="setTab('practice')">
+                <i class="bi bi-lightning-charge-fill me-1"></i>Quick Practice ⚡
+              </button>
+            </div>
+          </div>
+
+>>>>>>> f11c82d16ea4305e99c24acd2689526ece8f6da8
         </div>
       }
 

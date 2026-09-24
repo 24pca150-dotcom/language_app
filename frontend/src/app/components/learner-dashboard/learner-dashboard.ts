@@ -196,6 +196,82 @@ export class LearnerDashboard implements OnInit {
   upcomingLiveClass = signal<LiveClassItem | null>(null);
   allUpcomingClasses = signal<LiveClassItem[]>([]);
   isLoadingLiveClass = signal<boolean>(false);
+
+  selectedCourseId = signal<number | null>(null);
+
+  allCoursesProgress = computed<BalanceCourseItem[]>(() => {
+    const allCourses = this.courses();
+    const progs = this.courseProgressions();
+
+    if (allCourses.length === 0 && progs.length === 0) return [];
+
+    const mapped: BalanceCourseItem[] = allCourses.map(course => {
+      const prog = progs.find(p => p.course_id === course.id);
+      const totalChapters = prog && prog.total_chapters > 0 ? prog.total_chapters : (course.no_of_levels ? course.no_of_levels * 2 : 6);
+      const completedChapters = prog ? prog.completed_chapters : 0;
+      const percentage = prog ? Math.min(Math.round(prog.percentage), 100) : (totalChapters > 0 ? Math.round((completedChapters / totalChapters) * 100) : 0);
+      const remainingChapters = Math.max(0, totalChapters - completedChapters);
+      const isCompleted = percentage >= 100 || (totalChapters > 0 && completedChapters >= totalChapters);
+
+      return {
+        id: course.id,
+        course,
+        name: course.name,
+        code: course.code || 'Enrolled Course',
+        description: course.description,
+        totalChapters,
+        completedChapters,
+        remainingChapters,
+        percentage,
+        isCompleted
+      };
+    });
+
+    // If progs had courses not yet in allCourses
+    progs.forEach(prog => {
+      if (!mapped.some(m => m.id === prog.course_id)) {
+        const total = prog.total_chapters || 6;
+        const comp = prog.completed_chapters || 0;
+        mapped.push({
+          id: prog.course_id,
+          course: { id: prog.course_id, name: prog.course_name, description: '', is_active: true },
+          name: prog.course_name,
+          code: 'Enrolled Course',
+          description: '',
+          totalChapters: total,
+          completedChapters: comp,
+          remainingChapters: Math.max(0, total - comp),
+          percentage: Math.min(Math.round(prog.percentage), 100),
+          isCompleted: prog.percentage >= 100
+        });
+      }
+    });
+
+    return mapped;
+  });
+
+  activeCourseProgress = computed<BalanceCourseItem | null>(() => {
+    const list = this.allCoursesProgress();
+    if (list.length === 0) return null;
+    const selId = this.selectedCourseId();
+    if (selId) {
+      const found = list.find(c => c.id === selId);
+      if (found) return found;
+    }
+    // Default to first incomplete course, or first course
+    return list.find(c => !c.isCompleted) || list[0];
+  });
+
+  isStaffOrAdmin = computed<boolean>(() => {
+    const user = this.authService.getUser();
+    return user ? ['super_admin', 'admin', 'staff'].includes(user.role) : false;
+  });
+
+  showInlineMaterials = signal<boolean>(false);
+
+  toggleMaterials() {
+    this.showInlineMaterials.update(v => !v);
+  }
   isFullscreen = signal(false);
   uiTheme = signal<'adventure' | 'classic'>('adventure');
   xp = signal<number>(0);
@@ -631,18 +707,60 @@ export class LearnerDashboard implements OnInit {
     this.isLoadingLiveClass.set(true);
     this.http.get<LiveClassItem[]>(`${environment.apiUrl}/live-classes/upcoming`).subscribe({
       next: (classes) => {
-        this.allUpcomingClasses.set(classes || []);
-        if (classes && classes.length > 0) {
-          this.upcomingLiveClass.set(classes[0]);
+        const validClasses = classes || [];
+        this.allUpcomingClasses.set(validClasses);
+        if (validClasses.length > 0) {
+          this.upcomingLiveClass.set(validClasses[0]);
         } else {
           this.upcomingLiveClass.set(null);
         }
         this.isLoadingLiveClass.set(false);
       },
       error: () => {
-        this.isLoadingLiveClass.set(false);
+        // Fallback to /live-classes if /upcoming returns error
+        this.http.get<LiveClassItem[]>(`${environment.apiUrl}/live-classes`).subscribe({
+          next: (all) => {
+            const active = (all || []).filter(c => c.status !== 'completed' && c.status !== 'cancelled');
+            this.allUpcomingClasses.set(active);
+            this.upcomingLiveClass.set(active.length > 0 ? active[0] : null);
+            this.isLoadingLiveClass.set(false);
+          },
+          error: () => {
+            this.isLoadingLiveClass.set(false);
+          }
+        });
       }
     });
+  }
+
+  selectActiveCourse(courseId: number) {
+    this.selectedCourseId.set(courseId);
+  }
+
+  joinLiveClass(item?: LiveClassItem | null) {
+    const target = item || this.upcomingLiveClass();
+    if (target && target.meeting_link) {
+      window.open(target.meeting_link, '_blank');
+    }
+  }
+
+  formatClassTime(dateStr?: string): string {
+    if (!dateStr) return '';
+    try {
+      const d = new Date(dateStr);
+      const today = new Date();
+      const isToday = d.toDateString() === today.toDateString();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      const isTomorrow = d.toDateString() === tomorrow.toDateString();
+
+      const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      if (isToday) return `Today at ${timeStr}`;
+      if (isTomorrow) return `Tomorrow at ${timeStr}`;
+      return `${d.toLocaleDateString([], { month: 'short', day: 'numeric' })} at ${timeStr}`;
+    } catch {
+      return dateStr;
+    }
   }
 
   getPlatformBadgeInfo(platform?: string): { name: string; icon: string } {
