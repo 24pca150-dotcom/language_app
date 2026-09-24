@@ -1,9 +1,0 @@
-{
-  "outputDirectory": "dist/language_app/browser",
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]
-}
