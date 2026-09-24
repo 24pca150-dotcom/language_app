@@ -67,14 +67,14 @@
     <div class="content-container position-relative z-2 p-4 p-lg-5" style="max-width: 1280px; margin: 0 auto; width: 100%; padding-left: 105px !important; padding-right: 105px !important;">
 
       <!-- ================================================================ -->
-      <!-- 🏠 TAB 1: HOME (GAMIFIED LEARNER ADVENTURE HUB)                  -->
+      <!-- ================================================================ -->
+      <!-- 🏠 TAB 1: HOME (SIMPLE & NEAT LEARNER DASHBOARD)                 -->
       <!-- ================================================================ -->
       @if (activeTab() === 'home') {
-        <div class="tab-fade-in pt-1">
+        <div class="tab-fade-in pt-2">
 
-          <!-- 🌟 TOP ROW: Welcome Hero + Gamified Explorer Status Pills -->
-          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-            <!-- Left: Mascot & Student Greeting -->
+          <!-- 🌟 Top Welcome Greeting (Clean & Uncluttered) -->
+          <div class="d-flex align-items-center justify-content-between mb-4">
             <div class="home-student-hero d-inline-flex align-items-center gap-3">
               <div class="mascot-cartoon-jumper">
                 <img src="/assets/images/mascot.png" alt="Happy Mascot" class="mascot-cartoon-img">
@@ -84,368 +84,175 @@
                 <h1 class="home-student-name">{{ learnerName() }}</h1>
               </div>
             </div>
-
-            <!-- Right: Quick Stat Badges (Streak, XP, Daily Goal, Balance Courses, Live Class) -->
-            <div class="d-inline-flex align-items-center gap-2 flex-wrap">
-              <!-- Streak Pill -->
-              <div class="hero-stat-pill flame-pill" title="Daily Learning Streak">
-                <span class="stat-pill-icon">🔥</span>
-                <span class="stat-pill-value">{{ streakDays() }}</span>
-                <span class="stat-pill-label">Days Streak</span>
-              </div>
-
-              <!-- XP Points Pill -->
-              <div class="hero-stat-pill star-pill" title="Total Stars & XP Points">
-                <span class="stat-pill-icon">⭐</span>
-                <span class="stat-pill-value">{{ xp() }}</span>
-                <span class="stat-pill-label">XP Stars</span>
-              </div>
-
-              <!-- Daily Goal Pill -->
-              <div class="hero-stat-pill goal-pill" title="Today's Practice Target">
-                <span class="stat-pill-icon">🎯</span>
-                <span class="stat-pill-value">{{ todayProgressMinutes() }}/{{ dailyGoal() }}m</span>
-                <span class="stat-pill-label">Daily Goal</span>
-              </div>
-
-              <!-- Balance Courses Pill -->
-              <div class="hero-stat-pill" style="border-color: rgba(245, 158, 11, 0.4);" title="Remaining Balance Courses">
-                <span class="stat-pill-icon">📚</span>
-                <span class="stat-pill-value text-warning">{{ balanceCourses().length }}</span>
-                <span class="stat-pill-label">Balance</span>
-              </div>
-
-              <!-- Live Class Indicator Pill -->
-              @if (upcomingLiveClass()) {
-                <div class="hero-stat-pill"
-                     [style.border-color]="upcomingLiveClass()?.status === 'live' ? 'rgba(239, 68, 68, 0.7)' : 'rgba(56, 189, 248, 0.4)'"
-                     [title]="upcomingLiveClass()?.title">
-                  <span class="stat-pill-icon">{{ upcomingLiveClass()?.status === 'live' ? '🔴' : '📹' }}</span>
-                  <span class="stat-pill-value" [class.text-danger]="upcomingLiveClass()?.status === 'live'">
-                    {{ upcomingLiveClass()?.status === 'live' ? 'LIVE NOW' : 'Live Soon' }}
-                  </span>
-                  <span class="stat-pill-label">{{ upcomingLiveClass()?.status === 'live' ? 'In Progress' : 'Scheduled' }}</span>
-                </div>
-              }
-            </div>
           </div>
 
-          <!-- 🌟 MAIN CONTENT: GAMIFIED BOXLESS ADVENTURE PORTALS (Matching Curriculum & Levels View) -->
-          <div class="row g-4 justify-content-start py-2">
+          <!-- 🌟 2 Simple & Neat Cards: Balance Course + Live Class -->
+          <div class="row g-4 justify-content-center mt-2" style="max-width: 960px; margin: 0 auto;">
 
-            <!-- ============================================================== -->
-            <!-- 📚 1. BALANCE COURSE PORTAL (Zero-Box Adventure Style)         -->
-            <!-- ============================================================== -->
-            <div class="col-12 col-lg-6">
-              @if (isLoading()) {
-                <div class="adventure-portal-stage d-flex align-items-center gap-3 position-relative">
-                  <div class="adventure-portal-avatar-wrap position-relative flex-shrink-0">
-                    <div class="adventure-portal-glow-ring"></div>
-                    <div class="adventure-portal-circle d-flex align-items-center justify-content-center">
-                      <div class="spinner-border text-warning spinner-border-sm" role="status"></div>
-                    </div>
+            <!-- ========================================================== -->
+            <!-- 📚 CARD 1: BALANCE COURSE (Simple & Neat)                  -->
+            <!-- ========================================================== -->
+            <div class="col-12 col-md-6">
+              <div class="neat-home-card">
+                @if (isLoading()) {
+                  <div class="py-4 text-center text-white-50">
+                    <div class="spinner-border text-warning spinner-border-sm mb-2" role="status"></div>
+                    <p class="small mb-0">Loading course balance...</p>
                   </div>
-                  <div class="adventure-portal-details flex-grow-1 text-start">
-                    <h3 class="adventure-portal-title mb-1">Loading courses...</h3>
-                    <p class="text-white-50 small mb-0">Checking your learning balance...</p>
-                  </div>
-                </div>
-              } @else if (balanceCourses().length > 0) {
-                @for (item of balanceCourses(); track item.id; let idx = $index) {
-                  <div class="adventure-portal-stage cursor-pointer d-flex align-items-center gap-3 position-relative mb-3"
-                       (click)="playCourse(item.course, $event)"
-                       title="Click to resume {{ item.name }}">
-
-                    <!-- Circular 3D Adventure Portal Avatar -->
-                    <div class="adventure-portal-avatar-wrap position-relative flex-shrink-0">
-                      <div class="adventure-portal-glow-ring"></div>
-                      <div class="adventure-portal-circle">
-                        <img [src]="getCourseImage(item.name)"
-                             [alt]="item.name"
-                             class="adventure-portal-img">
-                      </div>
-                      <span class="adventure-level-badge">
-                        <i class="bi bi-clock-history text-warning me-1"></i>{{ item.remainingChapters }} Left
+                } @else if (activeCourseProgress(); as cp) {
+                  <div>
+                    <!-- Header -->
+                    <div class="neat-card-header">
+                      <span class="neat-card-tag tag-course">
+                        <i class="bi bi-journal-bookmark-fill"></i> Balance Course
+                      </span>
+                      <span class="badge bg-warning bg-opacity-20 text-warning neat-card-badge">
+                        {{ cp.remainingChapters }} Left
                       </span>
                     </div>
 
-                    <!-- Floating Info (Zero Box / Left-Aligned) -->
-                    <div class="adventure-portal-details flex-grow-1 text-start">
-                      <!-- Badge / Category Pill -->
-                      <div class="d-flex align-items-center gap-2 mb-1">
-                        <span class="kids-badge-pill"><i class="bi bi-journal-bookmark-fill"></i> Balance Course</span>
-                        <span class="badge bg-warning text-dark px-2 py-0.5 rounded-pill fw-bold" style="font-size: 0.72rem;">
-                          {{ item.percentage }}% Completed
-                        </span>
-                      </div>
-
-                      <!-- Big Playful Course Title -->
-                      <h3 class="adventure-portal-title mb-1 text-truncate">{{ item.name }}</h3>
-
-                      <!-- Cute Skill & Status Stickers -->
-                      <div class="adventure-skills-strip d-flex align-items-center gap-2 mb-2 flex-wrap">
-                        <span class="adventure-skill-pill">
-                          <i class="bi bi-check2-circle text-success me-1"></i>{{ item.completedChapters }} of {{ item.totalChapters }} Chapters
-                        </span>
-                        <span class="adventure-skill-pill">
-                          <i class="bi bi-hourglass-split text-warning me-1"></i>{{ item.remainingChapters }} Remaining
-                        </span>
-                      </div>
-
-                      <!-- Mini Progress Strip -->
-                      <div class="d-flex align-items-center gap-2 mb-2" style="max-width: 260px;">
-                        <div class="progress flex-grow-1 rounded-pill" style="height: 7px; background: rgba(255, 255, 255, 0.2);">
-                          <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated rounded-pill"
-                               role="progressbar"
-                               [style.width.%]="item.percentage > 0 ? item.percentage : 6">
-                          </div>
-                        </div>
-                        <span class="text-warning fw-bold" style="font-size: 0.78rem;">{{ item.percentage }}%</span>
-                      </div>
-
-                      <!-- Bottom Action Launch Button -->
-                      <div class="adventure-portal-action d-flex align-items-center pt-1">
-                        <button class="btn btn-adventure-start d-flex align-items-center gap-2 px-4 py-2"
-                                (click)="playCourse(item.course, $event)">
-                          <span>Resume Course</span>
-                          <i class="bi bi-play-circle-fill fs-5"></i>
-                        </button>
-                      </div>
-                    </div>
-
-                  </div>
-                }
-              } @else {
-                <!-- 0 Balance Courses (All Caught Up) -->
-                <div class="adventure-portal-stage d-flex align-items-center gap-3 position-relative opacity-90">
-                  <div class="adventure-portal-avatar-wrap position-relative flex-shrink-0">
-                    <div class="adventure-portal-glow-ring" style="filter: blur(6px); opacity: 0.6;"></div>
-                    <div class="adventure-portal-circle d-flex align-items-center justify-content-center"
-                         style="background: rgba(16, 185, 129, 0.25); border-color: #34D399;">
-                      <i class="bi bi-patch-check-fill text-success" style="font-size: 3rem;"></i>
-                    </div>
-                    <span class="adventure-level-badge" style="background: linear-gradient(135deg, #10B981, #059669);">
-                      <i class="bi bi-check-lg me-1"></i>0 Pending
-                    </span>
-                  </div>
-                  <div class="adventure-portal-details flex-grow-1 text-start">
-                    <div class="d-flex align-items-center gap-2 mb-1">
-                      <span class="kids-badge-pill text-success"><i class="bi bi-trophy-fill"></i> All Complete!</span>
-                    </div>
-                    <h3 class="adventure-portal-title mb-1">All Caught Up! 🎉</h3>
-                    <p class="text-white-50 small mb-2">You have 0 pending balance courses.</p>
-                    <div class="adventure-portal-action d-flex align-items-center pt-1">
-                      <button class="btn btn-adventure-start d-flex align-items-center gap-2 px-3.5 py-1.5" (click)="setTab('learn')">
-                        <span>Curriculum</span>
-                        <i class="bi bi-arrow-right-circle-fill fs-5"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              }
-            </div>
-
-            <!-- ============================================================== -->
-            <!-- 🎥 2. LIVE CLASS PORTAL (Zero-Box Adventure Style)             -->
-            <!-- ============================================================== -->
-            <div class="col-12 col-lg-6">
-              @if (isLoadingLiveClass()) {
-                <div class="adventure-portal-stage d-flex align-items-center gap-3 position-relative">
-                  <div class="adventure-portal-avatar-wrap position-relative flex-shrink-0">
-                    <div class="adventure-portal-glow-ring"></div>
-                    <div class="adventure-portal-circle d-flex align-items-center justify-content-center">
-                      <div class="spinner-border text-danger spinner-border-sm" role="status"></div>
-                    </div>
-                  </div>
-                  <div class="adventure-portal-details flex-grow-1 text-start">
-                    <h3 class="adventure-portal-title mb-1">Loading schedule...</h3>
-                    <p class="text-white-50 small mb-0">Checking upcoming live sessions...</p>
-                  </div>
-                </div>
-              } @else if (upcomingLiveClass(); as liveSession) {
-                <div class="adventure-portal-stage d-flex align-items-start gap-3 position-relative"
-                     title="{{ liveSession.title }}">
-
-                  <!-- Circular 3D Adventure Portal Avatar -->
-                  <div class="adventure-portal-avatar-wrap position-relative flex-shrink-0">
-                    <div class="adventure-portal-glow-ring"
-                         [style.background]="liveSession.status === 'live' ? 'conic-gradient(from 0deg, #EF4444, #F59E0B, #DC2626, #EF4444)' : ''">
-                    </div>
-                    <div class="adventure-portal-circle d-flex align-items-center justify-content-center"
-                         style="background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);">
-                      <img src="/assets/images/mascot.png"
-                           alt="Live Session"
-                           class="adventure-portal-img"
-                           style="object-fit: contain; padding: 12px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));">
-                    </div>
-                    <span class="adventure-level-badge"
-                          [style.background]="liveSession.status === 'live' ? 'linear-gradient(135deg, #EF4444, #B91C1C)' : 'linear-gradient(135deg, #F59E0B, #D97706)'">
-                      <i [class]="liveSession.status === 'live' ? 'bi bi-broadcast animate-pulse me-1' : 'bi bi-camera-video-fill me-1'"></i>
-                      {{ liveSession.status === 'live' ? 'LIVE NOW' : 'Live Class' }}
-                    </span>
-                  </div>
-
-                  <!-- Floating Info (Zero Box / Left-Aligned) -->
-                  <div class="adventure-portal-details flex-grow-1 text-start">
-                    <!-- Top Pill -->
-                    <div class="d-flex align-items-center gap-2 mb-1">
-                      <span class="kids-badge-pill" [style.color]="liveSession.status === 'live' ? '#F87171' : '#FDE047'">
-                        <i class="bi bi-broadcast"></i> {{ liveSession.status === 'live' ? 'Live Session Now' : 'Upcoming Session' }}
-                      </span>
-                      <span class="badge bg-white bg-opacity-20 text-white px-2 py-0.5 rounded-pill small">
-                        {{ getPlatformBadgeInfo(liveSession.platform).name }}
-                      </span>
-                    </div>
-
-                    <!-- Big Playful Live Class Title -->
-                    <h3 class="adventure-portal-title mb-1 text-truncate">{{ liveSession.title }}</h3>
-
-                    <!-- Cute Stickers -->
-                    <div class="adventure-skills-strip d-flex align-items-center gap-2 mb-2 flex-wrap">
-                      <span class="adventure-skill-pill">
-                        <i class="bi bi-person-fill text-warning me-1"></i>{{ liveSession.instructor_name || 'Instructor' }}
-                      </span>
-                      <span class="adventure-skill-pill">
-                        <i class="bi bi-calendar3 text-info me-1"></i>{{ formatClassTime(liveSession.start_time) }}
-                      </span>
-                      <span class="adventure-skill-pill">
-                        <i class="bi bi-clock-fill text-success me-1"></i>{{ liveSession.duration_minutes }} Mins
-                      </span>
-                    </div>
-
-                    <!-- Study Material Attachments (Inline Expandable Drawer) -->
-                    @if (liveSession.attachments && liveSession.attachments.length > 0) {
-                      <div class="materials-inline-box mb-2">
-                        <button type="button" 
-                                class="live-materials-chip clickable-chip" 
-                                (click)="toggleMaterials()"
-                                title="Toggle study materials">
-                          <i class="bi bi-folder2-open text-warning me-1"></i>
-                          <span>{{ liveSession.attachments.length }} Study Material{{ liveSession.attachments.length > 1 ? 's' : '' }} attached</span>
-                          <i class="bi ms-1" [ngClass]="showInlineMaterials() ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
-                        </button>
-
-                        @if (showInlineMaterials()) {
-                          <div class="materials-inline-drawer p-3 mt-2 rounded-4" style="background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.15);">
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                              <span class="small fw-bold text-warning"><i class="bi bi-paperclip me-1"></i>Session Materials:</span>
-                              <button type="button" class="btn-close-inline" (click)="toggleMaterials()" title="Hide files">
-                                <i class="bi bi-x-lg text-white"></i>
-                              </button>
-                            </div>
-
-                            <div class="d-flex flex-column gap-2">
-                              @for (file of liveSession.attachments; track file.id) {
-                                <div class="material-inline-row d-flex align-items-center justify-content-between p-2 rounded-3" style="background: rgba(255,255,255,0.06);">
-                                  <div class="d-flex align-items-center gap-2 text-truncate">
-                                    <div class="material-inline-icon">
-                                      <i [class]="'bi ' + getMaterialIcon(file.file_type)"></i>
-                                    </div>
-                                    <div class="text-truncate">
-                                      <div class="file-name-inline text-white fw-bold text-truncate" style="font-size: 0.85rem;">
-                                        {{ file.title || file.original_name }}
-                                      </div>
-                                      <div class="file-meta-inline text-white-50 small">
-                                        <span class="badge bg-white bg-opacity-10 text-uppercase me-1" style="font-size: 0.7rem;">{{ file.file_type }}</span>
-                                        <span>{{ file.file_size }}</span>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  <a [href]="file.file_url" 
-                                     target="_blank" 
-                                     rel="noopener noreferrer" 
-                                     class="btn btn-sm btn-open-inline ms-2 flex-shrink-0"
-                                     title="Open File">
-                                    <i class="bi bi-box-arrow-up-right me-1"></i> Open
-                                  </a>
-                                </div>
-                              }
-                            </div>
-                          </div>
+                    <!-- Course Switcher if multiple courses -->
+                    @if (balanceCourses().length > 1) {
+                      <div class="d-flex gap-1 overflow-x-auto pb-1 mb-2">
+                        @for (b of balanceCourses(); track b.id) {
+                          <button type="button" 
+                                  class="btn btn-sm py-0.5 px-2 rounded-pill fw-bold text-truncate"
+                                  style="font-size: 0.72rem; max-width: 140px;"
+                                  [ngClass]="cp.id === b.id ? 'btn-warning text-dark' : 'btn-outline-light text-white-50'"
+                                  (click)="selectActiveCourse(b.id)">
+                            {{ b.name }}
+                          </button>
                         }
                       </div>
                     }
 
-                    <!-- Bottom Action Launch Button -->
-                    <div class="adventure-portal-action d-flex align-items-center gap-2 pt-1">
-                      <button type="button"
-                              class="btn btn-adventure-start d-flex align-items-center gap-2 px-4 py-2"
-                              [style.background]="liveSession.status === 'live' ? 'linear-gradient(180deg, #FF5252 0%, #D50000 100%) !important' : ''"
-                              [style.color]="liveSession.status === 'live' ? '#FFFFFF !important' : ''"
-                              (click)="joinLiveClass(liveSession)">
-                        <span>{{ liveSession.status === 'live' ? 'Join Live Now' : 'Enter Meeting Room' }}</span>
-                        <i class="bi bi-broadcast fs-5"></i>
-                      </button>
-
-                      <button type="button"
-                              class="btn btn-sm btn-outline-light rounded-circle p-0 d-flex align-items-center justify-content-center"
-                              style="width: 38px; height: 38px; background: rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.3);"
-                              (click)="loadUpcomingLiveClasses()"
-                              title="Refresh Schedule">
-                        <i class="bi bi-arrow-clockwise text-warning"></i>
-                      </button>
+                    <!-- Course Info -->
+                    <div class="d-flex align-items-center gap-3 my-2">
+                      <img [src]="getCourseImage(cp.name)" [alt]="cp.name" class="neat-thumb-img">
+                      <div class="flex-grow-1 min-w-0">
+                        <h4 class="neat-card-title text-truncate" [title]="cp.name">{{ cp.name }}</h4>
+                        <div class="neat-card-sub">
+                          {{ cp.completedChapters }} of {{ cp.totalChapters }} Chapters • {{ cp.percentage }}%
+                        </div>
+                        <div class="progress rounded-pill" style="height: 6px; background: rgba(255,255,255,0.15);">
+                          <div class="progress-bar bg-warning rounded-pill"
+                               role="progressbar"
+                               [style.width.%]="cp.percentage > 0 ? cp.percentage : 6">
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                </div>
-              } @else {
-                <!-- Clean Zero-Box Empty State for Live Class -->
-                <div class="adventure-portal-stage d-flex align-items-center gap-3 position-relative opacity-85">
-                  <div class="adventure-portal-avatar-wrap position-relative flex-shrink-0">
-                    <div class="adventure-portal-glow-ring" style="filter: blur(6px); opacity: 0.5;"></div>
-                    <div class="adventure-portal-circle d-flex align-items-center justify-content-center"
-                         style="background: rgba(245, 158, 11, 0.2); border-color: #FBBF24;">
-                      <i class="bi bi-camera-video text-warning" style="font-size: 3rem;"></i>
-                    </div>
-                    <span class="adventure-level-badge" style="background: linear-gradient(135deg, #64748B, #475569);">
-                      Schedule
+                  <!-- Action -->
+                  <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-white border-opacity-10">
+                    <span class="text-white-50 small">
+                      @if (balanceCourses().length > 1) {
+                        {{ balanceCourses().length }} Courses Active
+                      } @else {
+                        In Progress
+                      }
                     </span>
+                    <button type="button" class="neat-btn-resume" (click)="playCourse(cp.course, $event)">
+                      <span>Resume Course</span>
+                      <i class="bi bi-play-circle-fill fs-6"></i>
+                    </button>
                   </div>
-                  <div class="adventure-portal-details flex-grow-1 text-start">
-                    <div class="d-flex align-items-center gap-2 mb-1">
-                      <span class="kids-badge-pill text-warning"><i class="bi bi-broadcast"></i> Live Session</span>
-                    </div>
-                    <h3 class="adventure-portal-title mb-1">No Live Class Today</h3>
-                    <p class="text-white-50 small mb-2">Check back soon for upcoming sessions!</p>
-                    <div class="adventure-portal-action d-flex align-items-center pt-1">
-                      <button class="btn btn-adventure-start d-flex align-items-center gap-2 px-3.5 py-1.5" (click)="loadUpcomingLiveClasses()">
-                        <span>Refresh Schedule</span>
-                        <i class="bi bi-arrow-clockwise fs-5"></i>
-                      </button>
-                    </div>
+                } @else {
+                  <!-- 0 Pending Balance Courses -->
+                  <div class="py-4 text-center">
+                    <i class="bi bi-check-circle-fill text-success fs-2 mb-2 d-block"></i>
+                    <h4 class="neat-card-title mb-1">All Caught Up! 🎉</h4>
+                    <p class="neat-card-sub mb-3">You have 0 pending balance courses.</p>
+                    <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-3" (click)="setTab('learn')">
+                      View Curriculum
+                    </button>
                   </div>
-                </div>
-              }
-            </div>
-
-          </div>
-
-          <!-- 🌟 BONUS EXTRA SECTION: DAILY CHALLENGE & QUICK QUEST BAR -->
-          <div class="daily-mission-bar hub-glass-card mt-4 p-3 d-flex align-items-center justify-content-between flex-wrap gap-3">
-            <div class="d-flex align-items-center gap-3">
-              <div class="mission-star-badge">
-                <span class="fs-4">🏆</span>
-              </div>
-              <div>
-                <div class="d-flex align-items-center gap-2">
-                  <span class="badge rounded-pill bg-warning text-dark fw-bold px-2 py-1" style="font-size: 0.72rem;">DAILY QUEST</span>
-                  <h4 class="mission-title mb-0 text-white fw-bold fs-6">Today's Explorer Mission</h4>
-                </div>
-                <p class="mission-desc text-white-50 mb-0 small">
-                  Complete 1 lesson chapter or play a word game to maintain your <strong class="text-warning">{{ streakDays() }}-day streak</strong>!
-                </p>
+                }
               </div>
             </div>
 
-            <div class="d-flex align-items-center gap-2">
-              <a routerLink="/learn/games" class="btn btn-game-shortcut">
-                <i class="bi bi-controller me-1"></i>Play Games 🎮
-              </a>
-              <button class="btn btn-practice-shortcut" (click)="setTab('practice')">
-                <i class="bi bi-lightning-charge-fill me-1"></i>Quick Practice ⚡
-              </button>
+            <!-- ========================================================== -->
+            <!-- 🎥 CARD 2: LIVE CLASS (Simple & Neat)                      -->
+            <!-- ========================================================== -->
+            <div class="col-12 col-md-6">
+              <div class="neat-home-card">
+                @if (isLoadingLiveClass()) {
+                  <div class="py-4 text-center text-white-50">
+                    <div class="spinner-border text-danger spinner-border-sm mb-2" role="status"></div>
+                    <p class="small mb-0">Checking live schedule...</p>
+                  </div>
+                } @else if (upcomingLiveClass(); as liveSession) {
+                  <div>
+                    <!-- Header -->
+                    <div class="neat-card-header">
+                      <span class="neat-card-tag tag-live">
+                        <i class="bi bi-broadcast"></i> Live Class
+                      </span>
+                      @if (liveSession.status === 'live') {
+                        <span class="badge bg-danger text-white neat-card-badge animate-pulse">
+                          ● LIVE NOW
+                        </span>
+                      } @else {
+                        <span class="badge bg-info bg-opacity-20 text-info neat-card-badge">
+                          Scheduled
+                        </span>
+                      }
+                    </div>
+
+                    <!-- Live Class Info -->
+                    <div class="d-flex align-items-center gap-3 my-2">
+                      <div class="neat-thumb-icon icon-live">
+                        <i class="bi bi-camera-video-fill fs-3"></i>
+                      </div>
+                      <div class="flex-grow-1 min-w-0">
+                        <h4 class="neat-card-title text-truncate" [title]="liveSession.title">{{ liveSession.title }}</h4>
+                        <div class="neat-card-sub text-truncate">
+                          <i class="bi bi-person-fill text-warning me-1"></i>{{ liveSession.instructor_name || 'Instructor' }} • 
+                          <i class="bi bi-clock-fill text-info me-1"></i>{{ formatClassTime(liveSession.start_time) }}
+                        </div>
+                        @if (liveSession.attachments && liveSession.attachments.length > 0) {
+                          <div class="small">
+                            <a [href]="liveSession.attachments[0].file_url" target="_blank" class="text-warning text-decoration-none" style="font-size: 0.78rem;">
+                              <i class="bi bi-paperclip me-1"></i>{{ liveSession.attachments.length }} Study Material{{ liveSession.attachments.length > 1 ? 's' : '' }}
+                            </a>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Action -->
+                  <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-white border-opacity-10">
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-light rounded-circle p-0 d-flex align-items-center justify-content-center"
+                            style="width: 32px; height: 32px; border-color: rgba(255,255,255,0.2);"
+                            (click)="loadUpcomingLiveClasses()" 
+                            title="Refresh Schedule">
+                      <i class="bi bi-arrow-clockwise text-white-50"></i>
+                    </button>
+
+                    <button type="button" 
+                            [class]="liveSession.status === 'live' ? 'neat-btn-join' : 'neat-btn-scheduled'"
+                            (click)="joinLiveClass(liveSession)">
+                      <span>{{ liveSession.status === 'live' ? 'Join Live Now' : 'Enter Meeting Room' }}</span>
+                      <i class="bi bi-arrow-right-circle-fill fs-6"></i>
+                    </button>
+                  </div>
+                } @else {
+                  <!-- No Live Class Today -->
+                  <div class="py-4 text-center">
+                    <i class="bi bi-camera-video text-warning fs-2 mb-2 d-block opacity-75"></i>
+                    <h4 class="neat-card-title mb-1">No Live Class Today</h4>
+                    <p class="neat-card-sub mb-3">Check back soon for new sessions!</p>
+                    <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3" (click)="loadUpcomingLiveClasses()">
+                      <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                    </button>
+                  </div>
+                }
+              </div>
             </div>
+
           </div>
 
         </div>
