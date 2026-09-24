@@ -16,49 +16,65 @@
 
   <!-- 🎮 FLOATING DOCK LEFT (4 Buttons: Home, Learn, Games, Practice) -->
   <aside class="floating-dock dock-left" aria-label="Learning Navigation">
-    <button class="floating-game-btn game-icon-home" [class.active]="activeTab() === 'home'" (click)="setTab('home')" title="Home">
-      <i class="bi bi-house-door-fill"></i>
-      <span class="game-btn-tooltip">Home</span>
-    </button>
+    <div class="dock-item" [class.active]="activeTab() === 'home'" (click)="setTab('home')">
+      <button class="floating-game-btn game-icon-home" [class.active]="activeTab() === 'home'" title="Home">
+        <i class="bi bi-house-door-fill"></i>
+      </button>
+      <span class="dock-label">Home</span>
+    </div>
 
-    <button class="floating-game-btn game-icon-learn" [class.active]="activeTab() === 'learn'" (click)="setTab('learn')" title="Learn">
-      <i class="bi bi-book-half"></i>
-      <span class="game-btn-tooltip">Learn</span>
-    </button>
+    <div class="dock-item" [class.active]="activeTab() === 'learn'" (click)="setTab('learn')">
+      <button class="floating-game-btn game-icon-learn" [class.active]="activeTab() === 'learn'" title="Learn">
+        <i class="bi bi-book-half"></i>
+      </button>
+      <span class="dock-label">Learn</span>
+    </div>
 
-    <a class="floating-game-btn game-icon-games text-decoration-none" routerLink="/learn/games" title="Games">
-      <i class="bi bi-controller"></i>
-      <span class="game-btn-tooltip">Games</span>
-    </a>
+    <div class="dock-item">
+      <a class="floating-game-btn game-icon-games text-decoration-none" routerLink="/learn/games" title="Games">
+        <i class="bi bi-controller"></i>
+      </a>
+      <a routerLink="/learn/games" class="dock-label text-decoration-none">Games</a>
+    </div>
 
-    <button class="floating-game-btn game-icon-practice" [class.active]="activeTab() === 'practice'" (click)="setTab('practice')" title="Practice">
-      <i class="bi bi-lightning-charge-fill"></i>
-      <span class="game-btn-tooltip">Practice</span>
-    </button>
+    <div class="dock-item" [class.active]="activeTab() === 'practice'" (click)="setTab('practice')">
+      <button class="floating-game-btn game-icon-practice" [class.active]="activeTab() === 'practice'" title="Practice">
+        <i class="bi bi-lightning-charge-fill"></i>
+      </button>
+      <span class="dock-label">Practice</span>
+    </div>
   </aside>
 
   <!-- 🎮 FLOATING DOCK RIGHT (4 Buttons: Assessments, Progress, Settings, Logout) -->
   <aside class="floating-dock dock-right" aria-label="Account Navigation">
-    <button class="floating-game-btn game-icon-assessments" [class.active]="activeTab() === 'assessments'" (click)="setTab('assessments')" title="Assessments">
-      <i class="bi bi-clipboard-check-fill"></i>
-      <span class="game-btn-tooltip">Assessments</span>
-    </button>
+    <div class="dock-item" [class.active]="activeTab() === 'assessments'" (click)="setTab('assessments')">
+      <button class="floating-game-btn game-icon-assessments" [class.active]="activeTab() === 'assessments'" title="Assessments">
+        <i class="bi bi-clipboard-check-fill"></i>
+      </button>
+      <span class="dock-label">Assessments</span>
+    </div>
 
-    <button class="floating-game-btn game-icon-progress" [class.active]="activeTab() === 'progress'" (click)="setTab('progress')" title="Progress">
-      <i class="bi bi-bar-chart-fill"></i>
-      <span class="game-btn-tooltip">Progress</span>
-    </button>
+    <div class="dock-item" [class.active]="activeTab() === 'progress'" (click)="setTab('progress')">
+      <button class="floating-game-btn game-icon-progress" [class.active]="activeTab() === 'progress'" title="Progress">
+        <i class="bi bi-bar-chart-fill"></i>
+      </button>
+      <span class="dock-label">Progress</span>
+    </div>
 
-    <button class="floating-game-btn game-icon-settings" [class.active]="activeTab() === 'settings'" (click)="setTab('settings')" title="Settings">
-      <i class="bi bi-gear-fill"></i>
-      <span class="game-btn-tooltip">Settings</span>
-    </button>
+    <div class="dock-item" [class.active]="activeTab() === 'settings'" (click)="setTab('settings')">
+      <button class="floating-game-btn game-icon-settings" [class.active]="activeTab() === 'settings'" title="Settings">
+        <i class="bi bi-gear-fill"></i>
+      </button>
+      <span class="dock-label">Settings</span>
+    </div>
 
     <!-- Logout placed in Badges position as requested -->
-    <button class="floating-game-btn game-icon-logout" (click)="logout()" title="Logout">
-      <i class="bi bi-box-arrow-right"></i>
-      <span class="game-btn-tooltip">Logout</span>
-    </button>
+    <div class="dock-item" (click)="logout()">
+      <button class="floating-game-btn game-icon-logout" title="Logout">
+        <i class="bi bi-box-arrow-right"></i>
+      </button>
+      <span class="dock-label">Logout</span>
+    </div>
   </aside>
 
   <!-- 🌟 MAIN CONTENT AREA (FULL SCREEN OVER FIXED FULL-PAGE BACKGROUND) -->

@@ -490,6 +490,44 @@ h1 strong, h2 strong, h3 strong, h4 strong, h5 strong, h6 strong {
   right: 20px;
 }
 
+.dock-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.dock-label {
+  color: #FFFFFF;
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-align: center;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 0, 0, 0.7);
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  line-height: 1;
+  display: block;
+}
+
+.dock-item:hover .dock-label,
+.dock-item.active .dock-label {
+  color: #FFD54F !important;
+  text-shadow: 0 0 12px rgba(255, 213, 79, 0.8), 0 2px 6px rgba(0, 0, 0, 0.95);
+  transform: translateY(-1px);
+}
+
+.dock-item:hover .floating-game-btn {
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4), 
+              inset 0 2.5px 3px rgba(255, 255, 255, 0.95), 
+              inset 0 -3px 4px rgba(0, 0, 0, 0.35);
+  border-color: #FFFFFF;
+}
+
 .floating-game-btn {
   width: 68px;
   height: 68px;
