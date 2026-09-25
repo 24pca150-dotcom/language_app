@@ -7,6 +7,7 @@ use App\Models\Tenant;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,26 +17,45 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Clean up remaining course/curriculum data from database
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        DB::table('course_package_levels')->truncate();
-        DB::table('level_chapter')->truncate();
-        DB::table('content_chapters')->truncate();
-        DB::table('property_packages')->truncate();
-        DB::table('content_attachments')->truncate();
-        DB::table('question_options')->truncate();
-        DB::table('assessment_questions')->truncate();
-        DB::table('user_assessment_attempts')->truncate();
-        DB::table('assessments')->truncate();
-        DB::table('user_course_progress')->truncate();
-        DB::table('contents')->truncate();
-        DB::table('chapters')->truncate();
-        DB::table('levels')->truncate();
-        DB::table('courses')->truncate();
-        DB::table('activities')->truncate();
-        DB::table('properties')->truncate();
-        DB::table('tenants')->where('tenant_code', '!=', 'SCH-001')->delete();
-        DB::table('users')->whereNotIn('username', ['superadmin', 'coordinator', 'karthik_std'])->delete();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        Schema::disableForeignKeyConstraints();
+        
+        $tables = [
+            'course_package_levels',
+            'level_chapter',
+            'content_chapters',
+            'property_packages',
+            'content_attachments',
+            'question_options',
+            'assessment_questions',
+            'user_assessment_attempts',
+            'assessments',
+            'user_course_progress',
+            'contents',
+            'chapters',
+            'levels',
+            'courses',
+            'activities',
+            'properties',
+        ];
+
+        foreach ($tables as $table) {
+            if (Schema::hasTable($table)) {
+                if (DB::getDriverName() === 'pgsql') {
+                    DB::statement("TRUNCATE TABLE {$table} CASCADE;");
+                } else {
+                    DB::table($table)->truncate();
+                }
+            }
+        }
+
+        if (Schema::hasTable('tenants')) {
+            DB::table('tenants')->where('tenant_code', '!=', 'SCH-001')->delete();
+        }
+        if (Schema::hasTable('users')) {
+            DB::table('users')->whereNotIn('username', ['superadmin', 'coordinator', 'karthik_std'])->delete();
+        }
+        
+        Schema::enableForeignKeyConstraints();
 
         // 1. Seed Super Admin (Global Administrator with no tenant_id)
         User::updateOrCreate(
