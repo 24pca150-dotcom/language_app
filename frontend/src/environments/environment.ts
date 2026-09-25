@@ -1,5 +1,5 @@
 export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:8000/api',
-  baseUrl: 'http://localhost:8000'
+  production: true,
+  apiUrl: 'https://learn-api.macvelsoftware.com/api',
+  baseUrl: 'https://learn-api.macvelsoftware.com'
 };
