@@ -1,13 +1,22 @@
 <div class="login-container">
   <div class="login-glass-card">
 
-    <!-- Branding Header -->
+    <!-- Branding Header (Dynamic Logo & School Identification) -->
     <div class="login-header">
-      <div class="logo-badge">
-        LP
+      <div class="logo-badge" [style.background]="getLogoBadgeBackground()" [style.color]="selectedTenant ? '#ffffff' : '#6366f1'">
+        @if (selectedTenant?.logo_path) {
+          <img [src]="selectedTenant.logo_path" [alt]="selectedTenant.tenant_name" class="school-logo-img" />
+        } @else if (selectedTenant) {
+          <div class="school-crest-badge">
+            <i class="bi bi-mortarboard-fill school-crest-icon"></i>
+            <span class="school-crest-initials">{{ getInitials(selectedTenant.tenant_name) }}</span>
+          </div>
+        } @else {
+          LP
+        }
       </div>
-      <h1>Learning Portal</h1>
-      <p>Language Learning Platform</p>
+      <h1 class="school-title-text">{{ selectedTenant?.tenant_name || 'Learning Portal' }}</h1>
+      <p class="school-subtitle-text">{{ selectedTenant ? 'Student & Staff Learning Portal' : 'Language Learning Platform' }}</p>
     </div>
 
     <!-- Unified Login Form -->
@@ -28,6 +37,32 @@
       }
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+
+        <!-- 🏫 Institution / School Selector -->
+        <div class="form-group tenant-picker-group">
+          <label for="tenantSelect" class="d-flex justify-content-between align-items-center">
+            <span>
+              <i class="bi bi-building-fill-check me-1 text-warning"></i> Select School / Institution
+            </span>
+            @if (selectedTenant) {
+              <span class="tenant-code-badge">{{ selectedTenant.tenant_code }}</span>
+            }
+          </label>
+          <div class="input-wrapper select-wrapper">
+            <i class="bi bi-mortarboard-fill input-icon"></i>
+            <select id="tenantSelect" class="tenant-select-input"
+                    [ngModel]="selectedTenantCode" 
+                    (ngModelChange)="onTenantChange($event)"
+                    [ngModelOptions]="{standalone: true}">
+              <option value="">🌐 Direct Login / All Campuses</option>
+              @for (tenant of tenants; track tenant.id) {
+                <option [value]="tenant.tenant_code">
+                  {{ tenant.tenant_name }} ({{ tenant.tenant_code }})
+                </option>
+              }
+            </select>
+          </div>
+        </div>
 
         <!-- Username / Email -->
         <div class="form-group">
@@ -74,7 +109,7 @@
           @if (loading) {
           <span class="spinner"></span> Logging in...
           } @else {
-          <i class="bi bi-box-arrow-in-right"></i> Sign In
+          <i class="bi bi-box-arrow-in-right"></i> Sign In to {{ selectedTenant ? selectedTenant.tenant_name : 'Portal' }}
           }
         </button>
 
@@ -82,7 +117,7 @@
     </div>
 
     <div class="login-footer">
-      <p>© 2026 Learning Portal. All rights reserved.</p>
+      <p>© 2026 {{ selectedTenant?.tenant_name || 'Learning Portal' }}. All rights reserved.</p>
     </div>
 
   </div>

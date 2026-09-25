@@ -15,7 +15,7 @@
         <thead class="bg-light text-secondary small text-uppercase fw-bold">
           <tr>
             <th class="px-4 py-3">{{ 'COMMON.CODE' | translate }}</th>
-            <th class="py-3">{{ 'COMMON.NAME' | translate }}</th>
+            <th class="py-3">School / Tenant</th>
             <th class="py-3">{{ 'COMMON.CONTACT' | translate }}</th>
             <th class="py-3">{{ 'COMMON.EMAIL' | translate }}</th>
             <th class="py-3">{{ 'COMMON.STATUS' | translate }}</th>
@@ -30,7 +30,28 @@
                 {{ tenant.tenant_code }}
               </span>
             </td>
-            <td class="py-3 fw-medium text-dark">{{ tenant.tenant_name }}</td>
+            <td class="py-3">
+              <div class="d-flex align-items-center gap-3">
+                @if (tenant.logo_path) {
+                  <img [src]="tenant.logo_path" [alt]="tenant.tenant_name" 
+                       class="rounded-3 border flex-shrink-0 shadow-sm" 
+                       style="width: 38px; height: 38px; object-fit: contain; background: white; padding: 2px;">
+                } @else {
+                  <div class="rounded-3 d-flex align-items-center justify-content-center text-white fw-bold shadow-sm flex-shrink-0"
+                       [style.background]="'linear-gradient(135deg, ' + (tenant.primary_color || '#7c3aed') + ', ' + (tenant.secondary_color || '#db2777') + ')'"
+                       style="width: 38px; height: 38px; font-size: 13px;">
+                    {{ getInitials(tenant.tenant_name) }}
+                  </div>
+                }
+                <div>
+                  <span class="fw-bold text-dark d-block">{{ tenant.tenant_name }}</span>
+                  <small class="text-secondary d-flex align-items-center gap-1" style="font-size: 0.72rem;">
+                    <span class="rounded-circle d-inline-block" [style.background]="tenant.primary_color || '#7c3aed'" style="width: 7px; height: 7px;"></span>
+                    <span>Branding Active</span>
+                  </small>
+                </div>
+              </div>
+            </td>
             <td class="py-3 text-secondary">{{ tenant.contact_person || '-' }}</td>
             <td class="py-3 text-secondary small">{{ tenant.email || '-' }}</td>
             <td class="py-3">
@@ -83,6 +104,61 @@
 
     <div class="card-body p-4 p-lg-5">
       <form [formGroup]="tenantForm" (ngSubmit)="onSubmit()">
+
+        <!-- 🎨 Institution Logo & Brand Styling Section -->
+        <div class="p-4 mb-4 rounded-4 bg-light border border-light-subtle d-flex flex-wrap align-items-center justify-content-between gap-4">
+          <div class="d-flex align-items-center gap-4">
+            <!-- Logo Preview Card -->
+            <div class="tenant-logo-box shadow-sm rounded-4 d-flex align-items-center justify-content-center overflow-hidden position-relative"
+                 [style.background]="getFormLogoBackground()">
+              @if (logoPreviewUrl) {
+                <img [src]="logoPreviewUrl" alt="Tenant Logo" class="w-100 h-100 object-fit-contain p-2" />
+              } @else {
+                <div class="text-center text-secondary p-2">
+                  <i class="bi bi-cloud-arrow-up fs-2 text-primary d-block mb-1"></i>
+                  <span class="small fw-semibold d-block">No Logo</span>
+                </div>
+              }
+            </div>
+            <input type="file" #logoFileInput accept="image/*" class="d-none" (change)="onLogoSelected($event)" />
+
+            <!-- Upload Controls -->
+            <div>
+              <h6 class="fw-bold mb-1 text-dark">School / Institution Logo</h6>
+              <p class="text-secondary small mb-2">Upload PNG, JPG, or SVG (Recommended square image, max 2MB)</p>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm" (click)="logoFileInput.click()">
+                  <i class="bi bi-upload me-1"></i> Upload Logo
+                </button>
+                @if (logoPreviewUrl) {
+                  <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-sm" (click)="removeLogo()">
+                    <i class="bi bi-trash3 me-1"></i> Remove
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Brand Colors -->
+          <div class="d-flex align-items-center gap-3">
+            <div>
+              <label class="form-label small fw-bold text-secondary mb-1">Primary Color</label>
+              <div class="d-flex align-items-center gap-2 bg-white p-2 rounded-3 border shadow-sm">
+                <input type="color" formControlName="primary_color" class="form-control form-control-color border-0 p-0" style="width: 32px; height: 32px; cursor: pointer;" />
+                <span class="small font-monospace fw-bold text-dark">{{ tenantForm.get('primary_color')?.value || '#7c3aed' }}</span>
+              </div>
+            </div>
+
+            <div>
+              <label class="form-label small fw-bold text-secondary mb-1">Secondary Color</label>
+              <div class="d-flex align-items-center gap-2 bg-white p-2 rounded-3 border shadow-sm">
+                <input type="color" formControlName="secondary_color" class="form-control form-control-color border-0 p-0" style="width: 32px; height: 32px; cursor: pointer;" />
+                <span class="small font-monospace fw-bold text-dark">{{ tenantForm.get('secondary_color')?.value || '#db2777' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="row g-4">
           <!-- Tenant Code -->
           <div class="col-md-6 position-relative">

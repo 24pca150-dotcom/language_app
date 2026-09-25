@@ -33,6 +33,16 @@ class TenantController extends Controller
         if ($request->hasFile('logo')) {
             $path = $request->file('logo')->store('logos', 'public');
             $validated['logo_path'] = asset('storage/' . $path);
+        } elseif ($request->filled('logo_path') && str_starts_with($request->input('logo_path'), 'data:image')) {
+            $image = $request->input('logo_path');
+            if (preg_match('/^data:image\/(\w+);base64,/', $image, $type)) {
+                $imageData = substr($image, strpos($image, ',') + 1);
+                $ext = strtolower($type[1]) === 'jpeg' ? 'jpg' : strtolower($type[1]);
+                $decoded = base64_decode($imageData);
+                $fileName = 'logo_' . time() . '_' . uniqid() . '.' . $ext;
+                \Illuminate\Support\Facades\Storage::disk('public')->put('logos/' . $fileName, $decoded);
+                $validated['logo_path'] = asset('storage/logos/' . $fileName);
+            }
         }
 
         return Tenant::create($validated);
@@ -61,10 +71,37 @@ class TenantController extends Controller
         if ($request->hasFile('logo')) {
             $path = $request->file('logo')->store('logos', 'public');
             $validated['logo_path'] = asset('storage/' . $path);
+        } elseif ($request->filled('logo_path') && str_starts_with($request->input('logo_path'), 'data:image')) {
+            $image = $request->input('logo_path');
+            if (preg_match('/^data:image\/(\w+);base64,/', $image, $type)) {
+                $imageData = substr($image, strpos($image, ',') + 1);
+                $ext = strtolower($type[1]) === 'jpeg' ? 'jpg' : strtolower($type[1]);
+                $decoded = base64_decode($imageData);
+                $fileName = 'logo_' . time() . '_' . uniqid() . '.' . $ext;
+                \Illuminate\Support\Facades\Storage::disk('public')->put('logos/' . $fileName, $decoded);
+                $validated['logo_path'] = asset('storage/logos/' . $fileName);
+            }
         }
 
         $tenant->update($validated);
         return $tenant;
+    }
+
+    public function uploadLogo(Request $request, Tenant $tenant)
+    {
+        $request->validate([
+            'logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+        ]);
+
+        $path = $request->file('logo')->store('logos', 'public');
+        $logoUrl = asset('storage/' . $path);
+        $tenant->update(['logo_path' => $logoUrl]);
+
+        return response()->json([
+            'message' => 'Logo uploaded successfully',
+            'logo_url' => $logoUrl,
+            'tenant' => $tenant
+        ]);
     }
 
     public function destroy(Tenant $tenant)
@@ -92,6 +129,17 @@ class TenantController extends Controller
             'primary_color' => $tenant->primary_color ?: '#7c3aed',
             'secondary_color' => $tenant->secondary_color ?: '#db2777',
         ]);
+    }
+
+    /**
+     * Public endpoint to fetch active tenants for selection on login/portal entry.
+     */
+    public function getPublicList()
+    {
+        return Tenant::where('is_active', true)
+            ->select('id', 'tenant_code', 'tenant_name', 'logo_path', 'primary_color', 'secondary_color')
+            ->orderBy('tenant_name', 'asc')
+            ->get();
     }
 
     /**

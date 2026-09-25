@@ -297,6 +297,7 @@ export class LearnerDashboard implements OnInit {
 
   // Settings State
   learnerName = signal<string>('Learner');
+  tenantInfo = signal<any>(null);
   targetLanguage = signal<string>('English');
   dailyGoal = signal<string>('15');
   soundEnabled = signal<boolean>(true);
@@ -630,6 +631,14 @@ export class LearnerDashboard implements OnInit {
     const user = this.authService.getUser();
     if (user && user.name) {
       this.learnerName.set(user.name);
+    }
+
+    // Load active school/tenant branding
+    const savedBranding = localStorage.getItem('tenant_branding');
+    if (savedBranding) {
+      try {
+        this.tenantInfo.set(JSON.parse(savedBranding));
+      } catch (e) {}
     }
 
     this.detectRouteTab(this.router.url);

@@ -24,6 +24,7 @@ use App\Http\Controllers\LiveClassController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::get('/tenants/brand/{code}', [TenantController::class, 'getBranding']);
+Route::get('/tenants/public-list', [TenantController::class, 'getPublicList']);
 
 /*
 |--------------------------------------------------------------------------
@@ -78,6 +79,7 @@ Route::middleware(['auth:sanctum', 'identify.tenant'])->group(function () {
         Route::get('tenants', [TenantController::class, 'index']);
         Route::get('tenants/{tenant}', [TenantController::class, 'show']);
         Route::put('tenants/{tenant}/branding', [TenantController::class, 'updateBranding']);
+        Route::post('tenants/{tenant}/upload-logo', [TenantController::class, 'uploadLogo']);
 
         Route::get('packages', [PackageController::class, 'index']);
         Route::get('packages/{package}', [PackageController::class, 'show']);
