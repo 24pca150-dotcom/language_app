@@ -15,8 +15,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        /*
         // Clean up remaining course/curriculum data from database
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('course_package_levels')->truncate();
         DB::table('level_chapter')->truncate();
         DB::table('content_chapters')->truncate();
@@ -35,7 +35,7 @@ class DatabaseSeeder extends Seeder
         DB::table('properties')->truncate();
         DB::table('tenants')->where('tenant_code', '!=', 'SCH-001')->delete();
         DB::table('users')->whereNotIn('username', ['superadmin', 'coordinator', 'karthik_std'])->delete();
-        */
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         // 1. Seed Super Admin (Global Administrator with no tenant_id)
         User::updateOrCreate(
@@ -49,7 +49,6 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        /*
         // 2. Seed a default Tenant (strictly required to link tenant-scoped users)
         $tenant = Tenant::updateOrCreate(
             ['tenant_code' => 'SCH-001'],
@@ -94,7 +93,6 @@ class DatabaseSeeder extends Seeder
         $this->call(SpeakingSkillSeeder::class);
         $this->call(InteractiveFeaturesTestSeeder::class);
         $this->call(ActivitySeeder::class);
-        */
     }
 }
 
