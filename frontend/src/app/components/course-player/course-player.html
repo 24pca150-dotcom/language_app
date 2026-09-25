@@ -168,48 +168,64 @@
     <!-- 🎮 FLOATING DOCK LEFT (4 Buttons: Home, Learn, Games, Practice) -->
     @if (currentView() !== 'content') {
       <aside class="floating-dock dock-left" aria-label="Learning Navigation">
-        <a class="floating-game-btn game-icon-home text-decoration-none" routerLink="/learn/dashboard" title="Home">
-          <i class="bi bi-house-door-fill"></i>
-          <span class="game-btn-tooltip">Home</span>
-        </a>
+        <div class="dock-item">
+          <a class="floating-game-btn game-icon-home text-decoration-none" routerLink="/learn/dashboard" title="Home">
+            <i class="bi bi-house-door-fill"></i>
+          </a>
+          <a routerLink="/learn/dashboard" class="dock-label text-decoration-none">Home</a>
+        </div>
 
-        <a class="floating-game-btn game-icon-learn text-decoration-none active" routerLink="/learn/courses" title="Learn">
-          <i class="bi bi-book-half"></i>
-          <span class="game-btn-tooltip">Learn</span>
-        </a>
+        <div class="dock-item active">
+          <a class="floating-game-btn game-icon-learn text-decoration-none active" routerLink="/learn/courses" title="Learn">
+            <i class="bi bi-book-half"></i>
+          </a>
+          <a routerLink="/learn/courses" class="dock-label text-decoration-none">Learn</a>
+        </div>
 
-        <a class="floating-game-btn game-icon-games text-decoration-none" routerLink="/learn/games" title="Games">
-          <i class="bi bi-controller"></i>
-          <span class="game-btn-tooltip">Games</span>
-        </a>
+        <div class="dock-item">
+          <a class="floating-game-btn game-icon-games text-decoration-none" routerLink="/learn/games" title="Games">
+            <i class="bi bi-controller"></i>
+          </a>
+          <a routerLink="/learn/games" class="dock-label text-decoration-none">Games</a>
+        </div>
 
-        <a class="floating-game-btn game-icon-practice text-decoration-none" routerLink="/learn/practice" title="Practice">
-          <i class="bi bi-lightning-charge-fill"></i>
-          <span class="game-btn-tooltip">Practice</span>
-        </a>
+        <div class="dock-item">
+          <a class="floating-game-btn game-icon-practice text-decoration-none" routerLink="/learn/practice" title="Practice">
+            <i class="bi bi-lightning-charge-fill"></i>
+          </a>
+          <a routerLink="/learn/practice" class="dock-label text-decoration-none">Practice</a>
+        </div>
       </aside>
 
       <!-- 🎮 FLOATING DOCK RIGHT (4 Buttons: Assessments, Progress, Settings, Logout) -->
       <aside class="floating-dock dock-right" aria-label="Account Navigation">
-        <a class="floating-game-btn game-icon-assessments text-decoration-none" routerLink="/learn/assessments" title="Assessments">
-          <i class="bi bi-clipboard-check-fill"></i>
-          <span class="game-btn-tooltip">Assessments</span>
-        </a>
+        <div class="dock-item">
+          <a class="floating-game-btn game-icon-assessments text-decoration-none" routerLink="/learn/assessments" title="Assessments">
+            <i class="bi bi-clipboard-check-fill"></i>
+          </a>
+          <a routerLink="/learn/assessments" class="dock-label text-decoration-none">Assessments</a>
+        </div>
 
-        <a class="floating-game-btn game-icon-progress text-decoration-none" routerLink="/learn/progress" title="Progress">
-          <i class="bi bi-bar-chart-fill"></i>
-          <span class="game-btn-tooltip">Progress</span>
-        </a>
+        <div class="dock-item">
+          <a class="floating-game-btn game-icon-progress text-decoration-none" routerLink="/learn/progress" title="Progress">
+            <i class="bi bi-bar-chart-fill"></i>
+          </a>
+          <a routerLink="/learn/progress" class="dock-label text-decoration-none">Progress</a>
+        </div>
 
-        <a class="floating-game-btn game-icon-settings text-decoration-none" routerLink="/learn/settings" title="Settings">
-          <i class="bi bi-gear-fill"></i>
-          <span class="game-btn-tooltip">Settings</span>
-        </a>
+        <div class="dock-item">
+          <a class="floating-game-btn game-icon-settings text-decoration-none" routerLink="/learn/settings" title="Settings">
+            <i class="bi bi-gear-fill"></i>
+          </a>
+          <a routerLink="/learn/settings" class="dock-label text-decoration-none">Settings</a>
+        </div>
 
-        <button class="floating-game-btn game-icon-logout" (click)="logout()" title="Logout">
-          <i class="bi bi-box-arrow-right"></i>
-          <span class="game-btn-tooltip">Logout</span>
-        </button>
+        <div class="dock-item" (click)="logout()">
+          <button class="floating-game-btn game-icon-logout" title="Logout">
+            <i class="bi bi-box-arrow-right"></i>
+          </button>
+          <span class="dock-label">Logout</span>
+        </div>
       </aside>
     }
   </main>

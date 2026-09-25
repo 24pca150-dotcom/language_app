@@ -660,23 +660,50 @@
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-/* Activity Stage Card - Premium Glassmorphic Design (Matching Image 5 Translucent Glass) */
+/* ==========================================================================
+   Activity Stage Card - Fixed Static Dimensions (No size jump across questions)
+   ========================================================================== */
+.activity-player-container {
+  width: 100% !important;
+  max-width: 1020px !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
 .activity-stage-box,
 .glass-stage-card {
-  min-height: auto;
+  width: 100% !important;
+  max-width: 1020px !important;
+  height: calc(100vh - 135px) !important;
+  min-height: 540px !important;
+  max-height: 720px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
   background: rgba(255, 255, 255, 0.72) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
   border: 1.8px solid rgba(255, 255, 255, 0.8) !important;
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.85) !important;
   border-radius: 28px !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  overflow: hidden !important;
+  transition: none !important;
 }
 
 .activity-stage-box .activity-card-title {
   border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+  flex-shrink: 0 !important;
+  width: 100% !important;
+  padding-bottom: 0.5rem !important;
+  margin-bottom: 0.25rem !important;
 }
 
-.activity-stage-box .activity-card-title h3 {
+.activity-stage-box .activity-card-title h3,
+.activity-stage-box .activity-card-title h4 {
   color: #0B192C !important;
   font-weight: 800 !important;
   letter-spacing: -0.01em;
@@ -687,8 +714,65 @@
   font-weight: 500;
 }
 
+/* Middle Content Area - Vertically & Horizontally Centered, Inner Scrollable If Needed */
+.activity-stage-box .activity-render-wrapper {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 0.25rem 0.5rem !important;
+}
+
+.activity-stage-box .activity-render-wrapper app-activity-renderer {
+  width: 100% !important;
+  max-width: 860px !important;
+  margin: auto 0 !important;
+  display: block !important;
+}
+
+.activity-stage-box .activity-render-wrapper .activity-renderer-container {
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+/* Custom Sleek Scrollbar for Inner Content Only (Outer Box Never Scrolls or Changes) */
+.activity-stage-box .activity-render-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+
+.activity-stage-box .activity-render-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.activity-stage-box .activity-render-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 999px;
+}
+
+.activity-stage-box .activity-render-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.28);
+}
+
 .activity-stage-box .activity-card-footer {
   border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+  flex-shrink: 0 !important;
+  width: 100% !important;
+  margin-top: auto !important;
+  padding-top: 0.5rem !important;
+}
+
+.animate-content-fade {
+  animation: contentFade 0.22s ease-out both;
+}
+
+@keyframes contentFade {
+  0% { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 /* Micro-animations */

@@ -557,53 +557,12 @@
           <!-- 🎮 STAGE 3: THE ACTIVITY (User Request: 5 Match It sets inside) -->
           <!-- ------------------------------------------------------------- -->
           @else if (practiceStage() === 'activity') {
-            <div class="practice-stage-fade">
-              <!-- 🎮 TOP GAME HUD (Child Game Style) -->
-              <div class="kids-game-hud p-3 mb-4 rounded-4 d-flex justify-content-between align-items-center flex-wrap gap-3 shadow-lg"
-                   style="background: linear-gradient(135deg, #0B192C 0%, #1E3E62 100%); border: 3px solid #FFC727;">
-                <!-- Left: Exit Button + Game Title -->
-                <div class="d-flex align-items-center gap-3">
-                  <button class="btn btn-warning rounded-circle shadow-md hover-lift d-flex align-items-center justify-content-center p-0"
-                          style="width: 44px; height: 44px; border: 2px solid white;"
-                          (click)="backToPracticeTopics()" title="Back to Game Selection">
-                    <i class="bi bi-arrow-left-short text-dark fs-3 fw-bold"></i>
-                  </button>
-                  <div>
-                    <span class="badge bg-warning text-dark rounded-pill px-2.5 py-0.5 fw-bold small text-uppercase">
-                      🎮 {{ selectedPracticeCourse()?.name || 'English' }}
-                    </span>
-                    <h3 class="fw-bold text-white mb-0 fs-5 letter-spacing-tight">
-                      {{ getTopicTitle(selectedPracticeTopic()) }}
-                    </h3>
-                  </div>
-                </div>
-
-                <!-- Center: Animated Mascot Speech Bubble -->
-                <div class="d-none d-md-flex align-items-center gap-2 bg-white bg-opacity-10 px-3 py-1.5 rounded-pill border border-warning border-opacity-50 animate-pulse">
-                  <span style="font-size: 1.6rem; line-height: 1;">
-                    {{ mascotMood() === 'cheer' ? '🦊🎉' : (mascotMood() === 'oops' ? '🦊🤔' : '🦊✨') }}
-                  </span>
-                  <span class="text-warning fw-bold small" style="letter-spacing: 0.2px;">
-                    {{ mascotSpeech() }}
-                  </span>
-                </div>
-
-                <!-- Right: Hearts + Stars/XP -->
-                <div class="d-flex align-items-center gap-2">
-                  <!-- Hearts Bar -->
-                  <div class="hearts-box d-flex align-items-center gap-1 bg-black bg-opacity-30 px-3 py-1.5 rounded-pill border border-danger border-opacity-40"
-                       title="{{ gameLives() }} Hearts Remaining">
-                    @for (h of [1,2,3,4,5]; track h) {
-                      <i class="bi fs-5" [ngClass]="h <= gameLives() ? 'bi-heart-fill text-danger animate-beat' : 'bi-heart text-secondary opacity-40'"></i>
-                    }
-                  </div>
-
-                  <!-- Stars & XP Meter -->
-                  <div class="score-pill bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold d-flex align-items-center gap-1.5 shadow-sm">
-                    <i class="bi bi-star-fill text-dark fs-6"></i>
-                    <span>{{ matchScore() + xp() }} XP</span>
-                  </div>
-                </div>
+            <div class="practice-stage-fade practice-activity-arena-wrapper position-relative">
+              <!-- 🔙 Back Navigation Button (Positioned to the left side so arena moves up) -->
+              <div class="practice-arena-topbar d-flex align-items-center mb-1">
+                <button class="btn-back-circle shadow-sm practice-corner-back-btn" (click)="backToPracticeTopics()" title="Back to Game Selection">
+                  <i class="bi bi-arrow-left fs-5"></i>
+                </button>
               </div>
 
               <!-- ========================================================= -->
@@ -611,39 +570,42 @@
               <!-- ========================================================= -->
               @if (selectedPracticeTopic() === 'match') {
                 <div class="kids-game-arena p-4 p-md-5 rounded-4 shadow-lg mb-4">
-                  <!-- Match Set Header & 5 Set Tabs -->
-                  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                  <!-- Match Set Header (Colorful Heading & Set Navigation) -->
+                  <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-3">
                     <div>
-                      <div class="d-flex align-items-center gap-2 mb-1">
-                        <span class="badge bg-success text-white px-3 py-1 rounded-pill fw-bold">
-                          🌟 Round {{ currentMatchSetIndex() + 1 }} of {{ matchSets.length }}
+                      <div class="d-flex align-items-center gap-2 mb-1.5 flex-wrap">
+                        <span class="badge rounded-pill px-3 py-1 fw-bold text-uppercase shadow-sm practice-challenge-pill">
+                          🎯 Match Challenge
                         </span>
-                        <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold">
-                          ⭐ +10 XP per match
+                        <span class="badge bg-warning bg-opacity-25 text-warning-emphasis border border-warning rounded-pill px-2.5 py-0.5 fw-bold small">
+                          Set {{ currentMatchSetIndex() + 1 }} of {{ matchSets.length }}
                         </span>
-                        @if (matchStreak() > 1) {
-                          <span class="badge bg-danger text-white px-3 py-1 rounded-pill fw-bold animate-pulse">
-                            🔥 {{ matchStreak() }}X COMBO STREAK!
-                          </span>
-                        }
                       </div>
-                      <h3 class="fw-bold text-dark mb-1">
+                      <h2 class="practice-heading-colorful mb-1">
                         {{ matchSets[currentMatchSetIndex()].title }}
-                      </h3>
+                      </h2>
                       <p class="text-secondary small mb-0 fw-semibold">
                         🖐️ <strong>Drag & Drop Match:</strong> Drag an English card on the left and drop it into its partner on the right! (Or tap to pair)
                       </p>
                     </div>
 
-                    <!-- Dynamic Set Tabs -->
-                    <div class="d-flex gap-1.5 flex-wrap">
-                      @for (set of matchSets; track set.id; let idx = $index) {
-                        <button class="match-set-tab-btn rounded-pill px-3 py-1 fw-bold text-nowrap"
-                                [class.active]="currentMatchSetIndex() === idx"
-                                (click)="selectMatchSetDirect(idx)">
-                          Set {{ idx + 1 }}
-                        </button>
-                      }
+                    <!-- 🎮 Next & Previous Set Navigation Buttons -->
+                    <div class="d-flex align-items-center gap-2 mt-1">
+                      <button class="btn btn-outline-secondary rounded-pill px-3 py-1.5 fw-bold d-flex align-items-center gap-1.5 hover-lift shadow-sm btn-set-nav"
+                              [disabled]="currentMatchSetIndex() === 0"
+                              (click)="prevMatchSet()"
+                              title="Go to previous set">
+                        <i class="bi bi-chevron-left"></i>
+                        <span>Previous</span>
+                      </button>
+
+                      <button class="btn btn-warning rounded-pill px-4 py-1.5 fw-bold text-dark d-flex align-items-center gap-1.5 hover-lift shadow-sm btn-set-nav-next"
+                              [disabled]="currentMatchSetIndex() >= matchSets.length - 1"
+                              (click)="nextMatchSet()"
+                              title="Go to next set">
+                        <span>Next</span>
+                        <i class="bi bi-chevron-right"></i>
+                      </button>
                     </div>
                   </div>
 
@@ -820,6 +782,27 @@
                       </div>
                     </div>
                   }
+
+                  <!-- Bottom Set Navigation Footer -->
+                  <div class="pt-3 mt-4 border-top d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <button class="btn btn-light rounded-pill px-4 py-2 fw-bold text-secondary border hover-lift d-flex align-items-center gap-2 shadow-sm"
+                            [disabled]="currentMatchSetIndex() === 0"
+                            (click)="prevMatchSet()">
+                      <i class="bi bi-chevron-left"></i>
+                      <span>Previous Set</span>
+                    </button>
+
+                    <span class="badge rounded-pill bg-light text-dark border px-3 py-2 fw-bold">
+                      Set {{ currentMatchSetIndex() + 1 }} of {{ matchSets.length }}
+                    </span>
+
+                    <button class="btn btn-warning rounded-pill px-4 py-2 fw-bold text-dark hover-lift d-flex align-items-center gap-2 shadow-sm btn-set-nav-next"
+                            [disabled]="currentMatchSetIndex() >= matchSets.length - 1"
+                            (click)="nextMatchSet()">
+                      <span>Next Set</span>
+                      <i class="bi bi-chevron-right"></i>
+                    </button>
+                  </div>
                 </div>
               }
 
@@ -828,14 +811,7 @@
               <!-- ========================================================= -->
               @else if (selectedPracticeTopic() === 'flashcards') {
                 <div class="kids-game-arena p-4 p-md-5 rounded-4 shadow-lg mb-4 text-center">
-                  <div class="d-flex justify-content-between align-items-center mb-4">
-                    <span class="badge bg-primary text-white rounded-pill px-3 py-1.5 fw-bold fs-6">
-                      🃏 Card {{ flashcardIndex() + 1 }} of {{ flashcardDeck.length }}
-                    </span>
-                    <span class="badge bg-warning text-dark rounded-pill px-3 py-1.5 fw-bold">
-                      💡 Tap to flip or Drag to baskets!
-                    </span>
-                  </div>
+
 
                   <!-- 3D Draggable Flip Card -->
                   <div class="flashcard-box my-4 cursor-pointer mx-auto"
@@ -934,14 +910,7 @@
               <!-- ========================================================= -->
               @else if (selectedPracticeTopic() === 'quiz') {
                 <div class="kids-game-arena p-4 p-md-5 rounded-4 shadow-lg mb-4" style="max-width: 780px; margin: 0 auto;">
-                  <div class="d-flex justify-content-between align-items-center mb-4">
-                    <span class="badge bg-success text-white px-3 py-1.5 rounded-pill fw-bold fs-6">
-                      ⚡ Question {{ quizStep() + 1 }} of {{ quizQuestions.length }}
-                    </span>
-                    <span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold">
-                      ⭐ +10 XP
-                    </span>
-                  </div>
+
 
                   <!-- Question Bubble -->
                   <div class="p-4 rounded-4 text-center mb-3 shadow-sm"
@@ -1033,14 +1002,7 @@
               <!-- ========================================================= -->
               @else if (selectedPracticeTopic() === 'scramble') {
                 <div class="kids-game-arena p-4 p-md-5 rounded-4 shadow-lg mb-4" style="max-width: 780px; margin: 0 auto;">
-                  <div class="d-flex justify-content-between align-items-center mb-4">
-                    <span class="badge bg-purple text-white px-3 py-1.5 rounded-pill fw-bold fs-6" style="background-color: #8B5CF6;">
-                      🚂 Train Puzzle {{ scrambleIndex() + 1 }} of {{ wordScrambleSets.length }}
-                    </span>
-                    <span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold">
-                      ⭐ +15 XP
-                    </span>
-                  </div>
+
 
                   <!-- Sentence Meaning Target -->
                   <div class="p-3 rounded-4 mb-4 text-center" style="background: #F3E8FF; border: 2px dashed #C084FC;">
@@ -1139,14 +1101,7 @@
               <!-- ========================================================= -->
               @else if (selectedPracticeTopic() === 'blanks') {
                 <div class="kids-game-arena p-4 p-md-5 rounded-4 shadow-lg mb-4" style="max-width: 780px; margin: 0 auto;">
-                  <div class="d-flex justify-content-between align-items-center mb-4">
-                    <span class="badge bg-pink text-white px-3 py-1.5 rounded-pill fw-bold fs-6" style="background-color: #EC4899;">
-                      🎈 Balloon Sentence {{ blankIndex() + 1 }} of {{ blankQuestions.length }}
-                    </span>
-                    <span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold">
-                      ⭐ +10 XP
-                    </span>
-                  </div>
+
 
                   <!-- Prompt & Drop Blank Zone -->
                   <div class="p-4 rounded-4 text-center mb-4 shadow-sm"

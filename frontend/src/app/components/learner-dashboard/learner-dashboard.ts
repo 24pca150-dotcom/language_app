@@ -1290,6 +1290,12 @@ export class LearnerDashboard implements OnInit {
     }
   }
 
+  prevMatchSet() {
+    if (this.currentMatchSetIndex() > 0) {
+      this.initMatchSet(this.currentMatchSetIndex() - 1);
+    }
+  }
+
   nextMatchSet() {
     if (this.currentMatchSetIndex() < this.matchSets.length - 1) {
       this.initMatchSet(this.currentMatchSetIndex() + 1);

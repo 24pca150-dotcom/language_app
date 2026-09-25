@@ -2884,6 +2884,88 @@
   box-shadow: 0 6px 18px rgba(59, 130, 246, 0.5);
 }
 
+/* ========================================================================== */
+/* 🎮 Practice Activity Arena - Top Positioning, Colorful Heading, Next Buttons */
+/* ========================================================================== */
+.practice-activity-arena-wrapper {
+  margin-top: -24px !important;
+  position: relative !important;
+}
+
+.practice-arena-topbar {
+  position: relative;
+  height: 48px;
+  margin-bottom: 6px !important;
+}
+
+/* Back button moved out to the left side into the open corner slot */
+.practice-corner-back-btn {
+  position: absolute !important;
+  left: -75px !important;
+  top: -4px !important;
+  z-index: 100 !important;
+}
+
+@media (max-width: 1250px) {
+  .practice-corner-back-btn {
+    position: static !important;
+    left: 0 !important;
+  }
+  .practice-activity-arena-wrapper {
+    margin-top: -10px !important;
+  }
+}
+
+/* 🎨 Playful Multi-Color Heading */
+.practice-heading-colorful {
+  font-family: 'Fredoka', cursive, sans-serif !important;
+  font-size: 2.15rem !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.02em !important;
+  background: linear-gradient(135deg, #FF5500 0%, #E11D48 45%, #7C3AED 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: 0 2px 14px rgba(225, 29, 72, 0.12);
+  line-height: 1.25 !important;
+}
+
+.practice-challenge-pill {
+  background: linear-gradient(135deg, #FF6B00 0%, #FF8800 100%) !important;
+  color: #FFFFFF !important;
+  font-size: 0.76rem !important;
+  letter-spacing: 0.4px;
+  box-shadow: 0 2px 8px rgba(255, 107, 0, 0.35) !important;
+}
+
+/* 🎮 Next & Previous Set Buttons */
+.btn-set-nav {
+  font-family: 'Fredoka', 'Nunito', sans-serif !important;
+  border-width: 2px !important;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.btn-set-nav-next {
+  background: linear-gradient(180deg, #FFD54F 0%, #FFB300 100%) !important;
+  border: 2px solid #FFA000 !important;
+  box-shadow: 0 4px 14px rgba(255, 179, 0, 0.42) !important;
+  color: #1E293B !important;
+  font-weight: 800 !important;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.btn-set-nav-next:hover:not(:disabled) {
+  background: linear-gradient(180deg, #FFE082 0%, #FFC107 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(255, 179, 0, 0.55) !important;
+}
+
+.btn-set-nav-next:disabled {
+  opacity: 0.55;
+  box-shadow: none !important;
+  cursor: not-allowed;
+}
+
+
 
 
 
