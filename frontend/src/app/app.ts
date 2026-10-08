@@ -8,10 +8,12 @@ import { LoaderService } from './services/loader.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
 
+import { CloudTransitionComponent } from './components/cloud-transition/cloud-transition';
+
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, TranslateModule],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, TranslateModule, CloudTransitionComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

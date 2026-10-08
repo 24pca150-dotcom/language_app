@@ -17,10 +17,13 @@ import { UserManagement } from './components/user-management/user-management';
 import { StudentProgressComponent } from './components/student-progress/student-progress';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard';
 import { Announcements } from './components/announcements/announcements';
+import { LiveClasses } from './components/live-classes/live-classes';
 import { roleGuard } from './guards/role.guard';
 import { guestGuard } from './guards/guest.guard';
 
 import { ActivityBuilder } from './components/activity-builder/activity-builder';
+import { UserActivity } from './components/user-activity/user-activity';
+import { cloudTransitionGuard } from './guards/cloud-transition.guard';
 
 export const routes: Routes = [
   // Public Login route
@@ -35,22 +38,22 @@ export const routes: Routes = [
   { 
     path: 'packages', 
     component: Package, 
-    canActivate: [roleGuard(['super_admin'])] 
+    canActivate: [roleGuard(['super_admin']), cloudTransitionGuard] 
   },
   { 
     path: 'tenants', 
     component: Tenant, 
-    canActivate: [roleGuard(['super_admin'])] 
+    canActivate: [roleGuard(['super_admin']), cloudTransitionGuard] 
   },
 
 
   /*
-   * 🏢 Admins (Super Admin and Tenant Admin) Pages
+   * 🏢 Admins (Super Admin Only) Pages
    */
   { 
     path: 'properties', 
     component: Property, 
-    canActivate: [roleGuard(['super_admin', 'admin'])] 
+    canActivate: [roleGuard(['super_admin']), cloudTransitionGuard] 
   },
 
   /*
@@ -59,62 +62,67 @@ export const routes: Routes = [
   { 
     path: 'admin-dashboard', 
     component: AdminDashboardComponent, 
-    canActivate: [roleGuard(['super_admin', 'admin', 'staff'])] 
+    canActivate: [roleGuard(['super_admin', 'admin', 'staff']), cloudTransitionGuard] 
+  },
+  { 
+    path: 'live-classes', 
+    component: LiveClasses, 
+    canActivate: [roleGuard(['super_admin', 'admin', 'staff', 'student']), cloudTransitionGuard] 
   },
   { 
     path: 'announcements', 
     component: Announcements, 
-    canActivate: [roleGuard(['super_admin', 'admin', 'staff', 'student'])] 
+    canActivate: [roleGuard(['super_admin', 'admin', 'staff', 'student']), cloudTransitionGuard] 
   },
   { 
     path: 'courses', 
     component: Course, 
-    canActivate: [roleGuard(['super_admin', 'admin', 'staff'])] 
+    canActivate: [roleGuard(['super_admin', 'admin', 'staff']), cloudTransitionGuard] 
   },
   { 
     path: 'users', 
     component: UserManagement, 
-    canActivate: [roleGuard(['super_admin', 'admin', 'staff'])] 
+    canActivate: [roleGuard(['super_admin', 'admin', 'staff']), cloudTransitionGuard] 
   },
   { 
     path: 'student-progress', 
     component: StudentProgressComponent, 
-    canActivate: [roleGuard(['super_admin', 'admin', 'staff'])] 
+    canActivate: [roleGuard(['super_admin', 'admin', 'staff']), cloudTransitionGuard] 
   },
   { 
     path: 'levels', 
     component: Level, 
-    canActivate: [roleGuard(['super_admin', 'admin', 'staff'])] 
+    canActivate: [roleGuard(['super_admin', 'admin', 'staff']), cloudTransitionGuard] 
   },
   { 
     path: 'course-package-levels', 
     component: CoursePackageLevel, 
-    canActivate: [roleGuard(['super_admin', 'admin', 'staff'])] 
+    canActivate: [roleGuard(['super_admin', 'admin', 'staff']), cloudTransitionGuard] 
   },
   { 
     path: 'chapters', 
     component: Chapter, 
-    canActivate: [roleGuard(['super_admin', 'admin', 'staff'])] 
+    canActivate: [roleGuard(['super_admin', 'admin', 'staff']), cloudTransitionGuard] 
   },
   { 
     path: 'contents', 
     component: Content, 
-    canActivate: [roleGuard(['super_admin', 'admin', 'staff'])] 
+    canActivate: [roleGuard(['super_admin', 'admin', 'staff']), cloudTransitionGuard] 
   },
   { 
     path: 'assessments', 
     component: Assessment, 
-    canActivate: [roleGuard(['super_admin', 'admin', 'staff'])] 
+    canActivate: [roleGuard(['super_admin', 'admin', 'staff']), cloudTransitionGuard] 
   },
   { 
     path: 'learning-modes', 
     component: LearningMode, 
-    canActivate: [roleGuard(['super_admin', 'admin', 'staff'])] 
+    canActivate: [roleGuard(['super_admin', 'admin', 'staff']), cloudTransitionGuard] 
   },
   { 
     path: 'activity-builder', 
     component: ActivityBuilder, 
-    canActivate: [roleGuard(['super_admin', 'admin', 'staff'])] 
+    canActivate: [roleGuard(['super_admin', 'admin', 'staff']), cloudTransitionGuard] 
   },
 
   /*
@@ -128,42 +136,102 @@ export const routes: Routes = [
   { 
     path: 'learn/dashboard', 
     component: LearnerDashboard, 
-    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff']), cloudTransitionGuard] 
   },
   { 
     path: 'learn/courses', 
-    component: CoursePlayer, 
-    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
+    component: LearnerDashboard, 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff']), cloudTransitionGuard] 
+  },
+  { 
+    path: 'learn/games', 
+    component: UserActivity, 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff']), cloudTransitionGuard] 
+  },
+  { 
+    path: 'learn/games/:courseId', 
+    component: UserActivity, 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff']), cloudTransitionGuard] 
+  },
+  { 
+    path: 'learn/games/:courseId/:chapterId', 
+    component: UserActivity, 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff']), cloudTransitionGuard] 
+  },
+  { 
+    path: 'learn/game', 
+    redirectTo: 'learn/games',
+    pathMatch: 'full'
+  },
+  { 
+    path: 'learn/activities', 
+    redirectTo: 'learn/games',
+    pathMatch: 'full'
+  },
+  { 
+    path: 'learn/activities/:courseId', 
+    redirectTo: 'learn/games/:courseId',
+    pathMatch: 'full'
+  },
+  { 
+    path: 'learn/activities/:courseId/:chapterId', 
+    redirectTo: 'learn/games/:courseId/:chapterId',
+    pathMatch: 'full'
+  },
+  { 
+    path: 'learn/activity', 
+    redirectTo: 'learn/games',
+    pathMatch: 'full'
+  },
+  { 
+    path: 'learn/practice', 
+    component: LearnerDashboard, 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff']), cloudTransitionGuard] 
+  },
+  { 
+    path: 'learn/assessments', 
+    component: LearnerDashboard, 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff']), cloudTransitionGuard] 
+  },
+  { 
+    path: 'learn/assessment', 
+    redirectTo: 'learn/assessments',
+    pathMatch: 'full'
+  },
+  { 
+    path: 'learn/badges', 
+    component: LearnerDashboard, 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff']), cloudTransitionGuard] 
   },
   { 
     path: 'learn/achievements', 
-    component: CoursePlayer, 
-    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
+    component: LearnerDashboard, 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff']), cloudTransitionGuard] 
   },
   { 
     path: 'learn/progress', 
-    component: CoursePlayer, 
-    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
+    component: LearnerDashboard, 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff']), cloudTransitionGuard] 
   },
   { 
     path: 'learn/settings', 
-    component: CoursePlayer, 
-    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
+    component: LearnerDashboard, 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff']), cloudTransitionGuard] 
   },
   { 
     path: 'learn/play/:courseId', 
     component: CoursePlayer, 
-    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff']), cloudTransitionGuard] 
   },
   { 
     path: 'learn/:courseId', 
     component: CoursePlayer, 
-    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff']), cloudTransitionGuard] 
   },
   { 
     path: 'assessments/play/:assessmentId', 
     component: AssessmentPlayerComponent, 
-    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff'])] 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff']), cloudTransitionGuard] 
   },
 
   // Fallback for unauthorized pages

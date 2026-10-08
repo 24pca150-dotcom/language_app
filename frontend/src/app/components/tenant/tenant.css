@@ -31,3 +31,19 @@
   color: #64748b;
   margin-bottom: 0.5rem;
 }
+
+/* 🏫 Tenant Logo Box */
+.tenant-logo-box {
+  width: 88px;
+  height: 88px;
+  background: #ffffff;
+  border: 2px dashed #cbd5e1;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.tenant-logo-box:hover {
+  border-color: #7c3aed;
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.15) !important;
+}

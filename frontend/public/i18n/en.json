@@ -17,10 +17,13 @@
     "ACADEMY_MANAGER": "Academy Manager",
     "ADMIN_UPLOAD": "Admin Upload",
     "ANNOUNCEMENTS": "Announcements",
+    "LIVE_CLASSES": "Live Classes",
     "DASHBOARD": "Dashboard",
     "LEARNING_PORTAL": "Learning Portal",
     "STUDENT_PROGRESS": "Student Progress",
-    "USERS": "Users"
+    "USERS": "Users",
+    "CONTENT_MANAGER": "Content Manager",
+    "ACTIVITY_BUILDER": "Activity Builder"
   },
   "LEARNING_MODE": {
     "CREATE_BTN": "Create Btn",
@@ -58,16 +61,16 @@
     "EXTERNAL_URL": "External URL"
   },
   "TENANT": {
-    "CREATE_BTN": "Create Tenant",
-    "CREATE_TITLE": "Create Title",
-    "EDIT_TITLE": "Edit Title",
+    "CREATE_BTN": "Create School / Tenant",
+    "CREATE_TITLE": "Create School / Tenant",
+    "EDIT_TITLE": "Edit School / Tenant",
     "CODE": "Code",
     "NAME": "Name",
     "CONTACT_PERSON": "Contact Person",
     "EMAIL_ADDRESS": "Email Address",
     "PHONE": "Phone",
     "ADDRESS": "Address",
-    "EMPTY": "Empty"
+    "EMPTY": "No Schools / Tenants Found"
   },
   "PACKAGE": {
     "CREATE_BTN": "Create Package",
@@ -152,8 +155,8 @@
   },
   "ASSESSMENT": {
     "CREATE_BTN": "Create Assessment",
-    "CREATE_TITLE": "Create Title",
-    "EDIT_TITLE": "Edit Title",
+    "CREATE_TITLE": "Create Assessment",
+    "EDIT_TITLE": "Edit Assessment",
     "PASS_PERCENTAGE": "Pass Percentage",
     "QUESTIONS": "Questions",
     "ADD_QUESTION": "Add Question",

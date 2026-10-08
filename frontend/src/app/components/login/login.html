@@ -1,51 +1,81 @@
 <div class="login-container">
   <div class="login-glass-card">
-    
-    <!-- Branding Header -->
+
+    <!-- Branding Header (Dynamic Logo & School Identification) -->
     <div class="login-header">
-      <div class="logo-badge">
-        அ
+      <div class="logo-badge" [style.background]="getLogoBadgeBackground()" [style.color]="selectedTenant ? '#ffffff' : '#6366f1'">
+        @if (selectedTenant?.logo_path) {
+          <img [src]="selectedTenant.logo_path" [alt]="selectedTenant.tenant_name" class="school-logo-img" />
+        } @else if (selectedTenant) {
+          <div class="school-crest-badge">
+            <i class="bi bi-mortarboard-fill school-crest-icon"></i>
+            <span class="school-crest-initials">{{ getInitials(selectedTenant.tenant_name) }}</span>
+          </div>
+        } @else {
+          LP
+        }
       </div>
-      <h1>அறிக புறநானூறு</h1>
-      <p>Language Learning Portal</p>
+      <h1 class="school-title-text">{{ selectedTenant?.tenant_name || 'Learning Portal' }}</h1>
+      <p class="school-subtitle-text">{{ selectedTenant ? 'Student & Staff Learning Portal' : 'Language Learning Platform' }}</p>
     </div>
 
     <!-- Unified Login Form -->
     <div class="form-container">
       <!-- Alert Messages -->
       @if (errorMessage) {
-        <div class="alert alert-danger">
-          <span class="alert-icon">⚠️</span>
-          <span class="alert-text">{{ errorMessage }}</span>
-        </div>
+      <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle-fill alert-icon"></i>
+        <span class="alert-text">{{ errorMessage }}</span>
+      </div>
       }
 
       @if (successMessage) {
-        <div class="alert alert-success">
-          <span class="alert-icon">✓</span>
-          <span class="alert-text">{{ successMessage }}</span>
-        </div>
+      <div class="alert alert-success">
+        <i class="bi bi-check-circle-fill alert-icon"></i>
+        <span class="alert-text">{{ successMessage }}</span>
+      </div>
       }
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-        
+
+        <!-- 🏫 Institution / School Selector -->
+        <div class="form-group tenant-picker-group">
+          <label for="tenantSelect" class="d-flex justify-content-between align-items-center">
+            <span>
+              <i class="bi bi-building-fill-check me-1 text-warning"></i> Select School / Institution
+            </span>
+            @if (selectedTenant) {
+              <span class="tenant-code-badge">{{ selectedTenant.tenant_code }}</span>
+            }
+          </label>
+          <div class="input-wrapper select-wrapper">
+            <i class="bi bi-mortarboard-fill input-icon"></i>
+            <select id="tenantSelect" class="tenant-select-input"
+                    [ngModel]="selectedTenantCode" 
+                    (ngModelChange)="onTenantChange($event)"
+                    [ngModelOptions]="{standalone: true}">
+              <option value="">🌐 Direct Login / All Campuses</option>
+              @for (tenant of tenants; track tenant.id) {
+                <option [value]="tenant.tenant_code">
+                  {{ tenant.tenant_name }} ({{ tenant.tenant_code }})
+                </option>
+              }
+            </select>
+          </div>
+        </div>
+
         <!-- Username / Email -->
         <div class="form-group">
           <label for="login">Username</label>
           <div class="input-wrapper">
-            <span class="input-icon">👤</span>
-            <input
-              id="login"
-              type="text"
-              formControlName="login"
-              placeholder="Enter your username"
-              [class.invalid]="loginForm.get('login')?.touched && loginForm.get('login')?.invalid"
-            />
+            <i class="bi bi-person-fill input-icon"></i>
+            <input id="login" type="text" formControlName="login" placeholder="Enter your username"
+              [class.invalid]="loginForm.get('login')?.touched && loginForm.get('login')?.invalid" />
           </div>
           @if (loginForm.get('login')?.hasError('serverError')) {
-            <small class="error-msg">{{ loginForm.get('login')?.errors?.['serverError'] }}</small>
+          <small class="error-msg">{{ loginForm.get('login')?.errors?.['serverError'] }}</small>
           } @else if (loginForm.get('login')?.touched && loginForm.get('login')?.invalid) {
-            <small class="error-msg">Username or Email is required (min 3 chars).</small>
+          <small class="error-msg">Username or Email is required (min 3 chars).</small>
           }
         </div>
 
@@ -53,44 +83,41 @@
         <div class="form-group">
           <label for="password">Password</label>
           <div class="input-wrapper" style="position: relative;">
-            <span class="input-icon">🔑</span>
-            <input
-              id="password"
-              [type]="showPassword ? 'text' : 'password'"
-              formControlName="password"
+            <i class="bi bi-lock-fill input-icon"></i>
+            <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password"
               placeholder="••••••••"
               [class.invalid]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
-              style="padding-right: 40px;"
-            />
-            <button type="button" class="password-toggle-btn" (click)="togglePasswordVisibility()" tabindex="-1" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #6c757d;">
+              style="padding-right: 40px;" />
+            <button type="button" class="password-toggle-btn" (click)="togglePasswordVisibility()" tabindex="-1"
+              style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #64748b; font-size: 1.1rem; display: flex; align-items: center; justify-content: center;">
               @if (showPassword) {
-                <span title="Hide password">👁️‍🗨️</span>
+              <i class="bi bi-eye-slash-fill" title="Hide password"></i>
               } @else {
-                <span title="Show password">👁️</span>
+              <i class="bi bi-eye-fill" title="Show password"></i>
               }
             </button>
           </div>
           @if (loginForm.get('password')?.hasError('serverError')) {
-            <small class="error-msg">{{ loginForm.get('password')?.errors?.['serverError'] }}</small>
+          <small class="error-msg">{{ loginForm.get('password')?.errors?.['serverError'] }}</small>
           } @else if (loginForm.get('password')?.touched && loginForm.get('password')?.invalid) {
-            <small class="error-msg">Password is required (min 4 chars).</small>
+          <small class="error-msg">Password is required (min 4 chars).</small>
           }
         </div>
 
         <!-- Submit Button -->
         <button type="submit" [disabled]="loading || loginForm.invalid" class="btn-submit">
           @if (loading) {
-            <span class="spinner"></span> Logging in...
+          <span class="spinner"></span> Logging in...
           } @else {
-            Sign In
+          <i class="bi bi-box-arrow-in-right"></i> Sign In to {{ selectedTenant ? selectedTenant.tenant_name : 'Portal' }}
           }
         </button>
 
       </form>
     </div>
-    
+
     <div class="login-footer">
-      <p>© 2026 Ariga Purananuru. All rights reserved.</p>
+      <p>© 2026 {{ selectedTenant?.tenant_name || 'Learning Portal' }}. All rights reserved.</p>
     </div>
 
   </div>

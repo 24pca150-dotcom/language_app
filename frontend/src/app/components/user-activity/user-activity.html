@@ -1,0 +1,443 @@
+<div class="langnest-layout d-flex w-100 min-vh-100 position-relative overflow-hidden">
+
+  <!-- 🌅 FIXED FULL-PAGE SCENERY BACKGROUND -->
+  <div class="fullpage-bg learner-study-room-bg">
+    <!-- ✨ Ambient Golden Blinking Stars (7 particles) -->
+    <div class="sparkles-container pointer-events-none" aria-hidden="true">
+      <div class="sparkle font-sparkle">✨</div>
+      <div class="sparkle font-sparkle">✨</div>
+      <div class="sparkle font-sparkle">✨</div>
+      <div class="sparkle font-sparkle">✨</div>
+      <div class="sparkle font-sparkle">✨</div>
+      <div class="sparkle font-sparkle">✨</div>
+      <div class="sparkle font-sparkle">✨</div>
+    </div>
+  </div>
+
+  <!-- 🎮 FLOATING DOCK LEFT (4 Buttons: Home, Learn, Games, Practice) -->
+  <aside class="floating-dock dock-left" aria-label="Learning Navigation">
+    <div class="dock-item">
+      <a class="floating-game-btn game-icon-home text-decoration-none" routerLink="/learn/dashboard" title="Home">
+        <i class="bi bi-house-door-fill"></i>
+      </a>
+      <a routerLink="/learn/dashboard" class="dock-label text-decoration-none">Home</a>
+    </div>
+
+    <div class="dock-item">
+      <a class="floating-game-btn game-icon-learn text-decoration-none" routerLink="/learn/courses" title="Learn">
+        <i class="bi bi-book-half"></i>
+      </a>
+      <a routerLink="/learn/courses" class="dock-label text-decoration-none">Learn</a>
+    </div>
+
+    <div class="dock-item active">
+      <a class="floating-game-btn game-icon-games active text-decoration-none" routerLink="/learn/games" title="Games">
+        <i class="bi bi-controller"></i>
+      </a>
+      <a routerLink="/learn/games" class="dock-label text-decoration-none">Games</a>
+    </div>
+
+    <div class="dock-item">
+      <a class="floating-game-btn game-icon-practice text-decoration-none" routerLink="/learn/practice" title="Practice">
+        <i class="bi bi-lightning-charge-fill"></i>
+      </a>
+      <a routerLink="/learn/practice" class="dock-label text-decoration-none">Practice</a>
+    </div>
+  </aside>
+
+  <!-- 🎮 FLOATING DOCK RIGHT (4 Buttons: Assessments, Progress, Settings, Logout) -->
+  <aside class="floating-dock dock-right" aria-label="Account Navigation">
+    <div class="dock-item">
+      <a class="floating-game-btn game-icon-assessments text-decoration-none" routerLink="/learn/assessments" title="Assessments">
+        <i class="bi bi-clipboard-check-fill"></i>
+      </a>
+      <a routerLink="/learn/assessments" class="dock-label text-decoration-none">Assessments</a>
+    </div>
+
+    <div class="dock-item">
+      <a class="floating-game-btn game-icon-progress text-decoration-none" routerLink="/learn/progress" title="Progress">
+        <i class="bi bi-bar-chart-fill"></i>
+      </a>
+      <a routerLink="/learn/progress" class="dock-label text-decoration-none">Progress</a>
+    </div>
+
+    <div class="dock-item">
+      <a class="floating-game-btn game-icon-settings text-decoration-none" routerLink="/learn/settings" title="Settings">
+        <i class="bi bi-gear-fill"></i>
+      </a>
+      <a routerLink="/learn/settings" class="dock-label text-decoration-none">Settings</a>
+    </div>
+
+    <!-- Logout placed in Badges position as requested -->
+    <div class="dock-item" (click)="logout()">
+      <button class="floating-game-btn game-icon-logout" title="Logout">
+        <i class="bi bi-box-arrow-right"></i>
+      </button>
+      <span class="dock-label">Logout</span>
+    </div>
+  </aside>
+
+  <!-- 🌟 MAIN ACTIVITY ARENA -->
+  <main class="langnest-main flex-grow-1 position-relative d-flex flex-column overflow-y-auto z-2 w-100">
+    <div class="content-container position-relative z-2 px-3 px-lg-4 py-2 py-lg-3" style="max-width: 1200px; margin: 0 auto; width: 100%; padding-left: 90px !important; padding-right: 90px !important;">
+
+      <!-- 🌟 TOP HEADER (Matching Curriculum, Practice, Assessments & Badges) -->
+      <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-3">
+          <!-- Back Button (Navigates Player -> Chapters -> Courses -> Dashboard) -->
+          <button class="btn-back-circle shadow-sm" (click)="goBack()" title="Back">
+            <i class="bi bi-arrow-left fs-5"></i>
+          </button>
+
+          @if (stage() === 'courses') {
+            <div>
+              <h2 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+                <i class="bi bi-controller text-warning"></i>
+                <span>Games & Interactive Activities</span>
+              </h2>
+              <p class="text-white-50 mb-0 small">Select a course to explore its chapter games and interactive challenges.</p>
+            </div>
+          } @else if (stage() === 'chapters') {
+            <div>
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-warning text-dark fw-bold rounded-pill px-3 py-0.5" style="font-size: 0.75rem;">
+                  {{ selectedCourse()?.name || 'Course' }}
+                </span>
+              </div>
+              <h2 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+                <i class="bi bi-journal-text text-warning"></i>
+                <span>Choose a Chapter</span>
+              </h2>
+              <p class="text-white-50 mb-0 small">Pick a chapter to start its interactive language drills and fun games.</p>
+            </div>
+          } @else if (stage() === 'player') {
+            <div>
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-warning text-dark fw-bold rounded-pill px-3 py-0.5" style="font-size: 0.75rem;">
+                  {{ selectedCourse()?.name || 'Course' }}
+                </span>
+                <span class="badge bg-white bg-opacity-25 text-white fw-bold rounded-pill px-2.5 py-0.5" style="font-size: 0.75rem;">
+                  {{ selectedChapter()?.name || 'Chapter' }}
+                </span>
+              </div>
+              <h2 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+                <i class="bi bi-joystick text-warning"></i>
+                <span>{{ selectedChapter()?.name || 'Chapter Games' }}</span>
+              </h2>
+            </div>
+          }
+        </div>
+
+        <!-- Right Header Pill -->
+        <div>
+          @if (stage() === 'courses') {
+            <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold fs-6 shadow-sm">
+              {{ courses().length }} Courses Available
+            </div>
+          } @else if (stage() === 'chapters') {
+            <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold fs-6 shadow-sm">
+              {{ availableChapters().length }} Chapters Available
+            </div>
+          } @else if (stage() === 'player' && filteredActivities().length > 0) {
+            <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold fs-6 shadow-sm">
+              Question {{ currentPlayIndex() + 1 }} of {{ filteredActivities().length }}
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- CENTER BODY CONTENT -->
+      <div class="activity-body-scroll position-relative" [class.pb-5]="stage() !== 'player'" [class.pb-2]="stage() === 'player'">
+
+      <!-- ============================================================== -->
+      <!-- 🧭 STAGE 1: COURSE SELECTION GRID (User Request: Like Practice) -->
+      <!-- ============================================================== -->
+      @if (stage() === 'courses') {
+        <div class="tab-fade-in">
+          @if (isLoading()) {
+            <!-- 🐰 Kid-Friendly Mascot Loader -->
+            <div class="mascot-loader-container py-5 my-4">
+              <div class="mascot-loading-wrapper mb-3 animate-bounce">
+                <img src="/assets/images/mascot.png" alt="Loading Mascot" style="width: 140px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));">
+              </div>
+              <h3 class="mascot-loading-title animate-pulse">Loading games & courses...</h3>
+              <p class="mascot-loading-sub">Gathering interactive exercises and adventures for you!</p>
+            </div>
+          } @else if (courses().length > 0) {
+            <div class="row g-4 justify-content-start py-2">
+              @for (c of courses(); track c.id; let idx = $index) {
+                <div class="col-12 col-md-6 animate-slide-down" [style.animation-delay]="idx * 0.08 + 's'">
+                  <div class="adventure-portal-stage cursor-pointer d-flex align-items-center gap-3 position-relative"
+                       (click)="pickCourse(c.id)"
+                       title="Explore games for {{ c.name }}">
+                    
+                    <!-- Circular 3D Adventure Portal Avatar -->
+                    <div class="adventure-portal-avatar-wrap position-relative flex-shrink-0">
+                      <div class="adventure-portal-glow-ring"></div>
+                      <div class="adventure-portal-circle">
+                        <img [src]="(idx % 2 === 0) ? '/assets/images/kid_adventure_banner.jpg' : '/assets/images/kid_adventure_banner_2.jpg'"
+                             alt="Course Games"
+                             class="adventure-portal-img">
+                      </div>
+                      <span class="adventure-level-badge">
+                        <i class="bi bi-controller text-warning me-1"></i>Arena
+                      </span>
+                    </div>
+
+                    <!-- Floating Info (Zero Box / Left-Aligned) -->
+                    <div class="adventure-portal-details flex-grow-1 text-start">
+                      <h3 class="adventure-portal-title mb-2 text-truncate">{{ c.name }}</h3>
+
+                      <div class="adventure-portal-action d-flex align-items-center pt-2">
+                        <button class="btn btn-adventure-start d-flex align-items-center gap-2 px-4 py-2"
+                                (click)="pickCourse(c.id); $event.stopPropagation()">
+                          <span>Explore Chapters</span>
+                          <i class="bi bi-arrow-right-circle-fill fs-5"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-notice-glass p-5 rounded-4 text-center mx-auto shadow-lg my-5" style="max-width: 580px;">
+              <div class="empty-icon-circle mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 72px; height: 72px; background: rgba(255, 199, 39, 0.15); border: 1px solid rgba(255, 199, 39, 0.3);">
+                <i class="bi bi-controller fs-1 text-warning"></i>
+              </div>
+              <h3 class="fw-bold text-white mb-2">No Courses Available</h3>
+              <p class="text-white-50 mb-0" style="font-size: 0.95rem; line-height: 1.6;">
+                You currently have 0 active courses assigned to your account.
+              </p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ============================================================== -->
+      <!-- 📚 STAGE 2: CHAPTER SELECTION (Boxless Gamified Adventure Portals) -->
+      <!-- ============================================================== -->
+      @else if (stage() === 'chapters') {
+        <div class="tab-fade-in">
+          @if (isLoadingStructure()) {
+            <div class="mascot-loader-container py-5 my-4">
+              <div class="mascot-loading-wrapper mb-3 animate-bounce">
+                <img src="/assets/images/mascot.png" alt="Loading Mascot" style="width: 140px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));">
+              </div>
+              <h3 class="mascot-loading-title animate-pulse">Loading course chapters...</h3>
+              <p class="mascot-loading-sub">Gathering chapter adventures and games for you!</p>
+            </div>
+          } @else if (availableChapters().length > 0) {
+            <div class="row g-4 justify-content-start py-2">
+              @for (ch of availableChapters(); track ch.id; let idx = $index) {
+                <div class="col-12 col-md-6 animate-slide-down" [style.animation-delay]="idx * 0.06 + 's'">
+                  <div class="adventure-portal-stage cursor-pointer d-flex align-items-center gap-3 position-relative"
+                       (click)="pickChapter(ch.id)"
+                       title="Play games for {{ ch.name }}">
+                    
+                    <!-- Circular 3D Adventure Portal Avatar -->
+                    <div class="adventure-portal-avatar-wrap position-relative flex-shrink-0">
+                      <div class="adventure-portal-glow-ring"></div>
+                      <div class="adventure-portal-circle">
+                        <img [src]="getChapterImage(ch.name, idx)"
+                             [alt]="ch.name"
+                             class="adventure-portal-img">
+                      </div>
+                      <span class="adventure-level-badge">
+                        <i class="bi bi-star-fill text-warning me-1"></i>Ch {{ idx + 1 }}
+                      </span>
+                    </div>
+
+                    <!-- Floating Info (Zero Box / Left-Aligned) -->
+                    <div class="adventure-portal-details flex-grow-1 text-start">
+                      <!-- Level Quest Tag -->
+                      <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="adventure-track-tag">
+                          🏰 {{ ch.levelName || 'Level Quest' }}
+                        </span>
+                      </div>
+
+                      <!-- Big Playful Chapter Title -->
+                      <h3 class="adventure-portal-title mb-2 text-truncate" [title]="ch.name">{{ ch.name }}</h3>
+
+                      <div class="adventure-portal-action d-flex align-items-center pt-2">
+                        <button class="btn btn-adventure-start d-flex align-items-center gap-2 px-4 py-2"
+                                (click)="pickChapter(ch.id); $event.stopPropagation()">
+                          <span>Play</span>
+                          <i class="bi bi-play-circle-fill fs-5"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-notice-glass p-5 rounded-4 text-center mx-auto shadow-lg my-5" style="max-width: 580px;">
+              <div class="empty-icon-circle mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 72px; height: 72px; background: rgba(255, 199, 39, 0.15); border: 1px solid rgba(255, 199, 39, 0.3);">
+                <i class="bi bi-journal-x fs-1 text-warning"></i>
+              </div>
+              <h3 class="fw-bold text-white mb-2">No Chapters Found</h3>
+              <p class="text-white-50 mb-0" style="font-size: 0.95rem; line-height: 1.6;">
+                There are currently no chapters configured for this course.
+              </p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ============================================================== -->
+      <!-- 🎮 STAGE 3: INTERACTIVE QUESTIONS PLAYER                       -->
+      <!-- ============================================================== -->
+      @else if (stage() === 'player') {
+        <div class="tab-fade-in">
+          @if (isLoading()) {
+            <div class="d-flex flex-column align-items-center justify-content-center h-75 text-center p-4">
+              <div class="mascot-loading-wrapper mb-3 animate-bounce">
+                <img src="/assets/images/mascot.png" alt="Loading Mascot" style="width: 140px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));">
+              </div>
+              <h3 class="fw-bold text-white font-nunito animate-pulse">Loading chapter games...</h3>
+              <p class="text-white-50 small">Gathering interactive exercises and games for you!</p>
+            </div>
+          }
+
+          @else if (allActivities().length === 0) {
+            <div class="empty-activities-card glass-panel text-center p-5 mx-auto my-auto rounded-5 shadow-lg max-w-lg mt-5">
+              <div class="mb-3" style="font-size: 4.5rem;">🎮</div>
+              <h3 class="fw-bold text-white mb-2">No Games Yet!</h3>
+              <p class="text-white-50 mb-4" style="line-height: 1.6;">
+                There are currently no games added inside this chapter's content pages.
+                Admins add activities and games directly inside the content editor!
+              </p>
+              <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <button class="btn btn-warning rounded-pill px-4 py-2.5 fw-bold text-dark shadow-sm hover-lift"
+                  (click)="goBack()">
+                  <i class="bi bi-arrow-left me-2"></i> Choose Another Chapter
+                </button>
+              </div>
+            </div>
+          }
+
+          @else if (isSessionFinished()) {
+            <div class="victory-card glass-panel text-center p-4 p-md-5 mx-auto my-auto rounded-5 shadow-lg max-w-lg mt-3 animate-pop-in">
+              <div class="cartoon-mascot-wrap mb-3 d-flex flex-column align-items-center">
+                <div class="cartoon-speech-bubble super-bubble">
+                  <span>Super! ⭐</span>
+                </div>
+                <img src="/assets/images/mascot.png" alt="Super Mascot" class="cartoon-mascot-img mascot-super-anim" style="width: 140px;">
+              </div>
+              <h2 class="display-6 fw-bold text-warning mb-2 font-fredoka" style="text-shadow: 2px 2px 0px #b08d00;">Chapter Games Completed!</h2>
+              <p class="text-white-50 mb-4">You did a wonderful job practicing all the games for this chapter!</p>
+
+              <div class="d-flex justify-content-center gap-3 mb-4">
+                <div class="card stat-box border-0 shadow-sm rounded-4 p-3 text-center" style="min-width: 120px; background: rgba(255,255,255,0.9);">
+                  <span class="text-secondary small fw-bold text-uppercase mb-1">XP Earned</span>
+                  <h3 class="fw-bold text-success mb-0">+{{ xpEarned() }}</h3>
+                </div>
+                <div class="card stat-box border-0 shadow-sm rounded-4 p-3 text-center" style="min-width: 120px; background: rgba(255,255,255,0.9);">
+                  <span class="text-secondary small fw-bold text-uppercase mb-1">Exercises</span>
+                  <h3 class="fw-bold text-primary mb-0">{{ filteredActivities().length }}</h3>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <button class="btn btn-warning rounded-pill px-4 py-2.5 fw-bold text-dark shadow-sm hover-lift d-flex align-items-center gap-2"
+                  (click)="restartSession()">
+                  <i class="bi bi-arrow-repeat fs-5"></i>
+                  <span>Play Again</span>
+                </button>
+
+                <button class="btn btn-outline-light rounded-pill px-4 py-2.5 fw-bold hover-lift d-flex align-items-center gap-2"
+                  (click)="goBack()">
+                  <i class="bi bi-arrow-left fs-5"></i>
+                  <span>Back to Chapters</span>
+                </button>
+              </div>
+            </div>
+          }
+
+          @else if (currentActivity(); as act) {
+            <div class="activity-player-container mx-auto d-flex flex-column align-items-center w-100">
+
+              <!-- Question Stage Container (Glassmorphism Styled - Fixed Static Size) -->
+              <div class="activity-stage-box glass-stage-card w-100 p-3 p-md-4 rounded-4 position-relative">
+
+                <!-- Title banner inside card -->
+                <div class="activity-card-title mb-2 pb-2 border-bottom d-flex align-items-center justify-content-between">
+                  <div>
+                    <h4 class="fw-bold text-dark mb-0 font-fredoka fs-5">{{ act.title }}</h4>
+                    <span class="text-secondary small" style="font-size: 0.8rem;">Follow instructions and submit your answer</span>
+                  </div>
+
+                  <!-- Mascot mini cheer badge -->
+                  <div class="mascot-mini-badge d-none d-md-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-light border border-2 border-warning-subtle">
+                    <span style="font-size: 1.2rem;">🦊</span>
+                    <span class="small fw-bold text-dark" style="font-size: 0.8rem;">{{ mascotCheer() }}</span>
+                  </div>
+                </div>
+
+                <!-- Activity Renderer Core Component -->
+                <div class="activity-render-wrapper w-100 my-1">
+                  @if (activityRenderKey()) {
+                    <app-activity-renderer
+                      class="w-100 animate-content-fade"
+                      [activity]="act.data"
+                      [showFeedback]="true"
+                      (answered)="onActivityAnswered($event)">
+                    </app-activity-renderer>
+                  }
+                </div>
+
+                <!-- 🦊 Cartoon Mascot Feedback (Zero Box, Animated Mascot Companion) -->
+                @if (showSuccessSplash()) {
+                  <div class="cartoon-feedback-overlay animate-pop-in">
+                    <div class="cartoon-mascot-wrap">
+                      <div class="cartoon-speech-bubble super-bubble">
+                        <span>Super! ⭐</span>
+                      </div>
+                      <img src="/assets/images/mascot.png" alt="Super Mascot" class="cartoon-mascot-img mascot-super-anim">
+                    </div>
+                  </div>
+                }
+
+                @if (showFailureSplash()) {
+                  <div class="cartoon-feedback-overlay animate-pop-in">
+                    <div class="cartoon-mascot-wrap">
+                      <div class="cartoon-speech-bubble wrong-bubble">
+                        <span>Wrong! 💡</span>
+                      </div>
+                      <img src="/assets/images/mascot.png" alt="Wrong Mascot" class="cartoon-mascot-img mascot-wrong-anim">
+                    </div>
+                  </div>
+                }
+
+                <!-- Activity Card Internal Navigation Footer -->
+                <div class="activity-card-footer pt-2 mt-2 border-top d-flex align-items-center justify-content-between w-100">
+                  <!-- Left: Previous Button -->
+                  <button class="btn btn-light rounded-pill px-3 py-1.5 fw-bold text-secondary shadow-sm hover-lift border border-2 border-white d-flex align-items-center gap-2"
+                    [disabled]="currentPlayIndex() === 0"
+                    (click)="prevActivity()"
+                    style="font-size: 0.9rem;">
+                    <i class="bi bi-chevron-left"></i>
+                    <span>Previous</span>
+                  </button>
+
+                  <!-- Right: Next / Finish Button -->
+                  <button class="btn btn-warning rounded-pill px-4 py-1.5 fw-bold text-dark shadow-sm hover-lift border border-2 border-white d-flex align-items-center gap-2 ms-auto"
+                    (click)="nextActivity()"
+                    style="font-size: 0.9rem;">
+                    <span>{{ (currentPlayIndex() + 1 === filteredActivities().length) ? 'Finish' : 'Next Activity' }}</span>
+                    <i class="bi bi-chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+      </div>
+    </div>
+  </main>
+</div>

@@ -1,16 +1,16 @@
     <div class="w-100 d-flex flex-column align-items-center justify-content-center pb-4 pt-2 max-w-lg mx-auto" style="max-width: 800px;">
       <div class="header mb-4 position-relative d-flex justify-content-center align-items-center w-100">
-        <h3 class="fw-bold text-dark m-0 text-center fs-3" style="text-shadow: 0px 4px 10px rgba(255,255,255,0.8), 0px 8px 30px rgba(255,255,255,0.9);" [innerHTML]="activity?.question || 'Arrange the words to form a correct sentence:'"></h3>
+        <h3 class="fw-bold text-dark m-0 text-center fs-3" [innerHTML]="activity?.question || 'Arrange the words to form a correct sentence:'"></h3>
       </div>
 
       <!-- Arrangement Slot / Workspace (Box-less) -->
       <div class="sentence-workspace p-4 mb-5 d-flex flex-wrap gap-3 align-items-center justify-content-center w-100"
            [class.correct]="hasSubmitted() && isCorrect()"
            [class.incorrect]="hasSubmitted() && !isCorrect()"
-           style="min-height: 120px; transition: all 0.3s ease; border-bottom: 4px dashed rgba(255,255,255,0.4);">
+           style="min-height: 120px; transition: all 0.3s ease; border-bottom: 3px dashed #cbd5e1;">
         
         @if (arrangedWords().length === 0) {
-          <span class="text-white fw-bold fs-4 select-none" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">Tap words below to arrange them here...</span>
+          <span class="text-secondary fw-semibold fs-5 select-none">Tap words below to arrange them here...</span>
         } @else {
           @for (word of arrangedWords(); track word.id) {
             <button 

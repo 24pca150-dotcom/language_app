@@ -1,6 +1,9 @@
 import { Component, signal, computed, inject, ViewChild, ElementRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { environment } from '../../../environments/environment';
 import { ActivityService, Activity } from '../../services/activity.service';
 import { NotificationService } from '../../services/notification.service';
 import { CourseService, CourseData } from '../../services/course';
@@ -10,9 +13,12 @@ import { ActivityRenderer } from '../activity-engine/activity-renderer/activity-
 
 interface BlockContent {
   id: string;
-  type: 'text' | 'audio' | 'image' | 'video' | 'link';
+  type: 'text' | 'audio' | 'image' | 'video' | 'link' | 'button' | 'input';
   content?: string;
   url?: string;
+  imageUrl?: string;
+  audioUrl?: string;
+  isCorrect?: boolean;
 }
 
 interface ContainerNode {
@@ -25,7 +31,7 @@ interface ContainerNode {
 @Component({
   selector: 'app-activity-builder',
   standalone: true,
-  imports: [CommonModule, FormsModule, ActivityRenderer],
+  imports: [CommonModule, FormsModule, ActivityRenderer, DragDropModule],
   templateUrl: './activity-builder.html',
   styleUrls: ['./activity-builder.css']
 })
@@ -34,6 +40,7 @@ export class ActivityBuilder {
   private notificationService = inject(NotificationService);
   private courseService = inject(CourseService);
   private contentService = inject(ContentService);
+  private http = inject(HttpClient);
 
   // Mapping State
   linkingActivity = signal<Activity | null>(null);
@@ -53,39 +60,172 @@ export class ActivityBuilder {
   isPreviewMode = signal(false);
   isTitleManuallyEdited = signal(false);
   viewMode = signal<'grid' | 'list'>('grid');
+  isTemplatePickerVisible = signal(false);
+  testingActivity = signal<Activity | null>(null);
 
   // Search & Filter State
   searchQuery = signal('');
   filterType = signal('all');
+  selectedSkillTab = signal<'all' | 'listening' | 'speaking' | 'reading' | 'writing' | 'games'>('all');
+  selectedCourseFilter = signal<number | 'all'>('all');
+  selectedStatusFilter = signal<'all' | 'linked' | 'unassigned'>('all');
+
+  // Pagination State
+  currentPage = signal<number>(1);
+  pageSize = signal<number>(12);
 
   // Data State
   savedActivities = signal<Activity[]>([]);
 
+  // Skill categorization helper
+  getActivitySkill(type: string): 'listening' | 'speaking' | 'reading' | 'writing' | 'games' {
+    switch (type) {
+      case 'mcq':
+      case 'match':
+        return 'listening';
+      case 'speaking':
+      case 'role_play':
+        return 'speaking';
+      case 'flashcard':
+      case 'sequencing':
+      case 'mind_map':
+        return 'reading';
+      case 'writing':
+      case 'parts_of_speech':
+      case 'word_arrange':
+      case 'fill_blanks':
+        return 'writing';
+      case 'crossword':
+      case 'custom':
+        return 'games';
+      default:
+        return 'listening';
+    }
+  }
+
+  // Dynamic Skill Counts
+  skillCounts = computed(() => {
+    const all = this.savedActivities();
+    const counts = {
+      all: all.length,
+      listening: 0,
+      speaking: 0,
+      reading: 0,
+      writing: 0,
+      games: 0
+    };
+    for (const act of all) {
+      const skill = this.getActivitySkill(act.type);
+      if (counts[skill] !== undefined) {
+        counts[skill]++;
+      }
+    }
+    return counts;
+  });
+
   // Filtered Activities
   filteredActivities = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
+    const skill = this.selectedSkillTab();
     const type = this.filterType();
+    const courseId = this.selectedCourseFilter();
+    
     let list = this.savedActivities();
     
+    // 1. Skill Tab Filter
+    if (skill !== 'all') {
+      list = list.filter(act => this.getActivitySkill(act.type) === skill);
+    }
+
+    // 2. Type Dropdown Filter
     if (type !== 'all') {
       list = list.filter(act => act.type === type);
     }
     
+    // 3. Course Filter
+    if (courseId !== 'all') {
+      if (courseId === null) {
+        list = list.filter(act => !act.course_id);
+      } else {
+        list = list.filter(act => act.course_id === courseId);
+      }
+    }
+
+    // 4. Search Query Filter
     if (query) {
-      list = list.filter(act => act.title.toLowerCase().includes(query));
+      list = list.filter(act => 
+        act.title.toLowerCase().includes(query) ||
+        (act.id && act.id.toString().includes(query)) ||
+        (act.type && act.type.toLowerCase().includes(query)) ||
+        (act.course?.name && act.course.name.toLowerCase().includes(query))
+      );
     }
     
     return list;
+  });
+
+  // Total Pages
+  totalPages = computed(() => {
+    const total = this.filteredActivities().length;
+    const size = this.pageSize();
+    if (size === 0) return 1;
+    return Math.ceil(total / size) || 1;
+  });
+
+  // Paginated Activities
+  paginatedActivities = computed(() => {
+    const list = this.filteredActivities();
+    const size = this.pageSize();
+    if (size === 0) return list;
+    const page = this.currentPage();
+    const start = (page - 1) * size;
+    return list.slice(start, start + size);
+  });
+
+  // Display indices
+  startIndex = computed(() => {
+    if (this.filteredActivities().length === 0) return 0;
+    return (this.currentPage() - 1) * this.pageSize() + 1;
+  });
+
+  endIndex = computed(() => {
+    const total = this.filteredActivities().length;
+    const size = this.pageSize();
+    if (size === 0) return total;
+    return Math.min(this.currentPage() * size, total);
+  });
+
+  // Smart Page Numbers for Pagination Bar
+  pageNumbers = computed(() => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const pages: number[] = [];
+    
+    if (total <= 7) {
+      for (let i = 1; i <= total; i++) pages.push(i);
+    } else {
+      if (current <= 4) {
+        pages.push(1, 2, 3, 4, 5, -1, total);
+      } else if (current >= total - 3) {
+        pages.push(1, -1, total - 4, total - 3, total - 2, total - 1, total);
+      } else {
+        pages.push(1, -1, current - 1, current, current + 1, -1, total);
+      }
+    }
+    return pages;
   });
 
   // Current Activity State
   activityId = signal<number | null>(null);
   activityTitle = signal<string>('');
   activityType = signal<string>('mcq');
+  activityCourseId = signal<number | null>(null);
+  coursesList = signal<CourseData[]>([]);
 
   // Custom Builder State
   nodes = signal<ContainerNode[]>([]);
   selectedContainerId = signal<string | null>(null);
+  customQuestion = signal<string>('');
 
   // Standard Engine State
   engineData: any = {};
@@ -114,6 +254,80 @@ export class ActivityBuilder {
 
   ngOnInit() {
     this.loadActivities();
+    this.loadCourses();
+  }
+
+  setSkillTab(tab: 'all' | 'listening' | 'speaking' | 'reading' | 'writing' | 'games') {
+    this.selectedSkillTab.set(tab);
+    this.currentPage.set(1);
+  }
+
+  onFilterChange() {
+    this.currentPage.set(1);
+  }
+
+  setPage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+    }
+  }
+
+  clearFilters() {
+    this.searchQuery.set('');
+    this.filterType.set('all');
+    this.selectedSkillTab.set('all');
+    this.selectedCourseFilter.set('all');
+    this.currentPage.set(1);
+  }
+
+  openTemplatePicker() {
+    this.isTemplatePickerVisible.set(true);
+  }
+
+  closeTemplatePicker() {
+    this.isTemplatePickerVisible.set(false);
+  }
+
+  selectTemplate(type: string) {
+    this.isTemplatePickerVisible.set(false);
+    this.showCreateForm(type);
+  }
+
+  openTestModal(activity: Activity) {
+    this.testingActivity.set(activity);
+  }
+
+  closeTestModal() {
+    this.testingActivity.set(null);
+  }
+
+  getSkillBadgeClass(skill: string): string {
+    switch (skill) {
+      case 'listening': return 'badge-listening';
+      case 'speaking': return 'badge-speaking';
+      case 'reading': return 'badge-reading';
+      case 'writing': return 'badge-writing';
+      case 'games': return 'badge-games';
+      default: return 'bg-secondary';
+    }
+  }
+
+  getSkillIcon(skill: string): string {
+    switch (skill) {
+      case 'listening': return 'bi-headphones';
+      case 'speaking': return 'bi-mic-fill';
+      case 'reading': return 'bi-book-half';
+      case 'writing': return 'bi-pencil-fill';
+      case 'games': return 'bi-controller';
+      default: return 'bi-collection';
+    }
+  }
+
+  loadCourses() {
+    this.courseService.getAll().subscribe({
+      next: (courses) => this.coursesList.set(courses || []),
+      error: () => {}
+    });
   }
 
   generateNextTitle(type: string): string {
@@ -148,14 +362,16 @@ export class ActivityBuilder {
     });
   }
 
-  showCreateForm() {
+  showCreateForm(type: string = 'mcq') {
     this.activityId.set(null);
     this.isTitleManuallyEdited.set(false);
-    this.activityType.set('mcq');
-    this.activityTitle.set(this.generateNextTitle('mcq'));
+    this.activityType.set(type);
+    this.activityCourseId.set(null);
+    this.activityTitle.set(this.generateNextTitle(type));
     this.nodes.set([]);
+    this.customQuestion.set('');
     this.selectedContainerId.set(null);
-    this.engineData = { type: 'mcq' };
+    this.engineData = { type: type };
     this.activityBlockInstance = null;
     this.isFormVisible.set(true);
   }
@@ -163,6 +379,7 @@ export class ActivityBuilder {
   editActivity(activity: Activity) {
     this.activityId.set(activity.id || null);
     this.activityTitle.set(activity.title);
+    this.activityCourseId.set(activity.course_id || null);
     this.isTitleManuallyEdited.set(true);
     
     const type = activity.type;
@@ -173,6 +390,7 @@ export class ActivityBuilder {
       } else {
         this.nodes.set([]);
       }
+      this.customQuestion.set(activity.data_json?.question || '');
       this.activityType.set('custom');
     } else {
       this.engineData = JSON.parse(JSON.stringify(activity.data_json || {}));
@@ -235,7 +453,10 @@ export class ActivityBuilder {
         this.notificationService.show('error', 'Please add at least one container to the custom activity');
         return;
       }
-      data_json = { nodes: this.nodes() };
+      data_json = { 
+        nodes: this.nodes(),
+        question: this.customQuestion()
+      };
     } else {
       if (this.activityBlockInstance) {
         data_json = this.activityBlockInstance.save();
@@ -248,9 +469,10 @@ export class ActivityBuilder {
 
     this.isSaving.set(true);
 
-    const payload = {
+    const payload: Partial<Activity> = {
       title: this.activityTitle(),
       type: type,
+      course_id: this.activityCourseId(),
       data_json: data_json
     };
 
@@ -298,7 +520,7 @@ export class ActivityBuilder {
     this.selectedContainerId.set(newContainer.id);
   }
 
-  addBlock(type: 'text' | 'audio' | 'image' | 'video' | 'link') {
+  addBlock(type: 'text' | 'audio' | 'image' | 'video' | 'link' | 'button' | 'input') {
     const activeId = this.selectedContainerId();
     if (!activeId) {
       alert('Please select or create a container first!');
@@ -308,8 +530,9 @@ export class ActivityBuilder {
     const newBlock: BlockContent = {
       id: 'block_' + this.generateId(),
       type: type,
-      content: type === 'text' ? 'Enter text here...' : undefined,
-      url: type !== 'text' ? 'assets/placeholder' : undefined
+      content: type === 'text' ? 'Enter text here...' : (type === 'button' ? 'Option Text' : (type === 'input' ? 'Type your answer...' : undefined)),
+      url: type === 'input' ? 'expected answer' : (type !== 'text' && type !== 'button' ? 'assets/placeholder' : undefined),
+      isCorrect: type === 'button' ? false : undefined
     };
 
     this.nodes.update(current => {
@@ -346,6 +569,109 @@ export class ActivityBuilder {
     });
   }
 
+  onBlockDropped(event: CdkDragDrop<BlockContent[]>) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+    }
+    this.nodes.update(current => [...current]);
+  }
+
+  setContainerDisplay(id: string, display: string) {
+    this.nodes.update(current => {
+      return current.map(container => {
+        if (container.id === id) {
+          return { ...container, display };
+        }
+        return container;
+      });
+    });
+  }
+
+  onBlockFileSelected(block: BlockContent, event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const uploadUrl = `${environment.apiUrl}/contents/upload`;
+    this.http.post<any>(uploadUrl, formData).subscribe({
+      next: (res) => {
+        if (res && res.url) {
+          block.url = res.url;
+          this.notificationService.show('success', 'File uploaded successfully!');
+        } else {
+          this.notificationService.show('error', 'Upload failed: Invalid response');
+        }
+      },
+      error: (err) => {
+        console.error('Upload error', err);
+        this.notificationService.show('error', 'File upload failed');
+      }
+    });
+  }
+
+  onBlockImageSelected(block: BlockContent, event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const uploadUrl = `${environment.apiUrl}/contents/upload`;
+    this.http.post<any>(uploadUrl, formData).subscribe({
+      next: (res) => {
+        if (res && res.url) {
+          block.imageUrl = res.url;
+          this.notificationService.show('success', 'Image uploaded successfully!');
+        } else {
+          this.notificationService.show('error', 'Upload failed: Invalid response');
+        }
+      },
+      error: (err) => {
+        console.error('Upload error', err);
+        this.notificationService.show('error', 'Image upload failed');
+      }
+    });
+  }
+
+  onBlockAudioSelected(block: BlockContent, event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const uploadUrl = `${environment.apiUrl}/contents/upload`;
+    this.http.post<any>(uploadUrl, formData).subscribe({
+      next: (res) => {
+        if (res && res.url) {
+          block.audioUrl = res.url;
+          if (block.type !== 'input') {
+            block.url = res.url;
+          }
+          this.notificationService.show('success', 'Audio uploaded successfully!');
+        } else {
+          this.notificationService.show('error', 'Upload failed: Invalid response');
+        }
+      },
+      error: (err) => {
+        console.error('Upload error', err);
+        this.notificationService.show('error', 'Audio upload failed');
+      }
+    });
+  }
+
   togglePreview() {
     if (!this.isPreviewMode() && this.activityType() !== 'custom') {
       if (this.activityBlockInstance) {
@@ -363,6 +689,12 @@ export class ActivityBuilder {
   }
 
   getPreviewActivityData() {
+    if (this.activityType() === 'custom') {
+      return {
+        type: 'custom',
+        nodes: this.nodes()
+      };
+    }
     if (this.activityBlockInstance) {
       const data = this.activityBlockInstance.save();
       return {

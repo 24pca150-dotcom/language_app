@@ -31,6 +31,8 @@ export class KidsLessonPlayer implements OnInit, OnDestroy {
   xp = input<number>(0);
   coins = input<number>(0);
   activityFeedbackState = input<'correct' | 'incorrect' | null>(null);
+  courseId = input<number | null>(null);
+  activeChapterId = input<number | null>(null);
 
   @Output() quit = new EventEmitter<void>();
   @Output() retry = new EventEmitter<void>();
@@ -41,6 +43,14 @@ export class KidsLessonPlayer implements OnInit, OnDestroy {
   @Output() activityAnswered = new EventEmitter<any>();
   @Output() continueFeedback = new EventEmitter<void>();
   @Output() jumpToStep = new EventEmitter<number>();
+  @Output() toggleNavMenu = new EventEmitter<void>();
+
+  // Adventure Steps drawer collapse state (Shown by default as requested: "nan circle pannirukurathu kamikanum")
+  isStepsDrawerCollapsed = signal<boolean>(false);
+
+  toggleStepsDrawer() {
+    this.isStepsDrawerCollapsed.update(v => !v);
+  }
 
   private audioService = inject(AudioService);
   private router = inject(Router);
@@ -62,7 +72,20 @@ export class KidsLessonPlayer implements OnInit, OnDestroy {
     }
   }
 
+  goToActivities() {
+    const cId = this.courseId();
+    const chId = this.activeChapterId();
+    if (cId && chId) {
+      this.router.navigate(['/learn/games', cId, chId]);
+    } else if (cId) {
+      this.router.navigate(['/learn/games', cId]);
+    } else {
+      this.router.navigate(['/learn/games']);
+    }
+  }
+
   currentContentPage = signal<number>(0);
+  activityRenderKey = signal<number>(1);
   typedContent = signal<string>('');
   typingTimeout: any;
   activeUtterances: SpeechSynthesisUtterance[] = [];
@@ -137,6 +160,7 @@ export class KidsLessonPlayer implements OnInit, OnDestroy {
       this.currentStepIndex();
       this.currentContentPage.set(0);
       this.stopSpeech();
+      this.activityRenderKey.set(Date.now());
     });
 
     effect(() => {
@@ -203,7 +227,15 @@ export class KidsLessonPlayer implements OnInit, OnDestroy {
   }
 
   retryActivity() {
+    this.refreshCurrentActivity();
+  }
+
+  refreshCurrentActivity() {
     this.retry.emit();
+    this.activityRenderKey.set(0);
+    setTimeout(() => {
+      this.activityRenderKey.set(Date.now());
+    }, 50);
   }
 
   finishLesson() {

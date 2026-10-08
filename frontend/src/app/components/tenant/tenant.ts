@@ -42,6 +42,10 @@ export class Tenant implements OnInit {
   isFormVisible = signal(false); // Default to table view
   currentTenantId = signal<number | null>(null);
 
+  // Logo & Branding state
+  logoPreviewUrl: string | null = null;
+  selectedLogoFile: File | null = null;
+
   constructor() {
     this.tenantForm = this.fb.group({
       tenant_code: ['', Validators.required],
@@ -51,7 +55,50 @@ export class Tenant implements OnInit {
       phone: [''],
       address: [''],
       is_active: [true],
+      logo_path: [null],
+      primary_color: ['#7c3aed'],
+      secondary_color: ['#db2777'],
     });
+  }
+
+  onLogoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      this.selectedLogoFile = file;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.logoPreviewUrl = reader.result as string;
+        this.tenantForm.patchValue({ logo_path: reader.result as string });
+        this.tenantForm.markAsDirty();
+        this.cdr.detectChanges();
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  removeLogo(): void {
+    this.logoPreviewUrl = null;
+    this.selectedLogoFile = null;
+    this.tenantForm.patchValue({ logo_path: null });
+    this.tenantForm.markAsDirty();
+    this.cdr.detectChanges();
+  }
+
+  getInitials(name?: string): string {
+    if (!name) return 'SC';
+    const words = name.trim().split(/\s+/);
+    if (words.length >= 2) {
+      return (words[0][0] + words[1][0] + (words[2] ? words[2][0] : '')).toUpperCase();
+    }
+    return name.slice(0, 3).toUpperCase();
+  }
+
+  getFormLogoBackground(): string {
+    const p = this.tenantForm.get('primary_color')?.value || '#7c3aed';
+    const s = this.tenantForm.get('secondary_color')?.value || '#db2777';
+    return this.logoPreviewUrl ? '#ffffff' : `linear-gradient(135deg, ${p}15, ${s}20)`;
   }
 
   ngOnInit(): void {
@@ -156,7 +203,10 @@ export class Tenant implements OnInit {
     this.isEditMode.set(true);
     this.currentTenantId.set(tenant.id!);
 
-    // Set all values including phone
+    this.logoPreviewUrl = tenant.logo_path || null;
+    this.selectedLogoFile = null;
+
+    // Set all values including branding
     this.tenantForm.patchValue({
       tenant_code: tenant.tenant_code,
       tenant_name: tenant.tenant_name,
@@ -165,6 +215,9 @@ export class Tenant implements OnInit {
       phone: tenant.phone,
       address: tenant.address,
       is_active: tenant.is_active,
+      logo_path: tenant.logo_path || null,
+      primary_color: tenant.primary_color || '#7c3aed',
+      secondary_color: tenant.secondary_color || '#db2777',
     });
 
     // Update validity for all controls
@@ -198,7 +251,13 @@ export class Tenant implements OnInit {
   }
 
   resetForm(): void {
-    this.tenantForm.reset({ is_active: true });
+    this.logoPreviewUrl = null;
+    this.selectedLogoFile = null;
+    this.tenantForm.reset({
+      is_active: true,
+      primary_color: '#7c3aed',
+      secondary_color: '#db2777',
+    });
     this.tenantForm.markAsPristine();
     this.tenantForm.markAsUntouched();
     this.isEditMode.set(false);

@@ -2,17 +2,7 @@ import { Component, Input, Output, EventEmitter, signal, computed, HostListener,
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { gsap } from 'gsap';
 
-interface Level {
-  id: number;
-  name: string;
-  chapters: any[];
-}
-
-interface CourseStructure {
-  id: number;
-  name: string;
-  levels: Level[];
-}
+import { CourseStructure, Level } from '../../models/course-structure.model';
 
 @Component({
   selector: 'app-kids-dashboard',
@@ -31,6 +21,8 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
 
   @Output() selectLevel = new EventEmitter<number>();
   @Output() selectChapterNode = new EventEmitter<number>();
+  @Output() backToLevels = new EventEmitter<void>();
+  @Output() backToCourses = new EventEmitter<void>();
 
   isBrowser: boolean;
 
@@ -48,6 +40,9 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
     }
     if (changes['activeLevelId']) {
       this.activeLevelIdSignal.set(this.activeLevelId);
+      if (this.currentView === 'map') {
+        this.scrollToActiveNode();
+      }
     }
     if (changes['completedChapters']) {
       this.completedChaptersSignal.set(this.completedChapters || []);
@@ -67,22 +62,16 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
     if (!this.isBrowser) return;
     setTimeout(() => {
       const mapContainer = document.querySelector('.map-container') as HTMLElement;
-      const activeNode = document.querySelector('.active-node') as HTMLElement;
-      
-      if (mapContainer) {
-        if (activeNode) {
-          // Manually calculate scroll target to prevent scrolling overflow:hidden parent
-          const containerRect = mapContainer.getBoundingClientRect();
-          const nodeRect = activeNode.getBoundingClientRect();
-          const scrollTarget = mapContainer.scrollTop + (nodeRect.top - containerRect.top) - (containerRect.height / 2) + (nodeRect.height / 2);
-          
-          mapContainer.scrollTo({ top: scrollTarget, behavior: 'smooth' });
-        } else {
-          // If all completed, scroll to top (last chapter is at top)
-          mapContainer.scrollTop = 0;
-        }
+      const activeNode = document.querySelector('.active-btn, .angry-mascot-anchor, .active-node') as HTMLElement;
+
+      if (mapContainer && activeNode) {
+        const containerRect = mapContainer.getBoundingClientRect();
+        const nodeRect = activeNode.getBoundingClientRect();
+        const scrollTarget = mapContainer.scrollLeft + (nodeRect.left - containerRect.left) - (containerRect.width / 2) + (nodeRect.width / 2);
+
+        mapContainer.scrollTo({ left: Math.max(0, scrollTarget), behavior: 'smooth' });
       }
-    }, 100);
+    }, 150);
   }
 
   @HostListener('document:mousemove', ['$event'])
@@ -106,59 +95,73 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
     return struct.levels.find((l: any) => l.id === levId) || null;
   });
 
+  completedChaptersCount = computed(() => {
+    const level = this.selectedLevel();
+    if (!level) return 0;
+    return level.chapters.filter((c: any) => this.isChapterCompleted(c.id)).length;
+  });
+
+  totalTrackWidth = computed(() => {
+    const level = this.selectedLevel();
+    const count = level ? level.chapters.length : 6;
+    return Math.max(1400, 160 + (count - 1) * 240 + 200);
+  });
+
   levelChaptersMap = computed(() => {
     const level = this.selectedLevel();
-    const map = new Map<number, { globalNumber: number; globalIndex: number; xOffset: number }>();
+    const map = new Map<number, { globalNumber: number; globalIndex: number; x: number; y: number; yOffset: number }>();
     if (!level) return map;
 
-    // Pattern for xOffset to make nodes snake left and right
-    const pattern = [0, -60, -90, -40, 20, 80, 50, 0];
+    // Gentle natural hills undulating pattern for yOffset (like Angry Birds level terrain)
+    const yPattern = [0, -42, 28, -36, 32, -22, 25, -30];
+    const stepWidth = 240;
+    const startX = 160;
+    const baselineY = 190;
+
     level.chapters.forEach((chapter: any, idx: number) => {
-      const xOffset = pattern[idx % pattern.length];
+      const x = startX + idx * stepWidth;
+      const yOffset = yPattern[idx % yPattern.length];
+      const y = baselineY + yOffset;
+
       map.set(chapter.id, {
         globalNumber: idx + 1,
         globalIndex: idx,
-        xOffset
+        x,
+        y,
+        yOffset
       });
     });
 
     return map;
   });
 
-  // Dynamically generate the SVG path string connecting the nodes
-  // Based on a fixed vertical spacing of 160px between nodes
+  // Dynamically generate horizontal SVG path string connecting the nodes like Angry Birds
   svgPathData = computed(() => {
     const level = this.selectedLevel();
     if (!level || level.chapters.length === 0) return '';
-    
+
     const map = this.levelChaptersMap();
-    const stepHeight = 160; 
     let d = '';
-    
+
     level.chapters.forEach((chapter: any, idx: number) => {
       const info = map.get(chapter.id);
       if (!info) return;
-      
-      const x = 200 + info.xOffset; // 200 is horizontal center of SVG
-      const y = (level.chapters.length - 1 - idx) * stepHeight + 80; // 80 is vertical offset
-      
+
       if (idx === 0) {
-        d += `M ${x} ${y} `;
+        d += `M ${info.x} ${info.y} `;
       } else {
         const prevInfo = map.get(level.chapters[idx - 1].id);
-        const prevX = 200 + (prevInfo ? prevInfo.xOffset : 0);
-        const prevY = (level.chapters.length - idx) * stepHeight + 80;
-        
-        // Control points for a smooth bezier curve
-        const cp1x = prevX;
-        const cp1y = prevY - (stepHeight / 2);
-        const cp2x = x;
-        const cp2y = y + (stepHeight / 2);
-        
-        d += `C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${x} ${y} `;
+        if (!prevInfo) return;
+
+        const cp1x = prevInfo.x + 120;
+        const cp1y = prevInfo.y;
+        const cp2x = info.x - 120;
+        const cp2y = info.y;
+
+        d += `C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${info.x} ${info.y} `;
       }
     });
-    
+
     return d;
   });
 
@@ -176,11 +179,11 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
   currentPlayableChapterId = computed(() => {
     const level = this.selectedLevel();
     if (!level) return null;
-    
+
     // Find first uncompleted chapter
     const uncompleted = level.chapters.find((c: any) => !this.isChapterCompleted(c.id));
     if (uncompleted) return uncompleted.id;
-    
+
     // If all completed, return the last chapter
     return level.chapters.length > 0 ? level.chapters[level.chapters.length - 1].id : null;
   });
@@ -202,6 +205,73 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
   onChapterClick(id: number) {
     if (this.isChapterUnlocked(id)) {
       this.selectChapterNode.emit(id);
+    }
+  }
+
+  onBackToLevels() {
+    this.backToLevels.emit();
+  }
+
+  onBackToCourses() {
+    this.backToCourses.emit();
+  }
+
+  getLevelIcon(name: string): string {
+    const lower = (name || '').toLowerCase();
+    if (lower.includes('writing') || lower.includes('write')) return 'bi-pencil-fill';
+    if (lower.includes('listening') || lower.includes('listen')) return 'bi-headphones';
+    if (lower.includes('reading') || lower.includes('read')) return 'bi-book-half';
+    if (lower.includes('speaking') || lower.includes('speak')) return 'bi-mic-fill';
+    if (lower.includes('grammar') || lower.includes('vocab')) return 'bi-spellcheck';
+    if (lower.includes('interactive') || lower.includes('test') || lower.includes('demo')) return 'bi-controller';
+    return 'bi-journal-richtext';
+  }
+
+  getLevelGradient(name: string): string {
+    const lower = (name || '').toLowerCase();
+    if (lower.includes('writing') || lower.includes('write')) return 'linear-gradient(to bottom, #f59e0b, #d97706) !important';
+    if (lower.includes('listening') || lower.includes('listen')) return 'linear-gradient(to bottom, #06b6d4, #0891b2) !important';
+    if (lower.includes('reading') || lower.includes('read')) return 'linear-gradient(to bottom, #3b82f6, #1d4ed8) !important';
+    if (lower.includes('speaking') || lower.includes('speak')) return 'linear-gradient(to bottom, #8b5cf6, #6d28d9) !important';
+    if (lower.includes('grammar') || lower.includes('vocab')) return 'linear-gradient(to bottom, #10b981, #059669) !important';
+    if (lower.includes('interactive') || lower.includes('test') || lower.includes('demo')) return 'linear-gradient(to bottom, #ec4899, #be185d) !important';
+    return 'linear-gradient(to bottom, #4caf50, #2e7d32) !important';
+  }
+
+  getLevelBorder(name: string): string {
+    const lower = (name || '').toLowerCase();
+    if (lower.includes('writing') || lower.includes('write')) return '#b45309 !important';
+    if (lower.includes('listening') || lower.includes('listen')) return '#0e7490 !important';
+    if (lower.includes('reading') || lower.includes('read')) return '#1e40af !important';
+    if (lower.includes('speaking') || lower.includes('speak')) return '#5b21b6 !important';
+    if (lower.includes('grammar') || lower.includes('vocab')) return '#047857 !important';
+    if (lower.includes('interactive') || lower.includes('test') || lower.includes('demo')) return '#9d174d !important';
+    return '#1b5e20 !important';
+  }
+
+  getLevelImage(name: string, index: number = 0): string {
+    const lower = (name || '').toLowerCase();
+    if (lower.includes('writing') || lower.includes('write')) return '/assets/images/level_writing.jpg';
+    if (lower.includes('listening') || lower.includes('listen')) return '/assets/images/level_listening.jpg';
+    if (lower.includes('reading') || lower.includes('read')) return '/assets/images/level_reading.jpg';
+    if (lower.includes('speaking') || lower.includes('speak')) return '/assets/images/level_speaking.jpg';
+    if (lower.includes('grammar') || lower.includes('vocab')) return '/assets/images/level_grammar.jpg';
+    if (lower.includes('interactive') || lower.includes('test') || lower.includes('demo') || lower.includes('game')) return '/assets/images/level_games.jpg';
+
+    const fallbackList = [
+      '/assets/images/level_writing.jpg',
+      '/assets/images/level_listening.jpg',
+      '/assets/images/level_reading.jpg',
+      '/assets/images/level_speaking.jpg',
+      '/assets/images/level_grammar.jpg',
+      '/assets/images/level_games.jpg'
+    ];
+    return fallbackList[index % fallbackList.length];
+  }
+
+  scrollLevels(track: HTMLElement, delta: number) {
+    if (track) {
+      track.scrollBy({ left: delta, behavior: 'smooth' });
     }
   }
 }

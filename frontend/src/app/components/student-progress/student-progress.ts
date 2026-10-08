@@ -15,7 +15,18 @@ interface User {
   is_active?: boolean;
 }
 
-interface StudentProgressStats {
+export interface AssessmentAttemptItem {
+  id: number;
+  assessment_id: number;
+  assessment_title: string;
+  pass_percentage: number;
+  course_name: string;
+  score: number;
+  passed: boolean | number;
+  attempted_at: string;
+}
+
+export interface StudentProgressStats {
   completion_percentage: number;
   completed_chapters: number;
   total_chapters: number;
@@ -28,6 +39,7 @@ interface StudentProgressStats {
     completed_chapters: number;
     percentage: number;
   }>;
+  assessment_attempts?: AssessmentAttemptItem[];
 }
 
 @Component({

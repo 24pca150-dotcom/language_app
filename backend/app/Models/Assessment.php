@@ -17,6 +17,9 @@ class Assessment extends Model
         'total_marks',
         'passing_marks',
         'duration_minutes',
+        'scheduled_date',
+        'open_hours',
+        'due_date',
         'is_mandatory',
         'allow_restart',
         'review_mode',
@@ -33,6 +36,9 @@ class Assessment extends Model
         'total_marks' => 'integer',
         'passing_marks' => 'integer',
         'duration_minutes' => 'integer',
+        'scheduled_date' => 'datetime',
+        'due_date' => 'datetime',
+        'open_hours' => 'decimal:2',
     ];
 
     public function level(): BelongsTo

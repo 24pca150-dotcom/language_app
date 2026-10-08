@@ -10,7 +10,7 @@ class ActivityController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Activity::query();
+        $query = Activity::with('course:id,name,code');
         
         // Scope to tenant or global activities if applicable
         if ($request->user() && $request->user()->tenant_id) {
@@ -20,13 +20,20 @@ class ActivityController extends Controller
             });
         }
 
-        if ($request->has('ids')) {
+        if ($request->has('ids') && $request->ids) {
             $ids = is_array($request->ids) ? $request->ids : explode(',', $request->ids);
             $query->whereIn('id', $ids);
         }
 
-        if ($request->has('type')) {
+        if ($request->has('type') && $request->type) {
             $query->where('type', $request->type);
+        }
+
+        if ($request->has('course_id') && $request->course_id) {
+            $query->where(function ($q) use ($request) {
+                $q->where('course_id', $request->course_id)
+                  ->orWhereNull('course_id');
+            });
         }
 
         return response()->json($query->latest()->get());
@@ -37,6 +44,7 @@ class ActivityController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'type' => 'required|string',
+            'course_id' => 'nullable|exists:courses,id',
             'data_json' => 'nullable|array',
         ]);
 
@@ -46,13 +54,14 @@ class ActivityController extends Controller
         $validated['created_by'] = $request->user()?->id;
 
         $activity = Activity::create($validated);
+        $activity->load('course:id,name,code');
 
         return response()->json($activity, 201);
     }
 
     public function show(Request $request, $id)
     {
-        $activity = Activity::findOrFail($id);
+        $activity = Activity::with('course:id,name,code')->findOrFail($id);
 
         if ($request->user() && $request->user()->tenant_id && $activity->tenant_id && $activity->tenant_id !== $request->user()->tenant_id) {
             return response()->json(['error' => 'Unauthorized'], 403);
@@ -72,10 +81,12 @@ class ActivityController extends Controller
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'type' => 'sometimes|required|string',
+            'course_id' => 'nullable|exists:courses,id',
             'data_json' => 'nullable|array',
         ]);
 
         $activity->update($validated);
+        $activity->load('course:id,name,code');
 
         return response()->json($activity);
     }

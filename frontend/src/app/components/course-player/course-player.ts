@@ -6,62 +6,29 @@ import { ActivatedRoute } from '@angular/router';
 import { forkJoin, of, Observable } from 'rxjs';
 import { switchMap, map, catchError } from 'rxjs/operators';
 
+import { CourseStructure, Level, Chapter, Content } from '../../models/course-structure.model';
+
 export interface LessonStep {
   type: 'video' | 'pdf' | 'reading' | 'activity' | 'assessment';
   title: string;
   data: any;
 }
 
-interface Chapter {
-  id: number;
-  name: string;
-  contents: Content[];
-  assessments?: any[];
-  is_expanded?: boolean;
-}
-
-interface Level {
-  id: number;
-  name: string;
-  chapters: Chapter[];
-  is_expanded?: boolean;
-}
-
-interface CourseStructure {
-  id: number;
-  name: string;
-  description?: string;
-  levels: Level[];
-}
-
 import { RouterModule, Router } from '@angular/router';
 import { ActivityRenderer } from '../activity-engine/activity-renderer/activity-renderer';
 import { CourseService } from '../../services/course';
 import { KidsDashboard } from '../kids-dashboard/kids-dashboard';
-import { StudentDashboard } from '../student-dashboard/student-dashboard';
-import { StudentLessonPlayer } from '../student-lesson-player/student-lesson-player';
 import { KidsLessonPlayer } from '../kids-lesson-player/kids-lesson-player';
 import confetti from 'canvas-confetti';
 import { gsap } from 'gsap';
 import { AudioService } from '../../services/audio.service';
 import { AuthService } from '../../services/auth';
-
-interface Content {
-  id: number;
-  name: string;
-  title?: string;
-  text_content?: string;
-  attachments?: any[];
-  external_url?: any[];
-  assessments?: any[];
-  sort_order?: number;
-  is_active?: boolean;
-}
+import { CloudTransitionService } from '../../services/cloud-transition.service';
 
 @Component({
   selector: 'app-course-player',
   standalone: true,
-  imports: [CommonModule, RouterModule, KidsDashboard, StudentDashboard, KidsLessonPlayer, StudentLessonPlayer],
+  imports: [CommonModule, RouterModule, KidsDashboard, KidsLessonPlayer],
   templateUrl: './course-player.html',
   styleUrls: ['./course-player.css']
 })
@@ -72,6 +39,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
   private courseService = inject(CourseService);
   private audioService = inject(AudioService);
   private authService = inject(AuthService);
+  private cloudTransition = inject(CloudTransitionService);
 
   courseId = signal<number | null>(null);
   userId = signal<number>(1);
@@ -105,6 +73,17 @@ export class CoursePlayer implements OnInit, OnDestroy {
   showCorrectSplash = signal<boolean>(false);
   showIncorrectSplash = signal<boolean>(false);
   activityFeedbackState = signal<'correct' | 'incorrect' | null>(null);
+
+  // 🌿 Left Navigation Sidebar Sliding State (Auto-collapsed on course player page)
+  isNavSidebarOpen = signal<boolean>(false);
+
+  toggleNavSidebar() {
+    this.isNavSidebarOpen.update(v => !v);
+  }
+
+  closeNavSidebar() {
+    this.isNavSidebarOpen.set(false);
+  }
 
   constructor() {
     // Keep highestStepIndex synchronized with the maximum reached index
@@ -204,17 +183,9 @@ export class CoursePlayer implements OnInit, OnDestroy {
     console.log('[DEBUG] course-player ngOnInit user:', user);
     if (user) {
       this.userId.set(user.id);
-      const age = this.getAgeFromDob(user.dob);
-      console.log('[DEBUG] course-player calculated age:', age);
-      if (age !== null) {
-        this.theme.set(age <= 15 ? 'kids' : 'student');
-      } else {
-        // No DOB set — default to student for non-student roles, kids for students
-        const role = (user.role || '').toLowerCase();
-        this.theme.set(role === 'student' ? 'kids' : 'student');
-      }
-      console.log('[DEBUG] course-player theme set to:', this.theme());
     }
+    // Always use the kids theme (green game world map with winding path line)
+    this.theme.set('kids');
 
     this.route.params.subscribe(params => {
       const cid = params['courseId'] ? +params['courseId'] : null;
@@ -276,24 +247,11 @@ export class CoursePlayer implements OnInit, OnDestroy {
       });
     });
     this.courseStructure.set(structure);
-    this.loadLocalProgress();
-    this.loadDatabaseProgress();
-  }
-
-  loadLocalProgress(): void {
-    const cid = this.courseId();
-    if (!cid) return;
-    const uid = this.userId();
-    try {
-      const levelsKey = `lang_app_completed_levels_${uid}_${cid}`;
-      const chaptersKey = `lang_app_completed_chapters_${uid}_${cid}`;
-      const storedLevels = localStorage.getItem(levelsKey);
-      const storedChapters = localStorage.getItem(chaptersKey);
-      this.completedLevelIds.set(storedLevels ? JSON.parse(storedLevels) : []);
-      this.completedChapterIds.set(storedChapters ? JSON.parse(storedChapters) : []);
-    } catch (e) {
-      console.error('Failed to load local progress:', e);
+    if (structure.levels && structure.levels.length > 0) {
+      this.activeLevelId.set(structure.levels[0].id);
+      this.currentView.set('levels');
     }
+    this.loadDatabaseProgress();
   }
 
   loadDatabaseProgress(): void {
@@ -302,46 +260,15 @@ export class CoursePlayer implements OnInit, OnDestroy {
         if (stats) {
           if (stats.xp_points !== undefined) this.xp.set(stats.xp_points);
           if (stats.gems !== undefined) this.coins.set(stats.gems);
-          
+
           if (stats.completed_chapter_ids) {
-            // Merge local and database completed chapters to make sure we don't lose anything
-            const localIds = this.completedChapterIds();
-            const dbIds = stats.completed_chapter_ids;
-
-            // Find any chapters completed locally but NOT in the database, and sync them to the database
-            localIds.forEach(id => {
-              if (!dbIds.includes(id)) {
-                console.log('[DEBUG] Syncing local chapter completion to database:', id);
-                this.http.post(`${environment.apiUrl}/chapters/${id}/complete`, {}).subscribe({
-                  next: (res) => console.log('Successfully synced local chapter to DB:', id),
-                  error: (err) => console.error('Failed to sync local chapter to DB:', id, err)
-                });
-              }
-            });
-
-            const merged = Array.from(new Set([...localIds, ...dbIds]));
-            this.completedChapterIds.set(merged);
-            console.log('[DEBUG] loaded completed chapters from DB:', dbIds, 'Merged:', merged);
-            this.saveLocalProgress(); // save merged back to local storage
+            this.completedChapterIds.set(stats.completed_chapter_ids);
+            console.log('[DEBUG] loaded completed chapters 100% from DB:', stats.completed_chapter_ids);
           }
         }
       },
       error: (err) => console.error('Failed to load progress from backend database:', err)
     });
-  }
-
-  saveLocalProgress(): void {
-    const cid = this.courseId();
-    if (!cid) return;
-    const uid = this.userId();
-    try {
-      const levelsKey = `lang_app_completed_levels_${uid}_${cid}`;
-      const chaptersKey = `lang_app_completed_chapters_${uid}_${cid}`;
-      localStorage.setItem(levelsKey, JSON.stringify(this.completedLevelIds()));
-      localStorage.setItem(chaptersKey, JSON.stringify(this.completedChapterIds()));
-    } catch (e) {
-      console.error('Failed to save local progress:', e);
-    }
   }
 
   isLevelUnlocked(levelId: number): boolean {
@@ -367,31 +294,41 @@ export class CoursePlayer implements OnInit, OnDestroy {
         this.completedLevelIds.update(lids => [...lids, level.id]);
       }
     }
-    this.saveLocalProgress();
 
-    // Sync progress to the backend database
+    // Persist progress directly to the backend database
     this.http.post(`${environment.apiUrl}/chapters/${chapterId}/complete`, {}).subscribe({
       next: (res) => {
-        console.log('Backend progress updated successfully:', res);
-        this.loadDatabaseProgress(); // Refresh stats (XP, gems) from database!
+        console.log('Backend database progress updated successfully:', res);
+        this.loadDatabaseProgress(); // Refresh stats (XP, gems, completed chapters) from database!
       },
-      error: (err) => console.error('Failed to sync progress to backend:', err)
+      error: (err) => console.error('Failed to sync progress to backend database:', err)
     });
   }
 
+  completeContent(chapterId: number, contentId: number): void {
+    if (!chapterId || !contentId) return;
+    this.http.post(`${environment.apiUrl}/chapters/${chapterId}/contents/${contentId}/complete`, {}).subscribe({
+      next: (res) => {
+        console.log(`Content ${contentId} in Chapter ${chapterId} completed:`, res);
+        this.loadDatabaseProgress();
+      },
+      error: (err) => console.error('Failed to mark content as completed:', err)
+    });
+  }
+
+
   goBack() {
-    if (this.currentView() === 'levels') {
-      this.router.navigate(['/dashboard']);
-    } else if (this.currentView() === 'map') {
-      this.goToLevels();
-    } else if (this.currentView() === 'content') {
+    if (this.currentView() === 'content') {
       if (this.activeContentId() !== null) {
         this.activeContentId.set(null);
-      } else {
-        this.goToMap();
       }
+      this.goToMap();
     } else if (this.currentView() === 'activity') {
       this.currentView.set('content');
+    } else if (this.currentView() === 'map') {
+      this.goToLevels();
+    } else {
+      this.router.navigate(['/learn/courses']);
     }
   }
 
@@ -400,8 +337,10 @@ export class CoursePlayer implements OnInit, OnDestroy {
       this.triggerMascotWarning('🔒 Level is locked! Complete all chapters of the previous level to unlock.');
       return;
     }
-    this.activeLevelId.set(id);
-    this.currentView.set('map');
+    this.cloudTransition.triggerTransition(() => {
+      this.activeLevelId.set(id);
+      this.currentView.set('map');
+    });
   }
 
   selectChapterNode(id: number) {
@@ -409,7 +348,9 @@ export class CoursePlayer implements OnInit, OnDestroy {
       this.triggerMascotWarning('🔒 Chapter is locked! Complete preceding chapters to unlock.');
       return;
     }
-    this.startLesson(id);
+    this.cloudTransition.triggerTransition(() => {
+      this.startLesson(id);
+    });
   }
 
   resolveActivityReferences(contents: Content[]): Observable<Content[]> {
@@ -432,7 +373,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
                 }
               }
             });
-          } catch (e) {}
+          } catch (e) { }
         }
       }
     });
@@ -458,14 +399,14 @@ export class CoursePlayer implements OnInit, OnDestroy {
             const parsed = JSON.parse(content.text_content);
             const block = parsed.blocks[pos.blockIdx];
             const realData = typeof act.data_json === 'string' ? JSON.parse(act.data_json) : act.data_json;
-            
+
             block.data = {
               ...realData,
               type: act.type,
               title: act.title
             };
             content.text_content = JSON.stringify(parsed);
-          } catch (e) {}
+          } catch (e) { }
         });
         return contents;
       }),
@@ -595,23 +536,8 @@ export class CoursePlayer implements OnInit, OnDestroy {
               data: { isJson: true, blocks: groupedBlocks }
             });
           }
-          if (activityBlocks.length > 0) {
-            activityBlocks.forEach((block: any, idx: number) => {
-              let actName = 'Unknown';
-              if (block.data && block.data.type) {
-                actName = block.data.type.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-                if (block.data.type === 'mcq') actName = 'Multiple Choice';
-              }
-
-              const stepTitle = (block.data && block.data.title) ? block.data.title : `${idx + 1}. Activity - ${actName}`;
-
-              steps.push({
-                type: 'activity',
-                title: stepTitle,
-                data: block
-              });
-            });
-          }
+          // Note: Activity blocks added in admin content page are intentionally separated
+          // and displayed in the dedicated UserActivity component (/learn/activities)
         } else {
           steps.push({
             type: 'reading',
@@ -620,23 +546,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
           });
         }
       }
-
-      if (content.assessments && content.assessments.length > 0) {
-        steps.push({
-          type: 'assessment',
-          title: content.title || content.name + ' - Quiz',
-          data: content.assessments
-        });
-      }
     });
-
-    if (chapterAssessments.length > 0) {
-      steps.push({
-        type: 'assessment',
-        title: 'Chapter Quiz',
-        data: chapterAssessments
-      });
-    }
 
     this.lessonSequence.set(steps);
     if (this.currentStepIndex() >= steps.length) {
@@ -675,7 +585,9 @@ export class CoursePlayer implements OnInit, OnDestroy {
   }
 
   goToLevels() {
-    this.currentView.set('levels');
+    this.cloudTransition.triggerTransition(() => {
+      this.currentView.set('levels');
+    });
   }
 
   selectTopic(id: number): void {
@@ -686,21 +598,27 @@ export class CoursePlayer implements OnInit, OnDestroy {
     this.http.get<Content>(url).subscribe({
       next: (content) => {
         this.fullContent.set(content);
-        this.currentView.set('content'); // Switch to content overlay
+        this.cloudTransition.triggerTransition(() => {
+          this.currentView.set('content'); // Switch to content overlay
+        });
       },
       error: (err) => console.error('Failed to load topic content:', err)
     });
   }
 
   goToMap(): void {
-    this.currentView.set('map');
+    this.cloudTransition.triggerTransition(() => {
+      this.currentView.set('map');
+    });
   }
 
   goToActivity(): void {
-    this.hearts.set(5);
-    this.showGameOver.set(false);
-    this.currentActivityIndex.set(0);
-    this.currentView.set('activity');
+    this.cloudTransition.triggerTransition(() => {
+      this.hearts.set(5);
+      this.showGameOver.set(false);
+      this.currentActivityIndex.set(0);
+      this.currentView.set('activity');
+    });
   }
 
 
@@ -799,6 +717,16 @@ export class CoursePlayer implements OnInit, OnDestroy {
 
   nextLessonStep() {
     const currentIdx = this.currentStepIndex();
+    const activeChapId = this.activeChapterId();
+    const chapter = this.selectedChapter();
+
+    if (activeChapId && chapter && chapter.contents && chapter.contents.length > 0) {
+      const content = chapter.contents[Math.min(currentIdx, chapter.contents.length - 1)];
+      if (content) {
+        this.completeContent(activeChapId, content.id);
+      }
+    }
+
     if (currentIdx < this.lessonSequence().length - 1) {
       this.currentStepIndex.set(currentIdx + 1);
       this.isVideoCompleted.set(false);
@@ -806,7 +734,6 @@ export class CoursePlayer implements OnInit, OnDestroy {
       this.activityFeedbackState.set(null);
     } else {
       // ✅ Auto-complete the chapter NOW — don't wait for FINISH button click
-      const activeChapId = this.activeChapterId();
       if (activeChapId) {
         this.completeChapter(activeChapId);
       }
@@ -837,7 +764,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
   }
 
 
-  ngOnDestroy() {}
+  ngOnDestroy() { }
 
   finishLesson() {
     // Chapter is already completed in nextLessonStep() when all steps are done.

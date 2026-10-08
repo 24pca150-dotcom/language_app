@@ -166,7 +166,10 @@ export class ActivityRenderer implements OnChanges, OnDestroy {
       return;
     }
 
-    const raw = this.activity;
+    let raw = this.activity;
+    if (raw && (raw.type === 'activity' || !raw.question) && raw.data && typeof raw.data === 'object') {
+      raw = { ...raw.data, ...raw, type: raw.data.type || raw.type };
+    }
     
     // 1. Determine type
     let typeInput = raw.type || raw.question_type || 'mcq';
@@ -410,7 +413,7 @@ export class ActivityRenderer implements OnChanges, OnDestroy {
     this.answered.emit({
       questionId: this.activity?.id,
       type: 'custom',
-      correct: true,
+      isCorrect: event.isCorrect,
       ...event
     });
   }

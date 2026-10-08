@@ -31,6 +31,12 @@ export interface AssessmentData {
   pass_percentage: number;
   is_mandatory: boolean;
   duration_minutes?: number | null;
+  scheduled_date?: string | null;
+  open_hours?: number | null;
+  due_date?: string | null;
+  is_upcoming?: boolean;
+  is_expired?: boolean;
+  is_available?: boolean;
   allow_restart: boolean;
   review_mode: 'instantly' | 'after_completion';
   activity_type: 'listen_audio' | 'read_passage' | 'watch_video' | 'plain';

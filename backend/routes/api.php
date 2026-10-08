@@ -14,6 +14,7 @@ use App\Http\Controllers\LearningModeController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\LiveClassController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,8 +22,9 @@ use App\Http\Controllers\AnnouncementController;
 |--------------------------------------------------------------------------
 */
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::get('/tenants/brand/{code}', [TenantController::class, 'getBranding']);
+Route::get('/tenants/public-list', [TenantController::class, 'getPublicList']);
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +47,18 @@ Route::middleware(['auth:sanctum', 'identify.tenant'])->group(function () {
         Route::delete('announcements/{announcement}', [AnnouncementController::class, 'destroy']);
     });
 
+    // Live Classes Routes
+    Route::get('live-classes', [LiveClassController::class, 'index']);
+    Route::get('live-classes/upcoming', [LiveClassController::class, 'upcoming']);
+
+    Route::middleware(['role:super_admin,admin,staff'])->group(function () {
+        Route::post('live-classes', [LiveClassController::class, 'store']);
+        Route::put('live-classes/{liveClass}', [LiveClassController::class, 'update']);
+        Route::delete('live-classes/{liveClass}', [LiveClassController::class, 'destroy']);
+        Route::post('live-classes/{liveClass}/attachments', [LiveClassController::class, 'uploadAttachments']);
+        Route::delete('live-classes/attachments/{attachment}', [LiveClassController::class, 'deleteAttachment']);
+    });
+
     /*
      * 👑 Super Admin Only Modifiers
      */
@@ -65,6 +79,7 @@ Route::middleware(['auth:sanctum', 'identify.tenant'])->group(function () {
         Route::get('tenants', [TenantController::class, 'index']);
         Route::get('tenants/{tenant}', [TenantController::class, 'show']);
         Route::put('tenants/{tenant}/branding', [TenantController::class, 'updateBranding']);
+        Route::post('tenants/{tenant}/upload-logo', [TenantController::class, 'uploadLogo']);
 
         Route::get('packages', [PackageController::class, 'index']);
         Route::get('packages/{package}', [PackageController::class, 'show']);
@@ -106,6 +121,7 @@ Route::middleware(['auth:sanctum', 'identify.tenant'])->group(function () {
         Route::post('assessments', [AssessmentController::class, 'store']);
         Route::put('assessments/{assessment}', [AssessmentController::class, 'update']);
         Route::delete('assessments/{assessment}', [AssessmentController::class, 'destroy']);
+        Route::get('assessments/{assessmentId}/student-scores', [AssessmentController::class, 'getStudentScores']);
 
         Route::post('learning-modes', [LearningModeController::class, 'store']);
         Route::put('learning-modes/{learning_mode}', [LearningModeController::class, 'update']);
@@ -165,6 +181,7 @@ Route::middleware(['auth:sanctum', 'identify.tenant'])->group(function () {
     Route::get('users/{userId}/levels/{levelId}/access', [LearningProgressController::class, 'getLevelAccess']);
     Route::get('users/{userId}/levels/{levelId}/chapters/progress', [LearningProgressController::class, 'getChapterProgress']);
     Route::post('chapters/{chapterId}/complete', [LearningProgressController::class, 'completeChapter']);
+    Route::post('chapters/{chapterId}/contents/{contentId}/complete', [LearningProgressController::class, 'completeContent']);
 
     // Profile Settings & dynamic updates
     Route::put('/profile', [AuthController::class, 'updateProfile']);

@@ -8,6 +8,7 @@ class Activity extends Model
 {
     protected $fillable = [
         'tenant_id',
+        'course_id',
         'title',
         'type',
         'data_json',
@@ -17,6 +18,11 @@ class Activity extends Model
     protected $casts = [
         'data_json' => 'array',
     ];
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
+    }
 
     public function tenant()
     {

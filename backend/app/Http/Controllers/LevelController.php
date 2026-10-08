@@ -73,7 +73,7 @@ class LevelController extends Controller
     public function getChapters($levelId)
     {
         $level = Level::findOrFail($levelId);
-        $chapters = $level->chapters()->orderBy('level_chapter.sort_order')->get();
+        $chapters = $level->chapters()->orderBy('chapters.sort_order')->orderBy('level_chapter.sort_order')->get();
         return response()->json($chapters);
     }
 
