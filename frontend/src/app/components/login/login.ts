@@ -58,13 +58,8 @@ export class LoginComponent implements OnInit {
         this.loadingTenants = false;
         this.tenants = list || [];
 
-        const savedCode = localStorage.getItem('selected_tenant_code');
-        if (savedCode && this.tenants.some(t => t.tenant_code === savedCode)) {
-          this.onTenantChange(savedCode);
-        } else if (this.tenants.length > 0) {
-          // Pre-select first institution to immediately show logo & branding
-          this.onTenantChange(this.tenants[0].tenant_code);
-        }
+        // Keep generic portal branding on login page
+        this.resetBranding();
       },
       error: () => {
         this.loadingTenants = false;
