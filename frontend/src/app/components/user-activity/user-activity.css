@@ -677,7 +677,7 @@
   width: 100% !important;
   max-width: 1020px !important;
   height: calc(100vh - 135px) !important;
-  min-height: 540px !important;
+  min-height: 420px !important;
   max-height: 720px !important;
   display: flex !important;
   flex-direction: column !important;
@@ -692,6 +692,7 @@
   position: relative !important;
   overflow: hidden !important;
   transition: none !important;
+  padding: 1rem 1.25rem !important;
 }
 
 .activity-stage-box .activity-card-title {
@@ -714,7 +715,7 @@
   font-weight: 500;
 }
 
-/* Middle Content Area - Vertically & Horizontally Centered, Inner Scrollable If Needed */
+/* Middle Content Area - Top Aligned, Never Clips Top, Inner Scrollable If Needed */
 .activity-stage-box .activity-render-wrapper {
   flex: 1 1 0 !important;
   min-height: 0 !important;
@@ -722,7 +723,7 @@
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
-  justify-content: center !important;
+  justify-content: flex-start !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
   padding: 0.25rem 0.5rem !important;
@@ -982,3 +983,232 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* ==========================================================================
+   📱 USER ACTIVITY CONTENT CONTAINER & MOBILE RESPONSIVENESS
+   ========================================================================== */
+.content-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  padding-left: 90px;
+  padding-right: 90px;
+}
+
+@media (max-width: 991.98px) {
+  :host {
+    height: auto !important;
+    min-height: 100vh !important;
+    overflow-y: auto !important;
+  }
+
+  .langnest-layout {
+    height: auto !important;
+    min-height: 100vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .content-container {
+    padding-left: 88px !important;
+    padding-right: 88px !important;
+    padding-top: 14px !important;
+    padding-bottom: 22px !important;
+    max-width: 100% !important;
+  }
+
+  .activity-top-header {
+    padding-right: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  .adventure-portal-stage {
+    padding: 8px 10px;
+    border-radius: 16px;
+  }
+
+  .adventure-portal-avatar-wrap {
+    width: 64px !important;
+    height: 64px !important;
+    min-width: 64px !important;
+  }
+
+  .adventure-portal-circle {
+    width: 52px;
+    height: 52px;
+  }
+
+  .adventure-portal-title {
+    font-size: 0.98rem;
+  }
+
+  .kids-game-arena {
+    padding: 14px 12px !important;
+    border-radius: 18px !important;
+  }
+}
+
+.activity-nav-btn {
+  padding: 6px 18px;
+  font-size: 0.88rem;
+  transition: all 0.2s ease;
+}
+
+@media (max-width: 575.98px) {
+  .content-container {
+    padding-left: 64px !important;
+    padding-right: 64px !important;
+    padding-top: 12px !important;
+    padding-bottom: 18px !important;
+  }
+
+  .activity-top-header {
+    padding-right: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  .activity-stage-box,
+  .glass-stage-card {
+    min-height: 380px !important;
+    height: auto !important;
+    max-height: calc(100vh - 75px) !important;
+    padding: 8px 10px !important;
+    border-radius: 16px !important;
+  }
+
+  .adventure-portal-avatar-wrap {
+    width: 58px !important;
+    height: 58px !important;
+    min-width: 58px !important;
+  }
+
+  .adventure-portal-circle {
+    width: 46px;
+    height: 46px;
+  }
+
+  .adventure-portal-title {
+    font-size: 0.94rem !important;
+  }
+
+  .kids-game-arena h3 {
+    font-size: 1.15rem !important;
+  }
+}
+
+@media (max-height: 520px) {
+  .content-container {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    padding-left: 104px !important;
+    padding-right: 104px !important;
+  }
+
+  .activity-top-header {
+    padding-right: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 4px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .activity-top-header h2 {
+    font-size: 0.88rem !important;
+  }
+
+  .activity-player-container {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* 🌟 THE WHITE BOX FITS ACCURATELY & COMPLETELY WITHIN THE 360px SCREEN */
+  .activity-stage-box,
+  .glass-stage-card {
+    height: calc(100vh - 46px) !important;
+    max-height: calc(100vh - 46px) !important;
+    min-height: unset !important;
+    padding: 6px 14px !important;
+    border-radius: 14px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1) !important;
+  }
+
+  .activity-stage-box .activity-card-title {
+    padding-bottom: 2px !important;
+    margin-bottom: 2px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .activity-stage-box .activity-card-title h3,
+  .activity-stage-box .activity-card-title h4 {
+    font-size: 0.82rem !important;
+    line-height: 1.2 !important;
+    margin-bottom: 0 !important;
+  }
+
+  .activity-stage-box .activity-card-title span {
+    font-size: 0.62rem !important;
+  }
+
+  .mascot-mini-badge {
+    padding: 1px 6px !important;
+    font-size: 0.62rem !important;
+  }
+
+  .activity-stage-box .activity-render-wrapper {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    padding: 2px 4px !important;
+    justify-content: flex-start !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .activity-stage-box .activity-render-wrapper app-activity-renderer {
+    margin: 0 !important;
+  }
+
+  .activity-stage-box .activity-card-footer {
+    padding-top: 3px !important;
+    margin-top: 2px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .activity-nav-btn {
+    padding: 3px 10px !important;
+    font-size: 0.72rem !important;
+  }
+
+  .btn-back-circle {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 0.75rem !important;
+  }
+
+  .adventure-portal-stage {
+    padding: 6px 8px !important;
+    gap: 8px !important;
+  }
+
+  .adventure-portal-avatar-wrap {
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+  }
+
+  .adventure-portal-circle {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  .adventure-portal-title {
+    font-size: 0.88rem !important;
+  }
+
+  .kids-game-arena {
+    padding: 10px 12px !important;
+  }
+}
+
+

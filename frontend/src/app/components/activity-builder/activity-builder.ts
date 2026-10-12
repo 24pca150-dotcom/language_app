@@ -67,8 +67,13 @@ export class ActivityBuilder {
   searchQuery = signal('');
   filterType = signal('all');
   selectedSkillTab = signal<'all' | 'listening' | 'speaking' | 'reading' | 'writing' | 'games'>('all');
-  selectedCourseFilter = signal<number | 'all'>('all');
+  selectedCourseFilter = signal<number | 'all' | null>('all');
   selectedStatusFilter = signal<'all' | 'linked' | 'unassigned'>('all');
+
+  // Custom Dropdown Menus State
+  isCourseFilterOpen = signal(false);
+  isTypeFilterOpen = signal(false);
+  isPageSizeOpen = signal(false);
 
   // Pagination State
   currentPage = signal<number>(1);
@@ -328,6 +333,76 @@ export class ActivityBuilder {
       next: (courses) => this.coursesList.set(courses || []),
       error: () => {}
     });
+  }
+
+  toggleCourseDropdown(): void {
+    this.isCourseFilterOpen.update(v => !v);
+    this.isTypeFilterOpen.set(false);
+    this.isPageSizeOpen.set(false);
+  }
+
+  toggleTypeDropdown(): void {
+    this.isTypeFilterOpen.update(v => !v);
+    this.isCourseFilterOpen.set(false);
+    this.isPageSizeOpen.set(false);
+  }
+
+  togglePageSizeDropdown(): void {
+    this.isPageSizeOpen.update(v => !v);
+    this.isCourseFilterOpen.set(false);
+    this.isTypeFilterOpen.set(false);
+  }
+
+  setCourseFilterValue(val: number | 'all' | null | undefined): void {
+    this.selectedCourseFilter.set(val === undefined ? 'all' : val);
+    this.isCourseFilterOpen.set(false);
+    this.onFilterChange();
+  }
+
+  setTypeFilterValue(val: string): void {
+    this.filterType.set(val);
+    this.isTypeFilterOpen.set(false);
+    this.onFilterChange();
+  }
+
+  setPageSizeValue(val: number): void {
+    this.pageSize.set(val);
+    this.currentPage.set(1);
+    this.isPageSizeOpen.set(false);
+  }
+
+  getCourseFilterLabel(): string {
+    const cId = this.selectedCourseFilter();
+    if (cId === 'all') return 'All Courses';
+    if (cId === null) return 'Global / Practice';
+    const c = this.coursesList().find(course => course.id === cId);
+    return c ? c.name : 'All Courses';
+  }
+
+  getTypeFilterLabel(): string {
+    const t = this.filterType();
+    switch (t) {
+      case 'all': return 'All Exercise Types';
+      case 'mcq': return 'MCQ / Audio';
+      case 'match': return 'Match It';
+      case 'speaking': return 'Speaking Test';
+      case 'role_play': return 'Role Play';
+      case 'flashcard': return '3D Flashcard';
+      case 'sequencing': return 'Sequencing';
+      case 'mind_map': return 'Mind Map';
+      case 'fill_blanks': return 'Fill in the Blanks';
+      case 'word_arrange': return 'Word Arrangement';
+      case 'parts_of_speech': return 'Parts of Speech';
+      case 'writing': return 'Paragraph Writing';
+      case 'crossword': return 'Crossword';
+      case 'custom': return 'Custom Canvas';
+      default: return 'All Exercise Types';
+    }
+  }
+
+  getPageSizeLabel(): string {
+    const s = this.pageSize();
+    return s === 0 ? 'All' : `${s}`;
   }
 
   generateNextTitle(type: string): string {

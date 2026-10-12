@@ -114,26 +114,26 @@ export class KidsLessonPlayer implements OnInit, OnDestroy {
         if (!pageData) return '';
 
         const renderBlock = (block: any) => {
-          if (block.type === 'paragraph') return `<div class="opacity-75 mb-4">${block.data.text}</div>`;
-          else if (block.type === 'header') return `<h3 class="fw-bold text-primary mb-3" style="font-size: 1.7rem;">${block.data.text}</h3>`;
+          if (block.type === 'paragraph') return `<div class="opacity-75 mb-2 kids-reading-paragraph">${block.data.text}</div>`;
+          else if (block.type === 'header') return `<h4 class="fw-bold text-primary mb-2 kids-reading-heading">${block.data.text}</h4>`;
           else if (block.type === 'list') {
-            return `<ul class="mb-4 ps-4 opacity-75 text-start d-inline-block">` + block.data.items.map((i: any) => `<li class="mb-2">${typeof i === 'string' ? i : (i.content || '')}</li>`).join('') + `</ul>`;
+            return `<ul class="mb-3 ps-3 opacity-75 text-start d-inline-block kids-reading-list">` + block.data.items.map((i: any) => `<li class="mb-1">${typeof i === 'string' ? i : (i.content || '')}</li>`).join('') + `</ul>`;
           }
           else if (block.type === 'image') {
             const url = block.data.file?.url || block.data.url || '';
             const caption = block.data.caption || '';
-            return `<div class="text-center mb-4"><img src="${url}" alt="${caption}" class="img-fluid rounded shadow-sm" style="max-height: 350px; object-fit: contain;">${caption ? `<div class="text-muted small mt-2">${caption}</div>` : ''}</div>`;
+            return `<div class="text-center mb-2"><img src="${url}" alt="${caption}" class="img-fluid rounded shadow-sm kids-reading-image" style="object-fit: contain;">${caption ? `<div class="text-muted small mt-1">${caption}</div>` : ''}</div>`;
           }
           else if (block.type === 'table') {
             const withHeadings = block.data.withHeadings;
             const rows = block.data.content || [];
-            let html = `<div class="table-responsive w-100 mb-4"><table class="table table-bordered shadow-sm" style="border-radius: 12px; overflow: hidden; background: white;">`;
+            let html = `<div class="table-responsive w-100 mb-2 kids-reading-table-wrap"><table class="table table-bordered table-sm shadow-sm m-0" style="border-radius: 8px; overflow: hidden; background: white;">`;
             rows.forEach((row: string[], index: number) => {
               if (index === 0 && withHeadings) {
-                html += `<thead style="background: #fef08a;"><tr>` + row.map(cell => `<th class="p-2 text-dark fs-5 fw-bold border-bottom-0">${cell}</th>`).join('') + `</tr></thead><tbody>`;
+                html += `<thead style="background: #fef08a;"><tr>` + row.map(cell => `<th class="py-1 px-2 text-dark fw-bold border-bottom-0">${cell}</th>`).join('') + `</tr></thead><tbody>`;
               } else {
                 if (index === 0 && !withHeadings) html += `<tbody>`;
-                html += `<tr>` + row.map(cell => `<td class="p-2 fs-6 opacity-75">${cell}</td>`).join('') + `</tr>`;
+                html += `<tr>` + row.map(cell => `<td class="py-1 px-2 opacity-75">${cell}</td>`).join('') + `</tr>`;
               }
             });
             if (rows.length > 0) html += `</tbody>`;
@@ -272,15 +272,33 @@ export class KidsLessonPlayer implements OnInit, OnDestroy {
   }
 
   nextLessonStep() {
+    const step = this.currentStep();
+    if (step && step.type === 'reading' && step.data?.isJson && step.data.blocks && this.currentContentPage() < step.data.blocks.length - 1) {
+      this.nextContentPage();
+      return;
+    }
     this.nextStep.emit();
     this.currentContentPage.set(0);
     this.stopSpeech();
   }
 
   prevLessonStep() {
+    const step = this.currentStep();
+    if (step && step.type === 'reading' && step.data?.isJson && step.data.blocks && this.currentContentPage() > 0) {
+      this.prevContentPage();
+      return;
+    }
     this.prevStep.emit();
     this.currentContentPage.set(0);
     this.stopSpeech();
+  }
+
+  goToContentPage(index: number) {
+    this.currentContentPage.set(index);
+    const step = this.currentStep();
+    if (step && step.type === 'reading' && step.data?.isJson && step.data.blocks) {
+      this.stepCompleted.emit(index >= step.data.blocks.length - 1);
+    }
   }
 
   toggleFullscreen() {

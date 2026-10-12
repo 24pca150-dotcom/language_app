@@ -1,33 +1,34 @@
 <div class="container-fluid py-4">
 
   <!-- Header Panel -->
-  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
     <div>
       <h2 class="fw-bold text-dark mb-1">User Management</h2>
       <p class="text-secondary mb-0">View user rosters and batch import user accounts.</p>
     </div>
     
-    <div class="d-flex align-items-center gap-2">
+    <div class="user-action-buttons d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2 w-100 w-md-auto">
       <!-- Add User Manually -->
-      <button class="btn btn-success d-flex align-items-center gap-2 px-3 py-2 rounded-3" (click)="openAddUserModal()">
+      <button class="btn btn-success d-flex align-items-center justify-content-center gap-2 px-3 py-2 rounded-3 text-nowrap" (click)="openAddUserModal()">
         <i class="bi bi-person-plus"></i>
         <span>Add User Manually</span>
       </button>
 
       <!-- Download Template -->
-      <button class="btn btn-outline-secondary d-flex align-items-center gap-2 px-3 py-2 rounded-3" (click)="downloadTemplate()">
+      <button class="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-2 px-3 py-2 rounded-3 text-nowrap" (click)="downloadTemplate()">
         <i class="bi bi-download"></i>
         <span>Download CSV Template</span>
       </button>
 
       <!-- Import CSV Button -->
-      <label class="btn btn-primary d-flex align-items-center gap-2 px-4 py-2 shadow-sm rounded-3 cursor-pointer mb-0">
+      <label class="btn btn-primary d-flex align-items-center justify-content-center gap-2 px-3 py-2 shadow-sm rounded-3 cursor-pointer mb-0 text-nowrap">
         <i class="bi bi-file-earmark-arrow-up"></i>
         <span>{{ importing ? 'Importing...' : 'Import Users (CSV)' }}</span>
         <input type="file" (change)="onFileSelected($event)" accept=".csv" class="d-none" [disabled]="importing" />
       </label>
     </div>
   </div>
+
 
   <!-- Search & Filter Bar -->
   <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
@@ -45,29 +46,88 @@
           />
         </div>
       </div>
-      <div class="col-md-6 col-lg-3">
-        <select class="form-select bg-light border-0 py-2 shadow-none text-secondary" (change)="onRoleFilterChange($event)">
-          <option value="all">All Roles</option>
-          <option value="student">Student</option>
-          @if (authService.hasRole(['super_admin', 'admin'])) {
-            <option value="staff">Staff</option>
-            <option value="admin">Admin</option>
-          }
-          @if (authService.hasRole(['super_admin'])) {
-            <option value="super_admin">Super Admin</option>
-          }
-        </select>
-      </div>
-      @if (authService.getUserRole() === 'super_admin') {
-        <div class="col-md-6 col-lg-3">
-          <select class="form-select bg-light border-0 py-2 shadow-none text-secondary" (change)="onTenantFilterChange($event)">
-            <option value="all">All Tenants (Schools)</option>
-            @for (tenant of tenants(); track tenant.id) {
-              <option [value]="tenant.id">{{ tenant.tenant_name }}</option>
+      <!-- Role Filter Dropdown -->
+      <div class="col-md-6 col-lg-3 position-relative">
+        <button type="button" 
+                class="btn bg-light border-0 py-2 px-3 w-100 text-start d-flex justify-content-between align-items-center shadow-none text-secondary rounded-3"
+                style="height: 42px;"
+                (click)="toggleRoleDropdown()">
+          <span class="text-truncate fw-medium">{{ getRoleFilterLabel() }}</span>
+          <i class="bi bi-chevron-down small ms-2 text-muted" [class.bi-chevron-up]="isRoleDropdownOpen()"></i>
+        </button>
+
+        @if (isRoleDropdownOpen()) {
+          <div class="custom-dropdown-menu position-absolute start-0 end-0 mt-1 bg-white rounded-3 shadow-lg border p-1 z-3">
+            <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                    [class.active-item]="selectedRoleFilter() === 'all'"
+                    (click)="setRoleFilter('all')">
+              <span>All Roles</span>
+              @if (selectedRoleFilter() === 'all') { <i class="bi bi-check-lg text-primary"></i> }
+            </button>
+            <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                    [class.active-item]="selectedRoleFilter() === 'student'"
+                    (click)="setRoleFilter('student')">
+              <span>Student</span>
+              @if (selectedRoleFilter() === 'student') { <i class="bi bi-check-lg text-primary"></i> }
+            </button>
+            @if (authService.hasRole(['super_admin', 'admin'])) {
+              <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                      [class.active-item]="selectedRoleFilter() === 'staff'"
+                      (click)="setRoleFilter('staff')">
+                <span>Staff</span>
+                @if (selectedRoleFilter() === 'staff') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                      [class.active-item]="selectedRoleFilter() === 'admin'"
+                      (click)="setRoleFilter('admin')">
+                <span>Admin</span>
+                @if (selectedRoleFilter() === 'admin') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
             }
-          </select>
+            @if (authService.hasRole(['super_admin'])) {
+              <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                      [class.active-item]="selectedRoleFilter() === 'super_admin'"
+                      (click)="setRoleFilter('super_admin')">
+                <span>Super Admin</span>
+                @if (selectedRoleFilter() === 'super_admin') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Tenant Filter Dropdown for Super Admin -->
+      @if (authService.getUserRole() === 'super_admin') {
+        <div class="col-md-6 col-lg-3 position-relative">
+          <button type="button" 
+                  class="btn bg-light border-0 py-2 px-3 w-100 text-start d-flex justify-content-between align-items-center shadow-none text-secondary rounded-3"
+                  style="height: 42px;"
+                  (click)="toggleTenantDropdown()">
+            <span class="text-truncate fw-medium">{{ getTenantFilterLabel() }}</span>
+            <i class="bi bi-chevron-down small ms-2 text-muted" [class.bi-chevron-up]="isTenantDropdownOpen()"></i>
+          </button>
+
+          @if (isTenantDropdownOpen()) {
+            <div class="custom-dropdown-menu position-absolute start-0 end-0 mt-1 bg-white rounded-3 shadow-lg border p-1 z-3" style="max-height: 240px; overflow-y: auto;">
+              <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                      [class.active-item]="selectedTenantFilter() === 'all'"
+                      (click)="setTenantFilter('all')">
+                <span>All Tenants (Schools)</span>
+                @if (selectedTenantFilter() === 'all') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              @for (tenant of tenants(); track $index) {
+                <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                        [class.active-item]="isTenantSelected(tenant.id)"
+                        (click)="selectTenant(tenant.id)">
+                  <span class="text-truncate">{{ tenant.tenant_name }}</span>
+                  @if (isTenantSelected(tenant.id)) { <i class="bi bi-check-lg text-primary"></i> }
+                </button>
+              }
+            </div>
+          }
         </div>
       }
+
     </div>
   </div>
 

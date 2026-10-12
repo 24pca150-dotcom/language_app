@@ -133,3 +133,109 @@
   border: 1px solid #e2e8f0;
 }
 
+/* Modern Segmented Filter Tabs */
+.live-filter-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.live-filter-tabs {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 9999px;
+  border: 1px solid #e2e8f0;
+  gap: 3px;
+  align-items: center;
+}
+
+.live-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: #64748b;
+  border: none;
+  background: transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  line-height: 1.2;
+}
+
+.live-tab-btn:hover {
+  color: #1e293b;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.live-tab-btn.active-all {
+  background: #0d6efd;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(13, 110, 253, 0.25);
+}
+
+.live-tab-btn.active-live {
+  background: #dc3545;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(220, 53, 69, 0.25);
+}
+
+.live-tab-btn.active-scheduled {
+  background: #0d6efd;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(13, 110, 253, 0.25);
+}
+
+.live-tab-btn.active-completed {
+  background: #64748b;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(100, 116, 139, 0.25);
+}
+
+.live-dot-badge {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #dc3545;
+  margin-right: 5px;
+  flex-shrink: 0;
+}
+
+.live-tab-btn.active-live .live-dot-badge {
+  background-color: #ffffff;
+}
+
+@media (max-width: 576px) {
+  .live-filter-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  .live-filter-tabs {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 3px;
+    gap: 2px;
+  }
+  .live-tab-btn {
+    padding: 6px 2px;
+    font-size: 0.75rem;
+    text-align: center;
+    justify-content: center;
+  }
+  .live-dot-badge {
+    margin-right: 3px;
+    width: 6px;
+    height: 6px;
+  }
+}
+
+

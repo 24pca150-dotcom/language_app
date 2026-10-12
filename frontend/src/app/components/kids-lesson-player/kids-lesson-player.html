@@ -33,10 +33,10 @@
   <header class="position-absolute top-0 start-0 w-100 h-100 pe-none kids-header-hud" style="z-index: 1000;">
     <!-- Quit Button (Floating Top Left) -->
     <button
-      class="btn rounded-circle shadow-lg position-absolute d-flex align-items-center justify-content-center border border-1 border-white border-opacity-25 hover-lift pe-auto"
-      [class.d-lg-none]="isSidebarOpen()" style="width: 45px; height: 45px; top: 15px; left: 15px; z-index: 1100; background: rgba(11, 25, 44, 0.85); backdrop-filter: blur(10px);"
-      (click)="goToMap()">
-      <i class="bi bi-x-lg fw-bold text-white fs-5"></i>
+      class="btn rounded-circle shadow-lg position-absolute d-flex align-items-center justify-content-center border border-1 border-white border-opacity-25 hover-lift pe-auto kids-quit-btn"
+      [class.d-lg-none]="isSidebarOpen()"
+      (click)="goToMap()" title="Quit to Map">
+      <i class="bi bi-x-lg fw-bold text-white"></i>
     </button>
 
     <!-- Expand Sidebar Button (Floating Top Left - Desktop Only) -->
@@ -118,8 +118,8 @@
 
     <!-- CENTER STAGE (Main Content Area) -->
     <main
-      class="flex-grow-1 overflow-y-auto d-flex flex-column align-items-center px-3 px-md-4 w-100 mx-auto position-relative"
-      style="padding-top: 30px; min-height: 0;"
+      class="flex-grow-1 overflow-y-auto d-flex flex-column align-items-center px-2 px-md-4 w-100 mx-auto position-relative kids-player-main"
+      style="min-height: 0;"
       [style.--main-padding-bottom]="activityFeedbackState() ? '200px' : (currentStep()?.type === 'activity' ? '40px' : '90px')">
 
       @if (lessonSequence().length === 0) {
@@ -259,75 +259,55 @@
         @if (step.type === 'reading') {
         <!-- Reading Content (Dark Luxury Glass Box) -->
         <div
-          class="w-100 d-flex flex-column align-items-center justify-content-between mx-auto shadow-lg position-relative"
-          style="max-width: 1200px; height: 75vh; padding: 2rem 3rem; border-radius: 36px; background: rgba(15, 23, 42, 0.9); border: 1.5px solid rgba(255, 255, 255, 0.15); border-top: 3px solid #FFC727; backdrop-filter: blur(24px); box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 30px rgba(255, 199, 39, 0.12) !important;">
+          class="kids-reading-card w-100 d-flex flex-column align-items-center justify-content-between mx-auto shadow-lg position-relative">
 
-          <!-- Read Aloud Button (Top Right Corner) -->
-          <button
-            class="btn rounded-circle shadow-lg position-absolute d-flex align-items-center justify-content-center hover-lift transition-all"
-            [ngClass]="isSpeaking() ? 'btn-success border-success text-white' : 'btn-warning border-white text-dark'"
-            style="top: -20px; right: -15px; width: 60px; height: 60px; border: 4px solid; z-index: 15;"
-            (click)="toggleSpeech(rawReadingHtml())">
-            <i class="bi fs-3" [ngClass]="isSpeaking() ? 'bi-volume-up-fill' : 'bi-volume-mute-fill'"></i>
-          </button>
 
           <!-- Lesson Title (Top Left Corner) -->
-          <div class="position-absolute" style="top: -20px; left: -15px; z-index: 15;">
-            <h3 class="fw-bold text-white text-center m-0 px-4 py-2 rounded-pill shadow-lg"
-              style="font-family: 'Fredoka One', cursive; background: #0B192C; border: 2.5px solid #FFC727; font-size: 1.25rem; box-shadow: 0 8px 20px rgba(0,0,0,0.5);">
+          <div class="kids-reading-title-wrap position-absolute">
+            <h3 class="fw-bold text-white text-center m-0 rounded-pill shadow-lg kids-reading-title-pill"
+              style="font-family: 'Fredoka One', cursive; background: #0B192C; border: 2.5px solid #FFC727; box-shadow: 0 8px 20px rgba(0,0,0,0.5);">
               ✨ {{ currentStepIndex() + 1 }}. {{ step.title }}
             </h3>
           </div>
 
           <div
-            class="w-100 flex-grow-1 d-flex gap-4 align-items-center justify-content-center position-relative overflow-hidden"
+            class="w-100 flex-grow-1 d-flex gap-3 align-items-center justify-content-center position-relative overflow-hidden"
             style="min-height: 0;">
             <!-- Mascot Presentation Pose -->
-            <div class="d-none d-lg-block position-relative animate-bounce align-self-end mb-4"
-              style="width: 170px; z-index: 5;">
+            <div class="d-none d-lg-block position-relative animate-bounce align-self-end mb-3"
+              style="width: 140px; z-index: 5;">
               <img src="/assets/images/mascot.png" alt="Mascot" class="w-100"
                 style="filter: drop-shadow(0 15px 25px rgba(0,0,0,0.4))">
             </div>
 
             <!-- Floating Text Area -->
             <div
-              class="flex-grow-1 position-relative p-3 w-100 h-100 d-flex flex-column align-items-center justify-content-center overflow-hidden">
+              class="flex-grow-1 position-relative p-1 p-md-2 w-100 h-100 d-flex flex-column align-items-center justify-content-start overflow-hidden">
               <!-- Content Area -->
-              <div class="reading-content w-100 text-center px-4 py-3 h-100 d-flex flex-column hide-scrollbar"
-                style="overflow-y: auto; justify-content: flex-start; font-size: 1.35rem; line-height: 1.75; color: #F8FAFC; font-family: 'Fredoka', 'Nunito', sans-serif; text-shadow: 0 2px 10px rgba(0,0,0,0.8); font-weight: 600; letter-spacing: 0.5px;">
-                <div class="mt-auto mb-auto">
+              <div class="reading-content w-100 text-center px-1 px-md-3 py-1 h-100 d-flex flex-column"
+                style="overflow-y: auto; justify-content: flex-start; color: #F8FAFC; font-family: 'Fredoka', 'Nunito', sans-serif; text-shadow: 0 2px 10px rgba(0,0,0,0.8); font-weight: 600; letter-spacing: 0.3px;">
+                <div class="reading-inner-wrap w-100">
                   <span [innerHTML]="rawReadingHtml()"></span>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Navigation Controls -->
-          <div class="d-flex justify-content-between align-items-center w-100 mt-2 px-2 px-md-4">
-            <button
-              class="btn rounded-circle shadow-sm hover-lift d-flex align-items-center justify-content-center border border-1 border-white border-opacity-25"
-              style="width: 48px; height: 48px; background: rgba(255,255,255,0.08);" (click)="prevContentPage()"
-              [disabled]="currentContentPage() === 0">
-              <i class="bi bi-chevron-left fs-4 text-white fw-bold"></i>
-            </button>
-            <div class="d-flex gap-3 px-4 py-2 rounded-pill shadow-sm border border-1 border-white border-opacity-20"
+          <!-- Bottom Indicator Dots (Circled by user) -->
+          <div class="d-flex justify-content-center align-items-center w-100 mt-1 mb-0 px-2" style="z-index: 5;">
+            <div class="kids-content-pills d-flex align-items-center rounded-pill shadow-sm border border-1 border-white border-opacity-20"
                  style="background: rgba(11, 25, 44, 0.85); backdrop-filter: blur(10px);">
               @if (step.data.isJson) {
               @for (b of step.data.blocks; track $index) {
-              <div class="rounded-pill"
-                style="height: 12px; transition: all 0.3s ease;"
-                [style.width]="$index === currentContentPage() ? '38px' : '12px'"
-                [style.background]="$index === currentContentPage() ? '#FFC727' : 'rgba(255,255,255,0.2)'"
-                [style.box-shadow]="$index === currentContentPage() ? '0 0 10px rgba(255,199,39,0.8)' : 'none'"></div>
+              <div class="rounded-pill transition-all" role="button"
+                (click)="goToContentPage($index)"
+                [class.active]="$index === currentContentPage()"
+                [style.background]="$index === currentContentPage() ? '#FFC727' : 'rgba(255,255,255,0.25)'"
+                [style.box-shadow]="$index === currentContentPage() ? '0 0 8px rgba(255,199,39,0.8)' : 'none'"
+                style="cursor: pointer;"></div>
               }
               }
             </div>
-            <button
-              class="btn btn-warning rounded-circle shadow-sm hover-lift d-flex align-items-center justify-content-center text-dark"
-              style="width: 48px; height: 48px; border: 2px solid white;" (click)="nextContentPage()"
-              [disabled]="(step.data.isJson && currentContentPage() === step.data.blocks.length - 1) || !step.data.isJson">
-              <i class="bi bi-chevron-right fs-4 fw-bold"></i>
-            </button>
           </div>
         </div>
         }
@@ -424,22 +404,22 @@
 
       <!-- Standard Navigation Buttons (PREV + REFRESH on left, NEXT/FINISH on right) -->
       @if (activityFeedbackState() !== 'correct') {
-      <div class="position-absolute bottom-0 start-0 w-100 pe-none" style="z-index: 10; height: 90px;">
+      <div class="position-absolute bottom-0 start-0 w-100 pe-none kids-bottom-nav-hud" style="z-index: 100;">
         <!-- Left Side: Navigation (PREV + REFRESH) -->
-        <div class="position-absolute d-flex align-items-center gap-3 pe-auto kids-prev-btn" style="bottom: 20px;">
-          @if (currentStepIndex() > 0 && !lessonFinished()) {
+        <div class="position-absolute d-flex align-items-center gap-2 pe-auto kids-prev-btn">
+          @if ((currentStepIndex() > 0 || currentContentPage() > 0) && !lessonFinished()) {
           <button
-            class="btn rounded-pill px-4 py-2 fw-bold fs-5 text-white shadow-lg hover-lift border border-1 border-white border-opacity-25 transition-all"
-            style="min-width: 140px; background: rgba(11, 25, 44, 0.85); backdrop-filter: blur(10px);" (click)="prevLessonStep()">
-            <i class="bi bi-chevron-left me-2"></i> PREV
+            class="btn rounded-pill fw-bold text-white shadow-lg hover-lift border border-1 border-white border-opacity-25 transition-all kids-nav-btn kids-nav-prev"
+            (click)="prevLessonStep()">
+            <i class="bi bi-chevron-left me-1"></i> PREV
           </button>
           }
 
           @if (currentStep()?.type === 'activity' && !lessonFinished()) {
           <button
-            class="btn rounded-pill px-4 py-2 fw-bold fs-5 shadow-lg hover-lift border border-4 border-white transition-all kids-refresh-btn d-flex align-items-center justify-content-center gap-2"
-            style="min-width: 140px;" (click)="refreshCurrentActivity()" title="Reset and retry this question">
-            <i class="bi bi-arrow-clockwise fs-4 fw-bold"></i>
+            class="btn rounded-pill fw-bold shadow-lg hover-lift border border-2 border-white transition-all kids-refresh-btn kids-nav-btn d-flex align-items-center justify-content-center gap-1"
+            (click)="refreshCurrentActivity()" title="Reset and retry this question">
+            <i class="bi bi-arrow-clockwise fw-bold"></i>
             <span>Refresh</span>
           </button>
           }
@@ -448,16 +428,15 @@
         <!-- Right Side: NEXT / FINISH -->
         @if (lessonFinished()) {
         <button
-          class="btn btn-success rounded-pill px-4 py-2 fw-bold fs-5 text-white shadow-lg hover-lift border-bottom border-4 position-absolute pe-auto"
-          style="bottom: 20px; right: 20px; min-width: 140px;" (click)="finishLesson()">
-          FINISH <i class="bi bi-check2-circle ms-2"></i>
+          class="btn btn-success rounded-pill fw-bold text-white shadow-lg hover-lift border-bottom border-3 position-absolute pe-auto kids-nav-btn kids-nav-next"
+          (click)="finishLesson()">
+          FINISH <i class="bi bi-check2-circle ms-1"></i>
         </button>
         } @else if (currentStep()?.type !== 'activity' && !activityFeedbackState()) {
         <button
-          class="btn rounded-pill px-4 py-2 fw-bold fs-5 shadow-lg hover-lift transition-all text-white border-bottom border-4 position-absolute pe-auto"
-          style="bottom: 20px; right: 20px; min-width: 140px; background: #6366f1; border-color: #4f46e5;"
+          class="btn rounded-pill fw-bold shadow-lg hover-lift transition-all text-white border-bottom border-3 position-absolute pe-auto kids-nav-btn kids-nav-next"
           (click)="nextLessonStep()">
-          NEXT <i class="bi bi-chevron-right ms-2"></i>
+          NEXT <i class="bi bi-chevron-right ms-1"></i>
         </button>
         }
       </div>

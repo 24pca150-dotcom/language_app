@@ -416,3 +416,98 @@
   font-weight: 500;
   margin: 0;
 }
+
+/* ==========================================================================
+   📱 Mobile View Responsiveness
+   ========================================================================== */
+@media (max-width: 576px) {
+  .login-container {
+    padding: 16px 12px;
+    align-items: center;
+  }
+
+  .login-container::before,
+  .login-container::after {
+    width: 320px;
+    height: 320px;
+    filter: blur(60px);
+  }
+
+  .login-glass-card {
+    padding: 26px 18px;
+    border-radius: 24px;
+    max-width: 100%;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+  }
+
+  .login-header {
+    margin-bottom: 20px;
+  }
+
+  .logo-badge {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+
+  .school-crest-icon {
+    font-size: 20px;
+  }
+
+  .school-crest-initials {
+    font-size: 11px;
+  }
+
+  .login-header h1 {
+    font-size: 21px;
+    margin-bottom: 4px;
+  }
+
+  .login-header p {
+    font-size: 13px;
+  }
+
+  .login-form {
+    gap: 16px;
+  }
+
+  .form-group label {
+    font-size: 12px;
+  }
+
+  .tenant-select-input {
+    padding: 12px 36px 12px 42px;
+    font-size: 14px;
+    border-radius: 14px;
+  }
+
+  .input-wrapper input {
+    padding: 14px 40px 14px 44px;
+    font-size: 15px;
+    border-radius: 14px;
+  }
+
+  .input-icon {
+    left: 14px;
+    font-size: 16px;
+  }
+
+  .btn-submit {
+    padding: 14px 20px;
+    font-size: 15px;
+    border-radius: 14px;
+    margin-top: 6px;
+  }
+
+  .login-footer {
+    margin-top: 24px;
+    padding-top: 14px;
+  }
+
+  .login-footer p {
+    font-size: 12px;
+  }
+}
+

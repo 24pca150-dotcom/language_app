@@ -79,14 +79,15 @@
 
   <!-- 🌟 MAIN ACTIVITY ARENA -->
   <main class="langnest-main flex-grow-1 position-relative d-flex flex-column overflow-y-auto z-2 w-100">
-    <div class="content-container position-relative z-2 px-3 px-lg-4 py-2 py-lg-3" style="max-width: 1200px; margin: 0 auto; width: 100%; padding-left: 90px !important; padding-right: 90px !important;">
+    <div class="content-container position-relative z-2">
+
 
       <!-- 🌟 TOP HEADER (Matching Curriculum, Practice, Assessments & Badges) -->
-      <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+      <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2 activity-top-header">
         <div class="d-flex align-items-center gap-3">
           <!-- Back Button (Navigates Player -> Chapters -> Courses -> Dashboard) -->
           <button class="btn-back-circle shadow-sm" (click)="goBack()" title="Back">
-            <i class="bi bi-arrow-left fs-5"></i>
+            <i class="bi bi-arrow-left"></i>
           </button>
 
           @if (stage() === 'courses') {
@@ -131,15 +132,15 @@
         <!-- Right Header Pill -->
         <div>
           @if (stage() === 'courses') {
-            <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold fs-6 shadow-sm">
+            <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold shadow-sm">
               {{ courses().length }} Courses Available
             </div>
           } @else if (stage() === 'chapters') {
-            <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold fs-6 shadow-sm">
+            <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold shadow-sm">
               {{ availableChapters().length }} Chapters Available
             </div>
           } @else if (stage() === 'player' && filteredActivities().length > 0) {
-            <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold fs-6 shadow-sm">
+            <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold shadow-sm">
               Question {{ currentPlayIndex() + 1 }} of {{ filteredActivities().length }}
             </div>
           }
@@ -362,12 +363,12 @@
             <div class="activity-player-container mx-auto d-flex flex-column align-items-center w-100">
 
               <!-- Question Stage Container (Glassmorphism Styled - Fixed Static Size) -->
-              <div class="activity-stage-box glass-stage-card w-100 p-3 p-md-4 rounded-4 position-relative">
+              <div class="activity-stage-box glass-stage-card w-100 position-relative">
 
                 <!-- Title banner inside card -->
                 <div class="activity-card-title mb-2 pb-2 border-bottom d-flex align-items-center justify-content-between">
                   <div>
-                    <h4 class="fw-bold text-dark mb-0 font-fredoka fs-5">{{ act.title }}</h4>
+                    <h4 class="fw-bold text-dark mb-0 font-fredoka">{{ act.title }}</h4>
                     <span class="text-secondary small" style="font-size: 0.8rem;">Follow instructions and submit your answer</span>
                   </div>
 
@@ -414,20 +415,18 @@
                 }
 
                 <!-- Activity Card Internal Navigation Footer -->
-                <div class="activity-card-footer pt-2 mt-2 border-top d-flex align-items-center justify-content-between w-100">
+                <div class="activity-card-footer border-top d-flex align-items-center justify-content-between w-100">
                   <!-- Left: Previous Button -->
-                  <button class="btn btn-light rounded-pill px-3 py-1.5 fw-bold text-secondary shadow-sm hover-lift border border-2 border-white d-flex align-items-center gap-2"
+                  <button class="btn btn-light rounded-pill fw-bold text-secondary shadow-sm hover-lift border border-2 border-white d-flex align-items-center gap-1.5 activity-nav-btn activity-nav-prev"
                     [disabled]="currentPlayIndex() === 0"
-                    (click)="prevActivity()"
-                    style="font-size: 0.9rem;">
+                    (click)="prevActivity()">
                     <i class="bi bi-chevron-left"></i>
                     <span>Previous</span>
                   </button>
 
                   <!-- Right: Next / Finish Button -->
-                  <button class="btn btn-warning rounded-pill px-4 py-1.5 fw-bold text-dark shadow-sm hover-lift border border-2 border-white d-flex align-items-center gap-2 ms-auto"
-                    (click)="nextActivity()"
-                    style="font-size: 0.9rem;">
+                  <button class="btn btn-warning rounded-pill fw-bold text-dark shadow-sm hover-lift border border-2 border-white d-flex align-items-center gap-1.5 ms-auto activity-nav-btn activity-nav-next"
+                    (click)="nextActivity()">
                     <span>{{ (currentPlayIndex() + 1 === filteredActivities().length) ? 'Finish' : 'Next Activity' }}</span>
                     <i class="bi bi-chevron-right"></i>
                   </button>

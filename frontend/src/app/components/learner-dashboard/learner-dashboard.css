@@ -3021,6 +3021,358 @@
   letter-spacing: 0.5px;
 }
 
+.content-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+  padding-left: 105px;
+  padding-right: 105px;
+}
+
+
+/* ==========================================================================
+   📱 LEARNER DASHBOARD COMPREHENSIVE MOBILE RESPONSIVENESS
+   ========================================================================== */
+@media (max-width: 991.98px) {
+  .langnest-layout {
+    overflow-y: auto !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .langnest-main {
+    height: auto !important;
+    min-height: 100vh !important;
+    overflow-y: visible !important;
+  }
+
+  .content-container {
+    padding-left: 88px !important;
+    padding-right: 88px !important;
+    padding-top: 14px !important;
+    padding-bottom: 22px !important;
+    max-width: 100% !important;
+  }
+
+  .learner-top-header-row {
+    padding-right: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  /* Neat Home Cards */
+  .neat-home-card {
+    padding: 12px 12px;
+    border-radius: 14px;
+  }
+
+  .neat-thumb-img,
+  .neat-thumb-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+  }
+
+  .neat-card-title {
+    font-size: 0.88rem;
+  }
+
+  /* Games Arena */
+  .kids-game-arena {
+    padding: 12px 10px !important;
+    border-radius: 16px !important;
+    border-width: 2px !important;
+  }
+
+  /* Practice Header & Badges */
+  .practice-heading-colorful {
+    font-size: 1.05rem;
+  }
+
+  /* Flashcards */
+  .flashcard-box {
+    max-width: 100%;
+  }
+
+  .flashcard-face {
+    padding: 16px 12px !important;
+    border-radius: 16px !important;
+    border-width: 2px !important;
+  }
+
+  .flashcard-face h2 {
+    font-size: 1.35rem !important;
+  }
+
+  .card-drop-basket {
+    padding: 8px 10px;
+    border-radius: 12px;
+    min-width: 100px;
+    flex: 1 1 110px;
+  }
+
+  /* Match Tiles */
+  .kids-match-tile {
+    padding: 7px 9px;
+    border-radius: 11px;
+  }
+
+  .kids-match-tile h5 {
+    font-size: 0.85rem !important;
+  }
+
+  /* Adventure Portals - Scaled & Pushed Inward */
+  .adventure-portal-stage {
+    padding: 0.25rem 0.15rem !important;
+  }
+
+  .adventure-portal-avatar-wrap {
+    width: 64px !important;
+    height: 64px !important;
+    min-width: 64px !important;
+  }
+
+  .adventure-portal-circle {
+    width: 52px;
+    height: 52px;
+  }
+
+  .adventure-level-badge {
+    font-size: 0.58rem !important;
+    padding: 2px 6px !important;
+  }
+
+  .adventure-portal-title {
+    font-size: 0.98rem !important;
+    margin-bottom: 3px !important;
+  }
+
+  .adventure-skill-pill {
+    font-size: 0.62rem !important;
+    padding: 2px 7px !important;
+  }
+
+  .btn-adventure-start {
+    font-size: 0.74rem !important;
+    padding: 4px 12px !important;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .content-container {
+    padding-left: 64px !important;
+    padding-right: 64px !important;
+    padding-top: 12px !important;
+    padding-bottom: 18px !important;
+  }
+
+  .learner-top-header-row {
+    padding-right: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  /* Top Hero Bar */
+  .home-student-hero {
+    padding: 4px 10px !important;
+    gap: 8px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .mascot-cartoon-jumper {
+    width: 32px;
+    height: 32px;
+  }
+
+  .mascot-cartoon-img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .home-student-name {
+    font-size: 1.05rem !important;
+  }
+
+  .home-student-badge {
+    font-size: 0.64rem !important;
+  }
+
+  .school-tenant-chip {
+    padding: 2px 8px !important;
+  }
+
+  .school-chip-logo,
+  .school-chip-crest {
+    width: 24px;
+    height: 24px;
+    font-size: 0.8rem;
+  }
+
+  .school-chip-name {
+    font-size: 0.72rem;
+    max-width: 110px;
+  }
+
+  .school-chip-sub {
+    font-size: 0.56rem;
+  }
+
+  .adventure-portal-avatar-wrap {
+    width: 58px !important;
+    height: 58px !important;
+    min-width: 58px !important;
+  }
+
+  .adventure-portal-circle {
+    width: 46px !important;
+    height: 46px !important;
+  }
+
+  .adventure-portal-title {
+    font-size: 0.94rem !important;
+  }
+
+  /* Buttons */
+  .neat-btn-resume {
+    padding: 4px 10px;
+    font-size: 0.72rem;
+  }
+
+  .btn-set-nav,
+  .btn-set-nav-next {
+    padding: 4px 10px !important;
+    font-size: 0.72rem !important;
+  }
+
+  /* Flashcards */
+  .flashcard-face h2 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Match it layout */
+  .btn-back-circle {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+@media (max-height: 520px) {
+  .content-container {
+    padding-left: 104px !important;
+    padding-right: 104px !important;
+    padding-top: 8px !important;
+    padding-bottom: 14px !important;
+  }
+
+  .learner-top-header-row {
+    padding-right: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 4px !important;
+  }
+
+  .mascot-cartoon-jumper,
+  .mascot-cartoon-img {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .home-student-hero {
+    padding: 2px 8px !important;
+    gap: 6px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .home-student-name {
+    font-size: 0.95rem !important;
+  }
+
+  .home-student-badge {
+    font-size: 0.62rem !important;
+  }
+
+  .school-tenant-chip {
+    padding: 2px 6px !important;
+  }
+
+  .school-chip-logo,
+  .school-chip-crest {
+    width: 22px !important;
+    height: 22px !important;
+  }
+
+  .school-chip-name {
+    font-size: 0.7rem !important;
+  }
+
+  .neat-home-card {
+    padding: 8px 10px !important;
+    border-radius: 12px !important;
+  }
+
+  .neat-thumb-img,
+  .neat-thumb-icon {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .neat-card-title {
+    font-size: 0.8rem !important;
+  }
+
+  .neat-card-sub {
+    font-size: 0.65rem !important;
+  }
+
+  /* Adventure Portal Card in landscape */
+  .adventure-portal-stage {
+    padding: 0.15rem !important;
+    gap: 8px !important;
+  }
+
+  .adventure-portal-avatar-wrap {
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+  }
+
+  .adventure-portal-circle {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  .adventure-level-badge {
+    font-size: 0.52rem !important;
+    padding: 1px 5px !important;
+    bottom: -4px !important;
+  }
+
+  .adventure-portal-title {
+    font-size: 0.88rem !important;
+    margin-bottom: 2px !important;
+  }
+
+  .adventure-skills-strip {
+    gap: 4px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .adventure-skill-pill {
+    font-size: 0.58rem !important;
+    padding: 1px 6px !important;
+  }
+
+  .btn-adventure-start {
+    font-size: 0.68rem !important;
+    padding: 3px 10px !important;
+  }
+
+  .btn-back-circle {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 0.75rem !important;
+  }
+}
+
+
 
 
 

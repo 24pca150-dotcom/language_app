@@ -98,61 +98,147 @@
           }
         </div>
 
-        <!-- Course Filter -->
-        <div style="min-width: 170px; flex: 1 1 180px;">
-          <select class="form-select bg-light shadow-none" [ngModel]="selectedCourseFilter()"
-            (ngModelChange)="selectedCourseFilter.set($event); onFilterChange()">
-            <option value="all">All Courses</option>
-            <option [ngValue]="null">Global / Practice</option>
-            @for (c of coursesList(); track c.id) {
-            <option [ngValue]="c.id">{{ c.name }}</option>
-            }
-          </select>
+        <!-- Course Filter (Custom Dropdown) -->
+        <div class="position-relative" style="min-width: 170px; flex: 1 1 180px;">
+          <button type="button" 
+                  class="btn bg-light border-0 py-2 px-3 w-100 text-start d-flex justify-content-between align-items-center shadow-none text-secondary rounded-3"
+                  style="height: 40px;"
+                  (click)="toggleCourseDropdown()">
+            <span class="text-truncate fw-medium small">{{ getCourseFilterLabel() }}</span>
+            <i class="bi bi-chevron-down small ms-2 text-muted" [class.bi-chevron-up]="isCourseFilterOpen()"></i>
+          </button>
+
+          @if (isCourseFilterOpen()) {
+            <div class="custom-dropdown-menu position-absolute start-0 end-0 mt-1 bg-white rounded-3 shadow-lg border p-1 z-3" style="max-height: 250px; overflow-y: auto;">
+              <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                      [class.active-item]="selectedCourseFilter() === 'all'"
+                      (click)="setCourseFilterValue('all')">
+                <span>All Courses</span>
+                @if (selectedCourseFilter() === 'all') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                      [class.active-item]="selectedCourseFilter() === null"
+                      (click)="setCourseFilterValue(null)">
+                <span>Global / Practice</span>
+                @if (selectedCourseFilter() === null) { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              @for (c of coursesList(); track c.id) {
+                <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                        [class.active-item]="selectedCourseFilter() === c.id"
+                        (click)="setCourseFilterValue(c.id)">
+                  <span class="text-truncate">{{ c.name }}</span>
+                  @if (selectedCourseFilter() === c.id) { <i class="bi bi-check-lg text-primary"></i> }
+                </button>
+              }
+            </div>
+          }
         </div>
 
-        <!-- Activity Type Filter -->
-        <div style="min-width: 180px; flex: 1 1 190px;">
-          <select class="form-select bg-light shadow-none" [ngModel]="filterType()"
-            (ngModelChange)="filterType.set($event); onFilterChange()">
-            <option value="all">All Exercise Types</option>
-            <optgroup label="Listening Skills">
-              <option value="mcq">MCQ / Audio</option>
-              <option value="match">Match It</option>
-            </optgroup>
-            <optgroup label="Speaking Skills">
-              <option value="speaking">Speaking Test</option>
-              <option value="role_play">Role Play</option>
-            </optgroup>
-            <optgroup label="Reading Skills">
-              <option value="flashcard">3D Flashcard</option>
-              <option value="sequencing">Sequencing</option>
-              <option value="mind_map">Mind Map</option>
-            </optgroup>
-            <optgroup label="Writing & Grammar">
-              <option value="fill_blanks">Fill in the Blanks</option>
-              <option value="word_arrange">Word Arrangement</option>
-              <option value="parts_of_speech">Parts of Speech</option>
-              <option value="writing">Paragraph Writing</option>
-            </optgroup>
-            <optgroup label="Games & Custom">
-              <option value="crossword">Crossword</option>
-              <option value="custom">Custom Canvas</option>
-            </optgroup>
-          </select>
+        <!-- Activity Type Filter (Custom Dropdown) -->
+        <div class="position-relative" style="min-width: 180px; flex: 1 1 190px;">
+          <button type="button" 
+                  class="btn bg-light border-0 py-2 px-3 w-100 text-start d-flex justify-content-between align-items-center shadow-none text-secondary rounded-3"
+                  style="height: 40px;"
+                  (click)="toggleTypeDropdown()">
+            <span class="text-truncate fw-medium small">{{ getTypeFilterLabel() }}</span>
+            <i class="bi bi-chevron-down small ms-2 text-muted" [class.bi-chevron-up]="isTypeFilterOpen()"></i>
+          </button>
+
+          @if (isTypeFilterOpen()) {
+            <div class="custom-dropdown-menu position-absolute start-0 end-0 mt-1 bg-white rounded-3 shadow-lg border p-1 z-3" style="max-height: 280px; overflow-y: auto;">
+              <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                      [class.active-item]="filterType() === 'all'"
+                      (click)="setTypeFilterValue('all')">
+                <span class="fw-semibold">All Exercise Types</span>
+                @if (filterType() === 'all') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              
+              <div class="dropdown-header text-uppercase text-secondary fw-bold px-3 pt-2 pb-1" style="font-size: 0.68rem; letter-spacing: 0.05em;">Listening Skills</div>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'mcq'" (click)="setTypeFilterValue('mcq')">
+                <span>MCQ / Audio</span>
+                @if (filterType() === 'mcq') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'match'" (click)="setTypeFilterValue('match')">
+                <span>Match It</span>
+                @if (filterType() === 'match') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+
+              <div class="dropdown-header text-uppercase text-secondary fw-bold px-3 pt-2 pb-1" style="font-size: 0.68rem; letter-spacing: 0.05em;">Speaking Skills</div>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'speaking'" (click)="setTypeFilterValue('speaking')">
+                <span>Speaking Test</span>
+                @if (filterType() === 'speaking') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'role_play'" (click)="setTypeFilterValue('role_play')">
+                <span>Role Play</span>
+                @if (filterType() === 'role_play') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+
+              <div class="dropdown-header text-uppercase text-secondary fw-bold px-3 pt-2 pb-1" style="font-size: 0.68rem; letter-spacing: 0.05em;">Reading Skills</div>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'flashcard'" (click)="setTypeFilterValue('flashcard')">
+                <span>3D Flashcard</span>
+                @if (filterType() === 'flashcard') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'sequencing'" (click)="setTypeFilterValue('sequencing')">
+                <span>Sequencing</span>
+                @if (filterType() === 'sequencing') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'mind_map'" (click)="setTypeFilterValue('mind_map')">
+                <span>Mind Map</span>
+                @if (filterType() === 'mind_map') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+
+              <div class="dropdown-header text-uppercase text-secondary fw-bold px-3 pt-2 pb-1" style="font-size: 0.68rem; letter-spacing: 0.05em;">Writing & Grammar</div>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'fill_blanks'" (click)="setTypeFilterValue('fill_blanks')">
+                <span>Fill in the Blanks</span>
+                @if (filterType() === 'fill_blanks') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'word_arrange'" (click)="setTypeFilterValue('word_arrange')">
+                <span>Word Arrangement</span>
+                @if (filterType() === 'word_arrange') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'parts_of_speech'" (click)="setTypeFilterValue('parts_of_speech')">
+                <span>Parts of Speech</span>
+                @if (filterType() === 'parts_of_speech') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'writing'" (click)="setTypeFilterValue('writing')">
+                <span>Paragraph Writing</span>
+                @if (filterType() === 'writing') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+
+              <div class="dropdown-header text-uppercase text-secondary fw-bold px-3 pt-2 pb-1" style="font-size: 0.68rem; letter-spacing: 0.05em;">Games & Custom</div>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'crossword'" (click)="setTypeFilterValue('crossword')">
+                <span>Crossword</span>
+                @if (filterType() === 'crossword') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'custom'" (click)="setTypeFilterValue('custom')">
+                <span>Custom Canvas</span>
+                @if (filterType() === 'custom') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+            </div>
+          }
         </div>
       </div>
 
       <!-- Right Controls: Items per page & Grid/List toggle -->
       <div class="d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
-        <!-- Page size dropdown -->
-        <div style="width: 125px;">
-          <select class="form-select bg-light shadow-none" [ngModel]="pageSize()"
-            (ngModelChange)="pageSize.set($event); currentPage.set(1)">
-            <option [ngValue]="12">12</option>
-            <option [ngValue]="24">24</option>
-            <option [ngValue]="48">48</option>
-            <option [ngValue]="0">All</option>
-          </select>
+        <!-- Page size dropdown (Custom Dropdown) -->
+        <div class="position-relative" style="width: 80px;">
+          <button type="button" 
+                  class="btn bg-light border-0 py-2 px-2.5 w-100 text-start d-flex justify-content-between align-items-center shadow-none text-secondary rounded-3"
+                  style="height: 40px;"
+                  (click)="togglePageSizeDropdown()">
+            <span class="text-truncate fw-medium small">{{ getPageSizeLabel() }}</span>
+            <i class="bi bi-chevron-down small ms-1 text-muted" [class.bi-chevron-up]="isPageSizeOpen()"></i>
+          </button>
+
+          @if (isPageSizeOpen()) {
+            <div class="custom-dropdown-menu position-absolute end-0 mt-1 bg-white rounded-3 shadow-lg border p-1 z-3" style="min-width: 90px;">
+              <button type="button" class="dropdown-item py-1.5 px-2.5 rounded-2" [class.active-item]="pageSize() === 12" (click)="setPageSizeValue(12)">12</button>
+              <button type="button" class="dropdown-item py-1.5 px-2.5 rounded-2" [class.active-item]="pageSize() === 24" (click)="setPageSizeValue(24)">24</button>
+              <button type="button" class="dropdown-item py-1.5 px-2.5 rounded-2" [class.active-item]="pageSize() === 48" (click)="setPageSizeValue(48)">48</button>
+              <button type="button" class="dropdown-item py-1.5 px-2.5 rounded-2" [class.active-item]="pageSize() === 0" (click)="setPageSizeValue(0)">All</button>
+            </div>
+          }
         </div>
 
         <!-- View mode toggle -->
@@ -173,17 +259,16 @@
 
   <!-- Quick Filter Active Info Strip -->
   @if (searchQuery() || filterType() !== 'all' || selectedSkillTab() !== 'all' || selectedCourseFilter() !== 'all') {
-  <div
-    class="d-flex align-items-center justify-content-between bg-white border border-light-subtle rounded-3 py-2 px-3 mb-3 shadow-xs">
-    <div class="small text-muted d-flex align-items-center gap-2">
-      <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1 small">
+  <div class="filter-info-strip mb-3">
+    <div class="filter-info-left">
+      <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1 small fw-semibold">
         <i class="bi bi-funnel-fill me-1"></i>Filtered
       </span>
-      <span>Showing <strong>{{ filteredActivities().length }}</strong> of <strong>{{ savedActivities().length
-          }}</strong> activities</span>
+      <span class="small text-muted text-nowrap">
+        Showing <strong>{{ filteredActivities().length }}</strong> of <strong>{{ savedActivities().length }}</strong> activities
+      </span>
     </div>
-    <button class="btn btn-sm btn-link text-danger text-decoration-none p-0 fw-semibold d-flex align-items-center gap-1"
-      (click)="clearFilters()">
+    <button type="button" class="filter-clear-btn" (click)="clearFilters()">
       <i class="bi bi-x-circle-fill"></i>
       <span>Clear filters</span>
     </button>

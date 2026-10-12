@@ -201,3 +201,40 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+@media (max-width: 767.98px) {
+  .learner-assessment-container {
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+  }
+
+  .modern-assessment-card {
+    padding: 1.1rem !important;
+  }
+
+  .assessment-card-heading {
+    font-size: 0.95rem;
+  }
+
+  .stat-mini-pill {
+    padding: 3px 8px !important;
+    font-size: 0.72rem !important;
+  }
+}
+
+@media (max-height: 520px) {
+  .modern-assessment-card {
+    padding: 0.85rem !important;
+    min-height: 180px;
+  }
+
+  .assessment-card-heading {
+    font-size: 0.88rem !important;
+  }
+
+  .stat-mini-pill {
+    padding: 2px 7px !important;
+    font-size: 0.68rem !important;
+  }
+}
+

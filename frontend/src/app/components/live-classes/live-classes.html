@@ -11,13 +11,14 @@
       <p class="text-secondary mb-0">Schedule live interactive classes and attach PDFs, videos, images, or audio materials.</p>
     </div>
     
-    @if (authService.hasRole(['super_admin', 'admin', 'staff'])) {
+    @if (authService.hasRole(['super_admin', 'admin', 'staff']) && (liveClasses().length > 0 || showForm())) {
       <button class="btn btn-primary d-inline-flex align-items-center gap-2 shadow-sm rounded-pill fw-semibold px-4 py-2" (click)="showForm.set(!showForm())">
         <i class="bi" [ngClass]="showForm() ? 'bi-x-lg' : 'bi-plus-lg'"></i>
         {{ showForm() ? 'Cancel' : 'Schedule Live Class' }}
       </button>
     }
   </div>
+
 
   <!-- Success Notification -->
   @if (successMsg()) {
@@ -106,14 +107,39 @@
               </div>
             </div>
 
-            <!-- Initial Status -->
-            <div class="col-md-3">
+            <!-- Initial Status (Custom Dropdown) -->
+            <div class="col-md-3 position-relative">
               <label class="form-label fw-semibold text-dark">Initial Status</label>
-              <select class="form-select bg-light border-0 py-2 shadow-none" formControlName="status">
-                <option value="scheduled">📅 Scheduled</option>
-                <option value="live">🔴 Live Now</option>
-                <option value="completed">✔️ Completed</option>
-              </select>
+              <button type="button" 
+                      class="btn bg-light border-0 py-2 px-3 w-100 text-start d-flex justify-content-between align-items-center shadow-none text-secondary rounded-3"
+                      style="height: 42px;"
+                      (click)="toggleStatusDropdown()">
+                <span class="text-truncate fw-medium">{{ getStatusLabel() }}</span>
+                <i class="bi bi-chevron-down small text-muted" [class.bi-chevron-up]="isStatusDropdownOpen()"></i>
+              </button>
+
+              @if (isStatusDropdownOpen()) {
+                <div class="custom-dropdown-menu position-absolute start-0 end-0 mt-1 bg-white rounded-3 shadow-lg border p-1 z-3">
+                  <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                          [class.active-item]="classForm.get('status')?.value === 'scheduled'"
+                          (click)="setStatus('scheduled')">
+                    <span>📅 Scheduled</span>
+                    @if (classForm.get('status')?.value === 'scheduled') { <i class="bi bi-check-lg text-primary"></i> }
+                  </button>
+                  <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                          [class.active-item]="classForm.get('status')?.value === 'live'"
+                          (click)="setStatus('live')">
+                    <span>🔴 Live Now</span>
+                    @if (classForm.get('status')?.value === 'live') { <i class="bi bi-check-lg text-primary"></i> }
+                  </button>
+                  <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                          [class.active-item]="classForm.get('status')?.value === 'completed'"
+                          (click)="setStatus('completed')">
+                    <span>✔️ Completed</span>
+                    @if (classForm.get('status')?.value === 'completed') { <i class="bi bi-check-lg text-primary"></i> }
+                  </button>
+                </div>
+              }
             </div>
 
             <!-- Description -->
@@ -166,12 +192,12 @@
 
           <!-- Actions -->
           <div class="d-flex justify-content-end align-items-center gap-2 mt-4 pt-3 border-top">
-            <button type="button" class="btn btn-light rounded-pill px-4 fw-semibold" (click)="showForm.set(false)">Cancel</button>
-            <button type="submit" class="btn btn-primary rounded-pill px-5 fw-semibold shadow-sm" [disabled]="classForm.invalid || isSubmitting()">
+            <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 py-2 fw-semibold" (click)="showForm.set(false)">Cancel</button>
+            <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3 py-2 fw-semibold shadow-sm text-nowrap d-inline-flex align-items-center" [disabled]="classForm.invalid || isSubmitting()">
               @if (isSubmitting()) {
-                <span class="spinner-border spinner-border-sm me-2"></span> Saving & Uploading...
+                <span class="spinner-border spinner-border-sm me-1"></span> Saving...
               } @else {
-                <i class="bi bi-check2-circle me-2"></i> Save & Schedule Class
+                <i class="bi bi-check2-circle me-1"></i> Save Class
               }
             </button>
           </div>
@@ -181,36 +207,32 @@
   }
 
   <!-- Filters & Status Header -->
-  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
-    <div class="btn-group p-1 bg-light rounded-pill border">
-      <button class="btn btn-sm rounded-pill px-3 fw-semibold transition-all"
-        [class.btn-primary]="filterStatus() === 'all'"
-        [class.btn-light]="filterStatus() !== 'all'"
+  <div class="live-filter-wrapper mb-4">
+    <div class="live-filter-tabs">
+      <button type="button" class="live-tab-btn"
+        [class.active-all]="filterStatus() === 'all'"
         (click)="filterStatus.set('all')">
         All ({{ liveClasses().length }})
       </button>
-      <button class="btn btn-sm rounded-pill px-3 fw-semibold transition-all"
-        [class.btn-danger]="filterStatus() === 'live'"
-        [class.btn-light]="filterStatus() !== 'live'"
+      <button type="button" class="live-tab-btn"
+        [class.active-live]="filterStatus() === 'live'"
         (click)="filterStatus.set('live')">
-        🔴 Live Now
+        <span class="live-dot-badge"></span>Live
       </button>
-      <button class="btn btn-sm rounded-pill px-3 fw-semibold transition-all"
-        [class.btn-primary]="filterStatus() === 'scheduled'"
-        [class.btn-light]="filterStatus() !== 'scheduled'"
+      <button type="button" class="live-tab-btn"
+        [class.active-scheduled]="filterStatus() === 'scheduled'"
         (click)="filterStatus.set('scheduled')">
         Upcoming
       </button>
-      <button class="btn btn-sm rounded-pill px-3 fw-semibold transition-all"
-        [class.btn-secondary]="filterStatus() === 'completed'"
-        [class.btn-light]="filterStatus() !== 'completed'"
+      <button type="button" class="live-tab-btn"
+        [class.active-completed]="filterStatus() === 'completed'"
         (click)="filterStatus.set('completed')">
         Completed
       </button>
     </div>
 
-    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" (click)="loadClasses()">
-      <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-1 align-self-start align-self-sm-center" (click)="loadClasses()">
+      <i class="bi bi-arrow-clockwise"></i> Refresh
     </button>
   </div>
 

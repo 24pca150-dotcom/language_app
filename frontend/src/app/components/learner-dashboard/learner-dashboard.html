@@ -80,7 +80,7 @@
   <!-- 🌟 MAIN CONTENT AREA (FULL SCREEN OVER FIXED FULL-PAGE BACKGROUND) -->
   <main class="langnest-main flex-grow-1 position-relative d-flex flex-column overflow-y-auto z-2 w-100">
     <!-- Content Area (Centered cleanly between the 4-left and 4-right floating buttons) -->
-    <div class="content-container position-relative z-2 p-4 p-lg-5" style="max-width: 1280px; margin: 0 auto; width: 100%; padding-left: 105px !important; padding-right: 105px !important;">
+    <div class="content-container position-relative z-2">
 
       <!-- ================================================================ -->
       <!-- ================================================================ -->
@@ -90,7 +90,7 @@
         <div class="tab-fade-in pt-2">
 
           <!-- 🌟 Top Welcome Greeting & School Tenant Badge -->
-          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 learner-top-header-row">
             <div class="home-student-hero d-inline-flex align-items-center gap-3">
               <div class="mascot-cartoon-jumper">
                 <img src="/assets/images/mascot.png" alt="Happy Mascot" class="mascot-cartoon-img">
@@ -285,17 +285,17 @@
       <!-- ================================================================ -->
       @if (activeTab() === 'learn') {
         <div class="tab-fade-in">
-          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 learner-top-header-row">
             <div class="d-flex align-items-center gap-3">
               <button class="btn-back-circle shadow-sm" (click)="setTab('home')" title="Back to Dashboard">
-                <i class="bi bi-arrow-left fs-5"></i>
+                <i class="bi bi-arrow-left"></i>
               </button>
               <div>
                 <h2 class="fw-bold text-white mb-0"><i class="bi bi-book-half text-warning me-2"></i>Curriculum & Courses</h2>
                 <p class="text-white-50 mb-0 small">Explore language courses and structured learning tracks.</p>
               </div>
             </div>
-            <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold fs-6">
+            <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold">
               {{ courses().length }} Active Courses Enrolled
             </div>
           </div>
@@ -346,10 +346,10 @@
 
                       <!-- Bottom Action Launch Button -->
                       <div class="adventure-portal-action d-flex align-items-center pt-1">
-                        <button class="btn btn-adventure-start d-flex align-items-center gap-2 px-4 py-2"
+                        <button class="btn btn-adventure-start d-flex align-items-center gap-2"
                                 (click)="playCourse(c, $event)">
                           <span>Start Learning</span>
-                          <i class="bi bi-play-circle-fill fs-5"></i>
+                          <i class="bi bi-play-circle-fill"></i>
                         </button>
                       </div>
                     </div>
@@ -479,7 +479,7 @@
           <!-- ------------------------------------------------------------- -->
           @else if (practiceStage() === 'topics') {
             <div class="practice-stage-fade">
-              <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+              <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 learner-top-header-row">
                 <div class="d-flex align-items-center gap-3">
                   <button class="btn-back-circle shadow-sm" (click)="backToPracticeCourses()" title="Back to Courses">
                     <i class="bi bi-arrow-left fs-5"></i>
@@ -1216,7 +1216,7 @@
       <!-- ================================================================ -->
       @if (activeTab() === 'badges') {
         <div class="tab-fade-in">
-          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 learner-top-header-row">
             <div class="d-flex align-items-center gap-3">
               <button class="btn-back-circle shadow-sm" (click)="setTab('home')" title="Back to Dashboard">
                 <i class="bi bi-arrow-left fs-5"></i>
@@ -1307,7 +1307,7 @@
       <!-- ================================================================ -->
       @if (activeTab() === 'progress') {
         <div class="tab-fade-in">
-          <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="d-flex align-items-center gap-3 mb-4 learner-top-header-row">
             <button class="btn-back-circle shadow-sm" (click)="setTab('home')" title="Back to Dashboard">
               <i class="bi bi-arrow-left fs-5"></i>
             </button>
@@ -1413,7 +1413,7 @@
       <!-- ================================================================ -->
       @if (activeTab() === 'settings') {
         <div class="tab-fade-in" style="max-width: 780px;">
-          <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="d-flex align-items-center gap-3 mb-4 learner-top-header-row">
             <button class="btn-back-circle shadow-sm" (click)="setTab('home')" title="Back to Dashboard">
               <i class="bi bi-arrow-left fs-5"></i>
             </button>

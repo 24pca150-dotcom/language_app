@@ -15,22 +15,21 @@
   <!-- LEVELS CARD SELECTION VIEW -->
   @if (currentView === 'levels') {
   <div
-    class="flex-grow-1 overflow-auto map-container custom-scrollbar w-100 d-flex flex-column align-items-center justify-content-start"
-    style="min-height: 100vh; padding-top: 45px; padding-bottom: 50px; padding-left: 105px; padding-right: 105px;">
+    class="flex-grow-1 overflow-auto map-container custom-scrollbar w-100 d-flex flex-column align-items-center justify-content-start">
+
 
     <!-- Course Title Header (MATCHING COURSE PAGE EXACTLY) -->
-    <div class="w-100 mb-4 animate-slide-down" style="max-width: 1060px;">
-      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-        <div class="d-flex align-items-center gap-3">
+    <div class="w-100 mb-2 animate-slide-down" style="max-width: 1060px;">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 learner-top-header-row">
+        <div class="d-flex align-items-center gap-2">
           <button class="btn-back-circle shadow-sm" (click)="onBackToCourses()" title="Back to Courses">
-            <i class="bi bi-arrow-left fs-5"></i>
+            <i class="bi bi-arrow-left"></i>
           </button>
           <div>
-            <h2 class="fw-bold text-white mb-0"><i class="bi bi-book-half text-warning me-2"></i>{{ structure?.name }}</h2>
-            <p class="text-white-50 mb-0 small">{{ structure?.description }}</p>
+            <h2 class="fw-bold text-white mb-0 fs-5"><i class="bi bi-book-half text-warning me-2"></i>{{ structure?.name }}</h2>
           </div>
         </div>
-        <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold fs-6">
+        <div class="badge rounded-pill bg-warning text-dark px-2.5 py-1 fw-bold small">
           {{ structure?.levels?.length || 6 }} Levels Available
         </div>
       </div>
@@ -74,14 +73,14 @@
               <!-- Action Launch Button -->
               <div class="adventure-portal-action d-flex align-items-center pt-1">
                 @if (isLevelUnlocked(level.id)) {
-                <button class="btn btn-adventure-start d-flex align-items-center gap-2 px-4 py-2"
+                <button class="btn btn-adventure-start d-flex align-items-center gap-1.5 px-3 py-1"
                         (click)="onLevelClick(level.id)">
                   <span>Explore</span>
-                  <i class="bi bi-play-circle-fill fs-5"></i>
+                  <i class="bi bi-play-circle-fill"></i>
                 </button>
                 } @else {
-                <button class="btn btn-secondary rounded-pill d-flex align-items-center gap-2 px-3 py-1.5 opacity-75"
-                        style="background: rgba(100, 116, 139, 0.7); border: 2px solid rgba(255, 255, 255, 0.3); font-weight: 700;" disabled>
+                <button class="btn btn-secondary rounded-pill d-flex align-items-center gap-1.5 px-2.5 py-1 opacity-75 small"
+                        style="background: rgba(100, 116, 139, 0.7); border: 1.5px solid rgba(255, 255, 255, 0.3); font-weight: 700; font-size: 0.78rem;" disabled>
                   <i class="bi bi-lock-fill"></i>
                   <span>Locked</span>
                 </button>
@@ -99,73 +98,70 @@
 
   <!-- MAIN MAP VIEW (Angry Birds Horizontal World Map) -->
   @if (currentView === 'map') {
+
+  <!-- Level Header Banner (Pinned STATICALLY to Top Center) -->
+  @if (selectedLevel(); as activeLevel) {
+  <div
+    class="chapter-header-banner position-fixed top-0 start-50 translate-middle-x z-3 mt-2 pt-1 text-center pointer-events-none d-flex flex-column align-items-center gap-1"
+    style="max-width: 90vw; z-index: 1060;">
+    <div class="d-flex align-items-center gap-2 pointer-events-auto">
+      <!-- Current Level Badge -->
+      <span
+        class="chapter-badge bg-success text-white px-3 py-1.5 rounded-pill fw-bold shadow-lg border border-2 border-white d-inline-flex align-items-center gap-2">
+        <i class="bi text-warning fs-6" [ngClass]="getLevelIcon(activeLevel.name)"></i>
+        <span class="fs-6">{{ activeLevel.name }}</span>
+        <span class="badge bg-warning text-dark rounded-pill px-2 py-0.5 small ms-1 fw-bold"
+          style="font-size: 0.78rem;">
+          {{ completedChaptersCount() }}/{{ activeLevel.chapters.length }} Chapters Done
+        </span>
+      </span>
+    </div>
+
+    <!-- Quick Level Switcher Pills for Instant Jumping Between All Course Levels -->
+    @if (structure && structure.levels && structure.levels.length > 1) {
+      <div class="level-pills-bar d-flex align-items-center gap-1 p-1 rounded-pill shadow-lg pointer-events-auto"
+           style="background: rgba(11, 25, 44, 0.75); backdrop-filter: blur(10px); border: 1.5px solid rgba(255, 255, 255, 0.3); max-width: 88vw; overflow-x: auto;">
+        @for (lvl of structure.levels; track lvl.id) {
+          <button class="btn btn-sm rounded-pill px-2.5 py-0.5 fw-bold d-flex align-items-center gap-1 transition-all text-nowrap"
+                  [ngClass]="lvl.id === activeLevel.id ? 'btn-warning text-dark shadow-sm' : 'text-white bg-transparent border-0 hover-bg-white-10'"
+                  (click)="onLevelClick(lvl.id)"
+                  [title]="lvl.name"
+                  style="font-size: 0.78rem;">
+            <i class="bi" [ngClass]="getLevelIcon(lvl.name)"></i>
+            <span class="small">{{ lvl.name }}</span>
+          </button>
+        }
+      </div>
+    }
+  </div>
+  }
+
   <div
     class="flex-grow-1 overflow-x-auto overflow-y-hidden map-container position-relative z-2 w-100 d-flex flex-column justify-content-center custom-horizontal-scrollbar"
     style="scroll-behavior: smooth; min-height: 100vh;">
 
     <!-- The Map Scroll Area -->
-    <div class="map-background position-relative w-100 d-flex flex-column justify-content-center align-items-center"
-      style="min-height: 100vh; padding-top: 60px; padding-bottom: 40px; padding-left: 95px; padding-right: 95px;">
+    <div class="map-background position-relative d-flex flex-column justify-content-center align-items-center"
+      style="min-height: 100vh; padding-top: 60px; padding-bottom: 40px; padding-left: 95px; padding-right: 95px; width: max-content; min-width: 100%;">
 
       @if (selectedLevel(); as activeLevel) {
-      <!-- Level Header Banner (Pinned to the Top) with Quick Switcher -->
-      <div
-        class="chapter-header-banner position-absolute top-0 start-50 translate-middle-x z-3 mt-3 pt-2 text-center pointer-events-none d-flex flex-column align-items-center gap-2"
-        style="max-width: 96vw;">
-        <div class="d-flex align-items-center gap-2 pointer-events-auto">
-          <!-- Back to All Levels Button -->
-          <button class="btn btn-warning rounded-pill px-3 py-1.5 fw-bold shadow-sm d-inline-flex align-items-center gap-1.5 border border-2 border-white text-dark"
-                  (click)="onBackToLevels()" title="View All Levels">
-            <i class="bi bi-grid-fill"></i>
-            <span>All Levels</span>
-          </button>
-
-          <!-- Current Level Badge -->
-          <span
-            class="chapter-badge bg-success text-white px-4 py-2 rounded-pill fw-bold shadow-lg border border-3 border-white d-inline-flex align-items-center gap-2">
-            <i class="bi text-warning fs-5" [ngClass]="getLevelIcon(activeLevel.name)"></i>
-            <span class="fs-5">{{ activeLevel.name }}</span>
-            <span class="badge bg-warning text-dark rounded-pill px-2.5 py-1 small ms-2 fw-bold"
-              style="font-size: 0.82rem;">
-              {{ completedChaptersCount() }}/{{ activeLevel.chapters.length }} Chapters Done
-            </span>
-          </span>
-        </div>
-
-        <!-- Quick Level Switcher Pills for Instant Jumping Between All Course Levels -->
-        @if (structure && structure.levels && structure.levels.length > 1) {
-          <div class="level-pills-bar d-flex align-items-center gap-1.5 p-1.5 rounded-pill shadow-lg pointer-events-auto"
-               style="background: rgba(11, 25, 44, 0.75); backdrop-filter: blur(10px); border: 1.5px solid rgba(255, 255, 255, 0.3); max-width: 94vw; overflow-x: auto;">
-            @for (lvl of structure.levels; track lvl.id) {
-              <button class="btn btn-sm rounded-pill px-3 py-1 fw-bold d-flex align-items-center gap-1.5 transition-all text-nowrap"
-                      [ngClass]="lvl.id === activeLevel.id ? 'btn-warning text-dark shadow-sm' : 'text-white bg-transparent border-0 hover-bg-white-10'"
-                      (click)="onLevelClick(lvl.id)"
-                      [title]="lvl.name">
-                <i class="bi" [ngClass]="getLevelIcon(lvl.name)"></i>
-                <span class="small">{{ lvl.name }}</span>
-              </button>
-            }
-          </div>
-        }
-      </div>
-
       <!-- Angry Birds Horizontal World Track -->
       <div class="horizontal-map-track position-relative mx-auto my-auto d-flex align-items-center"
         [style.width.px]="totalTrackWidth()" style="height: 380px; min-width: 100%;">
 
         <!-- Dynamic Horizontal SVG Path Background (Terrain & Golden Trail) -->
         <svg class="position-absolute top-0 start-0 pointer-events-none" [style.width.px]="totalTrackWidth()"
-          style="height: 380px; z-index: 0; filter: drop-shadow(0 8px 12px rgba(0,0,0,0.25));"
+          style="height: 380px; z-index: 0; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.25));"
           [attr.viewBox]="'0 0 ' + totalTrackWidth() + ' 380'">
 
           <!-- Bottom Shadow / Ground Path (Angry Birds Terrain Road) -->
-          <path [attr.d]="svgPathData()" fill="none" stroke="#1b5e20" stroke-width="34" stroke-linecap="round"
+          <path [attr.d]="svgPathData()" fill="none" stroke="#1b5e20" stroke-width="18" stroke-linecap="round"
             opacity="0.3"></path>
-          <path [attr.d]="svgPathData()" fill="none" stroke="#8d6e63" stroke-width="26" stroke-linecap="round"
+          <path [attr.d]="svgPathData()" fill="none" stroke="#8d6e63" stroke-width="14" stroke-linecap="round"
             opacity="0.45"></path>
 
           <!-- Golden Stone Trail -->
-          <path [attr.d]="svgPathData()" fill="none" stroke="#F59E0B" stroke-width="18" stroke-linecap="round"></path>
+          <path [attr.d]="svgPathData()" fill="none" stroke="#F59E0B" stroke-width="9" stroke-linecap="round"></path>
 
           <!-- Active Moving Game Path (Continuous animated dashes flowing along the road) -->
           <path [attr.d]="svgPathData()" fill="none" class="animated-game-path-dash"></path>
@@ -176,30 +172,30 @@
         @if (levelChaptersMap().get(chapter.id); as info) {
 
         <div class="angry-node-wrapper position-absolute d-flex flex-column align-items-center"
-          [style.left.px]="info.x - 45" [style.top.px]="info.y - 45" [style.z-index]="10 + info.globalIndex">
+          [style.left.px]="info.x - 22" [style.top.px]="info.y - 22" [style.z-index]="10 + info.globalIndex">
 
           <!-- 3-Star Rating on Arc (Angry Birds Style) -->
           <div class="angry-stars-arc position-absolute d-flex justify-content-center align-items-center gap-1"
-            style="top: -30px; left: 50%; transform: translateX(-50%); width: 110px; z-index: 5;">
+            style="top: -15px; left: 50%; transform: translateX(-50%); width: 56px; z-index: 5;">
             @for (star of [1,2,3]; track star) {
             <i class="bi bi-star-fill"
               [ngClass]="star <= getChapterStars(chapter.id) ? 'text-warning star-gold' : 'star-empty'"
-              [style.transform]="star === 2 ? 'translateY(-6px) scale(1.3)' : 'scale(1)'"
-              style="font-size: 1.15rem; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));"></i>
+              [style.transform]="star === 2 ? 'translateY(-2px) scale(1.2)' : 'scale(0.95)'"
+              style="font-size: 0.65rem; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));"></i>
             }
           </div>
 
           <!-- Floating Mascot Avatar (stands on the currently playable chapter!) -->
           @if (currentPlayableChapterId() === chapter.id) {
           <div class="angry-mascot-anchor position-absolute z-4"
-            style="top: -72px; left: 50%; transform: translateX(-50%); animation: floatAvatar 1.5s ease-in-out infinite alternate;">
+            style="top: -40px; left: 50%; transform: translateX(-50%); animation: floatAvatar 1.5s ease-in-out infinite alternate;">
             <div
-              class="bg-white rounded-circle shadow-lg d-flex align-items-center justify-content-center border border-3 border-warning"
-              style="width: 48px; height: 48px; box-shadow: 0 8px 20px rgba(245, 158, 11, 0.6) !important;">
-              <span style="font-size: 1.8rem; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));">🦊</span>
+              class="bg-white rounded-circle shadow-md d-flex align-items-center justify-content-center border border-2 border-warning"
+              style="width: 26px; height: 26px; box-shadow: 0 3px 10px rgba(245, 158, 11, 0.5) !important;">
+              <span style="font-size: 0.95rem; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));">🦊</span>
             </div>
             <div class="mx-auto"
-              style="width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 10px solid #f59e0b;">
+              style="width: 0; height: 0; border-left: 3.5px solid transparent; border-right: 3.5px solid transparent; border-top: 5px solid #f59e0b;">
             </div>
           </div>
           }
@@ -213,14 +209,14 @@
               'unlocked-btn': isChapterUnlocked(chapter.id) && currentPlayableChapterId() !== chapter.id && !isChapterCompleted(chapter.id)
             }" (click)="onChapterClick(chapter.id)" [title]="chapter.name">
             @if (!isChapterUnlocked(chapter.id)) {
-            <i class="bi bi-lock-fill fs-3 text-white-50"></i>
+            <i class="bi bi-lock-fill text-white-50" style="font-size: 0.85rem;"></i>
             } @else {
             <span class="angry-number">{{ info.globalNumber }}</span>
             }
           </button>
 
           <!-- Chapter Title Banner Below the Node -->
-          <div class="angry-chapter-label mt-3 text-center fw-bold shadow-sm" (click)="onChapterClick(chapter.id)"
+          <div class="angry-chapter-label mt-1 text-center fw-bold shadow-sm" (click)="onChapterClick(chapter.id)"
             [title]="chapter.name">
             <span class="d-block text-truncate px-1">{{ chapter.name }}</span>
           </div>

@@ -1,94 +1,92 @@
-    <div class="w-100 d-flex flex-column align-items-center justify-content-center pb-4 pt-2 max-w-md mx-auto" style="max-width: 600px;">
-      <div class="mb-4 text-center">
-        <div class="d-flex align-items-center justify-content-center mb-3 flex-wrap gap-2">
-          @if (activity?.audioUrl) {
-            <button type="button" 
-                    class="btn btn-primary d-flex align-items-center gap-2 rounded-pill px-4 py-2 border-0 shadow-sm text-white font-semibold"
-                    style="transition: all 0.3s ease; background: linear-gradient(135deg, #6366f1, #3b82f6); font-size: 0.85rem;"
-                    [class.opacity-75]="isPlaying()"
-                    (click)="playAudio()">
-              @if (isPlaying()) {
-                <span class="spinner-grow spinner-grow-sm text-white" role="status" aria-hidden="true" style="width: 0.8rem; height: 0.8rem;"></span>
-                <span>Playing...</span>
-              } @else {
-                <i class="bi bi-volume-up-fill text-white fs-6"></i>
-                <span>Listen Audio</span>
-              }
-            </button>
+<div class="mcq-engine-wrapper w-100 d-flex flex-column align-items-center justify-content-center mx-auto">
+  <div class="mcq-header text-center w-100">
+    @if (activity?.audioUrl) {
+      <div class="d-flex align-items-center justify-content-center mb-2 flex-wrap gap-2">
+        <button type="button" 
+                class="btn btn-primary mcq-audio-btn d-flex align-items-center gap-2 rounded-pill border-0 shadow-sm text-white font-semibold"
+                [class.opacity-75]="isPlaying()"
+                (click)="playAudio()">
+          @if (isPlaying()) {
+            <span class="spinner-grow spinner-grow-sm text-white" role="status" aria-hidden="true" style="width: 0.75rem; height: 0.75rem;"></span>
+            <span>Playing...</span>
+          } @else {
+            <i class="bi bi-volume-up-fill text-white"></i>
+            <span>Listen Audio</span>
           }
-        </div>
-        @if (activity?.imageUrl) {
-          <div class="my-3 text-center animate-fade-in">
-            <img [src]="activity?.imageUrl" alt="Question Image" class="img-fluid rounded-4 shadow-sm border border-light-subtle" style="max-height: 220px; object-fit: contain; background: white; padding: 5px;">
-          </div>
-        }
-        <h3 class="fw-bold text-dark m-0 mt-2 fs-3" style="line-height: 1.5;" [innerHTML]="activity?.question"></h3>
+        </button>
       </div>
+    }
+    @if (activity?.imageUrl) {
+      <div class="my-2 text-center animate-fade-in">
+        <img [src]="activity?.imageUrl" alt="Question Image" class="img-fluid rounded-4 shadow-sm border border-light-subtle mcq-question-img">
+      </div>
+    }
+    <h3 class="fw-bold text-dark m-0 mcq-question-text" [innerHTML]="activity?.question"></h3>
+  </div>
 
-      <div class="d-flex flex-column gap-3 w-100">
-        @for (option of activity?.options; track option.id; let idx = $index) {
-          <button 
-            type="button"
-            class="option-row w-100 d-flex align-items-center text-start border rounded-4 p-3 position-relative"
-            [class.selected]="selectedOptionId() === option.id"
-            [class.correct]="showFeedback && hasSubmitted() && option.isCorrect"
-            [class.incorrect]="showFeedback && hasSubmitted() && selectedOptionId() === option.id && !option.isCorrect"
-            [class.shake]="showFeedback && hasSubmitted() && selectedOptionId() === option.id && !option.isCorrect"
-            [class.bounce]="showFeedback && hasSubmitted() && option.isCorrect && selectedOptionId() === option.id"
-            [disabled]="showFeedback && hasSubmitted()"
-            (click)="selectOption(option)">
-            
-            <div class="bubble d-flex align-items-center justify-content-center rounded-circle fw-bold flex-shrink-0 me-3" style="width: 2.2rem; height: 2.2rem; transition: all 0.2s ease;">
-              {{ getLetter(idx) }}
-            </div>
-            
-            <div class="d-flex align-items-center gap-3 flex-grow-1">
-              @if (option.imageUrl) {
-                <img [src]="option.imageUrl" alt="Option Image" class="rounded-3 border border-light-subtle shadow-sm bg-white" style="width: 55px; height: 55px; object-fit: contain; padding: 2px;">
-              }
-              <span class="fw-semibold text-secondary" style="font-size: 1rem;">{{ option.text }}</span>
-            </div>
+  <div class="mcq-options-grid w-100">
+    @for (option of activity?.options; track option.id; let idx = $index) {
+      <button 
+        type="button"
+        class="option-row w-100 d-flex align-items-center text-start border position-relative"
+        [class.selected]="selectedOptionId() === option.id"
+        [class.correct]="showFeedback && hasSubmitted() && option.isCorrect"
+        [class.incorrect]="showFeedback && hasSubmitted() && selectedOptionId() === option.id && !option.isCorrect"
+        [class.shake]="showFeedback && hasSubmitted() && selectedOptionId() === option.id && !option.isCorrect"
+        [class.bounce]="showFeedback && hasSubmitted() && option.isCorrect && selectedOptionId() === option.id"
+        [disabled]="showFeedback && hasSubmitted()"
+        (click)="selectOption(option)">
+        
+        <div class="bubble d-flex align-items-center justify-content-center rounded-circle fw-bold flex-shrink-0 me-2">
+          {{ getLetter(idx) }}
+        </div>
+        
+        <div class="d-flex align-items-center gap-2 flex-grow-1 min-w-0">
+          @if (option.imageUrl) {
+            <img [src]="option.imageUrl" alt="Option Image" class="rounded-3 border border-light-subtle shadow-sm bg-white option-thumb">
+          }
+          <span class="fw-semibold text-secondary option-label text-truncate">{{ option.text }}</span>
+        </div>
 
-            <!-- Option Speaker / Mic Button -->
-            @if (option.audioUrl || option.text) {
-              <button type="button" 
-                      class="btn btn-outline-primary btn-sm rounded-circle p-1 d-inline-flex align-items-center justify-content-center me-2 border-0 shadow-none" 
-                      style="width: 2.2rem; height: 2.2rem; transition: transform 0.2s; background: rgba(99, 102, 241, 0.05);"
-                      (click)="playOptionAudio(option, $event)">
-                <i class="bi bi-volume-up-fill fs-5" style="color: #6366f1;"></i>
-              </button>
-            }
-
-            <div class="d-flex align-items-center ms-3 fs-5" *ngIf="showFeedback && hasSubmitted()">
-              @if (option.isCorrect) {
-                <i class="bi bi-check-circle-fill text-success"></i>
-              } @else if (selectedOptionId() === option.id) {
-                <i class="bi bi-x-circle-fill text-danger"></i>
-              }
-            </div>
+        <!-- Option Speaker / Mic Button -->
+        @if (option.audioUrl || option.text) {
+          <button type="button" 
+                  class="btn btn-outline-primary btn-sm rounded-circle p-1 d-inline-flex align-items-center justify-content-center border-0 shadow-none option-audio-btn flex-shrink-0 ms-1" 
+                  (click)="playOptionAudio(option, $event)">
+            <i class="bi bi-volume-up-fill"></i>
           </button>
         }
-      </div>
 
-      <!-- Controls -->
-      <button 
-        type="button" 
-        class="btn-action reset-btn border-0 py-2 px-4 rounded-pill fw-bold d-inline-flex align-items-center gap-2 mt-3 shadow"
-        [disabled]="!hasSubmitted()"
-        (click)="reset()">
-        <i class="bi bi-arrow-counterclockwise"></i> Reset
+        <div class="d-flex align-items-center ms-2 flex-shrink-0" *ngIf="showFeedback && hasSubmitted()">
+          @if (option.isCorrect) {
+            <i class="bi bi-check-circle-fill text-success fs-6"></i>
+          } @else if (selectedOptionId() === option.id) {
+            <i class="bi bi-x-circle-fill text-danger fs-6"></i>
+          }
+        </div>
       </button>
+    }
+  </div>
 
-      <!-- Expandable Explanation Block -->
-      @if (showFeedback && hasSubmitted() && activity; as act) {
-        @if (act.explanation) {
-          <div class="animate-fade-in mt-4 rounded-3 p-4 bg-warning bg-opacity-10 border-start border-4 border-warning">
-            <div class="d-flex align-items-center gap-2 fw-bold text-warning mb-2" style="font-size: 0.9rem;">
-              <i class="bi bi-info-circle-fill"></i>
-              <span>Explanation</span>
-            </div>
-            <p class="m-0" style="color: #451a03; font-size: 0.925rem; line-height: 1.5;">{{ act.explanation }}</p>
-          </div>
-        }
-      }
-    </div>
+  <!-- Controls -->
+  <button 
+    type="button" 
+    class="btn-action reset-btn border-0 py-1.5 px-3 rounded-pill fw-bold d-inline-flex align-items-center gap-1.5 mt-2 shadow-sm"
+    [disabled]="!hasSubmitted()"
+    (click)="reset()">
+    <i class="bi bi-arrow-counterclockwise"></i> Reset
+  </button>
+
+  <!-- Expandable Explanation Block -->
+  @if (showFeedback && hasSubmitted() && activity; as act) {
+    @if (act.explanation) {
+      <div class="animate-fade-in mt-3 rounded-3 p-3 bg-warning bg-opacity-10 border-start border-4 border-warning w-100">
+        <div class="d-flex align-items-center gap-2 fw-bold text-warning mb-1" style="font-size: 0.82rem;">
+          <i class="bi bi-info-circle-fill"></i>
+          <span>Explanation</span>
+        </div>
+        <p class="m-0" style="color: #451a03; font-size: 0.82rem; line-height: 1.4;">{{ act.explanation }}</p>
+      </div>
+    }
+  }
+</div>

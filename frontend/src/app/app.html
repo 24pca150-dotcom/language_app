@@ -38,9 +38,9 @@
 
   <!-- Sidebar Navigation -->
   <aside class="sidebar bg-dark text-light d-flex flex-column shadow" [class.show]="isSidebarOpen()"
-    style="width: 280px; z-index: 1050; background-color: var(--sidebar-bg) !important;">
+    style="background-color: var(--sidebar-bg) !important;">
 
-    <div class="p-4 border-bottom border-secondary border-opacity-25 d-none d-lg-block">
+    <div class="p-3 p-lg-4 border-bottom border-secondary border-opacity-25 d-flex align-items-center justify-content-between">
       <div class="d-flex align-items-center gap-3">
         @if (tenantBranding()?.logo_url) {
           <img [src]="tenantBranding()?.logo_url" class="rounded-circle flex-shrink-0" style="width: 32px; height: 32px; object-fit: contain; background: white; padding: 2px;">
@@ -53,7 +53,7 @@
           </svg>
         }
         <div class="d-flex flex-column">
-          <span class="h6 mb-0 fw-bold text-truncate" style="max-width: 160px;">
+          <span class="h6 mb-0 fw-bold text-truncate" style="max-width: 140px;">
             {{ tenantBranding()?.tenant_name || authService.getUser()?.name }}
           </span>
           <small class="text-secondary"
@@ -62,7 +62,12 @@
           </small>
         </div>
       </div>
+      <!-- Close button on mobile -->
+      <button class="btn btn-link text-light p-1 border-0 shadow-none d-lg-none" (click)="closeSidebar()" title="Close Menu">
+        <i class="bi bi-x-lg fs-5"></i>
+      </button>
     </div>
+
 
     <!-- Language Switcher -->
     <div class="px-3 py-2 mx-3 mt-3 mb-2 rounded-3"

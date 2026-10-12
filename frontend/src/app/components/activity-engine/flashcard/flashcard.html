@@ -2,35 +2,35 @@
       <div class="header w-100 mb-4 text-center">
         </div>
 
-      <div class="card-scene mb-4" (click)="flipCard()" style="width: 100%; max-width: 400px; height: 250px; perspective: 1000px; cursor: pointer;">
+      <div class="card-scene flashcard-scene-box mb-3" (click)="flipCard()">
         <div class="card-3d w-100 h-100 position-relative" [class.is-flipped]="isFlipped()" style="transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);">
           
           <!-- Front Face -->
-          <div class="card-face card-front position-absolute w-100 h-100 p-4 d-flex flex-column justify-content-between align-items-center bg-white bg-opacity-75 rounded-4 shadow-sm border border-light" style="backface-visibility: hidden; -webkit-backface-visibility: hidden;">
+          <div class="card-face card-front position-absolute w-100 h-100 p-3 d-flex flex-column justify-content-between align-items-center bg-white bg-opacity-75 rounded-4 shadow-sm border border-light" style="backface-visibility: hidden; -webkit-backface-visibility: hidden;">
             <div class="card-content d-flex flex-column align-items-center justify-content-center flex-grow-1 w-100">
-              <span class="text-uppercase fw-bold text-secondary text-opacity-50 mb-2" style="font-size: 0.75rem; letter-spacing: 0.1em;">Front</span>
-              <h2 class="fw-bold text-dark mb-3 text-center" style="font-size: 2.2rem;">{{ activity?.front }}</h2>
+              <span class="text-uppercase fw-bold text-secondary text-opacity-50 mb-1" style="font-size: 0.7rem; letter-spacing: 0.1em;">Front</span>
+              <h2 class="fw-bold text-dark mb-2 text-center flashcard-front-title">{{ activity?.front }}</h2>
               
               <!-- Pronunciation Play Button -->
               <button 
                 type="button" 
-                class="btn-speak d-inline-flex align-items-center gap-2 border-0 rounded-pill px-3 py-2 fw-bold" 
+                class="btn-speak d-inline-flex align-items-center gap-1.5 border-0 rounded-pill px-3 py-1.5 fw-bold" 
                 (click)="speakWord($event)" 
                 title="Listen Pronunciation">
                 <i class="bi bi-volume-up-fill"></i>
                 <span>Listen</span>
               </button>
             </div>
-            <div class="text-secondary text-opacity-50 fw-bold d-flex align-items-center gap-1" style="font-size: 0.75rem;">
+            <div class="text-secondary text-opacity-50 fw-bold d-flex align-items-center gap-1" style="font-size: 0.7rem;">
               Click Card to Flip <i class="bi bi-arrow-left-right"></i>
             </div>
           </div>
 
           <!-- Back Face -->
-          <div class="card-face card-back position-absolute w-100 h-100 p-4 d-flex flex-column justify-content-between align-items-center rounded-4 shadow-sm" style="backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(180deg); background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #ffffff;">
+          <div class="card-face card-back position-absolute w-100 h-100 p-3 d-flex flex-column justify-content-between align-items-center rounded-4 shadow-sm" style="backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(180deg); background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #ffffff;">
             <div class="card-content d-flex flex-column align-items-center justify-content-center flex-grow-1 w-100">
-              <span class="text-uppercase fw-bold text-white text-opacity-75 mb-2" style="font-size: 0.75rem; letter-spacing: 0.1em;">Back</span>
-              <h3 class="fw-bold text-white text-center" style="font-size: 1.75rem;">{{ activity?.back }}</h3>
+              <span class="text-uppercase fw-bold text-white text-opacity-75 mb-1" style="font-size: 0.7rem; letter-spacing: 0.1em;">Back</span>
+              <h3 class="fw-bold text-white text-center flashcard-back-title">{{ activity?.back }}</h3>
             </div>
             <div class="text-white text-opacity-50 fw-bold d-flex align-items-center gap-1" style="font-size: 0.75rem;">
               Click Card to Flip <i class="bi bi-arrow-left-right"></i>

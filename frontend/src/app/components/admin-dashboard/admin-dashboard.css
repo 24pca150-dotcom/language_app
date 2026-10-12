@@ -199,3 +199,41 @@
   border-bottom-color: #4f46e5;
   background: transparent;
 }
+
+/* ==========================================================================
+   📱 Mobile Responsiveness for Admin Dashboard
+   ========================================================================== */
+@media (max-width: 767.98px) {
+  .dashboard-container {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+
+  .custom-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    padding-bottom: 4px;
+  }
+
+  .custom-tabs .nav-item {
+    flex-shrink: 0;
+  }
+
+  .custom-tabs .nav-link {
+    padding: 8px 12px;
+    font-size: 0.86rem;
+  }
+
+  .quick-action-btn {
+    padding: 10px 14px;
+    font-size: 0.88rem;
+  }
+
+  .kpi-card {
+    padding: 1rem !important;
+  }
+}
+
