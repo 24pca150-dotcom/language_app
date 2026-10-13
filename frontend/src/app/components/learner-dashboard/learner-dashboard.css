@@ -2923,6 +2923,7 @@
   font-weight: 900 !important;
   letter-spacing: -0.02em !important;
   background: linear-gradient(135deg, #FF5500 0%, #E11D48 45%, #7C3AED 100%) !important;
+  background-clip: text !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
   text-shadow: 0 2px 14px rgba(225, 29, 72, 0.12);
