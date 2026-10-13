@@ -38,8 +38,6 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Clear any previous active auth token when visiting login
-    this.authService.clearSession();
     this.initForm();
     this.loadPublicTenants();
   }

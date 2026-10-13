@@ -35,9 +35,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(clonedReq).pipe(
     catchError((error: any) => {
       if (error instanceof HttpErrorResponse && error.status === 401) {
-        // Clear session and redirect to login on 401 Unauthorized
-        authService.clearSession();
-        router.navigate(['/login']);
+        // Clear session and redirect to login on 401 Unauthorized asynchronously
+        // to prevent NG0100 ExpressionChangedAfterItHasBeenCheckedError during change detection
+        setTimeout(() => {
+          authService.clearSession();
+          router.navigate(['/login']);
+        }, 0);
       }
       return throwError(() => error);
     })
