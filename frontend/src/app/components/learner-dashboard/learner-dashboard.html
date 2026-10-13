@@ -479,76 +479,76 @@
           <!-- ------------------------------------------------------------- -->
           @else if (practiceStage() === 'topics') {
             <div class="practice-stage-fade">
-              <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 learner-top-header-row">
-                <div class="d-flex align-items-center gap-3">
-                  <button class="btn-back-circle shadow-sm" (click)="backToPracticeCourses()" title="Back to Courses">
-                    <i class="bi bi-arrow-left fs-5"></i>
+              <!-- Compact Topics Header -->
+              <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 learner-top-header-row">
+                <div class="d-flex align-items-center gap-2">
+                  <button class="btn-back-circle shadow-sm" (click)="backToPracticeCourses()" title="Back to Courses" style="width: 32px; height: 32px; min-width: 32px;">
+                    <i class="bi bi-arrow-left"></i>
                   </button>
                   <div>
-                    <div class="d-flex align-items-center gap-2 mb-1">
-                      <span class="badge bg-warning text-dark fw-bold rounded-pill px-3 py-1">
+                    <div class="d-flex align-items-center gap-1.5 mb-0.5">
+                      <span class="badge bg-warning text-dark fw-bold rounded-pill px-2.5 py-0.5" style="font-size: 0.72rem;">
                         Course: {{ selectedPracticeCourse()?.name }}
                       </span>
                     </div>
-                    <h2 class="fw-bold text-white mb-0">
-                      <i class="bi bi-grid-3x3-gap-fill text-warning me-2"></i>Practice Topics & Games
-                    </h2>
-                    <p class="text-white-50 mb-0 small">
+                    <h3 class="fw-bold text-white mb-0 d-flex align-items-center gap-1.5" style="font-size: 1.15rem;">
+                      <i class="bi bi-grid-3x3-gap-fill text-warning"></i>Practice Topics & Games
+                    </h3>
+                    <p class="text-white-50 mb-0 small" style="font-size: 0.76rem;">
                       Select an activity below to start interactive language recall and micro-drills.
                     </p>
                   </div>
                 </div>
-                <button class="btn btn-outline-light rounded-pill px-4 py-2" (click)="backToPracticeCourses()">
+                <button class="btn btn-outline-light rounded-pill px-3 py-1.5 fw-semibold shadow-sm" (click)="backToPracticeCourses()" style="font-size: 0.78rem;">
                   <i class="bi bi-arrow-left me-1"></i>Change Course
                 </button>
               </div>
 
               @if (isLoadingActivities()) {
-                <!-- 🐰 Kid-Friendly Mascot Loader (Matching Image 1) -->
-                <div class="mascot-loader-container py-5 my-4">
-                  <div class="mascot-loading-wrapper mb-3 animate-bounce">
-                    <img src="/assets/images/mascot.png" alt="Loading Mascot" style="width: 140px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));">
+                <!-- 🐰 Kid-Friendly Mascot Loader -->
+                <div class="mascot-loader-container py-4 my-2">
+                  <div class="mascot-loading-wrapper mb-2 animate-bounce">
+                    <img src="/assets/images/mascot.png" alt="Loading Mascot" style="width: 100px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));">
                   </div>
-                  <h3 class="mascot-loading-title animate-pulse">Loading practice topics...</h3>
-                  <p class="mascot-loading-sub">Gathering vocabulary and interactive drills for you!</p>
+                  <h4 class="mascot-loading-title animate-pulse fs-6">Loading practice topics...</h4>
+                  <p class="mascot-loading-sub small">Gathering vocabulary and interactive drills for you!</p>
                 </div>
               } @else {
-                <!-- Topics Grid (Centered neatly in the viewport) -->
-                <div class="row justify-content-center g-4 mb-4">
+                <!-- Topics Grid: Compact, Clean and Well-Proportioned (Fits in screen) -->
+                <div class="row justify-content-center g-3 mb-2">
                   @for (topic of practiceTopics; track topic.id) {
-                    <div class="col-12 col-sm-8 col-md-6 col-lg-5 col-xl-4" style="max-width: 420px;">
-                      <div class="modern-course-card kids-quest-card p-4 rounded-4 cursor-pointer d-flex flex-column justify-content-between shadow-lg position-relative overflow-hidden"
+                    <div class="col-12 col-sm-6 col-md-5 col-lg-4" style="max-width: 340px;">
+                      <div class="modern-course-card practice-topic-card p-3 rounded-4 cursor-pointer d-flex flex-column justify-content-between shadow-lg position-relative overflow-hidden"
                            (click)="openPracticeActivity(topic.id)"
                            title="Play {{ topic.title }}">
-                        <!-- Card Top Glow Accent & Sparkle -->
+                        <!-- Card Top Glow Accent -->
                         <div class="card-glow-bar"></div>
-                        <div class="quest-sparkle-decor quest-sparkle-1">⭐</div>
 
                         <!-- Top Row: Icon + Badge -->
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                          <div class="topic-icon-circle rounded-circle d-flex align-items-center justify-content-center shadow-md"
-                               [style.background-color]="topic.color + '33'"
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <div class="topic-icon-circle rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                               [style.background-color]="topic.color + '26'"
                                [style.color]="topic.color"
-                               style="width: 58px; height: 58px; border: 2.5px solid currentColor;">
-                            <i [class]="'bi ' + topic.icon + ' fs-2'"></i>
+                               style="width: 42px; height: 42px; min-width: 42px; border: 2px solid currentColor;">
+                            <i [class]="'bi ' + topic.icon + ' fs-5'"></i>
                           </div>
-                          <span class="badge kids-quest-badge px-3 py-1 rounded-pill fw-bolder">
+                          <span class="badge kids-quest-badge px-2.5 py-1 rounded-pill fw-bold" style="font-size: 0.72rem;">
                             {{ topic.badge }}
                           </span>
                         </div>
 
                         <!-- Middle Content: Title + Mini Stats -->
-                        <div class="mb-3">
-                          <div class="d-flex align-items-center gap-2 mb-1">
-                            <span class="kids-badge-pill">🔥 Challenge Arena</span>
+                        <div class="mb-2">
+                          <div class="d-flex align-items-center gap-1.5 mb-1">
+                            <span class="kids-badge-pill" style="font-size: 0.65rem; padding: 2px 7px;">🔥 Challenge Arena</span>
                           </div>
-                          <h3 class="fw-black course-card-heading mb-2">{{ topic.title }}</h3>
-                          <div class="kids-feature-tags d-flex flex-wrap gap-2">
-                            <span class="kids-tag-pill tag-levels">
+                          <h4 class="fw-bold course-card-heading mb-1 text-white" style="font-size: 1.05rem; line-height: 1.25;">{{ topic.title }}</h4>
+                          <div class="kids-feature-tags d-flex flex-wrap gap-1.5">
+                            <span class="kids-tag-pill tag-levels" style="font-size: 0.68rem; padding: 2px 7px;">
                               <i class="bi bi-award-fill text-warning"></i>
                               <span>{{ topic.countLabel }}</span>
                             </span>
-                            <span class="kids-tag-pill tag-games">
+                            <span class="kids-tag-pill tag-games" style="font-size: 0.68rem; padding: 2px 7px;">
                               <i class="bi bi-lightning-charge-fill text-info"></i>
                               <span>Interactive Drill</span>
                             </span>
@@ -556,8 +556,9 @@
                         </div>
 
                         <!-- Bottom Action Button -->
-                        <div class="pt-3 kids-card-action-bar">
-                          <button class="kids-3d-play-btn w-100 d-flex align-items-center justify-content-center gap-2"
+                        <div class="pt-2 kids-card-action-bar">
+                          <button class="kids-3d-play-btn w-100 d-flex align-items-center justify-content-center gap-2 py-1.5"
+                                  style="height: 36px; font-size: 0.8rem;"
                                   (click)="openPracticeActivity(topic.id); $event.stopPropagation()">
                             <span class="btn-text">PLAY DRILL</span>
                             <span class="btn-icon">⚡</span>
@@ -576,40 +577,36 @@
           <!-- ------------------------------------------------------------- -->
           @else if (practiceStage() === 'activity') {
             <div class="practice-stage-fade practice-activity-arena-wrapper position-relative">
-              <!-- 🔙 Back Navigation Button (Positioned to the left side so arena moves up) -->
-              <div class="practice-arena-topbar d-flex align-items-center mb-1">
-                <button class="btn-back-circle shadow-sm practice-corner-back-btn" (click)="backToPracticeTopics()" title="Back to Game Selection">
-                  <i class="bi bi-arrow-left fs-5"></i>
-                </button>
-              </div>
-
               <!-- ========================================================= -->
-              <!-- 🐾 1. MATCH IT: JUNGLE PAIR MATCHING GAME                 -->
+              <!-- 🐾 1. MATCH IT: JUNGLE PAIR MATCHING GAME (COMPACT & FIT) -->
               <!-- ========================================================= -->
               @if (selectedPracticeTopic() === 'match') {
-                <div class="kids-game-arena p-4 p-md-5 rounded-4 shadow-lg mb-4">
-                  <!-- Match Set Header (Colorful Heading & Set Navigation) -->
-                  <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-3">
-                    <div>
-                      <div class="d-flex align-items-center gap-2 mb-1.5 flex-wrap">
-                        <span class="badge rounded-pill px-3 py-1 fw-bold text-uppercase shadow-sm practice-challenge-pill">
-                          🎯 Match Challenge
-                        </span>
-                        <span class="badge bg-warning bg-opacity-25 text-warning-emphasis border border-warning rounded-pill px-2.5 py-0.5 fw-bold small">
-                          Set {{ currentMatchSetIndex() + 1 }} of {{ matchSets.length }}
-                        </span>
+                <div class="kids-game-arena p-2.5 p-sm-3 rounded-4 shadow-lg mb-2">
+                  <!-- Match Set Header (Compact HUD: Back + Title + Badges + Prev/Next) -->
+                  <div class="d-flex justify-content-between align-items-center mb-1.5 flex-wrap gap-2 match-arena-header">
+                    <div class="d-flex align-items-center gap-2 min-w-0">
+                      <button class="btn-back-circle shadow-sm flex-shrink-0" (click)="backToPracticeTopics()" title="Back to Game Selection" style="width: 30px; height: 30px; min-width: 30px; font-size: 0.8rem;">
+                        <i class="bi bi-arrow-left"></i>
+                      </button>
+                      <div class="min-w-0">
+                        <div class="d-flex align-items-center gap-1.5 flex-wrap">
+                          <span class="badge rounded-pill px-2 py-0.5 fw-bold text-uppercase shadow-sm practice-challenge-pill" style="font-size: 0.65rem;">
+                            🎯 Match Challenge
+                          </span>
+                          <span class="badge bg-warning bg-opacity-25 text-warning-emphasis border border-warning rounded-pill px-2 py-0.5 fw-bold" style="font-size: 0.65rem;">
+                            Set {{ currentMatchSetIndex() + 1 }} of {{ matchSets.length }}
+                          </span>
+                        </div>
+                        <h3 class="practice-heading-colorful mb-0 text-truncate" style="font-size: 1.05rem; line-height: 1.2;">
+                          {{ matchSets[currentMatchSetIndex()].title }}
+                        </h3>
                       </div>
-                      <h2 class="practice-heading-colorful mb-1">
-                        {{ matchSets[currentMatchSetIndex()].title }}
-                      </h2>
-                      <p class="text-secondary small mb-0 fw-semibold">
-                        🖐️ <strong>Drag & Drop Match:</strong> Drag an English card on the left and drop it into its partner on the right! (Or tap to pair)
-                      </p>
                     </div>
 
                     <!-- 🎮 Next & Previous Set Navigation Buttons -->
-                    <div class="d-flex align-items-center gap-2 mt-1">
-                      <button class="btn btn-outline-secondary rounded-pill px-3 py-1.5 fw-bold d-flex align-items-center gap-1.5 hover-lift shadow-sm btn-set-nav"
+                    <div class="d-flex align-items-center gap-1.5 flex-shrink-0">
+                      <button class="btn btn-outline-secondary rounded-pill px-2.5 py-1 fw-bold d-flex align-items-center gap-1 hover-lift shadow-sm btn-set-nav"
+                              style="font-size: 0.72rem;"
                               [disabled]="currentMatchSetIndex() === 0"
                               (click)="prevMatchSet()"
                               title="Go to previous set">
@@ -617,7 +614,8 @@
                         <span>Previous</span>
                       </button>
 
-                      <button class="btn btn-warning rounded-pill px-4 py-1.5 fw-bold text-dark d-flex align-items-center gap-1.5 hover-lift shadow-sm btn-set-nav-next"
+                      <button class="btn btn-warning rounded-pill px-3 py-1 fw-bold text-dark d-flex align-items-center gap-1 hover-lift shadow-sm btn-set-nav-next"
+                              style="font-size: 0.72rem;"
                               [disabled]="currentMatchSetIndex() >= matchSets.length - 1"
                               (click)="nextMatchSet()"
                               title="Go to next set">
@@ -628,7 +626,7 @@
                   </div>
 
                   <!-- Progress Bar for Current Set -->
-                  <div class="progress mb-4 rounded-pill" style="height: 12px; background: #E2E8F0;">
+                  <div class="progress mb-2 rounded-pill" style="height: 6px; background: #E2E8F0;">
                     <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated rounded-pill"
                          role="progressbar"
                          [style.width.%]="(matchedPairIds().length / matchSets[currentMatchSetIndex()].pairs.length) * 100">
@@ -637,23 +635,25 @@
 
                   <!-- Feedback Alert (if mismatch) -->
                   @if (matchFeedback()) {
-                    <div class="alert alert-warning py-2 px-3 rounded-3 text-center fw-bold small mb-3 animate-fade-in shadow-sm">
+                    <div class="alert alert-warning py-1 px-2.5 rounded-3 text-center fw-bold small mb-2 animate-fade-in shadow-sm" style="font-size: 0.75rem;">
                       {{ matchFeedback() }}
                     </div>
                   }
 
                   <!-- Matching Arena: Left Column & Right Column -->
-                  <div class="row g-4">
+                  <div class="row g-2 match-arena-row">
                     <!-- Left Column (English words - Draggable) -->
-                    <div class="col-md-6">
-                      <div class="column-header mb-3 d-flex align-items-center justify-content-between">
-                        <span class="fw-bold text-dark fs-6">
-                          <i class="bi bi-hand-index-thumb text-primary me-2"></i>🖐️ 1. Drag English Card
+                    <div class="col-6">
+                      <div class="column-header mb-1 d-flex align-items-center justify-content-between">
+                        <span class="fw-bold text-dark" style="font-size: 0.78rem;">
+                          <i class="bi bi-hand-index-thumb text-primary me-1"></i>🖐️ 1. Drag English
                         </span>
-                        <span class="badge bg-light text-dark rounded-pill border">{{ matchSets[currentMatchSetIndex()].pairs.length }} Cards</span>
+                        <span class="badge bg-light text-dark rounded-pill border" style="font-size: 0.65rem; padding: 2px 6px;">
+                          {{ matchSets[currentMatchSetIndex()].pairs.length }} Cards
+                        </span>
                       </div>
 
-                      <div class="d-flex flex-column gap-3">
+                      <div class="d-flex flex-column gap-1.5 match-pairs-scroll-list">
                         @for (p of matchSets[currentMatchSetIndex()].pairs; track p.id) {
                           <div class="kids-match-tile d-flex align-items-center justify-content-between"
                                [draggable]="!isPairMatched(p.id) && !isSetComplete()"
@@ -665,32 +665,32 @@
                                [class.shake-card]="shakeLeftId() === p.id"
                                (click)="selectLeft(p.id)"
                                title="Drag to right side or tap to select">
-                            <div class="d-flex align-items-center gap-2">
-                              <span class="drag-grip text-muted me-1" title="Drag me!">⠿</span>
-                              <button class="btn btn-sm btn-light rounded-circle shadow-sm border p-0 d-flex align-items-center justify-content-center"
-                                      style="width: 32px; height: 32px;"
+                            <div class="d-flex align-items-center gap-1.5 min-w-0">
+                              <span class="drag-grip text-muted" title="Drag me!" style="font-size: 0.75rem;">⠿</span>
+                              <button class="btn btn-sm btn-light rounded-circle shadow-sm border p-0 d-flex align-items-center justify-content-center flex-shrink-0"
+                                      style="width: 24px; height: 24px; font-size: 0.7rem;"
                                       (click)="speakWord(p.leftText, $event)"
                                       title="Listen Pronunciation">
                                 <i class="bi bi-volume-up-fill text-primary"></i>
                               </button>
-                              <div>
-                                <h5 class="fw-bold mb-0 text-dark" style="font-size: 1.15rem;">{{ p.leftText }}</h5>
+                              <div class="min-w-0">
+                                <h5 class="fw-bold mb-0 text-dark text-truncate" style="font-size: 0.85rem; line-height: 1.2;">{{ p.leftText }}</h5>
                                 @if (p.leftHint) {
-                                  <span class="small text-muted">{{ p.leftHint }}</span>
+                                  <span class="text-muted d-block text-truncate" style="font-size: 0.66rem; line-height: 1.1;">{{ p.leftHint }}</span>
                                 }
                               </div>
                             </div>
-                            <div>
+                            <div class="flex-shrink-0 ms-1">
                               @if (isPairMatched(p.id)) {
-                                <span class="badge bg-success rounded-pill px-2.5 py-1 text-white fw-bold d-flex align-items-center gap-1">
+                                <span class="badge bg-success rounded-pill px-2 py-0.5 text-white fw-bold d-flex align-items-center gap-1" style="font-size: 0.65rem;">
                                   <i class="bi bi-check-circle-fill"></i> MATCH!
                                 </span>
                               } @else if (selectedLeftPair() === p.id) {
-                                <span class="badge bg-warning text-dark rounded-circle p-1.5 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
-                                  <i class="bi bi-hand-index-thumb-fill fs-6"></i>
+                                <span class="badge bg-warning text-dark rounded-circle p-1 d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;">
+                                  <i class="bi bi-hand-index-thumb-fill" style="font-size: 0.7rem;"></i>
                                 </span>
                               } @else {
-                                <span class="badge bg-light text-muted border rounded-pill px-2 py-0.5 small d-none d-sm-inline">
+                                <span class="badge bg-light text-muted border rounded-pill px-1.5 py-0.5 small d-none d-sm-inline" style="font-size: 0.62rem;">
                                   🖐️ Drag
                                 </span>
                               }
@@ -701,17 +701,17 @@
                     </div>
 
                     <!-- Right Column (Translations - Drop Zones) -->
-                    <div class="col-md-6">
-                      <div class="column-header mb-3 d-flex align-items-center justify-content-between">
-                        <span class="fw-bold text-dark fs-6">
-                          <i class="bi bi-box-arrow-in-down text-success me-2"></i>📥 2. Drop Target Meaning
+                    <div class="col-6">
+                      <div class="column-header mb-1 d-flex align-items-center justify-content-between">
+                        <span class="fw-bold text-dark" style="font-size: 0.78rem;">
+                          <i class="bi bi-box-arrow-in-down text-success me-1"></i>📥 2. Drop Target
                         </span>
-                        <span class="badge bg-light text-dark rounded-pill border">
+                        <span class="badge bg-light text-dark rounded-pill border" style="font-size: 0.65rem; padding: 2px 6px;">
                           {{ matchedPairIds().length }} / {{ matchSets[currentMatchSetIndex()].pairs.length }} Solved
                         </span>
                       </div>
 
-                      <div class="d-flex flex-column gap-3">
+                      <div class="d-flex flex-column gap-1.5 match-pairs-scroll-list">
                         @for (r of shuffledRightItems(); track r.id) {
                           <div class="kids-match-tile d-flex align-items-center justify-content-between"
                                [class.matched]="isPairMatched(r.id)"
@@ -723,33 +723,33 @@
                                (drop)="onDropMatch(r.id, $event)"
                                (click)="selectRight(r.id)"
                                title="Drop English card here">
-                            <div>
-                              <div class="d-flex align-items-center gap-2">
+                            <div class="min-w-0">
+                              <div class="d-flex align-items-center gap-1.5">
                                 @if (isDraggingOver() === 'match_right_' + r.id) {
-                                  <span class="badge bg-warning text-dark animate-pulse">📥 Drop Here!</span>
+                                  <span class="badge bg-warning text-dark animate-pulse" style="font-size: 0.65rem;">📥 Drop Here!</span>
                                 }
-                                <h5 class="fw-bold mb-0 text-dark" style="font-size: 1.15rem;">{{ r.text }}</h5>
+                                <h5 class="fw-bold mb-0 text-dark text-truncate" style="font-size: 0.85rem; line-height: 1.2;">{{ r.text }}</h5>
                               </div>
                               @if (r.hint) {
-                                <span class="small text-muted">{{ r.hint }}</span>
+                                <span class="text-muted d-block text-truncate" style="font-size: 0.66rem; line-height: 1.1;">{{ r.hint }}</span>
                               }
                             </div>
-                            <div>
+                            <div class="flex-shrink-0 ms-1">
                               @if (isPairMatched(r.id)) {
-                                <span class="badge bg-success rounded-circle p-1.5 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
-                                  <i class="bi bi-check-lg text-white fs-5"></i>
+                                <span class="badge bg-success rounded-circle p-1 d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;">
+                                  <i class="bi bi-check-lg text-white" style="font-size: 0.75rem;"></i>
                                 </span>
                               } @else if (isDraggingOver() === 'match_right_' + r.id) {
-                                <span class="badge bg-warning text-dark rounded-circle p-1.5 d-flex align-items-center justify-content-center animate-bounce" style="width: 32px; height: 32px;">
-                                  <i class="bi bi-box-arrow-in-down fs-5"></i>
+                                <span class="badge bg-warning text-dark rounded-circle p-1 d-flex align-items-center justify-content-center animate-bounce" style="width: 22px; height: 22px;">
+                                  <i class="bi bi-box-arrow-in-down" style="font-size: 0.75rem;"></i>
                                 </span>
                               } @else if (selectedRightPair() === r.id) {
-                                <span class="badge bg-warning text-dark rounded-circle p-1.5 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
-                                  <i class="bi bi-hand-index-thumb-fill fs-6"></i>
+                                <span class="badge bg-warning text-dark rounded-circle p-1 d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;">
+                                  <i class="bi bi-hand-index-thumb-fill" style="font-size: 0.7rem;"></i>
                                 </span>
                               } @else {
-                                <span class="badge bg-light text-muted border rounded-pill px-2 py-0.5 small">
-                                  📥 Drop Target
+                                <span class="badge bg-light text-muted border rounded-pill px-1.5 py-0.5 small" style="font-size: 0.62rem;">
+                                  📥 Target
                                 </span>
                               }
                             </div>
@@ -761,20 +761,20 @@
 
                   <!-- Round Completed Celebration Banner -->
                   @if (isSetComplete()) {
-                    <div class="set-completed-banner mt-4 p-4 rounded-4 text-center animate-fade-in shadow-lg"
-                         style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); border: 3px solid #6EE7B7; border-radius: 24px;">
-                      <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-warning p-3 mb-2 shadow-sm"
-                           style="width: 70px; height: 70px;">
-                        <i class="bi bi-trophy-fill fs-1 text-dark"></i>
+                    <div class="set-completed-banner mt-2 p-2.5 rounded-3 text-center animate-fade-in shadow-md"
+                         style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); border: 2px solid #6EE7B7; border-radius: 16px;">
+                      <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-warning p-2 mb-1 shadow-sm"
+                           style="width: 44px; height: 44px;">
+                        <i class="bi bi-trophy-fill fs-5 text-dark"></i>
                       </div>
-                      <h3 class="fw-bold text-white mb-1">
+                      <h4 class="fw-bold text-white mb-0.5" style="font-size: 0.95rem;">
                         @if (isAllSetsComplete()) {
                           🎉 YAY! You Completed All {{ matchSets.length }} Jungle Match Sets!
                         } @else {
                           🎉 Super Job! Set {{ currentMatchSetIndex() + 1 }} Cleared! (+50 XP)
                         }
-                      </h3>
-                      <p class="text-white-50 mb-3 small">
+                      </h4>
+                      <p class="text-white-50 mb-2 small" style="font-size: 0.75rem;">
                         @if (isAllSetsComplete()) {
                           You are a true vocabulary master! High five! ✋
                         } @else {
@@ -782,45 +782,28 @@
                         }
                       </p>
 
-                      <div class="d-flex justify-content-center gap-3 flex-wrap">
+                      <div class="d-flex justify-content-center gap-2 flex-wrap">
                         @if (!isAllSetsComplete()) {
-                          <button class="btn btn-warning rounded-pill px-4 py-2.5 fw-bold text-dark shadow-md hover-lift"
+                          <button class="btn btn-warning rounded-pill px-3 py-1.5 fw-bold text-dark shadow-sm hover-lift"
+                                  style="font-size: 0.78rem;"
                                   (click)="nextMatchSet()">
                             Next Round (Set {{ currentMatchSetIndex() + 2 }}) <i class="bi bi-arrow-right ms-1"></i>
                           </button>
                         } @else {
-                          <button class="btn btn-warning rounded-pill px-4 py-2.5 fw-bold text-dark shadow-md hover-lift"
+                          <button class="btn btn-warning rounded-pill px-3 py-1.5 fw-bold text-dark shadow-sm hover-lift"
+                                  style="font-size: 0.78rem;"
                                   (click)="restartMatchSets()">
                             <i class="bi bi-arrow-repeat me-1"></i>Play Again
                           </button>
                         }
-                        <button class="btn btn-outline-light rounded-pill px-4 py-2.5 fw-bold hover-lift" (click)="backToPracticeTopics()">
+                        <button class="btn btn-outline-light rounded-pill px-3 py-1.5 fw-bold hover-lift"
+                                style="font-size: 0.78rem;"
+                                (click)="backToPracticeTopics()">
                           <i class="bi bi-grid-fill me-1"></i>All Games
                         </button>
                       </div>
                     </div>
                   }
-
-                  <!-- Bottom Set Navigation Footer -->
-                  <div class="pt-3 mt-4 border-top d-flex align-items-center justify-content-between flex-wrap gap-2">
-                    <button class="btn btn-light rounded-pill px-4 py-2 fw-bold text-secondary border hover-lift d-flex align-items-center gap-2 shadow-sm"
-                            [disabled]="currentMatchSetIndex() === 0"
-                            (click)="prevMatchSet()">
-                      <i class="bi bi-chevron-left"></i>
-                      <span>Previous Set</span>
-                    </button>
-
-                    <span class="badge rounded-pill bg-light text-dark border px-3 py-2 fw-bold">
-                      Set {{ currentMatchSetIndex() + 1 }} of {{ matchSets.length }}
-                    </span>
-
-                    <button class="btn btn-warning rounded-pill px-4 py-2 fw-bold text-dark hover-lift d-flex align-items-center gap-2 shadow-sm btn-set-nav-next"
-                            [disabled]="currentMatchSetIndex() >= matchSets.length - 1"
-                            (click)="nextMatchSet()">
-                      <span>Next Set</span>
-                      <i class="bi bi-chevron-right"></i>
-                    </button>
-                  </div>
                 </div>
               }
 
