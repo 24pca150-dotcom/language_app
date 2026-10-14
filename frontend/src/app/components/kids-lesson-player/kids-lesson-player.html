@@ -149,31 +149,32 @@
       }
       } @else if (lessonFinished()) {
       <!-- LESSON COMPLETE SCREEN -->
-      <div class="text-center animate-bounce-in w-100 max-w-lg mx-auto my-auto pb-5">
+      <div class="text-center animate-bounce-in w-100 mx-auto my-auto kids-lesson-complete-card">
         <img src="https://cdn-icons-png.flaticon.com/512/3176/3176294.png" alt="Trophy"
-          style="width: 150px; filter: drop-shadow(0 10px 10px rgba(255, 193, 7, 0.4));" class="mb-4">
-        <h1 class="display-4 fw-bold text-warning mb-3" style="text-shadow: 2px 2px 0px #b08d00;">Lesson Complete!</h1>
-        <div class="d-flex justify-content-center gap-3 mb-5">
-          <div class="card premium-card border-0 shadow rounded-4 p-3 text-center" style="min-width: 120px;">
-            <h5 class="text-secondary mb-1">XP Gained</h5>
-            <h3 class="fw-bold text-success">+10</h3>
+          class="kids-trophy-img"
+          style="filter: drop-shadow(0 8px 12px rgba(255, 193, 7, 0.45));">
+        <h2 class="kids-complete-title fw-bold text-warning mb-2" style="text-shadow: 2px 2px 0px #b08d00;">Lesson Complete!</h2>
+        <div class="d-flex justify-content-center gap-2 mb-2 kids-complete-stats">
+          <div class="card premium-card border-0 shadow rounded-3 px-3 py-1.5 text-center kids-complete-stat-box">
+            <span class="text-secondary small mb-0 kids-stat-label">XP Gained</span>
+            <h4 class="fw-bold text-success mb-0 kids-stat-val">+10</h4>
           </div>
-          <div class="card premium-card border-0 shadow rounded-4 p-3 text-center" style="min-width: 120px;">
-            <h5 class="text-secondary mb-1">Accuracy</h5>
-            <h3 class="fw-bold text-primary">100%</h3>
+          <div class="card premium-card border-0 shadow rounded-3 px-3 py-1.5 text-center kids-complete-stat-box">
+            <span class="text-secondary small mb-0 kids-stat-label">Accuracy</span>
+            <h4 class="fw-bold text-primary mb-0 kids-stat-val">100%</h4>
           </div>
         </div>
 
-        <div class="d-flex justify-content-center flex-wrap gap-3 mt-4">
-          <button class="btn btn-warning rounded-pill px-4 py-3 fw-bold text-dark shadow-md border border-2 border-white hover-lift fs-5 d-flex align-items-center gap-2"
+        <div class="d-flex justify-content-center flex-wrap gap-2 mt-2 kids-complete-actions">
+          <button class="btn btn-warning rounded-pill px-3 py-1.5 fw-bold text-dark shadow-md border border-2 border-white hover-lift kids-action-btn d-flex align-items-center gap-1.5"
             (click)="goToActivities()" title="Play interactive games for this chapter">
-            <i class="bi bi-controller fs-4"></i>
+            <i class="bi bi-controller fs-5"></i>
             <span>Play</span>
           </button>
-          <button class="btn rounded-pill px-4 py-3 fw-bold text-white shadow-sm border border-1 border-white border-opacity-25 hover-lift fs-5"
+          <button class="btn rounded-pill px-3 py-1.5 fw-bold text-white shadow-sm border border-1 border-white border-opacity-25 hover-lift kids-action-btn"
             style="background: rgba(11, 25, 44, 0.85); backdrop-filter: blur(10px);"
             (click)="goToMap()">
-            <i class="bi bi-map-fill me-2"></i> Back to Map
+            <i class="bi bi-map-fill me-1"></i> Back to Map
           </button>
         </div>
       </div>

@@ -723,12 +723,18 @@ html, body {
   .content-container,
   .map-container,
   .learner-content-container,
-  .practice-activity-arena-wrapper,
   .player-content-wrapper {
     padding-left: 88px !important;
     padding-right: 88px !important;
     padding-top: 14px !important;
     padding-bottom: 22px !important;
+    max-width: 100% !important;
+  }
+
+  .practice-activity-arena-wrapper {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
     max-width: 100% !important;
   }
 
@@ -889,16 +895,22 @@ html, body {
     line-height: 1 !important;
   }
 
-  /* Pushed cleanly INWARD away from the side docks */
+  /* Pushed cleanly INWARD away from the side docks with generous central space */
   .content-container,
   .map-container,
   .learner-content-container,
-  .practice-activity-arena-wrapper,
   .player-content-wrapper {
-    padding-left: 104px !important;
-    padding-right: 104px !important;
-    padding-top: 6px !important;
-    padding-bottom: 6px !important;
+    padding-left: 68px !important;
+    padding-right: 68px !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+
+  .practice-activity-arena-wrapper {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   /* Scaled headings in landscape */

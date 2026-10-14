@@ -114,10 +114,10 @@ export class KidsLessonPlayer implements OnInit, OnDestroy {
         if (!pageData) return '';
 
         const renderBlock = (block: any) => {
-          if (block.type === 'paragraph') return `<div class="opacity-75 mb-2 kids-reading-paragraph">${block.data.text}</div>`;
-          else if (block.type === 'header') return `<h4 class="fw-bold text-primary mb-2 kids-reading-heading">${block.data.text}</h4>`;
+          if (block.type === 'paragraph') return `<div class="mb-3 kids-reading-paragraph text-white">${block.data.text}</div>`;
+          else if (block.type === 'header') return `<h4 class="fw-bold mb-3 kids-reading-heading">${block.data.text}</h4>`;
           else if (block.type === 'list') {
-            return `<ul class="mb-3 ps-3 opacity-75 text-start d-inline-block kids-reading-list">` + block.data.items.map((i: any) => `<li class="mb-1">${typeof i === 'string' ? i : (i.content || '')}</li>`).join('') + `</ul>`;
+            return `<ul class="mb-3 ps-3 text-start d-inline-block kids-reading-list text-white">` + block.data.items.map((i: any) => `<li class="mb-2">${typeof i === 'string' ? i : (i.content || '')}</li>`).join('') + `</ul>`;
           }
           else if (block.type === 'image') {
             const url = block.data.file?.url || block.data.url || '';

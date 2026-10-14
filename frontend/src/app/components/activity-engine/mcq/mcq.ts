@@ -35,6 +35,8 @@ export class MCQComponent implements OnChanges, OnDestroy {
   selectedOptionId = signal<number | null>(null);
   hasSubmitted = signal<boolean>(false);
   isPlaying = signal<boolean>(false);
+  playingOptionId = signal<number | null>(null);
+  isQuestionSpeaking = signal<boolean>(false);
 
   private audioService = inject(AudioService);
 
@@ -72,15 +74,54 @@ export class MCQComponent implements OnChanges, OnDestroy {
     this.audioService.playAudioUrl(this.activity.audioUrl);
   }
 
+  speakQuestion(): void {
+    if (!this.activity || !this.activity.question) return;
+
+    if (this.isQuestionSpeaking()) {
+      this.audioService.stopAll();
+      this.isQuestionSpeaking.set(false);
+      return;
+    }
+
+    this.isQuestionSpeaking.set(true);
+
+    let readable = this.activity.question
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/_{2,}/g, ' blank ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    this.audioService.speak(readable, {
+      rate: 0.88,
+      pitch: 1.0,
+      onEnd: () => this.isQuestionSpeaking.set(false),
+      onError: () => this.isQuestionSpeaking.set(false)
+    });
+  }
+
   playOptionAudio(option: MCQOption, event?: Event): void {
     if (event) {
       event.stopPropagation(); // Prevent selecting the option if only the speaker is clicked
     }
 
+    if (this.playingOptionId() === option.id) {
+      this.audioService.stopAll();
+      this.playingOptionId.set(null);
+      return;
+    }
+
+    this.playingOptionId.set(option.id);
+
+    const onDone = () => {
+      if (this.playingOptionId() === option.id) {
+        this.playingOptionId.set(null);
+      }
+    };
+
     if (option.audioUrl) {
-      this.audioService.playAudioUrl(option.audioUrl, option.text);
+      this.audioService.playAudioUrl(option.audioUrl, option.text, onDone);
     } else {
-      this.audioService.speak(option.text);
+      this.audioService.speakWordWithSpelling(option.text, onDone, onDone);
     }
   }
 
@@ -93,6 +134,8 @@ export class MCQComponent implements OnChanges, OnDestroy {
     this.hasSubmitted.set(false);
     this.audioService.stopAll();
     this.isPlaying.set(false);
+    this.playingOptionId.set(null);
+    this.isQuestionSpeaking.set(false);
   }
 
   ngOnDestroy(): void {
