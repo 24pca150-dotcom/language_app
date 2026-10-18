@@ -15,6 +15,7 @@ use App\Http\Controllers\ContentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\LiveClassController;
+use App\Http\Controllers\MediaProxyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +26,11 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::get('/tenants/brand/{code}', [TenantController::class, 'getBranding']);
 Route::get('/tenants/public-list', [TenantController::class, 'getPublicList']);
+
+// Secure Media Proxy & Streaming Routes (Authenticates via Bearer header or ?token= parameter)
+Route::get('/media/stream', [MediaProxyController::class, 'streamMedia']);
+Route::get('/media/attachment/{id}', [MediaProxyController::class, 'streamAttachment']);
+Route::get('/media/live-class-attachment/{id}', [MediaProxyController::class, 'streamLiveClassAttachment']);
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +46,7 @@ Route::middleware(['auth:sanctum', 'identify.tenant'])->group(function () {
     // Common Routes
     Route::get('dashboard/tenant-stats', [DashboardController::class, 'getTenantStats']);
     Route::get('announcements', [AnnouncementController::class, 'index']);
+    Route::post('media/generate-view-url', [MediaProxyController::class, 'generateViewUrl']);
 
     // Admin/Staff Routes for Announcements
     Route::middleware(['role:super_admin,admin,staff'])->group(function () {
