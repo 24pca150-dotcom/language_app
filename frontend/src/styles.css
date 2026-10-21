@@ -628,6 +628,46 @@ h1 strong, h2 strong, h3 strong, h4 strong, h5 strong, h6 strong {
   transform: translateY(-50%) translateX(6px);
 }
 
+/* ==========================================================================
+   🔙 CIRCULAR BACK BUTTON (Matching Games Page Header Layout)
+   ========================================================================== */
+.btn-back-circle {
+  width: 46px !important;
+  height: 46px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
+  color: #0F172A !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.14) !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+  text-decoration: none !important;
+  padding: 0 !important;
+}
+
+.btn-back-circle:hover {
+  background: #FFC727 !important;
+  color: #0B192C !important;
+  border-color: #FFC727 !important;
+  transform: scale(1.08) translateX(-3px) !important;
+  box-shadow: 0 6px 18px rgba(255, 199, 39, 0.45) !important;
+}
+
+.btn-back-circle:active {
+  transform: scale(0.96) !important;
+}
+
+.btn-back-circle i {
+  font-size: 1.25rem !important;
+  line-height: 1 !important;
+}
+
 .dock-right .floating-game-btn:hover .game-btn-tooltip {
   opacity: 1;
   transform: translateY(-50%) translateX(0);

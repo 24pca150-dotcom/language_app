@@ -237,31 +237,42 @@
   margin-bottom: 20px !important;
 }
 
-/* 🔙 Circular Back Button (Identical to Learner Dashboard) */
+/* 🔙 Circular Back Button */
 .btn-back-circle {
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1.5px solid rgba(255, 255, 255, 0.95);
   color: #0F172A !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
   cursor: pointer;
   flex-shrink: 0;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+  margin-right: 4px;
+  padding: 0;
 }
 
 .btn-back-circle:hover {
   background: #FFC727 !important;
   color: #0B192C !important;
   border-color: #FFC727;
-  transform: translateX(-4px);
-  box-shadow: 0 4px 16px rgba(255, 199, 39, 0.45);
+  transform: scale(1.08) translateX(-3px);
+  box-shadow: 0 6px 18px rgba(255, 199, 39, 0.45);
+}
+
+.btn-back-circle:active {
+  transform: scale(0.96);
+}
+
+.btn-back-circle i {
+  font-size: 1.25rem !important;
+  line-height: 1 !important;
 }
 
 /* Activity Body Scroll Area with compact bottom padding so everything fits on one screen */

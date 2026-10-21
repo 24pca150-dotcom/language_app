@@ -189,4 +189,8 @@ export class LearnerAssessmentComponent implements OnInit {
     }
     return 'General Assessment';
   }
+
+  goBackToDashboard(): void {
+    this.router.navigate(['/learn/dashboard']);
+  }
 }
