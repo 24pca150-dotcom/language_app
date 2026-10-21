@@ -471,6 +471,7 @@
 
 .modern-course-card:hover {
   transform: translateY(-6px) scale(1.02) !important;
+  background: linear-gradient(165deg, rgba(28, 42, 78, 0.97) 0%, rgba(16, 24, 48, 0.99) 100%) !important;
   border-color: #FBBF24 !important;
   box-shadow: 0 8px 0 #92400E, 0 18px 36px rgba(0, 0, 0, 0.6), 0 0 24px rgba(251, 191, 36, 0.35) !important;
 }

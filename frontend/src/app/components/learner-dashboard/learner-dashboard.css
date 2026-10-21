@@ -447,7 +447,8 @@
 .learner-top-header-row,
 .activity-top-header {
   padding-right: 0 !important;
-  margin-top: 26px !important;
+  margin-top: 32px !important;
+  margin-bottom: 22px !important;
 }
 
 /* 🐰 Student Greeting Hero with Jumping Cartoon Mascot (White text & Playful Jump) */
@@ -1596,34 +1597,96 @@
   padding: 4px 10px;
 }
 
-/* Practice Topic Cards */
-.practice-topic-card {
-  background: rgba(255, 255, 255, 0.62) !important;
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1.5px solid rgba(255, 255, 255, 0.8) !important;
-  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.85) !important;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+/* ==========================================================================
+   🎮 PRACTICE TOPIC CARDS (Arcade Dark Gamified Cards - Never Turns White)
+   ========================================================================== */
+.practice-topics-grid-row {
+  row-gap: 26px !important;
 }
 
-.practice-topic-card:hover {
-  transform: translateY(-5px);
-  background: rgba(255, 255, 255, 0.76) !important;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.13) !important;
-  border-color: #F59E0B !important;
+.practice-topic-col {
+  margin-bottom: 6px;
 }
 
-.practice-topic-card .text-white {
-  color: #0F172A !important;
+.practice-topic-card,
+.modern-course-card.practice-topic-card {
+  background: linear-gradient(165deg, rgba(20, 30, 55, 0.94) 0%, rgba(12, 18, 36, 0.98) 100%) !important;
+  backdrop-filter: blur(20px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
+  border: 2.5px solid #F59E0B !important;
+  box-shadow: 0 6px 0 #92400E, 0 12px 28px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.15) !important;
+  border-radius: 18px !important;
+  padding: 10px 14px !important;
+  min-height: auto !important;
+  animation: none !important;
+  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  user-select: none;
 }
 
-.practice-topic-card .text-white-50 {
-  color: #475569 !important;
+/* Hover, Focus, Active & Clicked State: Rich Glowing Dark Navy (NO WHITE BACKGROUND) */
+.practice-topic-card:hover,
+.practice-topic-card:focus,
+.practice-topic-card:active,
+.modern-course-card.practice-topic-card:hover,
+.modern-course-card.practice-topic-card:focus,
+.modern-course-card.practice-topic-card:active {
+  background: linear-gradient(165deg, rgba(28, 42, 78, 0.97) 0%, rgba(16, 24, 48, 0.99) 100%) !important;
+  border-color: #FBBF24 !important;
+  box-shadow: 0 8px 0 #92400E, 0 16px 32px rgba(0, 0, 0, 0.55), 0 0 24px rgba(245, 158, 11, 0.45) !important;
+  transform: translateY(-4px) !important;
+}
+
+/* Ensure all text inside remains 100% white, sharp & high contrast */
+.practice-topic-card .course-card-heading,
+.practice-topic-card h4,
+.practice-topic-card .text-white,
+.practice-topic-card:hover .course-card-heading,
+.practice-topic-card:hover h4,
+.practice-topic-card:hover .text-white,
+.practice-topic-card:focus .text-white,
+.practice-topic-card:active .text-white {
+  color: #FFFFFF !important;
+}
+
+.practice-topic-card .text-white-50,
+.practice-topic-card:hover .text-white-50,
+.practice-topic-card:focus .text-white-50,
+.practice-topic-card:active .text-white-50 {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.practice-topic-card .kids-quest-badge {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #FDE047 !important;
+  border: 1px solid rgba(253, 224, 71, 0.4) !important;
+}
+
+.practice-topic-card:hover .kids-quest-badge {
+  background: rgba(245, 158, 11, 0.25) !important;
+  color: #FEF08A !important;
+  border-color: #FBBF24 !important;
+}
+
+.practice-topic-card .kids-badge-pill {
+  background: rgba(249, 115, 22, 0.2) !important;
+  color: #FDBA74 !important;
+  border: 1px solid rgba(249, 115, 22, 0.35) !important;
+}
+
+.practice-topic-card .kids-tag-pill {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.practice-topic-card:hover .kids-tag-pill {
+  background: rgba(255, 255, 255, 0.14) !important;
+  color: #FFFFFF !important;
 }
 
 .topic-icon-circle {
-  width: 56px;
-  height: 56px;
+  width: 38px;
+  height: 38px;
 }
 
 /* Match Set Tabs */
@@ -1818,6 +1881,7 @@
 
 .modern-course-card:hover {
   transform: translateY(-12px) scale(1.025) !important;
+  background: linear-gradient(165deg, rgba(28, 42, 78, 0.97) 0%, rgba(16, 24, 48, 0.99) 100%) !important;
   border-color: #FBBF24 !important;
   box-shadow: 0 14px 0 #92400E, 0 26px 52px rgba(0, 0, 0, 0.65), 0 0 38px rgba(251, 191, 36, 0.5) !important;
 }
@@ -3263,34 +3327,23 @@
 }
 
 /* ========================================================================== */
-/* 🎮 Practice Activity Arena - Top Positioning, Colorful Heading, Next Buttons */
+/* 🎮 Practice Activity Arena - Proper Alignment, Spacing, and Centered Box   */
 /* ========================================================================== */
 .practice-activity-arena-wrapper {
-  margin-top: -24px !important;
+  margin-top: 0 !important;
   position: relative !important;
+  width: 100% !important;
 }
 
-.practice-arena-topbar {
-  position: relative;
-  height: 48px;
-  margin-bottom: 6px !important;
-}
-
-/* Back button moved out to the left side into the open corner slot */
-.practice-corner-back-btn {
-  position: absolute !important;
-  left: -75px !important;
-  top: -4px !important;
-  z-index: 100 !important;
+.kids-game-arena {
+  max-width: 980px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 
 @media (max-width: 1250px) {
-  .practice-corner-back-btn {
-    position: static !important;
-    left: 0 !important;
-  }
   .practice-activity-arena-wrapper {
-    margin-top: -10px !important;
+    margin-top: 0 !important;
   }
 }
 

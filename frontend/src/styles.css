@@ -374,7 +374,6 @@ h1 strong, h2 strong, h3 strong, h4 strong, h5 strong, h6 strong {
 /* ==========================================================================
    ✨ UNIFIED TRANSLUCENT FROSTED GLASS CARDS (Matching Image 5)
    ========================================================================== */
-.modern-course-card,
 .modern-assessment-card {
   background: rgba(255, 255, 255, 0.62) !important;
   backdrop-filter: blur(24px) saturate(180%);
@@ -385,7 +384,6 @@ h1 strong, h2 strong, h3 strong, h4 strong, h5 strong, h6 strong {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.modern-course-card:hover,
 .modern-assessment-card:hover {
   background: rgba(255, 255, 255, 0.76) !important;
   box-shadow: 0 22px 48px rgba(245, 158, 11, 0.28) !important;
