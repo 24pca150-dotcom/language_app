@@ -398,3 +398,16 @@
   }
 }
 
+/* Activity Picker Modal Cards */
+.activity-picker-card {
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  border-radius: 14px !important;
+}
+
+.activity-picker-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(59, 130, 246, 0.45) !important;
+  box-shadow: 0 12px 24px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.04) !important;
+}
+

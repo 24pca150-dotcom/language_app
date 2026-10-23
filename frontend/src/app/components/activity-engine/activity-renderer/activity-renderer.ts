@@ -14,9 +14,14 @@ import { PartsOfSpeechComponent, PartsOfSpeechData } from '../parts-of-speech/pa
 import { MindMapComponent, MindMapData } from '../mind-map/mind-map';
 import { WritingComponent, WritingData } from '../writing/writing';
 import { CustomCanvasComponent, CustomCanvasData } from '../custom-canvas/custom-canvas';
+import { CarRacerComponent, CarRacerData } from '../car-racer/car-racer';
+import { WordNinjaComponent, WordNinjaData } from '../word-ninja/word-ninja';
+import { FlappyWordComponent, FlappyWordData } from '../flappy-word/flappy-word';
+import { SpaceDefenderComponent, SpaceDefenderData } from '../space-defender/space-defender';
+import { BalloonPopComponent, BalloonPopData } from '../balloon-pop/balloon-pop';
 
 export interface NormalizedActivity {
-  type: 'mcq' | 'fill_blanks' | 'flashcard' | 'match' | 'crossword' | 'word_arrange' | 'speaking' | 'role_play' | 'sequencing' | 'parts_of_speech' | 'mind_map' | 'writing' | 'custom';
+  type: 'mcq' | 'fill_blanks' | 'flashcard' | 'match' | 'crossword' | 'word_arrange' | 'speaking' | 'role_play' | 'sequencing' | 'parts_of_speech' | 'mind_map' | 'writing' | 'custom' | 'car_racer' | 'word_ninja' | 'flappy_word' | 'space_defender' | 'balloon_pop';
   question?: string;
   text?: string;
   front?: string;
@@ -57,6 +62,20 @@ export interface NormalizedActivity {
   minWords?: number;
   maxWords?: number;
   mode?: 'essay' | 'image_fill';
+
+  // Car Racer properties
+  rounds?: any[];
+  speed?: 'normal' | 'fast' | 'turbo' | 'ninja';
+
+  // Word Ninja properties
+  correctWords?: string[];
+  wrongWords?: string[];
+
+  // Flappy Word properties
+  waves?: any[];
+
+  // Space Defender properties
+  challenges?: any[];
 }
 
 @Component({
@@ -76,7 +95,12 @@ export interface NormalizedActivity {
     PartsOfSpeechComponent,
     MindMapComponent,
     WritingComponent,
-    CustomCanvasComponent
+    CustomCanvasComponent,
+    CarRacerComponent,
+    WordNinjaComponent,
+    FlappyWordComponent,
+    SpaceDefenderComponent,
+    BalloonPopComponent
   ],
   templateUrl: './activity-renderer.html',
   styleUrls: ['./activity-renderer.css']
@@ -173,7 +197,7 @@ export class ActivityRenderer implements OnChanges, OnDestroy {
     
     // 1. Determine type
     let typeInput = raw.type || raw.question_type || 'mcq';
-    let type: 'mcq' | 'fill_blanks' | 'flashcard' | 'match' | 'crossword' | 'word_arrange' | 'speaking' | 'role_play' | 'sequencing' | 'parts_of_speech' | 'mind_map' | 'writing' | 'custom' = 'mcq';
+    let type: NormalizedActivity['type'] = 'mcq';
 
     if (['multiple_choice', 'mcq', 'multiple-choice', 'multiplechoice'].includes(typeInput.toLowerCase())) {
       type = 'mcq';
@@ -201,6 +225,16 @@ export class ActivityRenderer implements OnChanges, OnDestroy {
       type = 'writing';
     } else if (['custom', 'custom_canvas', 'canvas'].includes(typeInput.toLowerCase())) {
       type = 'custom';
+    } else if (['car_racer', 'car-racer', 'carracer', 'highway_racer', 'lane_runner'].includes(typeInput.toLowerCase())) {
+      type = 'car_racer';
+    } else if (['word_ninja', 'word-ninja', 'wordninja', 'ninja', 'fruit_slice', 'fruit-slice'].includes(typeInput.toLowerCase())) {
+      type = 'word_ninja';
+    } else if (['flappy_word', 'flappy-word', 'flappyword', 'flappy', 'sky_flight'].includes(typeInput.toLowerCase())) {
+      type = 'flappy_word';
+    } else if (['space_defender', 'space-defender', 'spacedefender', 'space', 'galaxy_shooter'].includes(typeInput.toLowerCase())) {
+      type = 'space_defender';
+    } else if (['balloon_pop', 'balloon-pop', 'balloonpop', 'balloon', 'sky_pop'].includes(typeInput.toLowerCase())) {
+      type = 'balloon_pop';
     }
 
     // 2. Extract explanation & options
@@ -307,6 +341,29 @@ export class ActivityRenderer implements OnChanges, OnDestroy {
     } else if (type === 'custom') {
       normalized.question = raw.question || '';
       (normalized as any).nodes = raw.nodes || [];
+    } else if (type === 'car_racer') {
+      normalized.question = this.convertEditorJsToHtml(raw.question || raw.question_text || raw.title || '');
+      normalized.rounds = raw.rounds || additional.rounds || [];
+      normalized.speed = raw.speed || additional.speed || 'normal';
+      normalized.options = raw.options || additional.options || [];
+    } else if (type === 'word_ninja') {
+      normalized.question = this.convertEditorJsToHtml(raw.question || raw.question_text || raw.title || '');
+      normalized.correctWords = raw.correctWords || additional.correctWords || [];
+      normalized.wrongWords = raw.wrongWords || additional.wrongWords || [];
+      normalized.speed = raw.speed || additional.speed || 'normal';
+    } else if (type === 'flappy_word') {
+      normalized.question = this.convertEditorJsToHtml(raw.question || raw.question_text || raw.title || '');
+      normalized.waves = raw.waves || additional.waves || [];
+      normalized.speed = raw.speed || additional.speed || 'normal';
+    } else if (type === 'space_defender') {
+      normalized.question = this.convertEditorJsToHtml(raw.question || raw.question_text || raw.title || '');
+      normalized.challenges = raw.challenges || additional.challenges || [];
+      normalized.speed = raw.speed || additional.speed || 'normal';
+    } else if (type === 'balloon_pop') {
+      normalized.question = this.convertEditorJsToHtml(raw.question || raw.question_text || raw.title || '');
+      normalized.correctWords = raw.correctWords || additional.correctWords || [];
+      normalized.wrongWords = raw.wrongWords || additional.wrongWords || [];
+      normalized.speed = raw.speed || additional.speed || 'normal';
     }
 
     this.normalizedActivity.set(normalized);
@@ -414,6 +471,46 @@ export class ActivityRenderer implements OnChanges, OnDestroy {
       questionId: this.activity?.id,
       type: 'custom',
       isCorrect: event.isCorrect,
+      ...event
+    });
+  }
+
+  onCarRacerAnswered(event: any): void {
+    this.answered.emit({
+      questionId: this.activity?.id,
+      type: 'car_racer',
+      ...event
+    });
+  }
+
+  onWordNinjaAnswered(event: any): void {
+    this.answered.emit({
+      questionId: this.activity?.id,
+      type: 'word_ninja',
+      ...event
+    });
+  }
+
+  onFlappyWordAnswered(event: any): void {
+    this.answered.emit({
+      questionId: this.activity?.id,
+      type: 'flappy_word',
+      ...event
+    });
+  }
+
+  onSpaceDefenderAnswered(event: any): void {
+    this.answered.emit({
+      questionId: this.activity?.id,
+      type: 'space_defender',
+      ...event
+    });
+  }
+
+  onBalloonPopAnswered(event: any): void {
+    this.answered.emit({
+      questionId: this.activity?.id,
+      type: 'balloon_pop',
       ...event
     });
   }

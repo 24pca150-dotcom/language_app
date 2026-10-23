@@ -1,0 +1,118 @@
+<div class="balloon-container position-relative user-select-none">
+  <!-- Top HUD Bar -->
+  <div class="balloon-hud d-flex justify-content-between align-items-center px-3 py-2">
+    <!-- Score & Popped Counter -->
+    <div class="hud-item d-flex align-items-center gap-2">
+      <span class="hud-badge score-badge">
+        <i class="bi bi-star-fill text-warning me-1"></i>
+        <strong>{{ score() }}</strong>
+      </span>
+      <span class="hud-badge popped-badge">
+        🎈 {{ poppedCount() }} Popped
+      </span>
+    </div>
+
+    <!-- Lives & Sound -->
+    <div class="hud-item d-flex align-items-center gap-2">
+      <div class="lives-container d-flex gap-1">
+        @for (heart of [1, 2, 3]; track heart) {
+          <i class="bi bi-heart-fill heart-icon" [class.lost]="heart > lives()"></i>
+        }
+      </div>
+      <button type="button" class="btn btn-sm btn-dark text-white rounded-circle p-1 ms-1 sound-btn"
+              (click)="toggleSound()" [title]="soundEnabled() ? 'Mute' : 'Unmute'">
+        <i class="bi" [class.bi-volume-up-fill]="soundEnabled()" [class.bi-volume-mute-fill]="!soundEnabled()"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mission Banner -->
+  <div class="mission-banner text-center px-3 py-2">
+    <span class="mission-label text-warning small fw-bold text-uppercase d-block mb-1">
+      <i class="bi bi-bullseye me-1"></i> Pop Mission
+    </span>
+    <h5 class="mission-text text-white fw-bold mb-0">
+      {{ targetPrompt() }}
+    </h5>
+  </div>
+
+  <!-- Canvas Floating Balloon Sky Area -->
+  <div class="canvas-wrapper position-relative d-flex justify-content-center">
+    <canvas #balloonCanvas class="balloon-canvas shadow-lg rounded-3"
+            (click)="onCanvasClick($event)"></canvas>
+
+    <!-- Overlay: Start -->
+    @if (gameState() === 'start') {
+      <div class="overlay-card text-center animate__animated animate__fadeIn">
+        <div class="overlay-icon text-info mb-1">
+          <i class="bi bi-balloon-fill fs-1"></i>
+        </div>
+        <h4 class="text-white fw-bold mb-1">Balloon Word Pop</h4>
+        <p class="text-white-50 small mb-3 px-1" style="font-size: 0.78rem; line-height: 1.35;">
+          Tap floating balloons matching the prompt! Don't let correct balloons escape!
+        </p>
+        <button type="button" class="btn btn-warning fw-bold px-4 py-1.5 rounded-pill shadow play-btn"
+                (click)="startGame()">
+          <i class="bi bi-play-fill fs-5 me-1"></i> Launch Balloons!
+        </button>
+      </div>
+    }
+
+    <!-- Overlay: Game Over -->
+    @if (gameState() === 'gameover') {
+      <div class="overlay-card text-center animate__animated animate__zoomIn">
+        <div class="overlay-icon text-danger mb-1">
+          <i class="bi bi-exclamation-triangle-fill fs-1"></i>
+        </div>
+        <h4 class="text-danger fw-bold mb-1">Sky Out of Control!</h4>
+        <p class="text-white-50 small mb-2" style="font-size: 0.78rem;">You ran out of lives.</p>
+        <div class="stats-panel bg-dark bg-opacity-50 rounded-3 p-2 mb-3 d-flex justify-content-around" style="font-size: 0.8rem;">
+          <div>
+            <div class="text-white-50 small">Final Score</div>
+            <div class="fs-5 fw-bold text-warning">{{ score() }}</div>
+          </div>
+          <div>
+            <div class="text-white-50 small">Popped</div>
+            <div class="fs-5 fw-bold text-info">{{ poppedCorrectTotal }}</div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary fw-bold px-4 py-1.5 rounded-pill shadow"
+                (click)="restartGame()">
+          <i class="bi bi-arrow-clockwise me-1"></i> Try Again
+        </button>
+      </div>
+    }
+
+    <!-- Overlay: Victory -->
+    @if (gameState() === 'victory') {
+      <div class="overlay-card text-center animate__animated animate__bounceIn">
+        <div class="overlay-icon text-warning mb-1">
+          <i class="bi bi-trophy-fill fs-1"></i>
+        </div>
+        <h4 class="text-warning fw-bold mb-1">Clear Skies Ahead!</h4>
+        <p class="text-white-50 small mb-2" style="font-size: 0.78rem;">All target words popped perfectly!</p>
+        <div class="stats-panel bg-dark bg-opacity-50 rounded-3 p-2 mb-3 d-flex justify-content-around" style="font-size: 0.8rem;">
+          <div>
+            <div class="text-white-50 small">Score</div>
+            <div class="fs-5 fw-bold text-warning">{{ score() }}</div>
+          </div>
+          <div>
+            <div class="text-white-50 small">Accuracy</div>
+            <div class="fs-5 fw-bold text-success">
+              {{ Math.round((poppedCorrectTotal / Math.max(1, poppedCorrectTotal + poppedWrongTotal)) * 100) }}%
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-success fw-bold px-4 py-1.5 rounded-pill shadow"
+                (click)="restartGame()">
+          <i class="bi bi-arrow-repeat me-1"></i> Play Again
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Instruction footer -->
+  <div class="text-center text-white-50 small py-1" style="font-size: 0.72rem;">
+    <span><i class="bi bi-hand-index-thumb me-1"></i> Tap or click balloons to pop them</span>
+  </div>
+</div>

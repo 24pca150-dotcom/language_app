@@ -1,0 +1,135 @@
+<div class="ninja-container position-relative user-select-none">
+  <!-- Top HUD Bar -->
+  <div class="ninja-hud d-flex justify-content-between align-items-center px-3 py-2">
+    <!-- Score & Streak -->
+    <div class="hud-item d-flex align-items-center gap-2">
+      <span class="hud-badge score-badge">
+        <i class="bi bi-star-fill text-warning me-1"></i>
+        <strong>{{ score() }}</strong>
+      </span>
+      @if (streak() >= 2) {
+        <span class="hud-badge streak-badge animate__animated animate__pulse animate__infinite">
+          ⚡ {{ streak() }}x Combo
+        </span>
+      }
+    </div>
+
+    <!-- Slices Progress -->
+    <div class="hud-item slices-tracker">
+      <span class="text-white-50 small text-uppercase fw-bold">Slices</span>
+      <span class="fw-bold text-white ms-1">{{ slicedCorrectCount }}/10</span>
+    </div>
+
+    <!-- Lives & Sound -->
+    <div class="hud-item d-flex align-items-center gap-2">
+      <div class="lives-container d-flex gap-1">
+        @for (heart of [1, 2, 3]; track heart) {
+          <i class="bi bi-heart-fill heart-icon" [class.lost]="heart > lives()"></i>
+        }
+      </div>
+      <button type="button" class="btn btn-sm btn-dark text-white rounded-circle p-1 ms-1 sound-btn"
+              (click)="toggleSound()" [title]="soundEnabled() ? 'Mute' : 'Unmute'">
+        <i class="bi" [class.bi-volume-up-fill]="soundEnabled()" [class.bi-volume-mute-fill]="!soundEnabled()"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Ninja Mission Prompt Banner -->
+  <div class="mission-banner text-center px-3 py-2">
+    <span class="mission-label text-warning small fw-bold text-uppercase d-block mb-1">
+      <i class="bi bi-slash-circle me-1"></i> Slice Mission
+    </span>
+    <h5 class="mission-text text-white fw-bold mb-0">
+      {{ targetPrompt() }}
+    </h5>
+  </div>
+
+  <!-- Canvas Dojo Area -->
+  <div class="canvas-wrapper position-relative d-flex justify-content-center">
+    <canvas #ninjaCanvas class="ninja-canvas shadow-lg rounded-3"
+            (pointerdown)="onPointerDown($event)"
+            (pointermove)="onPointerMove($event)"
+            (pointerup)="onPointerUp($event)"
+            (pointercancel)="onPointerUp($event)"
+            (pointerleave)="onPointerUp($event)"></canvas>
+
+    <!-- Overlay: Start -->
+    @if (gameState() === 'start') {
+      <div class="overlay-card text-center animate__animated animate__fadeIn">
+        <div class="overlay-icon text-warning mb-1">
+          <i class="bi bi-scissors fs-1"></i>
+        </div>
+        <h4 class="fw-bold text-white mb-1">⚔️ Word Ninja</h4>
+        <p class="text-light opacity-75 small mb-3 px-1" style="font-size: 0.78rem; line-height: 1.35;">
+          Slice correct target words in mid-air! Swipe with your mouse or finger. Avoid wrong words!
+        </p>
+        <button type="button" class="btn btn-success fw-bold px-4 py-1.5 rounded-pill shadow pulse-btn"
+                (click)="startGame()">
+          <i class="bi bi-play-fill fs-5 me-1"></i> Start Slicing
+        </button>
+      </div>
+    }
+
+    <!-- Overlay: Victory -->
+    @if (gameState() === 'victory') {
+      <div class="overlay-card text-center animate__animated animate__zoomIn">
+        <div class="overlay-icon text-warning mb-1">
+          <i class="bi bi-award-fill fs-1"></i>
+        </div>
+        <h4 class="fw-bold text-white mb-1">🎉 Master Ninja!</h4>
+        <p class="text-light opacity-75 small mb-2" style="font-size: 0.78rem;">All target words sliced with precision!</p>
+
+        <div class="stats-panel bg-dark bg-opacity-50 border border-secondary rounded-3 p-2 mb-3 mx-auto" style="max-width: 240px; font-size: 0.8rem;">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">Final Score:</span>
+            <span class="fw-bold text-warning">{{ score() }} pts</span>
+          </div>
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">Targets Hit:</span>
+            <span class="fw-bold text-success">{{ slicedCorrectCount }}</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">Mistakes:</span>
+            <span class="fw-bold text-danger">{{ slicedWrongCount }}</span>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-warning fw-bold px-4 py-1.5 rounded-pill shadow"
+                (click)="restartGame()">
+          <i class="bi bi-arrow-repeat me-1"></i> Slice Again
+        </button>
+      </div>
+    }
+
+    <!-- Overlay: Game Over -->
+    @if (gameState() === 'gameover') {
+      <div class="overlay-card text-center animate__animated animate__shakeX">
+        <div class="overlay-icon text-danger mb-1">
+          <i class="bi bi-x-octagon-fill fs-1"></i>
+        </div>
+        <h4 class="fw-bold text-white mb-1">Mission Failed!</h4>
+        <p class="text-light opacity-75 small mb-2" style="font-size: 0.78rem;">You ran out of ninja lives.</p>
+
+        <div class="stats-panel bg-dark bg-opacity-50 border border-secondary rounded-3 p-2 mb-3 mx-auto" style="max-width: 240px; font-size: 0.8rem;">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">Score Achieved:</span>
+            <span class="fw-bold text-warning">{{ score() }}</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">Correct Slices:</span>
+            <span class="fw-bold text-light">{{ slicedCorrectCount }}/10</span>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-danger fw-bold px-4 py-1.5 rounded-pill shadow"
+                (click)="restartGame()">
+          <i class="bi bi-arrow-clockwise me-1"></i> Try Again
+        </button>
+      </div>
+    }
+  </div>
+
+  <div class="instruction-bar text-center py-1 text-white-50 small" style="font-size: 0.72rem;">
+    <i class="bi bi-hand-index-thumb me-1"></i> Swipe mouse or finger across words to slice them!
+  </div>
+</div>

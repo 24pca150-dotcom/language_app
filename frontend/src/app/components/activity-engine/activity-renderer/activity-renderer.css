@@ -1,4 +1,36 @@
-    .activity-renderer-container {
-      width: 100%;
-      margin: 0;
-    }
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.activity-renderer-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+app-activity-car-racer,
+app-activity-word-ninja,
+app-activity-flappy-word,
+app-activity-space-defender,
+app-activity-balloon-pop {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}

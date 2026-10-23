@@ -78,8 +78,8 @@
   </aside>
 
   <!-- 🌟 MAIN ACTIVITY ARENA -->
-  <main class="langnest-main flex-grow-1 position-relative d-flex flex-column overflow-y-auto z-2 w-100">
-    <div class="content-container position-relative z-2">
+  <main class="langnest-main flex-grow-1 position-relative d-flex flex-column z-2 w-100" [class.overflow-hidden]="stage() === 'player'" [class.overflow-y-auto]="stage() !== 'player'">
+    <div class="content-container position-relative z-2" [class.h-100]="stage() === 'player'">
 
 
       <!-- 🌟 TOP HEADER (Matching Curriculum, Practice, Assessments & Badges) -->
@@ -141,7 +141,7 @@
             </div>
           } @else if (stage() === 'player' && filteredActivities().length > 0) {
             <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold shadow-sm">
-              Question {{ currentPlayIndex() + 1 }} of {{ filteredActivities().length }}
+              Game {{ currentPlayIndex() + 1 }} of {{ filteredActivities().length }}
             </div>
           }
         </div>
@@ -257,6 +257,11 @@
                         <span class="adventure-track-tag">
                           🏰 {{ ch.levelName || 'Level Quest' }}
                         </span>
+                        @if (ch.id === 9999) {
+                          <span class="badge rounded-pill bg-warning text-dark fw-bold px-2.5 py-1" style="font-size: 0.72rem;">
+                            🔥 25 Games
+                          </span>
+                        }
                       </div>
 
                       <!-- Big Playful Chapter Title -->

@@ -1,0 +1,138 @@
+<div class="space-container position-relative user-select-none">
+  <!-- Top HUD Bar -->
+  <div class="space-hud d-flex justify-content-between align-items-center px-3 py-2">
+    <!-- Score -->
+    <div class="hud-item d-flex align-items-center gap-2">
+      <span class="hud-badge score-badge">
+        <i class="bi bi-crosshair text-info me-1"></i>
+        <strong>{{ score() }}</strong>
+      </span>
+    </div>
+
+    <!-- Waves Tracker -->
+    <div class="hud-item wave-tracker">
+      <span class="text-white-50 small text-uppercase fw-bold">Sector</span>
+      <span class="fw-bold text-white ms-1">{{ currentChallengeIndex() + 1 }}/{{ totalChallenges() }}</span>
+    </div>
+
+    <!-- Shields (Lives) & Sound -->
+    <div class="hud-item d-flex align-items-center gap-2">
+      <div class="lives-container d-flex gap-1">
+        @for (heart of [1, 2, 3]; track heart) {
+          <i class="bi bi-shield-fill shield-icon" [class.lost]="heart > lives()"></i>
+        }
+      </div>
+      <button type="button" class="btn btn-sm btn-dark text-white rounded-circle p-1 ms-1 sound-btn"
+              (click)="toggleSound()" [title]="soundEnabled() ? 'Mute' : 'Unmute'">
+        <i class="bi" [class.bi-volume-up-fill]="soundEnabled()" [class.bi-volume-mute-fill]="!soundEnabled()"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mission Banner -->
+  <div class="mission-banner text-center px-3 py-2">
+    <span class="mission-label text-info small fw-bold text-uppercase d-block mb-1">
+      <i class="bi bi-radar me-1"></i> Defense Mission
+    </span>
+    <h5 class="mission-text text-white fw-bold mb-0">
+      {{ currentPrompt() }}
+    </h5>
+  </div>
+
+  <!-- Canvas Deep Space -->
+  <div class="canvas-wrapper position-relative d-flex justify-content-center">
+    <canvas #spaceCanvas class="space-canvas shadow-lg rounded-3"></canvas>
+
+    <!-- Overlay: Start -->
+    @if (gameState() === 'start') {
+      <div class="overlay-card text-center animate__animated animate__fadeIn">
+        <div class="overlay-icon text-info mb-1">
+          <i class="bi bi-rocket-takeoff fs-1"></i>
+        </div>
+        <h4 class="fw-bold text-white mb-1">🚀 Space Defender</h4>
+        <p class="text-light opacity-75 small mb-3 px-1" style="font-size: 0.78rem; line-height: 1.35;">
+          Move your fighter ship left & right to align and shoot down the <strong>correct word</strong>!
+        </p>
+        <button type="button" class="btn btn-info fw-bold px-4 py-1.5 rounded-pill shadow pulse-btn text-dark"
+                (click)="startGame()">
+          <i class="bi bi-play-fill fs-5 me-1"></i> Launch Ship
+        </button>
+      </div>
+    }
+
+    <!-- Overlay: Victory -->
+    @if (gameState() === 'victory') {
+      <div class="overlay-card text-center animate__animated animate__zoomIn">
+        <div class="overlay-icon text-warning mb-1">
+          <i class="bi bi-trophy-fill fs-1"></i>
+        </div>
+        <h4 class="fw-bold text-white mb-1">🌌 Galaxy Secured!</h4>
+        <p class="text-light opacity-75 small mb-2" style="font-size: 0.78rem;">All target word pods annihilated!</p>
+
+        <div class="stats-panel bg-dark bg-opacity-50 border border-secondary rounded-3 p-2 mb-3 mx-auto" style="max-width: 240px; font-size: 0.8rem;">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">Final Score:</span>
+            <span class="fw-bold text-warning">{{ score() }} pts</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">Sectors Cleared:</span>
+            <span class="fw-bold text-success">{{ correctHits }}/{{ totalChallenges() }}</span>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-warning fw-bold px-4 py-1.5 rounded-pill shadow"
+                (click)="restartGame()">
+          <i class="bi bi-arrow-repeat me-1"></i> Patrol Again
+        </button>
+      </div>
+    }
+
+    <!-- Overlay: Game Over -->
+    @if (gameState() === 'gameover') {
+      <div class="overlay-card text-center animate__animated animate__shakeX">
+        <div class="overlay-icon text-danger mb-1">
+          <i class="bi bi-shield-x fs-1"></i>
+        </div>
+        <h4 class="fw-bold text-white mb-1">Shields Depleted!</h4>
+        <p class="text-light opacity-75 small mb-2" style="font-size: 0.78rem;">Your fighter was overwhelmed.</p>
+
+        <div class="stats-panel bg-dark bg-opacity-50 border border-secondary rounded-3 p-2 mb-3 mx-auto" style="max-width: 240px; font-size: 0.8rem;">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">Score Achieved:</span>
+            <span class="fw-bold text-warning">{{ score() }}</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">Sectors Held:</span>
+            <span class="fw-bold text-light">{{ correctHits }}/{{ totalChallenges() }}</span>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-danger fw-bold px-4 py-1.5 rounded-pill shadow"
+                (click)="restartGame()">
+          <i class="bi bi-arrow-clockwise me-1"></i> Re-engage
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Touch Controls -->
+  <div class="touch-controls d-flex justify-content-center align-items-center gap-2 py-1 px-2 mt-1">
+    <button type="button" class="btn control-btn btn-dark border-secondary rounded-3"
+            (click)="moveShip(-1)" [disabled]="gameState() !== 'playing'">
+      <i class="bi bi-arrow-left fs-4"></i>
+      <span class="small fw-bold">LEFT</span>
+    </button>
+
+    <button type="button" class="btn control-btn laser-btn btn-danger rounded-3 shadow-sm"
+            (click)="fireBullet()" [disabled]="gameState() !== 'playing'">
+      <i class="bi bi-crosshair fs-4"></i>
+      <span class="small fw-bold">FIRE</span>
+    </button>
+
+    <button type="button" class="btn control-btn btn-dark border-secondary rounded-3"
+            (click)="moveShip(1)" [disabled]="gameState() !== 'playing'">
+      <i class="bi bi-arrow-right fs-4"></i>
+      <span class="small fw-bold">RIGHT</span>
+    </button>
+  </div>
+</div>

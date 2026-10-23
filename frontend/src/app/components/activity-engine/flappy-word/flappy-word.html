@@ -1,0 +1,125 @@
+<div class="flappy-container position-relative user-select-none">
+  <!-- Top HUD Bar -->
+  <div class="flappy-hud d-flex justify-content-between align-items-center px-3 py-2">
+    <!-- Score -->
+    <div class="hud-item d-flex align-items-center gap-2">
+      <span class="hud-badge score-badge">
+        <i class="bi bi-star-fill text-warning me-1"></i>
+        <strong>{{ score() }}</strong>
+      </span>
+    </div>
+
+    <!-- Gate Progress -->
+    <div class="hud-item wave-tracker">
+      <span class="text-white-50 small text-uppercase fw-bold">Cloud Gate</span>
+      <span class="fw-bold text-white ms-1">{{ currentWaveIndex() + 1 }}/{{ totalWaves() }}</span>
+    </div>
+
+    <!-- Lives & Sound -->
+    <div class="hud-item d-flex align-items-center gap-2">
+      <div class="lives-container d-flex gap-1">
+        @for (heart of [1, 2, 3]; track heart) {
+          <i class="bi bi-heart-fill heart-icon" [class.lost]="heart > lives()"></i>
+        }
+      </div>
+      <button type="button" class="btn btn-sm btn-dark text-white rounded-circle p-1 ms-1 sound-btn"
+              (click)="toggleSound()" [title]="soundEnabled() ? 'Mute' : 'Unmute'">
+        <i class="bi" [class.bi-volume-up-fill]="soundEnabled()" [class.bi-volume-mute-fill]="!soundEnabled()"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Flight Prompt Banner -->
+  <div class="flight-banner text-center px-3 py-2">
+    <span class="flight-label text-warning small fw-bold text-uppercase d-block mb-1">
+      <i class="bi bi-cloud-arrow-up me-1"></i> Target Flight
+    </span>
+    <h5 class="flight-text text-white fw-bold mb-0">
+      {{ currentPrompt() }}
+    </h5>
+  </div>
+
+  <!-- Canvas Sky Area -->
+  <div class="canvas-wrapper position-relative d-flex justify-content-center" (click)="onCanvasClick()">
+    <canvas #flappyCanvas class="flappy-canvas shadow-lg rounded-3"></canvas>
+
+    <!-- Overlay: Start -->
+    @if (gameState() === 'start') {
+      <div class="overlay-card text-center animate__animated animate__fadeIn">
+        <div class="overlay-icon text-warning mb-1">
+          <i class="bi bi-feather fs-1"></i>
+        </div>
+        <h4 class="fw-bold text-white mb-1">🕊️ Flappy Word</h4>
+        <p class="text-light opacity-75 small mb-3 px-1" style="font-size: 0.78rem; line-height: 1.35;">
+          Tap anywhere or press Space to flap wings! Steer through the correct cloud gate while avoiding wrong clouds.
+        </p>
+        <button type="button" class="btn btn-warning fw-bold px-4 py-1.5 rounded-pill shadow pulse-btn"
+                (click)="startGame(); $event.stopPropagation()">
+          <i class="bi bi-play-fill fs-5 me-1"></i> Start Flight
+        </button>
+      </div>
+    }
+
+    <!-- Overlay: Victory -->
+    @if (gameState() === 'victory') {
+      <div class="overlay-card text-center animate__animated animate__zoomIn">
+        <div class="overlay-icon text-warning mb-1">
+          <i class="bi bi-trophy-fill fs-1"></i>
+        </div>
+        <h4 class="fw-bold text-white mb-1">🌤️ Skies Cleared!</h4>
+        <p class="text-light opacity-75 small mb-2" style="font-size: 0.78rem;">You navigated every word gate safely!</p>
+
+        <div class="stats-panel bg-dark bg-opacity-50 border border-secondary rounded-3 p-2 mb-3 mx-auto" style="max-width: 240px; font-size: 0.8rem;">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">Final Score:</span>
+            <span class="fw-bold text-warning">{{ score() }} pts</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">Gates Cleared:</span>
+            <span class="fw-bold text-success">{{ correctHits }}/{{ totalWaves() }}</span>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-warning fw-bold px-4 py-1.5 rounded-pill shadow"
+                (click)="restartGame(); $event.stopPropagation()">
+          <i class="bi bi-arrow-repeat me-1"></i> Fly Again
+        </button>
+      </div>
+    }
+
+    <!-- Overlay: Game Over -->
+    @if (gameState() === 'gameover') {
+      <div class="overlay-card text-center animate__animated animate__shakeX">
+        <div class="overlay-icon text-danger mb-1">
+          <i class="bi bi-cloud-lightning-rain fs-1"></i>
+        </div>
+        <h4 class="fw-bold text-white mb-1">Flight Lost!</h4>
+        <p class="text-light opacity-75 small mb-2" style="font-size: 0.78rem;">You ran out of flight shields.</p>
+
+        <div class="stats-panel bg-dark bg-opacity-50 border border-secondary rounded-3 p-2 mb-3 mx-auto" style="max-width: 240px; font-size: 0.8rem;">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">Score Achieved:</span>
+            <span class="fw-bold text-warning">{{ score() }}</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">Gates Passed:</span>
+            <span class="fw-bold text-light">{{ correctHits }}/{{ totalWaves() }}</span>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-danger fw-bold px-4 py-1.5 rounded-pill shadow"
+                (click)="restartGame(); $event.stopPropagation()">
+          <i class="bi bi-arrow-clockwise me-1"></i> Try Again
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Tap Instruction / Mobile Flap Button -->
+  <div class="flap-button-bar py-1 text-center w-100">
+    <button type="button" class="btn btn-primary rounded-pill px-4 py-1.5 fw-bold shadow-sm flap-btn"
+            (click)="flap()" [disabled]="gameState() !== 'playing'">
+      <i class="bi bi-arrow-up-circle-fill me-1 fs-5"></i> TAP TO FLAP
+    </button>
+  </div>
+</div>

@@ -92,6 +92,46 @@
               (answered)="onCustomCanvasAnswered($event)">
             </app-activity-custom-canvas>
           }
+          @case ('car_racer') {
+            <app-activity-car-racer
+              class="w-100 h-100 d-flex flex-column align-items-center justify-content-center overflow-hidden"
+              [activity]="data"
+              [showFeedback]="showFeedback"
+              (answered)="onCarRacerAnswered($event)">
+            </app-activity-car-racer>
+          }
+          @case ('word_ninja') {
+            <app-activity-word-ninja
+              class="w-100 h-100 d-flex flex-column align-items-center justify-content-center overflow-hidden"
+              [activity]="data"
+              [showFeedback]="showFeedback"
+              (answered)="onWordNinjaAnswered($event)">
+            </app-activity-word-ninja>
+          }
+          @case ('flappy_word') {
+            <app-activity-flappy-word
+              class="w-100 h-100 d-flex flex-column align-items-center justify-content-center overflow-hidden"
+              [activity]="data"
+              [showFeedback]="showFeedback"
+              (answered)="onFlappyWordAnswered($event)">
+            </app-activity-flappy-word>
+          }
+          @case ('space_defender') {
+            <app-activity-space-defender
+              class="w-100 h-100 d-flex flex-column align-items-center justify-content-center overflow-hidden"
+              [activity]="data"
+              [showFeedback]="showFeedback"
+              (answered)="onSpaceDefenderAnswered($event)">
+            </app-activity-space-defender>
+          }
+          @case ('balloon_pop') {
+            <app-activity-balloon-pop
+              class="w-100 h-100 d-flex flex-column align-items-center justify-content-center overflow-hidden"
+              [activity]="data"
+              [showFeedback]="showFeedback"
+              (answered)="onBalloonPopAnswered($event)">
+            </app-activity-balloon-pop>
+          }
         }
       </div>
     }

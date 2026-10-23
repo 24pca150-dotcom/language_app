@@ -233,8 +233,13 @@
 
 /* 🌟 Top Header Row (Lowered to match Learner Dashboard) */
 .activity-top-header {
-  margin-top: 26px !important;
-  margin-bottom: 20px !important;
+  margin-top: 18px !important;
+  margin-bottom: 12px !important;
+}
+
+.langnest-main.overflow-hidden .activity-top-header {
+  margin-top: 8px !important;
+  margin-bottom: 6px !important;
 }
 
 /* 🔙 Circular Back Button */
@@ -689,15 +694,17 @@
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
+  height: calc(100vh - 80px) !important;
+  max-height: calc(100vh - 80px) !important;
+  overflow: hidden !important;
 }
 
 .activity-stage-box,
 .glass-stage-card {
   width: 100% !important;
   max-width: 1020px !important;
-  height: calc(100vh - 135px) !important;
-  min-height: 420px !important;
-  max-height: 720px !important;
+  height: 100% !important;
+  max-height: 100% !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: space-between !important;
@@ -706,20 +713,20 @@
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
   border: 1.8px solid rgba(255, 255, 255, 0.8) !important;
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.85) !important;
-  border-radius: 28px !important;
+  border-radius: 20px !important;
   box-sizing: border-box !important;
   position: relative !important;
   overflow: hidden !important;
   transition: none !important;
-  padding: 1rem 1.25rem !important;
+  padding: 0.5rem 0.85rem !important;
 }
 
 .activity-stage-box .activity-card-title {
   border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
   flex-shrink: 0 !important;
   width: 100% !important;
-  padding-bottom: 0.5rem !important;
-  margin-bottom: 0.25rem !important;
+  padding-bottom: 0.25rem !important;
+  margin-bottom: 0.2rem !important;
 }
 
 .activity-stage-box .activity-card-title h3,
@@ -727,37 +734,72 @@
   color: #0B192C !important;
   font-weight: 800 !important;
   letter-spacing: -0.01em;
+  font-size: 1.1rem !important;
 }
 
 .activity-stage-box .activity-card-title span {
   color: #475569 !important;
   font-weight: 500;
+  font-size: 0.75rem !important;
 }
 
-/* Middle Content Area - Top Aligned, Never Clips Top, Inner Scrollable If Needed */
+.activity-stage-box .activity-card-footer {
+  flex-shrink: 0 !important;
+  width: 100% !important;
+  padding-top: 0.35rem !important;
+  padding-bottom: 0.1rem !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Middle Content Area - Top Aligned, Never Clips Top, Zero Scrollbar */
 .activity-stage-box .activity-render-wrapper {
   flex: 1 1 0 !important;
   min-height: 0 !important;
+  height: 100% !important;
   width: 100% !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
-  justify-content: flex-start !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  padding: 0.25rem 0.5rem !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  padding: 0.1rem 0.25rem !important;
 }
 
 .activity-stage-box .activity-render-wrapper app-activity-renderer {
   width: 100% !important;
   max-width: 860px !important;
-  margin: auto 0 !important;
-  display: block !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
 }
 
 .activity-stage-box .activity-render-wrapper .activity-renderer-container {
   margin: 0 !important;
   width: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.activity-stage-box .activity-render-wrapper app-activity-renderer app-activity-car-racer,
+.activity-stage-box .activity-render-wrapper app-activity-renderer app-activity-word-ninja,
+.activity-stage-box .activity-render-wrapper app-activity-renderer app-activity-flappy-word,
+.activity-stage-box .activity-render-wrapper app-activity-renderer app-activity-space-defender,
+.activity-stage-box .activity-render-wrapper app-activity-renderer app-activity-balloon-pop {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
 }
 
 /* Custom Sleek Scrollbar for Inner Content Only (Outer Box Never Scrolls or Changes) */
