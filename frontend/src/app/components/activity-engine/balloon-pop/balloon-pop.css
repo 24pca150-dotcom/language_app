@@ -112,7 +112,7 @@
   overflow: hidden;
   border-radius: 0.75rem;
   background: #000;
-  cursor: crosshair;
+  cursor: default;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -126,6 +126,7 @@
   max-height: 100%;
   display: block;
   object-fit: contain;
+  cursor: default;
 }
 
 /* Overlays */
