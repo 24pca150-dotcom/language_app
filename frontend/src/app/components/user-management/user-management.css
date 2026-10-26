@@ -57,3 +57,67 @@ code {
 .animate-in {
   animation: slideInFromTop 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* ==========================================================================
+   📱 Header Action Buttons - Clean Mobile Vertical Stack
+   ========================================================================== */
+.user-action-buttons .btn {
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.92rem;
+  border-radius: 12px;
+}
+
+@media (max-width: 767.98px) {
+  .user-action-buttons {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .user-action-buttons .btn {
+    width: 100% !important;
+    height: 42px !important; /* Matches standard text box height */
+    font-size: 0.9rem !important;
+    padding: 0 16px !important;
+  }
+}
+
+/* Custom In-Place Filter Dropdown Menu */
+.custom-dropdown-menu {
+  top: 100%;
+  left: 0;
+  right: 0;
+  width: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
+  animation: slideInFromTop 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.custom-dropdown-menu .dropdown-item {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #1e293b;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.custom-dropdown-menu .dropdown-item:hover {
+  background: #f1f5f9;
+  color: #4f46e5;
+}
+
+.custom-dropdown-menu .dropdown-item.active-item {
+  background: #eef2ff;
+  color: #4f46e5;
+  font-weight: 700;
+}
+
+

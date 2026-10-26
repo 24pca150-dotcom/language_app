@@ -286,6 +286,15 @@ export class LearnerDashboard implements OnInit {
   grammarScore = signal<number>(0);
   speakingScore = signal<number>(0);
 
+  // 🌟 Gamified Badges & Home Companions
+  effectiveStreak = computed(() => (this.streakDays() > 0 ? this.streakDays() : 3));
+  effectiveStars = computed(() => (this.xp() > 0 ? this.xp() : 150));
+  learnerLevel = computed(() => Math.max(1, Math.floor(this.effectiveStars() / 100) + 1));
+  mascotSpeechBubble = signal<string | null>(null);
+  owlSpeechBubble = signal<string | null>(null);
+  private speechBubbleTimer: any = null;
+  private owlBubbleTimer: any = null;
+
   // Weekly Consistency & Daily Goal State
   weeklyDays = signal<WeeklyDay[]>([]);
   daysMetCount = signal<number>(0);
@@ -1584,6 +1593,65 @@ export class LearnerDashboard implements OnInit {
       spread: 80,
       origin: { y: 0.6 }
     });
+  }
+
+  speakMascotGreeting() {
+    const name = this.learnerName() || 'Explorer';
+    const greetings = [
+      `Hello ${name}! Ready for today's learning adventure? 🚀`,
+      `Great to see you, ${name}! Let's earn some stars today! ⭐`,
+      `You are doing awesome, ${name}! Keep going! 🎉`,
+      `Hop hop! Let's explore new words together! 🐰✨`
+    ];
+    const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+    this.mascotSpeechBubble.set(greeting);
+
+    try {
+      confetti({
+        particleCount: 40,
+        spread: 60,
+        origin: { x: 0.25, y: 0.25 }
+      });
+    } catch (e) {}
+
+    this.audioService.playSuccessSoundOnly();
+    this.audioService.speak(greeting);
+
+    if (this.speechBubbleTimer) clearTimeout(this.speechBubbleTimer);
+    this.speechBubbleTimer = setTimeout(() => {
+      this.mascotSpeechBubble.set(null);
+    }, 4500);
+  }
+
+  speakOwlTip() {
+    const tips = [
+      "Owl's Tip: Practice 10 minutes every day to unlock magical rewards! 🦉✨",
+      "Did you know? Speaking out loud helps your brain remember words 2x faster! 🗣️",
+      "Smart move! Consistent learners become vocabulary champions! 🏆",
+      "Hoot hoot! Complete today's Daily Quest to earn bonus stars! 🎯"
+    ];
+    const tip = tips[Math.floor(Math.random() * tips.length)];
+    this.owlSpeechBubble.set(tip);
+
+    this.audioService.playSuccessSoundOnly();
+    this.audioService.speak(tip);
+
+    if (this.owlBubbleTimer) clearTimeout(this.owlBubbleTimer);
+    this.owlBubbleTimer = setTimeout(() => {
+      this.owlSpeechBubble.set(null);
+    }, 5000);
+  }
+
+  launchQuickPractice() {
+    this.audioService.playSuccessSoundOnly();
+    try {
+      confetti({
+        particleCount: 60,
+        spread: 70,
+        origin: { y: 0.5 }
+      });
+    } catch (e) {}
+    this.setTab('practice');
   }
 
   logout() {

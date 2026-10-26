@@ -63,12 +63,55 @@ export class ActivityBuilder {
   isTemplatePickerVisible = signal(false);
   testingActivity = signal<Activity | null>(null);
 
+  // Activity Picker Modal State
+  templateFilter = signal<'all' | 'games' | 'core'>('all');
+  templateSearch = signal<string>('');
+
+  availableActivityTypes = [
+    { type: 'car_racer', title: '3-Lane Highway Racer', category: 'games', icon: 'bi-speedometer2', color: '#d97706', bg: '#fef3c7', tag: '🏎️ Car Game', desc: 'Drive across 3 lanes, steer left/right to pass checkpoint words.' },
+    { type: 'word_ninja', title: 'Word Ninja', category: 'games', icon: 'bi-scissors', color: '#059669', bg: '#d1fae5', tag: '⚔️ Slicer Game', desc: 'Slice floating words with blade swipes while dodging distractors.' },
+    { type: 'flappy_word', title: 'Flappy Word', category: 'games', icon: 'bi-feather', color: '#0891b2', bg: '#cffafe', tag: '🕊️ Flight Game', desc: 'Flap through skies and glide through correct cloud gates.' },
+    { type: 'space_defender', title: 'Space Word Defender', category: 'games', icon: 'bi-rocket-takeoff', color: '#7c3aed', bg: '#ede9fe', tag: '🚀 Galaxy Shooter', desc: 'Shoot target enemy alien ships with laser cannons.' },
+    { type: 'balloon_pop', title: 'Balloon Word Pop', category: 'games', icon: 'bi-balloon-fill', color: '#db2777', bg: '#fce7f3', tag: '🎈 Sky Tap Game', desc: 'Tap rising balloons to pop correct vocabulary before they float away.' },
+    { type: 'crossword', title: 'Dynamic Crossword', category: 'games', icon: 'bi-grid-3x3', color: '#dc2626', bg: '#fee2e2', tag: '🧩 Word Puzzle', desc: 'Auto-generating crossword puzzle grid with word clues.' },
+    { type: 'mcq', title: 'Multiple Choice (MCQ)', category: 'core', icon: 'bi-question-circle-fill', color: '#2563eb', bg: '#dbeafe', tag: 'Quiz & Audio', desc: 'Audio clip or question with multiple choice options and instant feedback.' },
+    { type: 'fill_blanks', title: 'Fill in the Blanks', category: 'core', icon: 'bi-input-cursor-text', color: '#0284c7', bg: '#e0f2fe', tag: 'Dictation & Gap', desc: 'Sentences with missing word blanks for typing or selection.' },
+    { type: 'match', title: 'Match It', category: 'core', icon: 'bi-puzzle-fill', color: '#4f46e5', bg: '#e0e7ff', tag: 'Matching Pair', desc: 'Pair words, audio sounds, translations, or pictures.' },
+    { type: 'flashcard', title: '3D Vocabulary Flashcard', category: 'core', icon: 'bi-card-text', color: '#059669', bg: '#d1fae5', tag: 'Memory Drill', desc: 'Interactive double-sided flipping cards with pronunciation.' },
+    { type: 'word_arrange', title: 'Word Arrangement', category: 'core', icon: 'bi-sort-alpha-down', color: '#d97706', bg: '#fef3c7', tag: 'Syntax & Order', desc: 'Rearrange jumbled words into grammatically correct sentences.' },
+    { type: 'speaking', title: 'Speaking (Voice Record)', category: 'core', icon: 'bi-mic-fill', color: '#059669', bg: '#d1fae5', tag: 'Pronunciation', desc: 'Students read sentence into mic; AI analyzes accuracy.' },
+    { type: 'role_play', title: 'Role Play Dialogue', category: 'core', icon: 'bi-chat-dots-fill', color: '#0d9488', bg: '#ccfbf1', tag: 'Conversation', desc: 'Turn-based real-world conversation dialogue between 2 characters.' },
+    { type: 'sequencing', title: 'Sequencing', category: 'core', icon: 'bi-arrow-down-up', color: '#7c3aed', bg: '#ede9fe', tag: 'Story Order', desc: 'Order paragraphs, events, or steps chronologically.' },
+    { type: 'parts_of_speech', title: 'Parts of Speech Tagger', category: 'core', icon: 'bi-tags-fill', color: '#0284c7', bg: '#e0f2fe', tag: 'Grammar', desc: 'Highlight and classify nouns, verbs, adjectives, and adverbs.' },
+    { type: 'mind_map', title: 'Mind Mapping Diagram', category: 'core', icon: 'bi-diagram-3-fill', color: '#d97706', bg: '#fef3c7', tag: 'Concept Map', desc: 'Interactive tree/branch graph diagram to organize thoughts.' },
+    { type: 'writing', title: 'Story / Essay Writing', category: 'core', icon: 'bi-pencil-square', color: '#e11d48', bg: '#ffe4e6', tag: 'Composition', desc: 'Paragraph writing with sample model answer & word counter.' },
+    { type: 'custom', title: 'Custom Canvas Builder', category: 'core', icon: 'bi-palette-fill', color: '#475569', bg: '#f1f5f9', tag: 'Drag & Drop', desc: 'Free-form visual layout builder for containers, media, and text.' }
+  ];
+
+  filteredTemplates = computed(() => {
+    const query = this.templateSearch().toLowerCase().trim();
+    const filter = this.templateFilter();
+    return this.availableActivityTypes.filter(act => {
+      const matchesFilter = filter === 'all' || act.category === filter;
+      const matchesQuery = !query || 
+        act.title.toLowerCase().includes(query) || 
+        act.tag.toLowerCase().includes(query) || 
+        act.desc.toLowerCase().includes(query);
+      return matchesFilter && matchesQuery;
+    });
+  });
+
   // Search & Filter State
   searchQuery = signal('');
   filterType = signal('all');
   selectedSkillTab = signal<'all' | 'listening' | 'speaking' | 'reading' | 'writing' | 'games'>('all');
-  selectedCourseFilter = signal<number | 'all'>('all');
+  selectedCourseFilter = signal<number | 'all' | null>('all');
   selectedStatusFilter = signal<'all' | 'linked' | 'unassigned'>('all');
+
+  // Custom Dropdown Menus State
+  isCourseFilterOpen = signal(false);
+  isTypeFilterOpen = signal(false);
+  isPageSizeOpen = signal(false);
 
   // Pagination State
   currentPage = signal<number>(1);
@@ -97,6 +140,11 @@ export class ActivityBuilder {
         return 'writing';
       case 'crossword':
       case 'custom':
+      case 'car_racer':
+      case 'word_ninja':
+      case 'flappy_word':
+      case 'space_defender':
+      case 'balloon_pop':
         return 'games';
       default:
         return 'listening';
@@ -281,6 +329,8 @@ export class ActivityBuilder {
   }
 
   openTemplatePicker() {
+    this.templateSearch.set('');
+    this.templateFilter.set('all');
     this.isTemplatePickerVisible.set(true);
   }
 
@@ -330,6 +380,81 @@ export class ActivityBuilder {
     });
   }
 
+  toggleCourseDropdown(): void {
+    this.isCourseFilterOpen.update(v => !v);
+    this.isTypeFilterOpen.set(false);
+    this.isPageSizeOpen.set(false);
+  }
+
+  toggleTypeDropdown(): void {
+    this.isTypeFilterOpen.update(v => !v);
+    this.isCourseFilterOpen.set(false);
+    this.isPageSizeOpen.set(false);
+  }
+
+  togglePageSizeDropdown(): void {
+    this.isPageSizeOpen.update(v => !v);
+    this.isCourseFilterOpen.set(false);
+    this.isTypeFilterOpen.set(false);
+  }
+
+  setCourseFilterValue(val: number | 'all' | null | undefined): void {
+    this.selectedCourseFilter.set(val === undefined ? 'all' : val);
+    this.isCourseFilterOpen.set(false);
+    this.onFilterChange();
+  }
+
+  setTypeFilterValue(val: string): void {
+    this.filterType.set(val);
+    this.isTypeFilterOpen.set(false);
+    this.onFilterChange();
+  }
+
+  setPageSizeValue(val: number): void {
+    this.pageSize.set(val);
+    this.currentPage.set(1);
+    this.isPageSizeOpen.set(false);
+  }
+
+  getCourseFilterLabel(): string {
+    const cId = this.selectedCourseFilter();
+    if (cId === 'all') return 'All Courses';
+    if (cId === null) return 'Global / Practice';
+    const c = this.coursesList().find(course => course.id === cId);
+    return c ? c.name : 'All Courses';
+  }
+
+  getTypeFilterLabel(): string {
+    const t = this.filterType();
+    switch (t) {
+      case 'all': return 'All Exercise Types';
+      case 'mcq': return 'MCQ / Audio';
+      case 'match': return 'Match It';
+      case 'speaking': return 'Speaking Test';
+      case 'role_play': return 'Role Play';
+      case 'flashcard': return '3D Flashcard';
+      case 'sequencing': return 'Sequencing';
+      case 'mind_map': return 'Mind Map';
+      case 'fill_blanks': return 'Fill in the Blanks';
+      case 'word_arrange': return 'Word Arrangement';
+      case 'parts_of_speech': return 'Parts of Speech';
+      case 'writing': return 'Paragraph Writing';
+      case 'crossword': return 'Crossword';
+      case 'custom': return 'Custom Canvas';
+      case 'car_racer': return 'Highway Racer';
+      case 'word_ninja': return 'Word Ninja';
+      case 'flappy_word': return 'Flappy Word';
+      case 'space_defender': return 'Space Defender';
+      case 'balloon_pop': return 'Balloon Pop';
+      default: return 'All Exercise Types';
+    }
+  }
+
+  getPageSizeLabel(): string {
+    const s = this.pageSize();
+    return s === 0 ? 'All' : `${s}`;
+  }
+
   generateNextTitle(type: string): string {
     const list = this.savedActivities();
     const countOfType = list.filter(act => act.type === type).length;
@@ -348,7 +473,12 @@ export class ActivityBuilder {
       parts_of_speech: 'Parts of Speech',
       mind_map: 'Mind Map',
       writing: 'Paragraph Writing',
-      custom: 'Custom Activity'
+      custom: 'Custom Activity',
+      car_racer: 'Highway Racer Challenge',
+      word_ninja: 'Word Ninja Mission',
+      flappy_word: 'Flappy Word Flight',
+      space_defender: 'Space Defender Mission',
+      balloon_pop: 'Balloon Word Pop'
     };
 
     const prefix = names[type] || 'Activity';
@@ -744,6 +874,11 @@ export class ActivityBuilder {
       case 'mind_map': return 'bi-diagram-3';
       case 'writing': return 'bi-pencil';
       case 'custom': return 'bi-palette';
+      case 'car_racer': return 'bi-speedometer2';
+      case 'word_ninja': return 'bi-scissors';
+      case 'flappy_word': return 'bi-feather';
+      case 'space_defender': return 'bi-rocket-takeoff';
+      case 'balloon_pop': return 'bi-balloon';
       default: return 'bi-gear';
     }
   }
@@ -763,6 +898,11 @@ export class ActivityBuilder {
       case 'mind_map': return 'Mind Map';
       case 'writing': return 'Writing';
       case 'custom': return 'Custom Canvas';
+      case 'car_racer': return 'Highway Racer';
+      case 'word_ninja': return 'Word Ninja';
+      case 'flappy_word': return 'Flappy Word';
+      case 'space_defender': return 'Space Defender';
+      case 'balloon_pop': return 'Balloon Pop';
       default: return type;
     }
   }
@@ -796,6 +936,16 @@ export class ActivityBuilder {
         return `Topic: "${data.question || ''}"`;
       case 'custom':
         return `Custom nodes layout containing ${data.nodes?.length || 0} items`;
+      case 'car_racer':
+        return `Waves: ${data.rounds?.length || 1} | Speed: ${data.speed || 'normal'}`;
+      case 'word_ninja':
+        return `Mission: "${data.question || ''}" | Targets: ${data.correctWords?.length || 0}`;
+      case 'flappy_word':
+        return `Gates: ${data.waves?.length || 1} | Pace: ${data.speed || 'normal'}`;
+      case 'space_defender':
+        return `Sectors: ${data.challenges?.length || 1} | Pace: ${data.speed || 'normal'}`;
+      case 'balloon_pop':
+        return `Mission: "${data.question || ''}" | Words: ${data.correctWords?.length || 0}`;
       default:
         return 'No details available';
     }

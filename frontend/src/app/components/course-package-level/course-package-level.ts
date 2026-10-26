@@ -35,6 +35,8 @@ export class CoursePackageLevel implements OnInit {
   selectedLevelIds = signal<number[]>([]);
   selectedCourseName = signal<string | null>(null);
   isDropdownOpen = signal(false);
+  isCourseDropdownOpen = signal(false);
+  isPackageDropdownOpen = signal(false);
 
   ngOnInit(): void {
     this.loadPackages();
@@ -195,6 +197,46 @@ export class CoursePackageLevel implements OnInit {
       return level ? level.name : '1 level selected';
     }
     return `${count} levels selected`;
+  }
+
+  toggleCourseDropdown(event: Event): void {
+    event.stopPropagation();
+    this.isCourseDropdownOpen.update(v => !v);
+    this.isPackageDropdownOpen.set(false);
+    this.isDropdownOpen.set(false);
+  }
+
+  togglePackageDropdown(event: Event): void {
+    event.stopPropagation();
+    this.isPackageDropdownOpen.update(v => !v);
+    this.isCourseDropdownOpen.set(false);
+    this.isDropdownOpen.set(false);
+  }
+
+  selectCourse(id: number | null): void {
+    this.selectedCourseId.set(id);
+    this.isCourseDropdownOpen.set(false);
+    this.onSelectionChange();
+  }
+
+  selectPackage(id: number | null): void {
+    this.selectedPackageId.set(id);
+    this.isPackageDropdownOpen.set(false);
+    this.onSelectionChange();
+  }
+
+  getSelectedCourseLabel(): string {
+    const id = this.selectedCourseId();
+    if (!id) return 'Select Course';
+    const c = this.courses().find(item => item.id === id);
+    return c ? c.name : 'Select Course';
+  }
+
+  getSelectedPackageLabel(): string {
+    const id = this.selectedPackageId();
+    if (!id) return 'Select Package';
+    const p = this.packages().find(item => item.id === id);
+    return p ? `${p.name} (${p.code})` : 'Select Package';
   }
 
 

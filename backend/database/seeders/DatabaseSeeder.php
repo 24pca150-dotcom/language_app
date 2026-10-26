@@ -106,12 +106,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $this->call(EnglishCourseSeeder::class);
-        $this->call(WritingSkillSeeder::class);
-        $this->call(ListeningSkillSeeder::class);
-        $this->call(ReadingSkillSeeder::class);
-        $this->call(SpeakingSkillSeeder::class);
-        $this->call(InteractiveFeaturesTestSeeder::class);
+        $this->call(CurriculumMasterSeeder::class);
         $this->call(ActivitySeeder::class);
     }
 }

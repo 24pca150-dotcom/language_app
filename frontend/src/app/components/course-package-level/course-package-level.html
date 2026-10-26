@@ -12,26 +12,52 @@
       <div class="row g-4 mb-5">
         <!-- Course Selection -->
         @if (!selectedCourseName()) {
-        <div class="col-md-4">
+        <div class="col-md-4 position-relative">
           <label class="form-label small fw-bold text-secondary">Course</label>
-          <select [(ngModel)]="selectedCourseId" (change)="onSelectionChange()" class="form-select border-light bg-light shadow-none cursor-pointer">
-            <option [ngValue]="null" disabled>Select Course</option>
-            @for (course of courses(); track course.id) {
-            <option [ngValue]="course.id">{{ course.name }}</option>
-            }
-          </select>
+          <div class="form-select border-light bg-light shadow-none cursor-pointer d-flex justify-content-between align-items-center h-auto py-2 px-3"
+               (click)="toggleCourseDropdown($event)">
+            <span class="text-truncate">{{ getSelectedCourseLabel() }}</span>
+            <i class="bi bi-chevron-down small text-secondary"></i>
+          </div>
+
+          @if (isCourseDropdownOpen()) {
+            <div class="custom-dropdown-menu position-absolute start-0 end-0 mt-1 bg-white rounded-3 shadow-lg border p-1 z-3" 
+                 (click)="$event.stopPropagation()" style="max-height: 250px; overflow-y: auto;">
+              @for (course of courses(); track course.id) {
+                <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                        [class.active-item]="selectedCourseId() === course.id"
+                        (click)="selectCourse(course.id!)">
+                  <span class="text-truncate">{{ course.name }}</span>
+                  @if (selectedCourseId() === course.id) { <i class="bi bi-check-lg text-primary"></i> }
+                </button>
+              }
+            </div>
+          }
         </div>
         }
 
         <!-- Package Selection -->
-        <div class="col-md-4">
+        <div class="col-md-4 position-relative">
           <label class="form-label small fw-bold text-secondary">Package</label>
-          <select [(ngModel)]="selectedPackageId" (change)="onSelectionChange()" class="form-select border-light bg-light shadow-none cursor-pointer">
-            <option [ngValue]="null" disabled>Select Package</option>
-            @for (pkg of packages(); track pkg.id) {
-            <option [ngValue]="pkg.id">{{ pkg.name }} ({{ pkg.code }})</option>
-            }
-          </select>
+          <div class="form-select border-light bg-light shadow-none cursor-pointer d-flex justify-content-between align-items-center h-auto py-2 px-3"
+               (click)="togglePackageDropdown($event)">
+            <span class="text-truncate">{{ getSelectedPackageLabel() }}</span>
+            <i class="bi bi-chevron-down small text-secondary"></i>
+          </div>
+
+          @if (isPackageDropdownOpen()) {
+            <div class="custom-dropdown-menu position-absolute start-0 end-0 mt-1 bg-white rounded-3 shadow-lg border p-1 z-3"
+                 (click)="$event.stopPropagation()" style="max-height: 250px; overflow-y: auto;">
+              @for (pkg of packages(); track pkg.id) {
+                <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                        [class.active-item]="selectedPackageId() === pkg.id"
+                        (click)="selectPackage(pkg.id!)">
+                  <span class="text-truncate">{{ pkg.name }} ({{ pkg.code }})</span>
+                  @if (selectedPackageId() === pkg.id) { <i class="bi bi-check-lg text-primary"></i> }
+                </button>
+              }
+            </div>
+          }
         </div>
 
         <!-- Level Selection (Custom Multi-select) -->

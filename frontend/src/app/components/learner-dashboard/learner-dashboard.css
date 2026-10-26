@@ -444,6 +444,13 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+.learner-top-header-row,
+.activity-top-header {
+  padding-right: 0 !important;
+  margin-top: 32px !important;
+  margin-bottom: 22px !important;
+}
+
 /* 🐰 Student Greeting Hero with Jumping Cartoon Mascot (White text & Playful Jump) */
 .home-student-hero {
   display: inline-flex;
@@ -457,6 +464,7 @@
   border: 1.5px solid rgba(255, 255, 255, 0.2);
   border-radius: 50rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  margin-top: 0;
   margin-bottom: 24px;
 }
 
@@ -489,6 +497,361 @@
   line-height: 1.1;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.75), 0 1px 3px rgba(0, 0, 0, 0.9) !important;
   margin: 0;
+}
+
+/* 🐰 Mascot Tap Hint & Speech Bubble */
+.home-student-hero.cursor-pointer {
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+.home-student-hero.cursor-pointer:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 213, 79, 0.6);
+}
+.mascot-sound-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  font-size: 0.85rem;
+  animation: pulseSound 2s infinite ease-in-out;
+}
+@keyframes pulseSound {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
+.mascot-speech-bubble-pop {
+  position: absolute;
+  top: -46px;
+  left: 20px;
+  z-index: 100;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: #FFFFFF;
+  border: 1.5px solid rgba(255, 213, 79, 0.6);
+  padding: 8px 16px;
+  border-radius: 14px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+  animation: speechPopIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.mascot-bubble-tail {
+  position: absolute;
+  bottom: -7px;
+  left: 36px;
+  width: 12px;
+  height: 12px;
+  background: rgba(15, 23, 42, 0.92);
+  border-right: 1.5px solid rgba(255, 213, 79, 0.6);
+  border-bottom: 1.5px solid rgba(255, 213, 79, 0.6);
+  transform: rotate(45deg);
+}
+@keyframes speechPopIn {
+  from { opacity: 0; transform: translateY(6px) scale(0.92); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 🌟 Item 1: Gamified Stats Cluster (Streak, Stars, Rank) */
+.gamified-stats-cluster {
+  background: rgba(15, 23, 42, 0.38);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50rem;
+  padding: 6px 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  margin-top: 0;
+}
+.stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 50rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.stat-pill:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.16);
+}
+.streak-pill {
+  border-color: rgba(249, 115, 22, 0.35);
+}
+.star-pill {
+  border-color: rgba(234, 179, 8, 0.35);
+}
+.rank-pill {
+  border-color: rgba(168, 85, 247, 0.35);
+}
+.stat-pill-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+.flame-bounce {
+  display: inline-block;
+  animation: flameBounce 1.8s infinite ease-in-out;
+}
+@keyframes flameBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.12); }
+}
+.star-glow {
+  display: inline-block;
+  animation: starTwinkle 2s infinite ease-in-out;
+}
+@keyframes starTwinkle {
+  0%, 100% { transform: rotate(0deg) scale(1); filter: drop-shadow(0 0 2px #facc15); }
+  50% { transform: rotate(15deg) scale(1.15); filter: drop-shadow(0 0 6px #facc15); }
+}
+.stat-pill-val {
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.1;
+}
+.stat-pill-lbl {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.65);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+/* 🎯 Item 2: Daily Quest Banner */
+.daily-quest-banner {
+  background: rgba(15, 23, 42, 0.38);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  padding: 10px 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+.quest-target-crest {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(249, 115, 22, 0.3));
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FB923C;
+  flex-shrink: 0;
+}
+.quest-badge-tag {
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #FED7AA;
+  background: rgba(234, 88, 12, 0.35);
+  border: 1px solid rgba(249, 115, 22, 0.45);
+  padding: 2px 8px;
+  border-radius: 50rem;
+  letter-spacing: 0.5px;
+}
+.quest-title-text {
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+.quest-status-chip {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #FDE047;
+  white-space: nowrap;
+}
+.quest-xp-reward {
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #FDE047;
+  background: rgba(234, 179, 8, 0.18);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  padding: 6px 12px;
+  border-radius: 50rem;
+  white-space: nowrap;
+}
+
+/* ⚡ Item 6: Quick Play (1-Min Game) */
+.btn-quick-sprint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #0284c7, #2563eb);
+  color: #FFFFFF;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  padding: 7px 16px;
+  border-radius: 50rem;
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
+}
+.btn-quick-sprint:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 8px 22px rgba(2, 132, 199, 0.6);
+  color: #FFFFFF;
+}
+
+/* 🏆 Item 4: Recent Badges Shelf */
+.recent-badges-shelf {
+  background: rgba(15, 23, 42, 0.38);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  padding: 10px 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+.shelf-label {
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.5px;
+}
+.shelf-view-all {
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #FDE047 !important;
+  transition: opacity 0.2s ease;
+}
+.shelf-view-all:hover {
+  opacity: 0.8;
+}
+.shelf-badge-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 5px 12px;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.shelf-badge-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.15);
+}
+.shelf-badge-card.unlocked {
+  border-color: rgba(250, 204, 21, 0.35);
+}
+.shelf-badge-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+.shelf-badge-title {
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.1;
+}
+.shelf-badge-sub {
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* 🦉 Item 5: Owl Companion Interactive Widget */
+.owl-companion-container {
+  display: inline-flex;
+}
+.btn-owl-companion {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(15, 23, 42, 0.38);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid rgba(56, 189, 248, 0.35);
+  border-radius: 18px;
+  padding: 10px 16px;
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+.btn-owl-companion:hover {
+  transform: translateY(-2px) scale(1.02);
+  border-color: rgba(56, 189, 248, 0.6);
+  box-shadow: 0 12px 28px rgba(14, 165, 233, 0.3);
+}
+.owl-animated-icon {
+  font-size: 1.5rem;
+  animation: owlHoot 2.4s infinite ease-in-out;
+  display: inline-block;
+}
+@keyframes owlHoot {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-8deg) scale(1.08); }
+  75% { transform: rotate(8deg) scale(1.08); }
+}
+.owl-companion-title {
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: #38BDF8;
+  line-height: 1.1;
+}
+.owl-companion-sub {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1;
+}
+.owl-speech-bubble-pop {
+  position: absolute;
+  bottom: 58px;
+  right: 0;
+  z-index: 100;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #FFFFFF;
+  border: 1.5px solid rgba(56, 189, 248, 0.6);
+  padding: 10px 18px;
+  border-radius: 16px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  max-width: 320px;
+  line-height: 1.35;
+  animation: speechPopIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.owl-bubble-tail {
+  position: absolute;
+  bottom: -7px;
+  right: 36px;
+  width: 12px;
+  height: 12px;
+  background: rgba(15, 23, 42, 0.95);
+  border-right: 1.5px solid rgba(56, 189, 248, 0.6);
+  border-bottom: 1.5px solid rgba(56, 189, 248, 0.6);
+  transform: rotate(45deg);
 }
 
 /* ==========================================================================
@@ -724,14 +1087,14 @@
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* 🔙 Circular Back Button */
+/* 🔙 Circular Back Button (Matching Games Page Header Layout) */
 .btn-back-circle {
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1.5px solid rgba(255, 255, 255, 0.95);
   color: #0F172A !important;
   display: inline-flex;
@@ -740,15 +1103,25 @@
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   flex-shrink: 0;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+  margin-right: 4px;
 }
 
 .btn-back-circle:hover {
   background: #FFC727 !important;
   color: #0B192C !important;
   border-color: #FFC727;
-  transform: translateX(-4px);
-  box-shadow: 0 4px 16px rgba(255, 199, 39, 0.45);
+  transform: scale(1.08) translateX(-3px);
+  box-shadow: 0 6px 18px rgba(255, 199, 39, 0.45);
+}
+
+.btn-back-circle:active {
+  transform: scale(0.96);
+}
+
+.btn-back-circle i {
+  font-size: 1.25rem !important;
+  line-height: 1 !important;
 }
 
 /* ==========================================================================
@@ -1234,34 +1607,96 @@
   padding: 4px 10px;
 }
 
-/* Practice Topic Cards */
-.practice-topic-card {
-  background: rgba(255, 255, 255, 0.62) !important;
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1.5px solid rgba(255, 255, 255, 0.8) !important;
-  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.85) !important;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+/* ==========================================================================
+   🎮 PRACTICE TOPIC CARDS (Arcade Dark Gamified Cards - Never Turns White)
+   ========================================================================== */
+.practice-topics-grid-row {
+  row-gap: 26px !important;
 }
 
-.practice-topic-card:hover {
-  transform: translateY(-5px);
-  background: rgba(255, 255, 255, 0.76) !important;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.13) !important;
-  border-color: #F59E0B !important;
+.practice-topic-col {
+  margin-bottom: 6px;
 }
 
-.practice-topic-card .text-white {
-  color: #0F172A !important;
+.practice-topic-card,
+.modern-course-card.practice-topic-card {
+  background: linear-gradient(165deg, rgba(20, 30, 55, 0.94) 0%, rgba(12, 18, 36, 0.98) 100%) !important;
+  backdrop-filter: blur(20px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
+  border: 2.5px solid #F59E0B !important;
+  box-shadow: 0 6px 0 #92400E, 0 12px 28px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.15) !important;
+  border-radius: 18px !important;
+  padding: 10px 14px !important;
+  min-height: auto !important;
+  animation: none !important;
+  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  user-select: none;
 }
 
-.practice-topic-card .text-white-50 {
-  color: #475569 !important;
+/* Hover, Focus, Active & Clicked State: Rich Glowing Dark Navy (NO WHITE BACKGROUND) */
+.practice-topic-card:hover,
+.practice-topic-card:focus,
+.practice-topic-card:active,
+.modern-course-card.practice-topic-card:hover,
+.modern-course-card.practice-topic-card:focus,
+.modern-course-card.practice-topic-card:active {
+  background: linear-gradient(165deg, rgba(28, 42, 78, 0.97) 0%, rgba(16, 24, 48, 0.99) 100%) !important;
+  border-color: #FBBF24 !important;
+  box-shadow: 0 8px 0 #92400E, 0 16px 32px rgba(0, 0, 0, 0.55), 0 0 24px rgba(245, 158, 11, 0.45) !important;
+  transform: translateY(-4px) !important;
+}
+
+/* Ensure all text inside remains 100% white, sharp & high contrast */
+.practice-topic-card .course-card-heading,
+.practice-topic-card h4,
+.practice-topic-card .text-white,
+.practice-topic-card:hover .course-card-heading,
+.practice-topic-card:hover h4,
+.practice-topic-card:hover .text-white,
+.practice-topic-card:focus .text-white,
+.practice-topic-card:active .text-white {
+  color: #FFFFFF !important;
+}
+
+.practice-topic-card .text-white-50,
+.practice-topic-card:hover .text-white-50,
+.practice-topic-card:focus .text-white-50,
+.practice-topic-card:active .text-white-50 {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.practice-topic-card .kids-quest-badge {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #FDE047 !important;
+  border: 1px solid rgba(253, 224, 71, 0.4) !important;
+}
+
+.practice-topic-card:hover .kids-quest-badge {
+  background: rgba(245, 158, 11, 0.25) !important;
+  color: #FEF08A !important;
+  border-color: #FBBF24 !important;
+}
+
+.practice-topic-card .kids-badge-pill {
+  background: rgba(249, 115, 22, 0.2) !important;
+  color: #FDBA74 !important;
+  border: 1px solid rgba(249, 115, 22, 0.35) !important;
+}
+
+.practice-topic-card .kids-tag-pill {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.practice-topic-card:hover .kids-tag-pill {
+  background: rgba(255, 255, 255, 0.14) !important;
+  color: #FFFFFF !important;
 }
 
 .topic-icon-circle {
-  width: 56px;
-  height: 56px;
+  width: 38px;
+  height: 38px;
 }
 
 /* Match Set Tabs */
@@ -1456,6 +1891,7 @@
 
 .modern-course-card:hover {
   transform: translateY(-12px) scale(1.025) !important;
+  background: linear-gradient(165deg, rgba(28, 42, 78, 0.97) 0%, rgba(16, 24, 48, 0.99) 100%) !important;
   border-color: #FBBF24 !important;
   box-shadow: 0 14px 0 #92400E, 0 26px 52px rgba(0, 0, 0, 0.65), 0 0 38px rgba(251, 191, 36, 0.5) !important;
 }
@@ -1795,30 +2231,46 @@
 /* ========================================================================== */
 /* 🎮 KIDS GAME ARENA & GAMIFIED CHILD STYLES (User Request)                   */
 /* ========================================================================== */
+.practice-topic-card {
+  min-height: auto !important;
+  border-width: 2.5px !important;
+  border-radius: 18px !important;
+  padding: 12px 14px !important;
+  animation: none !important;
+}
+
 .kids-game-arena {
   background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF5 100%);
-  border: 4px solid #FDE047 !important;
-  box-shadow: 0 16px 45px rgba(15, 23, 42, 0.22), 0 6px 0 #CBD5E1 !important;
-  border-radius: 28px !important;
+  border: 3px solid #FDE047 !important;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.16), 0 4px 0 #CBD5E1 !important;
+  border-radius: 20px !important;
   position: relative;
   overflow: hidden;
+  padding: 10px 14px !important;
 }
 
 .kids-game-hud {
-  border-radius: 22px !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2) !important;
 }
 
-/* 🐾 Jungle Match Tiles (3D Tactile Push-down Cards) */
+/* 🐾 Jungle Match Tiles (Compact 3D Push-down Cards) */
 .kids-match-tile {
   background: #FFFFFF;
-  border: 2px solid #E2E8F0;
-  border-bottom: 5px solid #CBD5E1;
-  border-radius: 18px;
-  padding: 14px 18px;
+  border: 1.5px solid #E2E8F0;
+  border-bottom: 3.5px solid #CBD5E1;
+  border-radius: 11px;
+  padding: 5px 10px;
   cursor: pointer;
   transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
   user-select: none;
+}
+
+.match-pairs-scroll-list {
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding-right: 2px;
 }
 
 .kids-match-tile:hover {
@@ -2885,44 +3337,34 @@
 }
 
 /* ========================================================================== */
-/* 🎮 Practice Activity Arena - Top Positioning, Colorful Heading, Next Buttons */
+/* 🎮 Practice Activity Arena - Proper Alignment, Spacing, and Centered Box   */
 /* ========================================================================== */
 .practice-activity-arena-wrapper {
-  margin-top: -24px !important;
+  margin-top: 0 !important;
   position: relative !important;
+  width: 100% !important;
 }
 
-.practice-arena-topbar {
-  position: relative;
-  height: 48px;
-  margin-bottom: 6px !important;
-}
-
-/* Back button moved out to the left side into the open corner slot */
-.practice-corner-back-btn {
-  position: absolute !important;
-  left: -75px !important;
-  top: -4px !important;
-  z-index: 100 !important;
+.kids-game-arena {
+  max-width: 980px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 
 @media (max-width: 1250px) {
-  .practice-corner-back-btn {
-    position: static !important;
-    left: 0 !important;
-  }
   .practice-activity-arena-wrapper {
-    margin-top: -10px !important;
+    margin-top: 0 !important;
   }
 }
 
 /* 🎨 Playful Multi-Color Heading */
 .practice-heading-colorful {
   font-family: 'Fredoka', cursive, sans-serif !important;
-  font-size: 2.15rem !important;
+  font-size: 1.25rem !important;
   font-weight: 900 !important;
   letter-spacing: -0.02em !important;
   background: linear-gradient(135deg, #FF5500 0%, #E11D48 45%, #7C3AED 100%) !important;
+  background-clip: text !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
   text-shadow: 0 2px 14px rgba(225, 29, 72, 0.12);
@@ -3020,6 +3462,389 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+
+.content-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+  padding-left: 105px;
+  padding-right: 105px;
+}
+
+
+/* ==========================================================================
+   📱 LEARNER DASHBOARD COMPREHENSIVE MOBILE RESPONSIVENESS
+   ========================================================================== */
+@media (max-width: 991.98px) {
+  .langnest-layout {
+    overflow-y: auto !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .langnest-main {
+    height: auto !important;
+    min-height: 100vh !important;
+    overflow-y: visible !important;
+  }
+
+  .content-container {
+    padding-left: 88px !important;
+    padding-right: 88px !important;
+    padding-top: 14px !important;
+    padding-bottom: 22px !important;
+    max-width: 100% !important;
+  }
+
+  .learner-top-header-row {
+    padding-right: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  /* Neat Home Cards */
+  .neat-home-card {
+    padding: 12px 12px;
+    border-radius: 14px;
+  }
+
+  .neat-thumb-img,
+  .neat-thumb-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+  }
+
+  .neat-card-title {
+    font-size: 0.88rem;
+  }
+
+  /* Games Arena */
+  .kids-game-arena {
+    padding: 8px 10px !important;
+    border-radius: 14px !important;
+    border-width: 2px !important;
+  }
+
+  /* Practice Header & Badges */
+  .practice-heading-colorful {
+    font-size: 1.05rem !important;
+  }
+
+  /* Flashcards */
+  .flashcard-box {
+    max-width: 100%;
+  }
+
+  .flashcard-face {
+    padding: 16px 12px !important;
+    border-radius: 16px !important;
+    border-width: 2px !important;
+  }
+
+  .flashcard-face h2 {
+    font-size: 1.35rem !important;
+  }
+
+  .card-drop-basket {
+    padding: 8px 10px;
+    border-radius: 12px;
+    min-width: 100px;
+    flex: 1 1 110px;
+  }
+
+  /* Match Tiles */
+  .kids-match-tile {
+    padding: 4px 7px !important;
+    border-radius: 9px !important;
+    border-bottom-width: 2.5px !important;
+  }
+
+  .kids-match-tile h5 {
+    font-size: 0.82rem !important;
+  }
+
+  /* Adventure Portals - Scaled & Pushed Inward */
+  .adventure-portal-stage {
+    padding: 0.25rem 0.15rem !important;
+  }
+
+  .adventure-portal-avatar-wrap {
+    width: 64px !important;
+    height: 64px !important;
+    min-width: 64px !important;
+  }
+
+  .adventure-portal-circle {
+    width: 52px;
+    height: 52px;
+  }
+
+  .adventure-level-badge {
+    font-size: 0.58rem !important;
+    padding: 2px 6px !important;
+  }
+
+  .adventure-portal-title {
+    font-size: 0.98rem !important;
+    margin-bottom: 3px !important;
+  }
+
+  .adventure-skill-pill {
+    font-size: 0.62rem !important;
+    padding: 2px 7px !important;
+  }
+
+  .btn-adventure-start {
+    font-size: 0.74rem !important;
+    padding: 4px 12px !important;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .content-container {
+    padding-left: 64px !important;
+    padding-right: 64px !important;
+    padding-top: 12px !important;
+    padding-bottom: 18px !important;
+  }
+
+  .learner-top-header-row {
+    padding-right: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  /* Top Hero Bar */
+  .home-student-hero {
+    padding: 4px 10px !important;
+    gap: 8px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .mascot-cartoon-jumper {
+    width: 32px;
+    height: 32px;
+  }
+
+  .mascot-cartoon-img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .home-student-name {
+    font-size: 1.05rem !important;
+  }
+
+  .home-student-badge {
+    font-size: 0.64rem !important;
+  }
+
+  .school-tenant-chip {
+    padding: 2px 8px !important;
+  }
+
+  .school-chip-logo,
+  .school-chip-crest {
+    width: 24px;
+    height: 24px;
+    font-size: 0.8rem;
+  }
+
+  .school-chip-name {
+    font-size: 0.72rem;
+    max-width: 110px;
+  }
+
+  .school-chip-sub {
+    font-size: 0.56rem;
+  }
+
+  .adventure-portal-avatar-wrap {
+    width: 58px !important;
+    height: 58px !important;
+    min-width: 58px !important;
+  }
+
+  .adventure-portal-circle {
+    width: 46px !important;
+    height: 46px !important;
+  }
+
+  .adventure-portal-title {
+    font-size: 0.94rem !important;
+  }
+
+  /* Buttons */
+  .neat-btn-resume {
+    padding: 4px 10px;
+    font-size: 0.72rem;
+  }
+
+  .btn-set-nav,
+  .btn-set-nav-next {
+    padding: 4px 10px !important;
+    font-size: 0.72rem !important;
+  }
+
+  /* Flashcards */
+  .flashcard-face h2 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Match it layout */
+  .btn-back-circle {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+@media (max-height: 520px) {
+  .content-container {
+    padding-left: 104px !important;
+    padding-right: 104px !important;
+    padding-top: 8px !important;
+    padding-bottom: 14px !important;
+  }
+
+  .learner-top-header-row {
+    padding-right: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 4px !important;
+  }
+
+  .mascot-cartoon-jumper,
+  .mascot-cartoon-img {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .home-student-hero {
+    padding: 2px 8px !important;
+    gap: 6px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .home-student-name {
+    font-size: 0.95rem !important;
+  }
+
+  .home-student-badge {
+    font-size: 0.62rem !important;
+  }
+
+  .school-tenant-chip {
+    padding: 2px 6px !important;
+  }
+
+  .school-chip-logo,
+  .school-chip-crest {
+    width: 22px !important;
+    height: 22px !important;
+  }
+
+  .school-chip-name {
+    font-size: 0.7rem !important;
+  }
+
+  .neat-home-card {
+    padding: 8px 10px !important;
+    border-radius: 12px !important;
+  }
+
+  .neat-thumb-img,
+  .neat-thumb-icon {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .neat-card-title {
+    font-size: 0.8rem !important;
+  }
+
+  .neat-card-sub {
+    font-size: 0.65rem !important;
+  }
+
+  /* Adventure Portal Card in landscape */
+  .adventure-portal-stage {
+    padding: 0.15rem !important;
+    gap: 8px !important;
+  }
+
+  .adventure-portal-avatar-wrap {
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+  }
+
+  .adventure-portal-circle {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  .adventure-level-badge {
+    font-size: 0.52rem !important;
+    padding: 1px 5px !important;
+    bottom: -4px !important;
+  }
+
+  .adventure-portal-title {
+    font-size: 0.88rem !important;
+    margin-bottom: 2px !important;
+  }
+
+  .adventure-skills-strip {
+    gap: 4px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .adventure-skill-pill {
+    font-size: 0.58rem !important;
+    padding: 1px 6px !important;
+  }
+
+  .btn-adventure-start {
+    font-size: 0.68rem !important;
+    padding: 3px 10px !important;
+  }
+
+  .btn-back-circle {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* Practice Arena & Match Game strictly fitting on landscape screens */
+  .practice-topic-card {
+    padding: 8px 10px !important;
+  }
+
+  .kids-game-arena {
+    padding: 6px 10px !important;
+    border-radius: 12px !important;
+    border-width: 2px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .kids-match-tile {
+    padding: 3px 6px !important;
+    border-radius: 8px !important;
+    border-bottom-width: 2px !important;
+  }
+
+  .kids-match-tile h5 {
+    font-size: 0.78rem !important;
+  }
+
+  .match-pairs-scroll-list {
+    max-height: calc(100vh - 86px) !important;
+  }
+
+  .practice-heading-colorful {
+    font-size: 0.92rem !important;
+  }
+}
+
 
 
 

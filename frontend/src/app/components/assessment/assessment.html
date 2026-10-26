@@ -377,17 +377,18 @@
               </span>
             }
           </div>
-          <div class="d-flex gap-3 align-items-center">
-            <button type="button" class="btn btn-outline-secondary px-4 py-2.5 fw-semibold rounded-pill" (click)="cancelForm()">
+          <div class="d-flex flex-wrap gap-2 align-items-center">
+            <button type="button" class="btn btn-outline-secondary px-3 py-2 fw-semibold rounded-pill" (click)="cancelForm()">
+              <i class="bi bi-x-lg me-1"></i>
               {{ 'COMMON.CANCEL' | translate }}
             </button>
             <button type="submit" [disabled]="assessmentForm.invalid || isSaving()" 
-                    class="btn btn-primary px-5 py-2.5 fw-bold shadow rounded-pill border-0 transition-all hover-scale d-flex align-items-center gap-2">
+                    class="btn btn-primary px-3 px-sm-4 py-2 fw-bold shadow rounded-pill border-0 transition-all d-inline-flex align-items-center gap-2">
               @if (isSaving()) {
                 <span class="spinner-border spinner-border-sm" role="status"></span>
                 <span>Saving...</span>
               } @else {
-                <i class="bi bi-check2-circle fs-5"></i>
+                <i class="bi bi-check2-circle"></i>
                 <span>{{ isEditMode() ? ('COMMON.SAVE_CHANGES' | translate) : ('COMMON.SUBMIT' | translate) }}</span>
               }
             </button>

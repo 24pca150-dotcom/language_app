@@ -1,0 +1,169 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.balloon-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 440px; /* Vertical arcade proportions */
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  margin: 0 auto;
+  background: radial-gradient(circle at top, #1e293b, #0f172a);
+  border-radius: 1.25rem;
+  padding: 0.35rem 0.5rem;
+  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.65);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* HUD */
+.balloon-hud {
+  width: 100%;
+  flex-shrink: 0;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(8px);
+  border-radius: 0.65rem;
+  margin-bottom: 0.25rem;
+  padding: 0.25rem 0.6rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-sizing: border-box;
+}
+
+.hud-badge {
+  background: rgba(30, 41, 59, 0.9);
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.5rem;
+  color: #f8fafc;
+  font-size: 0.78rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.heart-icon {
+  color: #ef4444;
+  font-size: 0.95rem;
+  filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.6));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.heart-icon.lost {
+  color: #475569;
+  filter: none;
+  opacity: 0.4;
+  transform: scale(0.85);
+}
+
+.sound-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 0.75rem;
+}
+
+/* Mission Banner */
+.mission-banner {
+  width: 100%;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+  border: 1px solid rgba(219, 39, 119, 0.35);
+  border-radius: 0.65rem;
+  margin-bottom: 0.25rem;
+  padding: 0.2rem 0.6rem !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-sizing: border-box;
+}
+
+.mission-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+}
+
+.mission-text {
+  font-size: 0.88rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Canvas Area - Vertical Portrait 440:580 */
+.canvas-wrapper {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 440 / 580;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: #000;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.balloon-canvas {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+  object-fit: contain;
+  cursor: default;
+}
+
+/* Overlays */
+.overlay-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 380px;
+  max-height: 94%;
+  background: rgba(15, 23, 42, 0.96);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 1.15rem;
+  padding: 0.85rem 1rem;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.85);
+  z-index: 10;
+  box-sizing: border-box;
+}
+
+.play-btn {
+  animation: pulseButton 1.8s infinite;
+}
+
+@keyframes pulseButton {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.6); }
+  70% { transform: scale(1.04); box-shadow: 0 0 0 14px rgba(234, 179, 8, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+}
+
+@media (max-width: 480px) {
+  .balloon-container {
+    padding: 0.3rem;
+    border-radius: 0.75rem;
+  }
+  .mission-text {
+    font-size: 0.82rem;
+  }
+}

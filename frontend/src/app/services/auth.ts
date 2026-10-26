@@ -1,5 +1,5 @@
 import { environment } from '../../environments/environment';
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
@@ -26,6 +26,18 @@ export interface AuthResponse {
 export class AuthService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}`;
+
+  private getStoredUser(): UserData | null {
+    const user = localStorage.getItem('user');
+    try {
+      return user ? JSON.parse(user) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  readonly currentUser = signal<UserData | null>(this.getStoredUser());
+  readonly isLoggedIn = signal<boolean>(!!localStorage.getItem('auth_token'));
 
   register(data: any): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data).pipe(
@@ -56,16 +68,16 @@ export class AuthService {
       localStorage.removeItem('tenant_code');
     }
     localStorage.setItem('user', JSON.stringify(res.user));
+    this.currentUser.set(res.user);
+    this.isLoggedIn.set(true);
   }
 
   public clearSession(): void {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('tenant_code');
     localStorage.removeItem('user');
-  }
-
-  isLoggedIn(): boolean {
-    return !!localStorage.getItem('auth_token');
+    this.currentUser.set(null);
+    this.isLoggedIn.set(false);
   }
 
   getToken(): string | null {
@@ -77,12 +89,11 @@ export class AuthService {
   }
 
   getUser(): UserData | null {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+    return this.currentUser();
   }
 
   getUserRole(): string | null {
-    const user = this.getUser();
+    const user = this.currentUser();
     return user ? user.role : null;
   }
 
@@ -98,6 +109,7 @@ export class AuthService {
       tap((res) => {
         if (res.user) {
           localStorage.setItem('user', JSON.stringify(res.user));
+          this.currentUser.set(res.user);
         }
       })
     );

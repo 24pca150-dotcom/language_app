@@ -61,6 +61,25 @@ export class LiveClasses implements OnInit {
   // Materials modal state
   activeClassForMaterials = signal<LiveClassItem | null>(null);
   isUploadingMaterials = signal<boolean>(false);
+  isStatusDropdownOpen = signal<boolean>(false);
+
+  toggleStatusDropdown(): void {
+    this.isStatusDropdownOpen.update(v => !v);
+  }
+
+  setStatus(val: string): void {
+    this.classForm.patchValue({ status: val });
+    this.isStatusDropdownOpen.set(false);
+  }
+
+  getStatusLabel(): string {
+    const s = this.classForm.get('status')?.value;
+    switch (s) {
+      case 'live': return '🔴 Live Now';
+      case 'completed': return '✔️ Completed';
+      default: return '📅 Scheduled';
+    }
+  }
 
   constructor() {
     const now = new Date();

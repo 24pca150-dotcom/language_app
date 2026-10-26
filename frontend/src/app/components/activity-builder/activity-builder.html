@@ -98,61 +98,167 @@
           }
         </div>
 
-        <!-- Course Filter -->
-        <div style="min-width: 170px; flex: 1 1 180px;">
-          <select class="form-select bg-light shadow-none" [ngModel]="selectedCourseFilter()"
-            (ngModelChange)="selectedCourseFilter.set($event); onFilterChange()">
-            <option value="all">All Courses</option>
-            <option [ngValue]="null">Global / Practice</option>
-            @for (c of coursesList(); track c.id) {
-            <option [ngValue]="c.id">{{ c.name }}</option>
-            }
-          </select>
+        <!-- Course Filter (Custom Dropdown) -->
+        <div class="position-relative" style="min-width: 170px; flex: 1 1 180px;">
+          <button type="button" 
+                  class="btn bg-light border-0 py-2 px-3 w-100 text-start d-flex justify-content-between align-items-center shadow-none text-secondary rounded-3"
+                  style="height: 40px;"
+                  (click)="toggleCourseDropdown()">
+            <span class="text-truncate fw-medium small">{{ getCourseFilterLabel() }}</span>
+            <i class="bi bi-chevron-down small ms-2 text-muted" [class.bi-chevron-up]="isCourseFilterOpen()"></i>
+          </button>
+
+          @if (isCourseFilterOpen()) {
+            <div class="custom-dropdown-menu position-absolute start-0 end-0 mt-1 bg-white rounded-3 shadow-lg border p-1 z-3" style="max-height: 250px; overflow-y: auto;">
+              <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                      [class.active-item]="selectedCourseFilter() === 'all'"
+                      (click)="setCourseFilterValue('all')">
+                <span>All Courses</span>
+                @if (selectedCourseFilter() === 'all') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                      [class.active-item]="selectedCourseFilter() === null"
+                      (click)="setCourseFilterValue(null)">
+                <span>Global / Practice</span>
+                @if (selectedCourseFilter() === null) { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              @for (c of coursesList(); track c.id) {
+                <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                        [class.active-item]="selectedCourseFilter() === c.id"
+                        (click)="setCourseFilterValue(c.id)">
+                  <span class="text-truncate">{{ c.name }}</span>
+                  @if (selectedCourseFilter() === c.id) { <i class="bi bi-check-lg text-primary"></i> }
+                </button>
+              }
+            </div>
+          }
         </div>
 
-        <!-- Activity Type Filter -->
-        <div style="min-width: 180px; flex: 1 1 190px;">
-          <select class="form-select bg-light shadow-none" [ngModel]="filterType()"
-            (ngModelChange)="filterType.set($event); onFilterChange()">
-            <option value="all">All Exercise Types</option>
-            <optgroup label="Listening Skills">
-              <option value="mcq">MCQ / Audio</option>
-              <option value="match">Match It</option>
-            </optgroup>
-            <optgroup label="Speaking Skills">
-              <option value="speaking">Speaking Test</option>
-              <option value="role_play">Role Play</option>
-            </optgroup>
-            <optgroup label="Reading Skills">
-              <option value="flashcard">3D Flashcard</option>
-              <option value="sequencing">Sequencing</option>
-              <option value="mind_map">Mind Map</option>
-            </optgroup>
-            <optgroup label="Writing & Grammar">
-              <option value="fill_blanks">Fill in the Blanks</option>
-              <option value="word_arrange">Word Arrangement</option>
-              <option value="parts_of_speech">Parts of Speech</option>
-              <option value="writing">Paragraph Writing</option>
-            </optgroup>
-            <optgroup label="Games & Custom">
-              <option value="crossword">Crossword</option>
-              <option value="custom">Custom Canvas</option>
-            </optgroup>
-          </select>
+        <!-- Activity Type Filter (Custom Dropdown) -->
+        <div class="position-relative" style="min-width: 180px; flex: 1 1 190px;">
+          <button type="button" 
+                  class="btn bg-light border-0 py-2 px-3 w-100 text-start d-flex justify-content-between align-items-center shadow-none text-secondary rounded-3"
+                  style="height: 40px;"
+                  (click)="toggleTypeDropdown()">
+            <span class="text-truncate fw-medium small">{{ getTypeFilterLabel() }}</span>
+            <i class="bi bi-chevron-down small ms-2 text-muted" [class.bi-chevron-up]="isTypeFilterOpen()"></i>
+          </button>
+
+          @if (isTypeFilterOpen()) {
+            <div class="custom-dropdown-menu position-absolute start-0 end-0 mt-1 bg-white rounded-3 shadow-lg border p-1 z-3" style="max-height: 280px; overflow-y: auto;">
+              <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                      [class.active-item]="filterType() === 'all'"
+                      (click)="setTypeFilterValue('all')">
+                <span class="fw-semibold">All Exercise Types</span>
+                @if (filterType() === 'all') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              
+              <div class="dropdown-header text-uppercase text-secondary fw-bold px-3 pt-2 pb-1" style="font-size: 0.68rem; letter-spacing: 0.05em;">Listening Skills</div>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'mcq'" (click)="setTypeFilterValue('mcq')">
+                <span>MCQ / Audio</span>
+                @if (filterType() === 'mcq') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'match'" (click)="setTypeFilterValue('match')">
+                <span>Match It</span>
+                @if (filterType() === 'match') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+
+              <div class="dropdown-header text-uppercase text-secondary fw-bold px-3 pt-2 pb-1" style="font-size: 0.68rem; letter-spacing: 0.05em;">Speaking Skills</div>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'speaking'" (click)="setTypeFilterValue('speaking')">
+                <span>Speaking Test</span>
+                @if (filterType() === 'speaking') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'role_play'" (click)="setTypeFilterValue('role_play')">
+                <span>Role Play</span>
+                @if (filterType() === 'role_play') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+
+              <div class="dropdown-header text-uppercase text-secondary fw-bold px-3 pt-2 pb-1" style="font-size: 0.68rem; letter-spacing: 0.05em;">Reading Skills</div>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'flashcard'" (click)="setTypeFilterValue('flashcard')">
+                <span>3D Flashcard</span>
+                @if (filterType() === 'flashcard') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'sequencing'" (click)="setTypeFilterValue('sequencing')">
+                <span>Sequencing</span>
+                @if (filterType() === 'sequencing') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'mind_map'" (click)="setTypeFilterValue('mind_map')">
+                <span>Mind Map</span>
+                @if (filterType() === 'mind_map') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+
+              <div class="dropdown-header text-uppercase text-secondary fw-bold px-3 pt-2 pb-1" style="font-size: 0.68rem; letter-spacing: 0.05em;">Writing & Grammar</div>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'fill_blanks'" (click)="setTypeFilterValue('fill_blanks')">
+                <span>Fill in the Blanks</span>
+                @if (filterType() === 'fill_blanks') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'word_arrange'" (click)="setTypeFilterValue('word_arrange')">
+                <span>Word Arrangement</span>
+                @if (filterType() === 'word_arrange') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'parts_of_speech'" (click)="setTypeFilterValue('parts_of_speech')">
+                <span>Parts of Speech</span>
+                @if (filterType() === 'parts_of_speech') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'writing'" (click)="setTypeFilterValue('writing')">
+                <span>Paragraph Writing</span>
+                @if (filterType() === 'writing') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+
+              <div class="dropdown-header text-uppercase text-secondary fw-bold px-3 pt-2 pb-1" style="font-size: 0.68rem; letter-spacing: 0.05em;">Games & Custom</div>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'crossword'" (click)="setTypeFilterValue('crossword')">
+                <span>Crossword</span>
+                @if (filterType() === 'crossword') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'car_racer'" (click)="setTypeFilterValue('car_racer')">
+                <span>Highway Racer (Car Game)</span>
+                @if (filterType() === 'car_racer') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'word_ninja'" (click)="setTypeFilterValue('word_ninja')">
+                <span>Word Ninja (Slicer Game)</span>
+                @if (filterType() === 'word_ninja') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'flappy_word'" (click)="setTypeFilterValue('flappy_word')">
+                <span>Flappy Word (Flight Game)</span>
+                @if (filterType() === 'flappy_word') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'space_defender'" (click)="setTypeFilterValue('space_defender')">
+                <span>Space Defender (Shooter Game)</span>
+                @if (filterType() === 'space_defender') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'balloon_pop'" (click)="setTypeFilterValue('balloon_pop')">
+                <span>Balloon Word Pop (Tap Game)</span>
+                @if (filterType() === 'balloon_pop') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              <button type="button" class="dropdown-item py-1.5 px-3 rounded-2" [class.active-item]="filterType() === 'custom'" (click)="setTypeFilterValue('custom')">
+                <span>Custom Canvas</span>
+                @if (filterType() === 'custom') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+            </div>
+          }
         </div>
       </div>
 
       <!-- Right Controls: Items per page & Grid/List toggle -->
       <div class="d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
-        <!-- Page size dropdown -->
-        <div style="width: 125px;">
-          <select class="form-select bg-light shadow-none" [ngModel]="pageSize()"
-            (ngModelChange)="pageSize.set($event); currentPage.set(1)">
-            <option [ngValue]="12">12</option>
-            <option [ngValue]="24">24</option>
-            <option [ngValue]="48">48</option>
-            <option [ngValue]="0">All</option>
-          </select>
+        <!-- Page size dropdown (Custom Dropdown) -->
+        <div class="position-relative" style="width: 80px;">
+          <button type="button" 
+                  class="btn bg-light border-0 py-2 px-2.5 w-100 text-start d-flex justify-content-between align-items-center shadow-none text-secondary rounded-3"
+                  style="height: 40px;"
+                  (click)="togglePageSizeDropdown()">
+            <span class="text-truncate fw-medium small">{{ getPageSizeLabel() }}</span>
+            <i class="bi bi-chevron-down small ms-1 text-muted" [class.bi-chevron-up]="isPageSizeOpen()"></i>
+          </button>
+
+          @if (isPageSizeOpen()) {
+            <div class="custom-dropdown-menu position-absolute end-0 mt-1 bg-white rounded-3 shadow-lg border p-1 z-3" style="min-width: 90px;">
+              <button type="button" class="dropdown-item py-1.5 px-2.5 rounded-2" [class.active-item]="pageSize() === 12" (click)="setPageSizeValue(12)">12</button>
+              <button type="button" class="dropdown-item py-1.5 px-2.5 rounded-2" [class.active-item]="pageSize() === 24" (click)="setPageSizeValue(24)">24</button>
+              <button type="button" class="dropdown-item py-1.5 px-2.5 rounded-2" [class.active-item]="pageSize() === 48" (click)="setPageSizeValue(48)">48</button>
+              <button type="button" class="dropdown-item py-1.5 px-2.5 rounded-2" [class.active-item]="pageSize() === 0" (click)="setPageSizeValue(0)">All</button>
+            </div>
+          }
         </div>
 
         <!-- View mode toggle -->
@@ -173,17 +279,16 @@
 
   <!-- Quick Filter Active Info Strip -->
   @if (searchQuery() || filterType() !== 'all' || selectedSkillTab() !== 'all' || selectedCourseFilter() !== 'all') {
-  <div
-    class="d-flex align-items-center justify-content-between bg-white border border-light-subtle rounded-3 py-2 px-3 mb-3 shadow-xs">
-    <div class="small text-muted d-flex align-items-center gap-2">
-      <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1 small">
+  <div class="filter-info-strip mb-3">
+    <div class="filter-info-left">
+      <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1 small fw-semibold">
         <i class="bi bi-funnel-fill me-1"></i>Filtered
       </span>
-      <span>Showing <strong>{{ filteredActivities().length }}</strong> of <strong>{{ savedActivities().length
-          }}</strong> activities</span>
+      <span class="small text-muted text-nowrap">
+        Showing <strong>{{ filteredActivities().length }}</strong> of <strong>{{ savedActivities().length }}</strong> activities
+      </span>
     </div>
-    <button class="btn btn-sm btn-link text-danger text-decoration-none p-0 fw-semibold d-flex align-items-center gap-1"
-      (click)="clearFilters()">
+    <button type="button" class="filter-clear-btn" (click)="clearFilters()">
       <i class="bi bi-x-circle-fill"></i>
       <span>Clear filters</span>
     </button>
@@ -397,6 +502,11 @@
             <option value="flashcard">3D Vocabulary Flashcard</option>
             <option value="match">Match It</option>
             <option value="crossword">Dynamic Crossword Puzzle</option>
+            <option value="car_racer">🏎️ 3-Lane Highway Racer (Car Game)</option>
+            <option value="word_ninja">⚔️ Word Ninja (Word Slicer Game)</option>
+            <option value="flappy_word">🕊️ Flappy Word (Sky Flight Game)</option>
+            <option value="space_defender">🚀 Space Word Defender (Galaxy Shooter)</option>
+            <option value="balloon_pop">🎈 Balloon Word Pop (Sky Tap Game)</option>
             <option value="word_arrange">Word Arrangement</option>
             <option value="speaking">Speaking (Voice Record)</option>
             <option value="role_play">Role Play Conversation Dialogue</option>
@@ -982,324 +1092,109 @@
   </div>
   }
 
-  <!-- 🪄 Visual Template Wizard Modal (Step 1: Choose Skill & Activity Type) -->
+  <!-- 🪄 All Available Activities Picker Modal -->
   @if (isTemplatePickerVisible()) {
   <div class="modal fade show d-block" tabindex="-1"
     style="background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 1055;">
     <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
       <div class="modal-content rounded-4 border-0 shadow-2xl overflow-hidden">
 
-        <!-- Wizard Header -->
-        <div class="modal-header border-bottom border-light p-4 bg-white">
+        <!-- Modal Header -->
+        <div class="modal-header border-bottom border-light p-3 px-4 bg-white d-flex align-items-center justify-content-between">
           <div>
-            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-pill small fw-bold mb-1">
-              Step 1 of 2: Select Exercise Template
-            </span>
-            <h4 class="modal-title fw-bold text-dark mb-0">Create New Activity</h4>
-            <p class="text-muted small mb-0 mt-1">Pick a template tailored for Listening, Speaking, Reading, Writing or
-              Interactive Games.</p>
+            <h4 class="modal-title fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+              <i class="bi bi-grid-3x3-gap-fill text-primary"></i>
+              <span>Select Activity</span>
+              <span class="badge bg-primary-subtle text-primary rounded-pill small px-2.5 py-0.5">
+                {{ availableActivityTypes.length }} Activities
+              </span>
+            </h4>
+            <p class="text-muted small mb-0 mt-0.5">Click any activity below to create and customize:</p>
           </div>
           <button type="button" class="btn-close shadow-none" (click)="closeTemplatePicker()"></button>
         </div>
 
-        <!-- Wizard Body with Categorized Template Cards -->
-        <div class="modal-body p-4 p-lg-5 bg-light">
-
-          <!-- Listening Category -->
-          <div class="mb-4">
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <span
-                class="badge rounded-circle p-2 bg-primary text-white d-flex align-items-center justify-content-center"
-                style="width: 32px; height: 32px;">
-                <i class="bi bi-headphones"></i>
-              </span>
-              <h5 class="fw-bold text-dark mb-0">Listening Skills</h5>
-              <span class="text-muted small ms-1">— Audio comprehension & sound recognition</span>
-            </div>
-            <div class="row g-3">
-              <div class="col-md-6 col-lg-4">
-                <div
-                  class="template-card card h-100 border-0 shadow-sm rounded-4 p-3 bg-white cursor-pointer hover-lift"
-                  (click)="selectTemplate('mcq')">
-                  <div class="d-flex align-items-start gap-3">
-                    <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-3 p-3">
-                      <i class="bi bi-question-circle-fill fs-4"></i>
-                    </div>
-                    <div>
-                      <h6 class="fw-bold text-dark mb-1">Listen & Choose (MCQ)</h6>
-                      <p class="text-muted small mb-0">Audio clip with multiple choice answers and instant feedback.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6 col-lg-4">
-                <div
-                  class="template-card card h-100 border-0 shadow-sm rounded-4 p-3 bg-white cursor-pointer hover-lift"
-                  (click)="selectTemplate('match')">
-                  <div class="icon-box-wrapper d-flex align-items-start gap-3">
-                    <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-3 p-3">
-                      <i class="bi bi-columns-gap fs-4"></i>
-                    </div>
-                    <div>
-                      <h6 class="fw-bold text-dark mb-1">Audio Match It</h6>
-                      <p class="text-muted small mb-0">Pair sounds with vocabulary words, pictures, or translations.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6 col-lg-4">
-                <div
-                  class="template-card card h-100 border-0 shadow-sm rounded-4 p-3 bg-white cursor-pointer hover-lift"
-                  (click)="selectTemplate('fill_blanks')">
-                  <div class="d-flex align-items-start gap-3">
-                    <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-3 p-3">
-                      <i class="bi bi-file-earmark-text-fill fs-4"></i>
-                    </div>
-                    <div>
-                      <h6 class="fw-bold text-dark mb-1">Dictation (Listen & Type)</h6>
-                      <p class="text-muted small mb-0">Audio sentence where students fill in the missing word blanks.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <!-- Filter & Search Toolbar -->
+        <div class="bg-white border-bottom px-4 py-2.5 d-flex flex-wrap align-items-center justify-content-between gap-2">
+          <!-- Filter pills -->
+          <div class="d-flex align-items-center gap-1.5 flex-wrap">
+            <button type="button" class="btn btn-sm rounded-pill px-3 fw-semibold"
+                    [class.btn-primary]="templateFilter() === 'all'"
+                    [class.btn-light]="templateFilter() !== 'all'"
+                    (click)="templateFilter.set('all')">
+              All Activities ({{ availableActivityTypes.length }})
+            </button>
+            <button type="button" class="btn btn-sm rounded-pill px-3 fw-semibold"
+                    [class.btn-primary]="templateFilter() === 'games'"
+                    [class.btn-light]="templateFilter() !== 'games'"
+                    (click)="templateFilter.set('games')">
+              🎮 Games & Puzzles (6)
+            </button>
+            <button type="button" class="btn btn-sm rounded-pill px-3 fw-semibold"
+                    [class.btn-primary]="templateFilter() === 'core'"
+                    [class.btn-light]="templateFilter() !== 'core'"
+                    (click)="templateFilter.set('core')">
+              📚 Practice Exercises (12)
+            </button>
           </div>
 
-          <!-- Speaking Category -->
-          <div class="mb-4">
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <span
-                class="badge rounded-circle p-2 bg-success text-white d-flex align-items-center justify-content-center"
-                style="width: 32px; height: 32px;">
-                <i class="bi bi-mic-fill"></i>
-              </span>
-              <h5 class="fw-bold text-dark mb-0">Speaking Skills</h5>
-              <span class="text-muted small ms-1">— Pronunciation evaluation & conversational dialogue</span>
-            </div>
-            <div class="row g-3">
-              <div class="col-md-6 col-lg-6">
-                <div
-                  class="template-card card h-100 border-0 shadow-sm rounded-4 p-3 bg-white cursor-pointer hover-lift"
-                  (click)="selectTemplate('speaking')">
-                  <div class="d-flex align-items-start gap-3">
-                    <div class="icon-box bg-success bg-opacity-10 text-success rounded-3 p-3">
-                      <i class="bi bi-mic-fill fs-4"></i>
-                    </div>
-                    <div>
-                      <h6 class="fw-bold text-dark mb-1">Voice Recording & Pronunciation Test</h6>
-                      <p class="text-muted small mb-0">Student reads sentence into the mic; system rates accuracy and
-                        highlights errors.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6 col-lg-6">
-                <div
-                  class="template-card card h-100 border-0 shadow-sm rounded-4 p-3 bg-white cursor-pointer hover-lift"
-                  (click)="selectTemplate('role_play')">
-                  <div class="d-flex align-items-start gap-3">
-                    <div class="icon-box bg-success bg-opacity-10 text-success rounded-3 p-3">
-                      <i class="bi bi-chat-quote-fill fs-4"></i>
-                    </div>
-                    <div>
-                      <h6 class="fw-bold text-dark mb-1">Role Play Conversation Dialogue</h6>
-                      <p class="text-muted small mb-0">Turn-based real-world scenario conversation between 2 characters.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <!-- Quick Search -->
+          <div class="position-relative" style="min-width: 220px; max-width: 280px; flex: 1;">
+            <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+            <input type="text" class="form-control form-control-sm rounded-pill ps-5 bg-light border-0 shadow-none"
+                   placeholder="Search activity..."
+                   [value]="templateSearch()"
+                   (input)="templateSearch.set($any($event.target).value)">
           </div>
-
-          <!-- Reading Category -->
-          <div class="mb-4">
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <span
-                class="badge rounded-circle p-2 bg-warning text-dark d-flex align-items-center justify-content-center"
-                style="width: 32px; height: 32px;">
-                <i class="bi bi-book-half"></i>
-              </span>
-              <h5 class="fw-bold text-dark mb-0">Reading Skills</h5>
-              <span class="text-muted small ms-1">— Vocabulary retention, sequencing & story concept maps</span>
-            </div>
-            <div class="row g-3">
-              <div class="col-md-6 col-lg-4">
-                <div
-                  class="template-card card h-100 border-0 shadow-sm rounded-4 p-3 bg-white cursor-pointer hover-lift"
-                  (click)="selectTemplate('flashcard')">
-                  <div class="d-flex align-items-start gap-3">
-                    <div class="icon-box bg-warning bg-opacity-10 text-warning-emphasis rounded-3 p-3">
-                      <i class="bi bi-card-text fs-4"></i>
-                    </div>
-                    <div>
-                      <h6 class="fw-bold text-dark mb-1">3D Vocabulary Flashcard</h6>
-                      <p class="text-muted small mb-0">Interactive 3D flip card with word, meaning, audio, and visual
-                        illustration.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6 col-lg-4">
-                <div
-                  class="template-card card h-100 border-0 shadow-sm rounded-4 p-3 bg-white cursor-pointer hover-lift"
-                  (click)="selectTemplate('sequencing')">
-                  <div class="d-flex align-items-start gap-3">
-                    <div class="icon-box bg-warning bg-opacity-10 text-warning-emphasis rounded-3 p-3">
-                      <i class="bi bi-list-ol fs-4"></i>
-                    </div>
-                    <div>
-                      <h6 class="fw-bold text-dark mb-1">Sequencing / Event Ordering</h6>
-                      <p class="text-muted small mb-0">Drag and drop story events in the correct chronological order.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6 col-lg-4">
-                <div
-                  class="template-card card h-100 border-0 shadow-sm rounded-4 p-3 bg-white cursor-pointer hover-lift"
-                  (click)="selectTemplate('mind_map')">
-                  <div class="d-flex align-items-start gap-3">
-                    <div class="icon-box bg-warning bg-opacity-10 text-warning-emphasis rounded-3 p-3">
-                      <i class="bi bi-diagram-3-fill fs-4"></i>
-                    </div>
-                    <div>
-                      <h6 class="fw-bold text-dark mb-1">Mind Mapping Diagram</h6>
-                      <p class="text-muted small mb-0">Connect concepts, categories, and vocabulary clusters visually.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Writing & Grammar Category -->
-          <div class="mb-4">
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <span class="badge rounded-circle p-2 bg-info text-dark d-flex align-items-center justify-content-center"
-                style="width: 32px; height: 32px;">
-                <i class="bi bi-pencil-fill"></i>
-              </span>
-              <h5 class="fw-bold text-dark mb-0">Writing & Grammar</h5>
-              <span class="text-muted small ms-1">— Sentence structure, word ordering & grammar tagging</span>
-            </div>
-            <div class="row g-3">
-              <div class="col-md-6 col-lg-4">
-                <div
-                  class="template-card card h-100 border-0 shadow-sm rounded-4 p-3 bg-white cursor-pointer hover-lift"
-                  (click)="selectTemplate('word_arrange')">
-                  <div class="d-flex align-items-start gap-3">
-                    <div class="icon-box bg-info bg-opacity-10 text-info-emphasis rounded-3 p-3">
-                      <i class="bi bi-arrow-left-right fs-4"></i>
-                    </div>
-                    <div>
-                      <h6 class="fw-bold text-dark mb-1">Sentence Builder (Word Arrange)</h6>
-                      <p class="text-muted small mb-0">Re-order jumbled word blocks to construct grammatically correct
-                        sentences.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6 col-lg-4">
-                <div
-                  class="template-card card h-100 border-0 shadow-sm rounded-4 p-3 bg-white cursor-pointer hover-lift"
-                  (click)="selectTemplate('parts_of_speech')">
-                  <div class="d-flex align-items-start gap-3">
-                    <div class="icon-box bg-info bg-opacity-10 text-info-emphasis rounded-3 p-3">
-                      <i class="bi bi-tags-fill fs-4"></i>
-                    </div>
-                    <div>
-                      <h6 class="fw-bold text-dark mb-1">Parts of Speech Tagger</h6>
-                      <p class="text-muted small mb-0">Identify nouns, verbs, adjectives, and adverbs in sentences.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6 col-lg-4">
-                <div
-                  class="template-card card h-100 border-0 shadow-sm rounded-4 p-3 bg-white cursor-pointer hover-lift"
-                  (click)="selectTemplate('writing')">
-                  <div class="d-flex align-items-start gap-3">
-                    <div class="icon-box bg-info bg-opacity-10 text-info-emphasis rounded-3 p-3">
-                      <i class="bi bi-pencil-square fs-4"></i>
-                    </div>
-                    <div>
-                      <h6 class="fw-bold text-dark mb-1">Paragraph & Essay Writing</h6>
-                      <p class="text-muted small mb-0">Guided open-ended writing prompt with word counter and model
-                        answers.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Games & Custom Canvas Category -->
-          <div>
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <span
-                class="badge rounded-circle p-2 bg-danger text-white d-flex align-items-center justify-content-center"
-                style="width: 32px; height: 32px;">
-                <i class="bi bi-controller"></i>
-              </span>
-              <h5 class="fw-bold text-dark mb-0">Games & Custom Canvas</h5>
-              <span class="text-muted small ms-1">— Fun engaging puzzles & free-form interactive layouts</span>
-            </div>
-            <div class="row g-3">
-              <div class="col-md-6 col-lg-6">
-                <div
-                  class="template-card card h-100 border-0 shadow-sm rounded-4 p-3 bg-white cursor-pointer hover-lift"
-                  (click)="selectTemplate('crossword')">
-                  <div class="d-flex align-items-start gap-3">
-                    <div class="icon-box bg-danger bg-opacity-10 text-danger rounded-3 p-3">
-                      <i class="bi bi-grid-3x3 fs-4"></i>
-                    </div>
-                    <div>
-                      <h6 class="fw-bold text-dark mb-1">Dynamic Crossword Puzzle</h6>
-                      <p class="text-muted small mb-0">Auto-generating crossword puzzle grid with word hints across &
-                        down.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6 col-lg-6">
-                <div
-                  class="template-card card h-100 border-0 shadow-sm rounded-4 p-3 bg-white cursor-pointer hover-lift"
-                  (click)="selectTemplate('custom')">
-                  <div class="d-flex align-items-start gap-3">
-                    <div class="icon-box bg-secondary bg-opacity-10 text-secondary rounded-3 p-3">
-                      <i class="bi bi-palette-fill fs-4"></i>
-                    </div>
-                    <div>
-                      <h6 class="fw-bold text-dark mb-1">Custom Canvas Builder</h6>
-                      <p class="text-muted small mb-0">Free-form drag & drop builder to combine text, audios, images,
-                        and buttons.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
         </div>
 
-        <!-- Wizard Footer -->
-        <div class="modal-footer border-top border-light bg-white p-3 px-4 d-flex justify-content-between">
-          <span class="text-muted small"><i class="bi bi-lightbulb me-1"></i>Tip: Choosing a template pre-configures the
-            correct input fields and live preview for you.</span>
-          <button type="button" class="btn btn-light border px-4 rounded-3"
-            (click)="closeTemplatePicker()">Cancel</button>
+        <!-- Activity Grid -->
+        <div class="modal-body p-4 bg-light">
+          <div class="row g-3">
+            @for (act of filteredTemplates(); track act.type) {
+              <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white cursor-pointer hover-lift activity-picker-card"
+                     (click)="selectTemplate(act.type)">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="rounded-3 p-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                         [style.background-color]="act.bg"
+                         [style.color]="act.color"
+                         style="width: 52px; height: 52px;">
+                      <i class="bi fs-4" [class]="act.icon"></i>
+                    </div>
+                    <div class="flex-grow-1 min-w-0">
+                      <div class="d-flex align-items-center justify-content-between gap-1 mb-1">
+                        <h6 class="fw-bold text-dark mb-0 text-truncate" [title]="act.title">{{ act.title }}</h6>
+                      </div>
+                      <span class="badge rounded-pill small mb-1.5"
+                            [style.background-color]="act.bg"
+                            [style.color]="act.color"
+                            style="font-size: 0.72rem; font-weight: 600;">
+                        {{ act.tag }}
+                      </span>
+                      <p class="text-muted small mb-0" style="font-size: 0.82rem; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        {{ act.desc }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            } @empty {
+              <div class="col-12 text-center py-5">
+                <i class="bi bi-search display-6 text-muted mb-2 d-block"></i>
+                <h6 class="text-secondary fw-semibold">No activities match "{{ templateSearch() }}"</h6>
+                <button type="button" class="btn btn-sm btn-outline-primary mt-2 rounded-pill px-3"
+                        (click)="templateSearch.set(''); templateFilter.set('all')">
+                  Reset Search
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer border-top border-light bg-white p-2.5 px-4 d-flex justify-content-end">
+          <button type="button" class="btn btn-light border px-4 rounded-3" (click)="closeTemplatePicker()">Cancel</button>
         </div>
 
       </div>

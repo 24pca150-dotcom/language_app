@@ -45,7 +45,10 @@ export class UserManagement implements OnInit {
   searchQuery = signal<string>('');
   selectedRoleFilter = signal<string>('all');
   selectedTenantFilter = signal<string>('all');
+  isRoleDropdownOpen = signal<boolean>(false);
+  isTenantDropdownOpen = signal<boolean>(false);
   importing = false;
+
 
   protected authService = inject(AuthService);
   private tenantService = inject(TenantService);
@@ -148,6 +151,53 @@ export class UserManagement implements OnInit {
     const select = event.target as HTMLSelectElement;
     this.selectedTenantFilter.set(select.value);
   }
+
+  toggleRoleDropdown(): void {
+    this.isRoleDropdownOpen.update(v => !v);
+    this.isTenantDropdownOpen.set(false);
+  }
+
+  toggleTenantDropdown(): void {
+    this.isTenantDropdownOpen.update(v => !v);
+    this.isRoleDropdownOpen.set(false);
+  }
+
+  setRoleFilter(role: string): void {
+    this.selectedRoleFilter.set(role);
+    this.isRoleDropdownOpen.set(false);
+  }
+
+  setTenantFilter(tenantId: string): void {
+    this.selectedTenantFilter.set(tenantId);
+    this.isTenantDropdownOpen.set(false);
+  }
+
+  selectTenant(tenantId: number | undefined): void {
+    this.setTenantFilter(tenantId ? tenantId.toString() : 'all');
+  }
+
+  isTenantSelected(tenantId: number | undefined): boolean {
+    return this.selectedTenantFilter() === (tenantId ? tenantId.toString() : '');
+  }
+
+  getRoleFilterLabel(): string {
+    const r = this.selectedRoleFilter();
+    switch (r) {
+      case 'student': return 'Student';
+      case 'staff': return 'Staff';
+      case 'admin': return 'Admin';
+      case 'super_admin': return 'Super Admin';
+      default: return 'All Roles';
+    }
+  }
+
+  getTenantFilterLabel(): string {
+    const tId = this.selectedTenantFilter();
+    if (tId === 'all') return 'All Tenants (Schools)';
+    const tenant = this.tenants().find(t => String(t.id) === String(tId));
+    return tenant ? tenant.tenant_name : 'All Tenants (Schools)';
+  }
+
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;

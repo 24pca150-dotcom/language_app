@@ -265,6 +265,7 @@
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -335,3 +336,78 @@
   font-size: 0.9rem;
   transition: all 0.2s ease;
 }
+
+/* Quick Filter Active Info Strip */
+.filter-info-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 8px 14px;
+  gap: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.filter-info-strip .filter-info-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.filter-info-strip .filter-clear-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  padding: 5px 12px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  line-height: 1.2;
+}
+
+.filter-info-strip .filter-clear-btn:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+
+@media (max-width: 576px) {
+  .filter-info-strip {
+    padding: 6px 10px;
+    gap: 6px;
+  }
+  .filter-info-strip .filter-info-left {
+    gap: 6px;
+    font-size: 0.78rem;
+  }
+  .filter-info-strip .filter-clear-btn {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    gap: 4px;
+  }
+}
+
+/* Activity Picker Modal Cards */
+.activity-picker-card {
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  border-radius: 14px !important;
+}
+
+.activity-picker-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(59, 130, 246, 0.45) !important;
+  box-shadow: 0 12px 24px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.04) !important;
+}
+

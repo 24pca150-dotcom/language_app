@@ -954,3 +954,81 @@
 .min-h-300 {
   min-height: 300px;
 }
+
+/* ==========================================================================
+   📱 COURSE PLAYER MOBILE RESPONSIVENESS
+   ========================================================================== */
+.course-top-actions {
+  top: 20px;
+  right: 20px;
+}
+
+.course-map-top-bar {
+  padding: 16px 24px;
+}
+
+@media (max-width: 991.98px) {
+  .langnest-sidebar {
+    max-width: 84vw;
+  }
+
+  .player-content-wrapper {
+    padding-left: 88px !important;
+    padding-right: 88px !important;
+    padding-top: 14px !important;
+    padding-bottom: 22px !important;
+  }
+
+  .course-player-stage {
+    padding: 12px !important;
+  }
+
+  .course-top-actions {
+    top: 14px !important;
+    right: 20px !important;
+  }
+
+  .course-map-top-bar {
+    padding: 12px 18px !important;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .player-content-wrapper {
+    padding-left: 64px !important;
+    padding-right: 64px !important;
+    padding-top: 12px !important;
+    padding-bottom: 18px !important;
+  }
+
+  .course-top-actions {
+    top: 12px !important;
+    right: 14px !important;
+  }
+
+  .course-map-top-bar {
+    padding: 10px 14px !important;
+  }
+}
+
+@media (max-height: 520px) {
+  .player-content-wrapper {
+    padding-top: 8px !important;
+    padding-bottom: 14px !important;
+    padding-left: 104px !important;
+    padding-right: 104px !important;
+  }
+
+  .course-top-actions {
+    top: 8px !important;
+    right: 20px !important;
+  }
+
+  .course-map-top-bar {
+    padding: 8px 16px !important;
+  }
+
+  .course-player-stage {
+    padding: 8px 10px !important;
+  }
+}

@@ -374,7 +374,6 @@ h1 strong, h2 strong, h3 strong, h4 strong, h5 strong, h6 strong {
 /* ==========================================================================
    ✨ UNIFIED TRANSLUCENT FROSTED GLASS CARDS (Matching Image 5)
    ========================================================================== */
-.modern-course-card,
 .modern-assessment-card {
   background: rgba(255, 255, 255, 0.62) !important;
   backdrop-filter: blur(24px) saturate(180%);
@@ -385,7 +384,6 @@ h1 strong, h2 strong, h3 strong, h4 strong, h5 strong, h6 strong {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.modern-course-card:hover,
 .modern-assessment-card:hover {
   background: rgba(255, 255, 255, 0.76) !important;
   box-shadow: 0 22px 48px rgba(245, 158, 11, 0.28) !important;
@@ -630,34 +628,684 @@ h1 strong, h2 strong, h3 strong, h4 strong, h5 strong, h6 strong {
   transform: translateY(-50%) translateX(6px);
 }
 
+/* ==========================================================================
+   🔙 CIRCULAR BACK BUTTON (Matching Games Page Header Layout)
+   ========================================================================== */
+.btn-back-circle {
+  width: 46px !important;
+  height: 46px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
+  color: #0F172A !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.14) !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+  text-decoration: none !important;
+  padding: 0 !important;
+}
+
+.btn-back-circle:hover {
+  background: #FFC727 !important;
+  color: #0B192C !important;
+  border-color: #FFC727 !important;
+  transform: scale(1.08) translateX(-3px) !important;
+  box-shadow: 0 6px 18px rgba(255, 199, 39, 0.45) !important;
+}
+
+.btn-back-circle:active {
+  transform: scale(0.96) !important;
+}
+
+.btn-back-circle i {
+  font-size: 1.25rem !important;
+  line-height: 1 !important;
+}
+
 .dock-right .floating-game-btn:hover .game-btn-tooltip {
   opacity: 1;
   transform: translateY(-50%) translateX(0);
 }
 
-/* Responsive Mobile Float */
-@media (max-width: 768px) {
+/* ==========================================================================
+   📱 COMPREHENSIVE RESPONSIVE DESIGN SYSTEM FOR MOBILE & TABLET
+   ========================================================================== */
+
+/* 1. Global Touch & Scroll Resilience */
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+.table-responsive {
+  -webkit-overflow-scrolling: touch !important;
+  overflow-x: auto !important;
+  border-radius: 12px;
+}
+
+/* 2. Floating Docks Mobile / Tablet Layout (Always on Left & Right Sides like Laptop View) */
+@media (max-width: 991.98px) {
+  html, body {
+    overflow-x: hidden !important;
+  }
+
+  .langnest-layout,
+  .game-world-container,
+  .lesson-player,
+  .course-player-main {
+    height: auto !important;
+    min-height: 100vh !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .langnest-main {
+    height: auto !important;
+    min-height: 100vh !important;
+    overflow-y: visible !important;
+  }
+
+  /* Both Docks remain VERTICAL on the SIDES like Laptop View */
   .floating-dock {
-    position: fixed;
-    top: auto;
-    bottom: 12px;
-    transform: none;
-    flex-direction: row;
-    gap: 10px;
+    position: fixed !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    flex-direction: column !important;
+    z-index: 1050 !important;
+    gap: 10px !important;
+    max-width: none !important;
+    width: auto !important;
   }
-  .dock-left {
-    left: 12px;
+
+  .floating-dock.dock-left {
+    left: 10px !important;
+    right: auto !important;
+    bottom: auto !important;
   }
-  .dock-right {
-    right: 12px;
+
+  .floating-dock.dock-right {
+    right: 10px !important;
+    left: auto !important;
+    bottom: auto !important;
   }
-  .floating-game-btn {
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
+
+  .floating-dock .dock-item {
+    gap: 3px !important;
   }
-  .floating-game-btn i {
-    font-size: 1.2rem;
+
+  .floating-dock .floating-game-btn {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 14px !important;
+    border-width: 2.5px !important;
+  }
+
+  .floating-dock .floating-game-btn i {
+    font-size: 1.25rem !important;
+  }
+
+  .floating-dock .dock-label {
+    font-size: 0.62rem !important;
+    letter-spacing: 0px !important;
+    display: block !important;
+  }
+
+  /* Content area clearance for left and right side docks - pushed inward cleanly */
+  .content-container,
+  .map-container,
+  .learner-content-container,
+  .player-content-wrapper {
+    padding-left: 88px !important;
+    padding-right: 88px !important;
+    padding-top: 14px !important;
+    padding-bottom: 22px !important;
+    max-width: 100% !important;
+  }
+
+  .practice-activity-arena-wrapper {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Compact headings on mobile/tablet */
+  h1, .display-4, .display-5 {
+    font-size: 1.25rem !important;
+    line-height: 1.25 !important;
+  }
+
+  h2 {
+    font-size: 1.12rem !important;
+    line-height: 1.3 !important;
+  }
+
+  h3 {
+    font-size: 0.98rem !important;
+  }
+
+  h4 {
+    font-size: 0.88rem !important;
+  }
+
+  /* Responsive Tables on Mobile */
+  .table-responsive table {
+    min-width: 580px !important;
+  }
+
+  .table td, .table th {
+    padding: 8px 10px !important;
+    font-size: 0.82rem !important;
   }
 }
+
+/* 3. Small Mobile Devices (Portrait under 576px) */
+@media (max-width: 575.98px) {
+  /* Scaled headings for mobile screens */
+  h1, .display-4, .display-5 {
+    font-size: 1.15rem !important;
+    line-height: 1.25 !important;
+  }
+
+  h2 {
+    font-size: 1.05rem !important;
+    line-height: 1.3 !important;
+  }
+
+  h3 {
+    font-size: 0.92rem !important;
+  }
+
+  h4 {
+    font-size: 0.85rem !important;
+  }
+
+  /* Side Docks on Small Portrait Phones */
+  .floating-dock {
+    gap: 8px !important;
+  }
+
+  .floating-dock.dock-left {
+    left: 4px !important;
+  }
+
+  .floating-dock.dock-right {
+    right: 4px !important;
+  }
+
+  .floating-dock .floating-game-btn {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 11px !important;
+    border-width: 2px !important;
+  }
+
+  .floating-dock .floating-game-btn i {
+    font-size: 1.1rem !important;
+  }
+
+  .floating-dock .dock-label {
+    font-size: 0.55rem !important;
+  }
+
+  .content-container,
+  .map-container,
+  .learner-content-container,
+  .practice-activity-arena-wrapper,
+  .player-content-wrapper {
+    padding-left: 64px !important;
+    padding-right: 64px !important;
+    padding-top: 12px !important;
+    padding-bottom: 18px !important;
+  }
+
+  /* Modals and Toasts */
+  .modal-dialog {
+    margin: 0.5rem auto !important;
+    max-width: 95vw !important;
+  }
+
+  .toast-custom {
+    min-width: unset !important;
+    width: calc(100vw - 32px) !important;
+    max-width: 100% !important;
+    padding: 10px 14px !important;
+  }
+
+  .toast-container {
+    left: 16px !important;
+    right: 16px !important;
+    bottom: 75px !important;
+    width: calc(100vw - 32px) !important;
+  }
+
+  /* Action Buttons touch padding */
+  .btn-action {
+    padding: 0.45rem 0.9rem !important;
+    font-size: 0.78rem !important;
+  }
+}
+
+/* 4. Landscape Mobile Devices (height <= 520px e.g. Samsung Galaxy A55: 800x360) */
+@media (max-height: 520px) {
+  .langnest-layout,
+  .game-world-container,
+  .lesson-player,
+  .course-player-main {
+    height: auto !important;
+    min-height: 100vh !important;
+    overflow-y: auto !important;
+  }
+
+  /* Docks on Left & Right Sides in Landscape */
+  .floating-dock {
+    gap: 6px !important;
+  }
+
+  .floating-dock.dock-left {
+    left: 8px !important;
+  }
+
+  .floating-dock.dock-right {
+    right: 8px !important;
+  }
+
+  .floating-dock .floating-game-btn {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 10px !important;
+    border-width: 2px !important;
+  }
+
+  .floating-dock .floating-game-btn i {
+    font-size: 1rem !important;
+  }
+
+  .floating-dock .dock-label {
+    font-size: 0.55rem !important;
+    line-height: 1 !important;
+  }
+
+  /* Pushed cleanly INWARD away from the side docks with generous central space */
+  .content-container,
+  .map-container,
+  .learner-content-container,
+  .player-content-wrapper {
+    padding-left: 68px !important;
+    padding-right: 68px !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+
+  .practice-activity-arena-wrapper {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Scaled headings in landscape */
+  h1, .display-4, .display-5 {
+    font-size: 1.05rem !important;
+    line-height: 1.2 !important;
+  }
+
+  h2 {
+    font-size: 0.98rem !important;
+    line-height: 1.2 !important;
+  }
+
+  h3 {
+    font-size: 0.88rem !important;
+  }
+
+  h4 {
+    font-size: 0.82rem !important;
+  }
+
+  p, span, small {
+    font-size: 0.74rem;
+  }
+
+  .badge.rounded-pill {
+    font-size: 0.65rem !important;
+    padding: 2px 8px !important;
+  }
+
+  .btn-back-circle {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* Mascot scaled down in landscape */
+  .mascot-cartoon-jumper {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .mascot-cartoon-img {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .home-student-hero {
+    padding: 2px 8px !important;
+    gap: 6px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .home-student-name {
+    font-size: 0.95rem !important;
+  }
+
+  .home-student-badge {
+    font-size: 0.62rem !important;
+  }
+
+  /* School chip scaled down in landscape */
+  .school-tenant-chip {
+    padding: 2px 6px !important;
+    gap: 4px !important;
+  }
+
+  .school-chip-logo,
+  .school-chip-crest {
+    width: 22px !important;
+    height: 22px !important;
+    font-size: 0.72rem !important;
+  }
+
+  .school-chip-name {
+    font-size: 0.7rem !important;
+    max-width: 110px !important;
+  }
+
+  .school-chip-sub {
+    font-size: 0.55rem !important;
+  }
+
+  /* Neat cards compact in landscape */
+  .neat-home-card {
+    padding: 8px 10px !important;
+    border-radius: 12px !important;
+  }
+
+  .neat-thumb-img,
+  .neat-thumb-icon {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 7px !important;
+  }
+
+  .neat-card-title {
+    font-size: 0.8rem !important;
+    margin-bottom: 2px !important;
+  }
+
+  .neat-card-sub {
+    font-size: 0.65rem !important;
+  }
+
+  .neat-card-tag {
+    font-size: 0.58rem !important;
+    padding: 1px 5px !important;
+  }
+
+  .neat-card-header {
+    margin-bottom: 3px !important;
+  }
+
+  .neat-btn-resume,
+  .neat-btn-join,
+  .neat-btn-scheduled {
+    padding: 3px 8px !important;
+    font-size: 0.68rem !important;
+  }
+
+  /* Adventure Portal Card - compact & scaled */
+  .adventure-portal-stage {
+    padding: 0.15rem !important;
+    gap: 8px !important;
+  }
+
+  .adventure-portal-avatar-wrap {
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+  }
+
+  .adventure-portal-circle {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  .adventure-level-badge {
+    font-size: 0.52rem !important;
+    padding: 1px 5px !important;
+    bottom: -4px !important;
+  }
+
+  .adventure-portal-title {
+    font-size: 0.88rem !important;
+    margin-bottom: 2px !important;
+  }
+
+  .adventure-skills-strip {
+    gap: 4px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .adventure-skill-pill {
+    font-size: 0.58rem !important;
+    padding: 1px 6px !important;
+  }
+
+  .btn-adventure-start {
+    font-size: 0.68rem !important;
+    padding: 3px 10px !important;
+  }
+
+  .row.g-4 {
+    --bs-gutter-y: 0.5rem !important;
+    --bs-gutter-x: 0.5rem !important;
+  }
+
+  /* Interactive Question White Card - FITS ACCURATELY WITHIN 360px SCREEN */
+  .activity-stage-box,
+  .glass-stage-card {
+    height: calc(100vh - 46px) !important;
+    max-height: calc(100vh - 46px) !important;
+    min-height: unset !important;
+    padding: 6px 14px !important;
+    border-radius: 14px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1) !important;
+  }
+
+  .activity-stage-box .activity-card-title {
+    padding-bottom: 2px !important;
+    margin-bottom: 2px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .activity-stage-box .activity-card-title h3,
+  .activity-stage-box .activity-card-title h4 {
+    font-size: 0.82rem !important;
+    line-height: 1.2 !important;
+    margin-bottom: 0 !important;
+  }
+
+  .activity-stage-box .activity-card-title span {
+    font-size: 0.62rem !important;
+  }
+
+  .activity-stage-box .activity-render-wrapper {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    padding: 2px 4px !important;
+    justify-content: flex-start !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .activity-stage-box .activity-card-footer {
+    padding-top: 3px !important;
+    margin-top: 2px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .activity-nav-btn {
+    padding: 3px 10px !important;
+    font-size: 0.72rem !important;
+  }
+}
+
+/* ==========================================================================
+   Responsive Unified Form Actions Bar (Submit / Reset / Cancel)
+   ========================================================================== */
+.form-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.form-actions-bar .btn-group-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.form-actions-bar .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.form-actions-bar .btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: #ffffff;
+}
+
+.form-actions-bar .btn-primary:hover {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+  transform: translateY(-1px);
+}
+
+.form-actions-bar .btn-reset {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+}
+
+.form-actions-bar .btn-reset:hover {
+  background-color: #f1f5f9;
+  color: #1e293b;
+  border-color: #cbd5e1;
+}
+
+.form-actions-bar .btn-cancel {
+  background-color: transparent;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+}
+
+.form-actions-bar .btn-cancel:hover {
+  background-color: #fff1f2;
+  border-color: #fecdd3;
+  color: #e11d48;
+}
+
+@media (max-width: 576px) {
+  .form-actions-bar {
+    gap: 0.5rem;
+  }
+  .form-actions-bar .btn {
+    padding: 0.45rem 0.75rem !important;
+    font-size: 0.8125rem;
+  }
+}
+
+/* ==========================================================================
+   Global Custom In-Place Dropdown Menu (Replaces overflowing OS selects)
+   ========================================================================== */
+.custom-dropdown-menu {
+  top: 100%;
+  left: 0;
+  right: 0;
+  min-width: 100%;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
+  z-index: 1050;
+  padding: 0.35rem;
+  animation: dropdownFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.custom-dropdown-menu .dropdown-item {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #1e293b;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.custom-dropdown-menu .dropdown-item:hover {
+  background: #f1f5f9;
+  color: #0d6efd;
+}
+
+.custom-dropdown-menu .dropdown-item.active-item {
+  background: #eff6ff;
+  color: #0d6efd;
+  font-weight: 700;
+}
+
+
+
 

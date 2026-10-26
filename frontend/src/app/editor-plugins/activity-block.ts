@@ -20,6 +20,11 @@ import { renderSequencingForm } from './activity-block/forms/sequencing';
 import { renderPartsOfSpeechForm } from './activity-block/forms/parts-of-speech';
 import { renderMindMapForm } from './activity-block/forms/mind-map';
 import { renderWritingForm } from './activity-block/forms/writing';
+import { renderCarRacerForm } from './activity-block/forms/car-racer';
+import { renderWordNinjaForm } from './activity-block/forms/word-ninja';
+import { renderFlappyWordForm } from './activity-block/forms/flappy-word';
+import { renderSpaceDefenderForm } from './activity-block/forms/space-defender';
+import { renderBalloonPopForm } from './activity-block/forms/balloon-pop';
 
 export class ActivityBlock {
   private data: any;
@@ -149,6 +154,16 @@ export class ActivityBlock {
       renderMindMapForm(formWrapper, this.data, this.renderExplanationInput.bind(this));
     } else if (type === 'writing') {
       renderWritingForm(formWrapper, this.data, this.renderExplanationInput.bind(this));
+    } else if (type === 'car_racer') {
+      renderCarRacerForm(formWrapper, this.data, this.renderExplanationInput.bind(this));
+    } else if (type === 'word_ninja') {
+      renderWordNinjaForm(formWrapper, this.data, this.renderExplanationInput.bind(this));
+    } else if (type === 'flappy_word') {
+      renderFlappyWordForm(formWrapper, this.data, this.renderExplanationInput.bind(this));
+    } else if (type === 'space_defender') {
+      renderSpaceDefenderForm(formWrapper, this.data, this.renderExplanationInput.bind(this));
+    } else if (type === 'balloon_pop') {
+      renderBalloonPopForm(formWrapper, this.data, this.renderExplanationInput.bind(this));
     }
 
     this.container.appendChild(formWrapper);
@@ -228,6 +243,31 @@ export class ActivityBlock {
         icon = 'bi-pencil-square';
         details = `Prompt: "${this.data.text || ''}"`;
         break;
+      case 'car_racer':
+        typeLabel = '3-Lane Highway Racer';
+        icon = 'bi-speedometer2';
+        details = `Waves: ${this.data.rounds?.length || 1} | Speed: ${this.data.speed || 'normal'}`;
+        break;
+      case 'word_ninja':
+        typeLabel = 'Word Ninja Slicer';
+        icon = 'bi-scissors';
+        details = `Targets: ${this.data.correctWords?.length || 0} | Distractors: ${this.data.wrongWords?.length || 0}`;
+        break;
+      case 'flappy_word':
+        typeLabel = 'Flappy Word Flight';
+        icon = 'bi-feather';
+        details = `Gates: ${this.data.waves?.length || 1} | Pace: ${this.data.speed || 'normal'}`;
+        break;
+      case 'space_defender':
+        typeLabel = 'Space Word Defender';
+        icon = 'bi-rocket-takeoff';
+        details = `Sectors: ${this.data.challenges?.length || 1} | Pace: ${this.data.speed || 'normal'}`;
+        break;
+      case 'balloon_pop':
+        typeLabel = 'Balloon Word Pop';
+        icon = 'bi-balloon';
+        details = `Targets: ${this.data.correctWords?.length || 0} | Distractors: ${this.data.wrongWords?.length || 0}`;
+        break;
     }
     return { typeLabel, icon, details };
   }
@@ -302,6 +342,11 @@ export class ActivityBlock {
             <option value="parts_of_speech" ${tempData.type === 'parts_of_speech' ? 'selected' : ''}>Parts of Speech Tagger</option>
             <option value="mind_map" ${tempData.type === 'mind_map' ? 'selected' : ''}>Mind Mapping Diagram</option>
             <option value="writing" ${tempData.type === 'writing' ? 'selected' : ''}>Paragraph / Story Writing</option>
+            <option value="car_racer" ${tempData.type === 'car_racer' ? 'selected' : ''}>🏎️ 3-Lane Highway Racer (Car Game)</option>
+            <option value="word_ninja" ${tempData.type === 'word_ninja' ? 'selected' : ''}>⚔️ Word Ninja (Word Slicer Game)</option>
+            <option value="flappy_word" ${tempData.type === 'flappy_word' ? 'selected' : ''}>🕊️ Flappy Word (Sky Flight Game)</option>
+            <option value="space_defender" ${tempData.type === 'space_defender' ? 'selected' : ''}>🚀 Space Word Defender (Galaxy Shooter)</option>
+            <option value="balloon_pop" ${tempData.type === 'balloon_pop' ? 'selected' : ''}>🎈 Balloon Word Pop (Sky Tap Game)</option>
           </select>
           <div class="modal-form-container"></div>
         </div>
@@ -444,6 +489,16 @@ export class ActivityBlock {
         renderMindMapForm(formContainer, tempData, this.renderExplanationInput);
       } else if (type === 'writing') {
         renderWritingForm(formContainer, tempData, this.renderExplanationInput);
+      } else if (type === 'car_racer') {
+        renderCarRacerForm(formContainer, tempData, this.renderExplanationInput);
+      } else if (type === 'word_ninja') {
+        renderWordNinjaForm(formContainer, tempData, this.renderExplanationInput);
+      } else if (type === 'flappy_word') {
+        renderFlappyWordForm(formContainer, tempData, this.renderExplanationInput);
+      } else if (type === 'space_defender') {
+        renderSpaceDefenderForm(formContainer, tempData, this.renderExplanationInput);
+      } else if (type === 'balloon_pop') {
+        renderBalloonPopForm(formContainer, tempData, this.renderExplanationInput);
       }
     };
 
@@ -475,6 +530,49 @@ export class ActivityBlock {
           { id: 'branch1', label: '', isPlaceholder: true, parentId: 'root' },
           { id: 'leaf1', label: '', isPlaceholder: true, parentId: 'branch1' }
         ];
+      }
+      if (tempData.type === 'car_racer' && !tempData.rounds) {
+        tempData.rounds = [{
+          question: 'Choose the Past Tense of "Drive":',
+          options: [
+            { text: 'Drove', isCorrect: true },
+            { text: 'Drived', isCorrect: false },
+            { text: 'Driven', isCorrect: false }
+          ]
+        }];
+        tempData.speed = 'normal';
+      }
+      if (tempData.type === 'word_ninja' && !tempData.correctWords) {
+        tempData.question = 'Slice all Adjectives!';
+        tempData.correctWords = ['Brave', 'Gentle', 'Bright', 'Honest', 'Swift', 'Happy'];
+        tempData.wrongWords = ['Run', 'Eat', 'Quickly', 'Table', 'Sleep', 'Loudly'];
+        tempData.speed = 'normal';
+      }
+      if (tempData.type === 'flappy_word' && !tempData.waves) {
+        tempData.waves = [
+          {
+            question: "Fly to the Past Tense of 'Sing':",
+            topOption: { text: 'Sang', isCorrect: true },
+            bottomOption: { text: 'Singed', isCorrect: false }
+          }
+        ];
+        tempData.speed = 'normal';
+      }
+      if (tempData.type === 'space_defender' && !tempData.challenges) {
+        tempData.challenges = [
+          {
+            question: "Shoot the Antonym of 'Cowardly':",
+            targetWord: "Brave",
+            distractors: ["Timid", "Fearful"]
+          }
+        ];
+        tempData.speed = 'normal';
+      }
+      if (tempData.type === 'balloon_pop' && !tempData.correctWords) {
+        tempData.question = 'Pop all Nature Words!';
+        tempData.correctWords = ['Sun', 'Moon', 'Sky', 'Star', 'Cloud', 'Rain'];
+        tempData.wrongWords = ['Car', 'Table', 'Phone', 'Book', 'Shoe'];
+        tempData.speed = 'normal';
       }
       renderForm();
     });

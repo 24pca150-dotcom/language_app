@@ -142,24 +142,25 @@
 
     <!-- Top HUD on Map View (Back to Levels & Fullscreen) -->
     @if (currentView() === 'map') {
-      <header class="position-absolute top-0 start-0 w-100 pe-none" style="z-index: 1050; height: 80px;">
-        <!-- Left Navigation Actions (Floating Top Left) -->
-        <div class="position-absolute pe-auto d-flex align-items-center gap-2" style="top: 20px; left: 20px;">
+      <header class="course-map-top-bar position-absolute top-0 start-0 w-100 d-flex justify-content-between align-items-center pe-none" style="z-index: 1050;">
+        <!-- Left Navigation Action: Compact Circular Back Button -->
+        <div class="pe-auto">
           <button
-            class="btn btn-warning rounded-pill px-3 py-2 shadow-lg border border-2 border-white text-dark fw-bold d-flex align-items-center gap-2 hover-lift"
-            (click)="goBack()">
-            <i class="bi bi-arrow-left-circle-fill text-dark fs-5"></i>
-            <span>Back to Levels</span>
+            class="btn btn-warning rounded-circle shadow-md border border-2 border-white text-dark d-flex align-items-center justify-content-center hover-lift"
+            style="width: 36px; height: 36px; padding: 0;"
+            (click)="goBack()"
+            title="Back to Levels">
+            <i class="bi bi-arrow-left fw-bold fs-5"></i>
           </button>
         </div>
 
-        <!-- Actions (Floating Top Right) -->
-        <div class="position-absolute d-flex gap-2 pe-auto" style="top: 20px; right: 20px;">
-          <button class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center"
-            style="width: 34px; height: 34px; border: 2px solid white; padding: 0;" (click)="toggleFullscreen()"
+        <!-- Right Action: Fullscreen Button -->
+        <div class="pe-auto">
+          <button class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-lift"
+            style="width: 36px; height: 36px; border: 2px solid white; padding: 0;" (click)="toggleFullscreen()"
             title="Fullscreen">
             <i class="bi" [ngClass]="isFullscreen() ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'"
-              style="font-size: 0.9rem;"></i>
+              style="font-size: 0.95rem;"></i>
           </button>
         </div>
       </header>

@@ -38,31 +38,6 @@
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
 
-        <!-- 🏫 Institution / School Selector -->
-        <div class="form-group tenant-picker-group">
-          <label for="tenantSelect" class="d-flex justify-content-between align-items-center">
-            <span>
-              <i class="bi bi-building-fill-check me-1 text-warning"></i> Select School / Institution
-            </span>
-            @if (selectedTenant) {
-              <span class="tenant-code-badge">{{ selectedTenant.tenant_code }}</span>
-            }
-          </label>
-          <div class="input-wrapper select-wrapper">
-            <i class="bi bi-mortarboard-fill input-icon"></i>
-            <select id="tenantSelect" class="tenant-select-input"
-                    [ngModel]="selectedTenantCode" 
-                    (ngModelChange)="onTenantChange($event)"
-                    [ngModelOptions]="{standalone: true}">
-              <option value="">🌐 Direct Login / All Campuses</option>
-              @for (tenant of tenants; track tenant.id) {
-                <option [value]="tenant.tenant_code">
-                  {{ tenant.tenant_name }} ({{ tenant.tenant_code }})
-                </option>
-              }
-            </select>
-          </div>
-        </div>
 
         <!-- Username / Email -->
         <div class="form-group">

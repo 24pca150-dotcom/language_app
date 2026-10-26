@@ -1,5 +1,62 @@
 .learner-assessment-container {
   animation: fadeIn 0.3s ease-out;
+  padding-top: 36px;
+}
+
+/* 🌟 Assessment Top Header Row (Brought down nicely from top edge) */
+.assessment-top-header {
+  margin-top: 8px;
+  margin-bottom: 24px;
+}
+
+/* 🔙 Circular Back Button */
+.btn-back-circle {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  color: #0F172A !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-right: 4px;
+  padding: 0;
+}
+
+.btn-back-circle:hover {
+  background: #FFC727 !important;
+  color: #0B192C !important;
+  border-color: #FFC727;
+  transform: scale(1.08) translateX(-3px);
+  box-shadow: 0 6px 18px rgba(255, 199, 39, 0.45);
+}
+
+.btn-back-circle:active {
+  transform: scale(0.96);
+}
+
+.btn-back-circle i {
+  font-size: 1.25rem !important;
+  line-height: 1 !important;
+}
+
+@media (max-width: 991.98px) {
+  .learner-assessment-container {
+    padding-top: 16px;
+  }
+  .btn-back-circle {
+    top: 14px !important;
+    left: 12px !important;
+    width: 42px !important;
+    height: 42px !important;
+  }
 }
 
 @keyframes fadeIn {
@@ -201,3 +258,40 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+@media (max-width: 767.98px) {
+  .learner-assessment-container {
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+  }
+
+  .modern-assessment-card {
+    padding: 1.1rem !important;
+  }
+
+  .assessment-card-heading {
+    font-size: 0.95rem;
+  }
+
+  .stat-mini-pill {
+    padding: 3px 8px !important;
+    font-size: 0.72rem !important;
+  }
+}
+
+@media (max-height: 520px) {
+  .modern-assessment-card {
+    padding: 0.85rem !important;
+    min-height: 180px;
+  }
+
+  .assessment-card-heading {
+    font-size: 0.88rem !important;
+  }
+
+  .stat-mini-pill {
+    padding: 2px 7px !important;
+    font-size: 0.68rem !important;
+  }
+}
+
