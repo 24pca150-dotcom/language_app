@@ -100,24 +100,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Icon(Icons.school_rounded, color: Colors.white, size: 40),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'LangNest Mobile',
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Connected to Laravel Database API',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -131,12 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: AppTheme.textPrimary,
                 ),
               ),
-              const SizedBox(height: 6),
-              Text(
-                'Enter username/email added in the admin panel',
-                style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
-              ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
               // Username or Email
               const Text('Username / Email', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),

@@ -1,4 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+
 import '../services/content_service.dart';
 import '../services/course_service.dart';
 import '../theme/app_theme.dart';
@@ -24,39 +29,169 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
   List<ChapterContentItem> _contents = [];
   int _activeContentIndex = 0;
   bool _isLoading = true;
+  String? _loadError;
+  final FlutterTts _textToSpeech = FlutterTts();
+  bool _isSpeaking = false;
+  String? _speakingText;
+  int _speechRequestId = 0;
+  late final Future<String?> _speechLanguage;
 
   @override
   void initState() {
     super.initState();
+    _textToSpeech.setStartHandler(() {
+      if (mounted) setState(() => _isSpeaking = true);
+    });
+    _textToSpeech.setCompletionHandler(() {
+      if (mounted) {
+        setState(() {
+          _isSpeaking = false;
+          _speakingText = null;
+        });
+      }
+    });
+    _textToSpeech.setCancelHandler(() {
+      if (mounted) {
+        setState(() {
+          _isSpeaking = false;
+          _speakingText = null;
+        });
+      }
+    });
+    _textToSpeech.setErrorHandler((message) {
+      if (!mounted) return;
+      setState(() {
+        _isSpeaking = false;
+        _speakingText = null;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Text-to-speech error: $message')));
+    });
+    _speechLanguage = _configureSpeech();
     _loadContents();
   }
 
+  Future<String?> _configureSpeech() async {
+    await _textToSpeech.setSpeechRate(0.45);
+    await _textToSpeech.setVolume(1.0);
+    await _textToSpeech.awaitSpeakCompletion(false);
+
+    for (final language in ['en-US', 'en-GB', 'en']) {
+      if (await _textToSpeech.isLanguageAvailable(language) == true) {
+        final result = await _textToSpeech.setLanguage(language);
+        if (result == 1) return language;
+      }
+    }
+    return null;
+  }
+
   Future<void> _loadContents() async {
-    final list = await ContentService.getChapterContents(widget.chapter.id);
-    if (mounted) {
-      setState(() {
-        _contents = list;
-        _isLoading = false;
-      });
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
+    try {
+      final list = await ContentService.getChapterContents(widget.chapter.id);
+      if (mounted) {
+        setState(() {
+          _contents = list;
+          _isLoading = false;
+        });
+      }
+    } catch (error) {
+      if (mounted) {
+        setState(() {
+          _loadError = error.toString();
+          _isLoading = false;
+        });
+      }
     }
   }
 
-  void _playPronunciation(String word, String sound) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.volume_up_rounded, color: Colors.white, size: 20),
-            const SizedBox(width: 10),
-            Expanded(child: Text('🔊 Pronouncing "$word": $sound')),
-          ],
-        ),
-        duration: const Duration(seconds: 2),
-        backgroundColor: AppTheme.primaryDark,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
+  Future<void> _playPronunciation(String word, String sound) async {
+    final content = _contents[_activeContentIndex];
+    final header =
+        content.tableData.isNotEmpty && content.tableData.first.length > 1
+        ? content.tableData.first[1].toLowerCase()
+        : '';
+    final text = (header.contains('sound produced') ? sound : word).trim();
+    if (text.isEmpty) return;
+    final speechText = text.replaceAll(RegExp(r'_+'), 'dash');
+
+    if (_isSpeaking && _speakingText == text) {
+      _speechRequestId++;
+      await _textToSpeech.stop();
+      if (mounted) {
+        setState(() {
+          _isSpeaking = false;
+          _speakingText = null;
+        });
+      }
+      return;
+    }
+
+    final requestId = ++_speechRequestId;
+    setState(() {
+      _isSpeaking = true;
+      _speakingText = text;
+    });
+
+    try {
+      await _textToSpeech.stop();
+      final language = await _speechLanguage;
+      if (!mounted || requestId != _speechRequestId) return;
+      if (language == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'No English voice is available. Install or enable a Text-to-Speech engine in device settings.',
+            ),
+          ),
+        );
+        setState(() {
+          _isSpeaking = false;
+          _speakingText = null;
+        });
+        return;
+      }
+
+      final result = await _textToSpeech.speak(speechText, focus: true);
+      if (result != 1 && mounted && requestId == _speechRequestId) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'The device could not start speech playback. Check the TTS engine and media volume.',
+            ),
+          ),
+        );
+        setState(() {
+          _isSpeaking = false;
+          _speakingText = null;
+        });
+      }
+    } on PlatformException catch (error) {
+      if (mounted && requestId == _speechRequestId) {
+        setState(() {
+          _isSpeaking = false;
+          _speakingText = null;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Unable to play pronunciation: ${error.message ?? error.code}',
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _speechRequestId++;
+    unawaited(_textToSpeech.stop());
+    super.dispose();
   }
 
   @override
@@ -68,7 +203,9 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
       );
     }
 
-    final currentContent = _contents.isNotEmpty ? _contents[_activeContentIndex] : null;
+    final currentContent = _contents.isNotEmpty
+        ? _contents[_activeContentIndex]
+        : null;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -93,11 +230,19 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
           children: [
             Text(
               widget.levelName,
-              style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                fontSize: 11,
+                color: Color(0xFF64748B),
+                fontWeight: FontWeight.w600,
+              ),
             ),
             Text(
               widget.chapter.name,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0F172A),
+              ),
             ),
           ],
         ),
@@ -111,7 +256,11 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.bolt_rounded, size: 16, color: AppTheme.secondary),
+                const Icon(
+                  Icons.bolt_rounded,
+                  size: 16,
+                  color: AppTheme.secondary,
+                ),
                 const SizedBox(width: 4),
                 Text(
                   '${_activeContentIndex + 1}/${_contents.length} Lessons',
@@ -126,8 +275,36 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
           ),
         ],
       ),
-      body: currentContent == null
-          ? const Center(child: Text('No content found for this chapter'))
+      body: _loadError != null
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.cloud_off_rounded,
+                      color: AppTheme.textMuted,
+                      size: 36,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Could not load lesson content.\n$_loadError',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: AppTheme.textSecondary),
+                    ),
+                    TextButton(
+                      onPressed: _loadContents,
+                      child: const Text('Try again'),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : currentContent == null
+          ? const Center(
+              child: Text('No content has been added to this chapter yet.'),
+            )
           : SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
               child: Column(
@@ -143,20 +320,29 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                           return Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: ChoiceChip(
-                              label: Text('Part ${idx + 1}: ${_contents[idx].name}'),
+                              label: Text(
+                                'Part ${idx + 1}: ${_contents[idx].name}',
+                              ),
                               selected: isSelected,
-                              onSelected: (_) => setState(() => _activeContentIndex = idx),
+                              onSelected: (_) =>
+                                  setState(() => _activeContentIndex = idx),
                               selectedColor: AppTheme.primary,
                               backgroundColor: Colors.white,
                               labelStyle: TextStyle(
-                                color: isSelected ? Colors.white : AppTheme.textSecondary,
-                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                color: isSelected
+                                    ? Colors.white
+                                    : AppTheme.textSecondary,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.w500,
                                 fontSize: 12,
                               ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                                 side: BorderSide(
-                                  color: isSelected ? AppTheme.primary : AppTheme.cardBorder,
+                                  color: isSelected
+                                      ? AppTheme.primary
+                                      : AppTheme.cardBorder,
                                 ),
                               ),
                             ),
@@ -188,7 +374,10 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(10),
@@ -204,7 +393,11 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                               ),
                             ),
                             const Spacer(),
-                            const Icon(Icons.school_rounded, color: Colors.white70, size: 22),
+                            const Icon(
+                              Icons.school_rounded,
+                              color: Colors.white70,
+                              size: 22,
+                            ),
                           ],
                         ),
                         const SizedBox(height: 12),
@@ -234,7 +427,11 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                         shadows: [
-                          Shadow(color: Colors.black54, blurRadius: 4, offset: Offset(0, 1.5)),
+                          Shadow(
+                            color: Colors.black54,
+                            blurRadius: 4,
+                            offset: Offset(0, 1.5),
+                          ),
                         ],
                       ),
                     ),
@@ -258,7 +455,11 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: currentContent.tableData.length,
-                          separatorBuilder: (_, _) => const Divider(height: 1, indent: 16, endIndent: 16),
+                          separatorBuilder: (_, _) => const Divider(
+                            height: 1,
+                            indent: 16,
+                            endIndent: 16,
+                          ),
                           itemBuilder: (context, idx) {
                             final row = currentContent.tableData[idx];
                             final isHeader = idx == 0;
@@ -266,27 +467,42 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                             if (isHeader) {
                               return Container(
                                 color: const Color(0xFFF1F5F9),
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
                                 child: Row(
                                   children: [
                                     Expanded(
                                       flex: 3,
                                       child: Text(
                                         row.isNotEmpty ? row[0] : '',
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13,
+                                        ),
                                       ),
                                     ),
                                     Expanded(
                                       flex: 4,
                                       child: Text(
                                         row.length > 1 ? row[1] : '',
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13,
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(
                                       width: 44,
                                       child: Center(
-                                        child: Text('Audio', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                        child: Text(
+                                          'Audio',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -296,11 +512,24 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
 
                             final word = row.isNotEmpty ? row[0] : '';
                             final soundOrMeaning = row.length > 1 ? row[1] : '';
+                            final audioHeader =
+                                currentContent.tableData.isNotEmpty &&
+                                    currentContent.tableData.first.length > 1
+                                ? currentContent.tableData.first[1]
+                                      .toLowerCase()
+                                : '';
+                            final audioText =
+                                audioHeader.contains('sound produced')
+                                ? soundOrMeaning
+                                : word;
 
                             return Material(
                               type: MaterialType.transparency,
                               child: ListTile(
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 4,
+                                ),
                                 title: Text(
                                   word,
                                   style: const TextStyle(
@@ -319,15 +548,28 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                                 ),
                                 trailing: Container(
                                   decoration: BoxDecoration(
-                                    color: AppTheme.primary.withValues(alpha: 0.1),
+                                    color: AppTheme.primary.withValues(
+                                      alpha: 0.1,
+                                    ),
                                     shape: BoxShape.circle,
                                   ),
                                   child: IconButton(
-                                    icon: const Icon(Icons.volume_up_rounded, color: AppTheme.primary, size: 20),
-                                    onPressed: () => _playPronunciation(word, soundOrMeaning),
+                                    icon: Icon(
+                                      _isSpeaking &&
+                                              _speakingText == audioText.trim()
+                                          ? Icons.stop_rounded
+                                          : Icons.volume_up_rounded,
+                                      color: AppTheme.primary,
+                                      size: 20,
+                                    ),
+                                    onPressed: () => _playPronunciation(
+                                      word,
+                                      soundOrMeaning,
+                                    ),
                                   ),
                                 ),
-                                onTap: () => _playPronunciation(word, soundOrMeaning),
+                                onTap: () =>
+                                    _playPronunciation(word, soundOrMeaning),
                               ),
                             );
                           },
@@ -349,7 +591,9 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                             },
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
                             ),
                             child: const Text('Previous Part'),
                           ),
@@ -364,7 +608,8 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                               CelebrationDialog.show(
                                 context,
                                 title: 'Chapter Completed! 🎉',
-                                subtitle: 'Awesome job! You mastered ${widget.chapter.name}!',
+                                subtitle:
+                                    'Awesome job! You mastered ${widget.chapter.name}!',
                                 xpEarned: 50,
                                 onContinue: () {
                                   if (widget.onBack != null) {
@@ -379,10 +624,14 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.primary,
                             padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                           ),
                           child: Text(
-                            _activeContentIndex < _contents.length - 1 ? 'Next Part →' : 'Complete Chapter 🎉',
+                            _activeContentIndex < _contents.length - 1
+                                ? 'Next Part →'
+                                : 'Complete Chapter 🎉',
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -407,7 +656,11 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
             fontWeight: FontWeight.bold,
             color: Colors.white,
             shadows: [
-              Shadow(color: Colors.black54, blurRadius: 4, offset: Offset(0, 1.5)),
+              Shadow(
+                color: Colors.black54,
+                blurRadius: 4,
+                offset: Offset(0, 1.5),
+              ),
             ],
           ),
         ),

@@ -1,5 +1,7 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
+
 import '../config/api_config.dart';
 import 'auth_service.dart';
 
@@ -16,7 +18,7 @@ class AssessmentOption {
 
   factory AssessmentOption.fromJson(Map<String, dynamic> json) {
     return AssessmentOption(
-      id: json['id'] ?? 1,
+      id: json['id'] ?? 0,
       text: json['option_text'] ?? json['text'] ?? '',
       isCorrect: json['is_correct'] == true || json['is_correct'] == 1,
     );
@@ -39,7 +41,7 @@ class AssessmentQuestionModel {
         .map((o) => AssessmentOption.fromJson(o))
         .toList();
     return AssessmentQuestionModel(
-      id: json['id'] ?? 1,
+      id: json['id'] ?? 0,
       questionText: json['question_text'] ?? json['question'] ?? '',
       options: opts,
     );
@@ -55,6 +57,7 @@ class AssessmentModel {
   final int passPercentage;
   final double? bestScore;
   final bool isPassed;
+  final int totalAttempts;
   final List<AssessmentQuestionModel> questions;
 
   AssessmentModel({
@@ -66,6 +69,7 @@ class AssessmentModel {
     this.passPercentage = 60,
     this.bestScore,
     this.isPassed = false,
+    this.totalAttempts = 0,
     required this.questions,
   });
 
@@ -75,14 +79,18 @@ class AssessmentModel {
         .toList();
 
     return AssessmentModel(
-      id: json['id'] ?? 1,
+      id: json['id'] ?? 0,
       title: json['title'] ?? 'Assessment',
       description: json['description'] ?? 'Curriculum mastery assessment',
-      totalQuestions: qList.isNotEmpty ? qList.length : (json['total_marks'] ?? 5),
-      timeLimitMinutes: json['time_limit_minutes'] ?? 15,
+      totalQuestions: qList.isNotEmpty
+          ? qList.length
+          : json['total_questions'] ?? json['total_marks'] ?? 0,
+      timeLimitMinutes:
+          json['time_limit_minutes'] ?? json['duration_minutes'] ?? 15,
       passPercentage: json['pass_percentage'] ?? 60,
       bestScore: (json['best_score'] as num?)?.toDouble(),
       isPassed: json['is_passed'] == true,
+      totalAttempts: json['total_attempts_count'] ?? 0,
       questions: qList,
     );
   }
@@ -94,29 +102,29 @@ class AssessmentService {
     final tenantCode = await ApiConfig.getTenantCode();
     final baseUrl = await ApiConfig.getBaseUrl();
 
-    try {
-      final res = await http
-          .get(
-            Uri.parse('$baseUrl/assessments'),
-            headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
-          )
-          .timeout(const Duration(seconds: 8));
+    final res = await http
+        .get(
+          Uri.parse('$baseUrl/assessments'),
+          headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
+        )
+        .timeout(const Duration(seconds: 8));
 
-      if (res.statusCode == 200) {
-        final List<dynamic> list = jsonDecode(res.body);
-        if (list.isNotEmpty) {
-          return list.map((a) => AssessmentModel.fromJson(a)).toList();
-        }
-      }
-    } catch (_) {}
+    if (res.statusCode != 200) {
+      throw Exception('Unable to load assessments (${res.statusCode}).');
+    }
 
-    // Fallback if admin has not added one yet in DB
-    return getFallbackAssessments();
+    final data = jsonDecode(res.body);
+    if (data is! List) {
+      throw const FormatException('Invalid assessments response.');
+    }
+    return data
+        .whereType<Map<String, dynamic>>()
+        .map(AssessmentModel.fromJson)
+        .toList();
   }
 
   static Future<Map<String, dynamic>> submitAssessment({
     required int assessmentId,
-    required int score,
     required int correctAnswers,
     required int totalQuestions,
   }) async {
@@ -125,30 +133,27 @@ class AssessmentService {
     final baseUrl = await ApiConfig.getBaseUrl();
     final user = await AuthService.getUserProfile();
 
-    try {
-      final res = await http
-          .post(
-            Uri.parse('$baseUrl/assessments/$assessmentId/submit'),
-            headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
-            body: jsonEncode({
-              'user_id': user.id,
-              'correct_answers': correctAnswers,
-              'total_questions': totalQuestions,
-            }),
-          )
-          .timeout(const Duration(seconds: 8));
+    final res = await http
+        .post(
+          Uri.parse('$baseUrl/assessments/$assessmentId/submit'),
+          headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
+          body: jsonEncode({
+            'user_id': user.id,
+            'correct_answers': correctAnswers,
+            'total_questions': totalQuestions,
+          }),
+        )
+        .timeout(const Duration(seconds: 8));
 
-      if (res.statusCode == 200) {
-        return jsonDecode(res.body);
-      }
-    } catch (_) {}
+    if (res.statusCode != 200) {
+      throw Exception('Unable to submit assessment (${res.statusCode}).');
+    }
 
-    return {
-      'score': score,
-      'passed': score >= 60,
-      'correct_answers': correctAnswers,
-      'total_questions': totalQuestions,
-    };
+    final data = jsonDecode(res.body);
+    if (data is! Map<String, dynamic>) {
+      throw const FormatException('Invalid assessment submission response.');
+    }
+    return data;
   }
 
   static List<AssessmentModel> getFallbackAssessments() {
@@ -175,7 +180,8 @@ class AssessmentService {
           ),
           AssessmentQuestionModel(
             id: 102,
-            questionText: 'Which word has the exact same pronunciation as "Sea"?',
+            questionText:
+                'Which word has the exact same pronunciation as "Sea"?',
             options: [
               AssessmentOption(id: 5, text: 'See', isCorrect: true),
               AssessmentOption(id: 6, text: 'Saw', isCorrect: false),
@@ -218,7 +224,8 @@ class AssessmentService {
       AssessmentModel(
         id: 2,
         title: 'Level 2: Animal Sounds & Grammar Identification',
-        description: 'Comprehensive quiz on nature vocabulary, verb tenses, and sounds.',
+        description:
+            'Comprehensive quiz on nature vocabulary, verb tenses, and sounds.',
         totalQuestions: 4,
         timeLimitMinutes: 10,
         passPercentage: 60,

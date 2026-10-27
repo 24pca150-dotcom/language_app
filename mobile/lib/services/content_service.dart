@@ -1,5 +1,7 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
+
 import '../config/api_config.dart';
 import 'auth_service.dart';
 
@@ -57,9 +59,9 @@ class ChapterContentItem {
     }
 
     return ChapterContentItem(
-      id: json['id'] ?? 1,
-      name: json['name'] ?? 'Lesson Content',
-      title: json['title'] ?? json['name'] ?? 'Lesson Details',
+      id: json['id'] ?? 0,
+      name: json['name'] ?? '',
+      title: json['title'] ?? json['name'] ?? '',
       blocks: parsedBlocks,
       tableData: parsedTable,
     );
@@ -67,30 +69,38 @@ class ChapterContentItem {
 }
 
 class ContentService {
-  static Future<List<ChapterContentItem>> getChapterContents(int chapterId) async {
+  static Future<List<ChapterContentItem>> getChapterContents(
+    int chapterId,
+  ) async {
     final token = await AuthService.getToken();
     final tenantCode = await ApiConfig.getTenantCode();
     final baseUrl = await ApiConfig.getBaseUrl();
 
-    try {
-      final res = await http
-          .get(
-            Uri.parse('$baseUrl/chapters/$chapterId'),
-            headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
-          )
-          .timeout(const Duration(seconds: 8));
+    final res = await http
+        .get(
+          Uri.parse('$baseUrl/chapters/$chapterId'),
+          headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
+        )
+        .timeout(const Duration(seconds: 8));
 
-      if (res.statusCode == 200) {
-        final data = jsonDecode(res.body);
-        final contentsList = data['contents'] as List<dynamic>?;
-        if (contentsList != null && contentsList.isNotEmpty) {
-          return contentsList.map((c) => ChapterContentItem.fromJson(c)).toList();
-        }
-      }
-    } catch (_) {}
+    if (res.statusCode != 200) {
+      throw Exception('Unable to load lesson content (${res.statusCode}).');
+    }
 
-    // Fallback based on real database records for Chapter 1 and Chapter 2
-    return getFallbackContents(chapterId);
+    final data = jsonDecode(res.body);
+    if (data is! Map<String, dynamic>) {
+      throw const FormatException('Invalid lesson content response.');
+    }
+
+    final contentsList = data['contents'] as List<dynamic>? ?? [];
+    return contentsList
+        .whereType<Map<String, dynamic>>()
+        .where(
+          (content) =>
+              content['is_active'] == true || content['is_active'] == 1,
+        )
+        .map(ChapterContentItem.fromJson)
+        .toList();
   }
 
   static List<ChapterContentItem> getFallbackContents(int chapterId) {
@@ -102,25 +112,70 @@ class ContentService {
           name: 'Animal Sounds - Vocabulary of Nature',
           title: 'Sounds of Animals & Birds - 111 Species Directory',
           blocks: [
-            ContentBlock(type: 'header', data: {'text': 'Welcome to the Sound Adventure! 🐾', 'level': 2}),
-            ContentBlock(type: 'paragraph', data: {
-              'text': 'Sound is a form of energy that we can hear. Animals and birds use different sounds to communicate messages, warn of danger, and share happiness.'
-            }),
-            ContentBlock(type: 'header', data: {'text': 'Essential Animal & Bird Sounds', 'level': 3}),
+            ContentBlock(
+              type: 'header',
+              data: {'text': 'Welcome to the Sound Adventure! 🐾', 'level': 2},
+            ),
+            ContentBlock(
+              type: 'paragraph',
+              data: {
+                'text': 'Sound is a form of energy that we can hear. Animals and birds use different sounds to communicate messages, warn of danger, and share happiness.',
+              },
+            ),
+            ContentBlock(
+              type: 'header',
+              data: {'text': 'Essential Animal & Bird Sounds', 'level': 3},
+            ),
           ],
           tableData: [
             ['Animal / Bird', 'Sound Produced', 'Example Phrase'],
-            ['Lions / Tigers', 'Roar, Growl', 'The ferocious lion roars across the savanna.'],
-            ['Dogs', 'Bark, Woof, Arf', 'The guard dog barks when visitors approach.'],
-            ['Cats', 'Meow, Purr, Hiss', 'A gentle purr means the kitten is happy.'],
-            ['Birds', 'Chirp, Tweet, Twitter', 'Sparrows chirp cheerfully every morning.'],
-            ['Elephants', 'Trumpet, Roar', 'The mother elephant trumpeted loudly.'],
-            ['Horses', 'Neigh, Whinny, Snort', 'Horses neigh when greeting one another.'],
-            ['Cows / Cattle', 'Moo, Low', 'Cows moo peacefully in the green pasture.'],
+            [
+              'Lions / Tigers',
+              'Roar, Growl',
+              'The ferocious lion roars across the savanna.',
+            ],
+            [
+              'Dogs',
+              'Bark, Woof, Arf',
+              'The guard dog barks when visitors approach.',
+            ],
+            [
+              'Cats',
+              'Meow, Purr, Hiss',
+              'A gentle purr means the kitten is happy.',
+            ],
+            [
+              'Birds',
+              'Chirp, Tweet, Twitter',
+              'Sparrows chirp cheerfully every morning.',
+            ],
+            [
+              'Elephants',
+              'Trumpet, Roar',
+              'The mother elephant trumpeted loudly.',
+            ],
+            [
+              'Horses',
+              'Neigh, Whinny, Snort',
+              'Horses neigh when greeting one another.',
+            ],
+            [
+              'Cows / Cattle',
+              'Moo, Low',
+              'Cows moo peacefully in the green pasture.',
+            ],
             ['Frogs', 'Croak', 'Bullfrogs croak beside the quiet pond.'],
             ['Snakes', 'Hiss', 'The rattlesnake produces a sharp hiss.'],
-            ['Owls', 'Hoot, Screech', 'A wise old owl hoots from the oak tree.'],
-            ['Dolphins', 'Click, Whistle', 'Dolphins click to navigate deep waters.'],
+            [
+              'Owls',
+              'Hoot, Screech',
+              'A wise old owl hoots from the oak tree.',
+            ],
+            [
+              'Dolphins',
+              'Click, Whistle',
+              'Dolphins click to navigate deep waters.',
+            ],
             ['Bees', 'Buzz, Hum', 'Honey bees buzz around fragrant blossoms.'],
           ],
         ),
@@ -129,14 +184,24 @@ class ContentService {
           name: 'Animal Sounds - Practice & Challenges',
           title: 'Listening Activities & Pronunciation Drills',
           blocks: [
-            ContentBlock(type: 'header', data: {'text': 'Sound Identification Challenge 🎯', 'level': 2}),
-            ContentBlock(type: 'paragraph', data: {
-              'text': 'Test your listening and identification skills. Practice pronouncing each animal noise aloud with rhythmic cadence!'
-            }),
+            ContentBlock(
+              type: 'header',
+              data: {'text': 'Sound Identification Challenge 🎯', 'level': 2},
+            ),
+            ContentBlock(
+              type: 'paragraph',
+              data: {
+                'text': 'Test your listening and identification skills. Practice pronouncing each animal noise aloud with rhythmic cadence!',
+              },
+            ),
           ],
           tableData: [
             ['Sound', 'Matching Species', 'Listening Exercise'],
-            ['Buzz', 'Bees & Flies', 'Pronounce with buzzing vibration (/bʌz/)'],
+            [
+              'Buzz',
+              'Bees & Flies',
+              'Pronounce with buzzing vibration (/bʌz/)',
+            ],
             ['Neigh', 'Horses', 'Sharp rising whinny (/neɪ/)'],
             ['Croak', 'Frogs & Toads', 'Deep guttural sound (/kroʊk/)'],
             ['Trumpet', 'Elephants', 'High resonant call'],
@@ -151,21 +216,55 @@ class ContentService {
           name: 'Homophones - Concept & Examples',
           title: 'Introduction to Homophones & Phonetics',
           blocks: [
-            ContentBlock(type: 'header', data: {'text': 'What Are Homophones? 💡', 'level': 2}),
-            ContentBlock(type: 'paragraph', data: {
-              'text': 'Homophones are words that sound exactly the same when pronounced, but have different spellings and completely different meanings! (Homo = Same, Phone = Sound).'
-            }),
-            ContentBlock(type: 'header', data: {'text': 'Common Everyday Homophones Pairs', 'level': 3}),
+            ContentBlock(
+              type: 'header',
+              data: {'text': 'What Are Homophones? 💡', 'level': 2},
+            ),
+            ContentBlock(
+              type: 'paragraph',
+              data: {
+                'text': 'Homophones are words that sound exactly the same when pronounced, but have different spellings and completely different meanings! (Homo = Same, Phone = Sound).',
+              },
+            ),
+            ContentBlock(
+              type: 'header',
+              data: {'text': 'Common Everyday Homophones Pairs', 'level': 3},
+            ),
           ],
           tableData: [
             ['Word 1', 'Word 2', 'Pronunciation', 'Meanings'],
             ['See', 'Sea', '/siː/', 'See = To look | Sea = Ocean water'],
-            ['Hear', 'Here', '/hɪər/', 'Hear = To listen | Here = In this place'],
+            [
+              'Hear',
+              'Here',
+              '/hɪər/',
+              'Hear = To listen | Here = In this place',
+            ],
             ['Sun', 'Son', '/sʌn/', 'Sun = Star in sky | Son = Male child'],
-            ['Right', 'Write', '/raɪt/', 'Right = Correct | Write = Pen on paper'],
-            ['Flour', 'Flower', '/flaʊ.ər/', 'Flour = Baking grain | Flower = Blossom'],
-            ['Hour', 'Our', '/aʊər/', 'Hour = 60 minutes | Our = Belongs to us'],
-            ['Piece', 'Peace', '/piːs/', 'Piece = Portion | Peace = Calm / Harmony'],
+            [
+              'Right',
+              'Write',
+              '/raɪt/',
+              'Right = Correct | Write = Pen on paper',
+            ],
+            [
+              'Flour',
+              'Flower',
+              '/flaʊ.ər/',
+              'Flour = Baking grain | Flower = Blossom',
+            ],
+            [
+              'Hour',
+              'Our',
+              '/aʊər/',
+              'Hour = 60 minutes | Our = Belongs to us',
+            ],
+            [
+              'Piece',
+              'Peace',
+              '/piːs/',
+              'Piece = Portion | Peace = Calm / Harmony',
+            ],
             ['Pair', 'Pear', '/peər/', 'Pair = Two items | Pear = Sweet fruit'],
           ],
         ),
@@ -174,10 +273,16 @@ class ContentService {
           name: 'Homophones - A to Z & Practice',
           title: 'Directory & Sentence Practice Exercises',
           blocks: [
-            ContentBlock(type: 'header', data: {'text': 'Sentence Building Practice 📝', 'level': 2}),
-            ContentBlock(type: 'paragraph', data: {
-              'text': 'Identify the correct homophone in real sentences to avoid spelling traps in writing.'
-            }),
+            ContentBlock(
+              type: 'header',
+              data: {'text': 'Sentence Building Practice 📝', 'level': 2},
+            ),
+            ContentBlock(
+              type: 'paragraph',
+              data: {
+                'text': 'Identify the correct homophone in real sentences to avoid spelling traps in writing.',
+              },
+            ),
           ],
           tableData: [
             ['Sentence', 'Correct Choice', 'Incorrect Trap'],

@@ -15,7 +15,12 @@ export const roleGuard = (allowedRoles: string[]): CanActivateFn => {
       return true;
     }
 
-    // Redirect to a safe fallback or a custom unauthorized page
-    return router.createUrlTree(['/unauthorized']);
+    // Role is not allowed. Send student to /learn, or back to login
+    const userRole = authService.getUserRole();
+    if (userRole === 'student') {
+      return router.createUrlTree(['/learn']);
+    }
+
+    return router.createUrlTree(['/login']);
   };
 };

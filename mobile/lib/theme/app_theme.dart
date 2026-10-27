@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Brand Color Palette
@@ -9,12 +8,18 @@ class AppTheme {
   static const Color accent = Color(0xFFF59E0B); // Amber / Gold
   static const Color danger = Color(0xFFEF4444); // Red (Logout, Error)
   
-  // Backgrounds & Surfaces (Light Green Theme)
-  static const Color bgLight = Color(0xFFF8FAFC);
-  static const Color surfaceWhite = Color(0xFFE8F5E9); // Gentle light green
-  static const Color boxColor = Color(0xFFE8F5E9);     // Gentle light green box
-  static const Color boxBorder = Color(0xFFC8E6C9);    // Soft green border
-  static const Color cardBorder = Color(0xFFC8E6C9);
+  // Backgrounds & Surfaces
+  static const Color bgLight = Color(0xFFF8F9FC);
+  static const Color surfaceWhite = Color(0xFFFFFFFF);
+  static const Color boxColor = Color(0xFFF1F2FF);
+  static const Color boxBorder = Color(0xFFE0E2F5);
+  static const Color cardBorder = Color(0xFFE2E8F0);
+  
+  // App bars and navigation
+  static const Color navBarGreen = surfaceWhite;
+  static const Color navBarGreenBorder = cardBorder;
+  static const Color navBarGreenDark = primaryDark;
+  static const Color navBarGreenMuted = Color(0xFF64748B);
   
   // Text Colors
   static const Color textPrimary = Color(0xFF0F172A);
@@ -50,7 +55,6 @@ class AppTheme {
         surface: surfaceWhite,
       ),
       scaffoldBackgroundColor: bgLight,
-      fontFamily: GoogleFonts.poppins().fontFamily,
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -79,7 +83,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          textStyle: GoogleFonts.poppins(
+          textStyle: const TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 16,
           ),

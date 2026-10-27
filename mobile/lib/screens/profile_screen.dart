@@ -297,28 +297,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // Daily Goal Selection (10 min use requested by user)
               const Text('Daily Goal (Minutes / Day):', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.textPrimary)),
               const SizedBox(height: 10),
-              Row(
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
                 children: [10, 15, 20].map((mins) {
                   final isSelected = tempGoal == mins;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: ChoiceChip(
-                      label: Text(
-                        mins == 10 ? '⭐ $mins Mins (Recommended)' : '$mins Mins',
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : AppTheme.textSecondary,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                          fontSize: 12,
-                        ),
+                  return ChoiceChip(
+                    label: Text(
+                      mins == 10 ? '⭐ $mins Mins (Recommended)' : '$mins Mins',
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : AppTheme.textSecondary,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                        fontSize: 12,
                       ),
-                      selected: isSelected,
-                      onSelected: (_) => setModalState(() => tempGoal = mins),
-                      selectedColor: const Color(0xFFD97706),
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        side: BorderSide(color: isSelected ? const Color(0xFFD97706) : AppTheme.cardBorder),
-                      ),
+                    ),
+                    selected: isSelected,
+                    onSelected: (_) => setModalState(() => tempGoal = mins),
+                    selectedColor: const Color(0xFFD97706),
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: isSelected ? const Color(0xFFD97706) : AppTheme.cardBorder),
                     ),
                   );
                 }).toList(),
@@ -417,18 +416,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: const Icon(Icons.insights_rounded, color: Color(0xFF10B981), size: 26),
                 ),
                 const SizedBox(width: 14),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Learning Progress & Analytics',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
-                    ),
-                    Text(
-                      'Comprehensive breakdown of your English learning journey',
-                      style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        'Learning Progress & Analytics',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Comprehensive breakdown of your English learning journey',
+                        style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -576,18 +578,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        shadowColor: Colors.black26,
+        backgroundColor: AppTheme.navBarGreen,
+        elevation: 0,
+        shape: const Border(
+          bottom: BorderSide(color: AppTheme.navBarGreenBorder, width: 1.2),
+        ),
         surfaceTintColor: Colors.transparent,
-        iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
+        iconTheme: const IconThemeData(color: Color(0xFF14361F)),
         title: const Text(
           'My Profile',
-          style: TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold),
+          style: TextStyle(color: Color(0xFF14361F), fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_outlined, color: Color(0xFF0F172A)),
+            icon: const Icon(Icons.edit_outlined, color: Color(0xFF14361F)),
             tooltip: 'Edit Profile',
             onPressed: _showEditProfileDialog,
           ),
@@ -598,7 +602,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Avatar & Name Card with Edit Profile Button
+            // Profile identity
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -713,7 +717,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Options Container (Only the user's requested options)
+            // Profile settings
             Container(
               decoration: BoxDecoration(
                 color: AppTheme.boxColor,
@@ -729,7 +733,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               child: Column(
                 children: [
-                  // 1️⃣ ASSESSMENT HISTORY (Separated as requested)
                   _buildOptionTile(
                     icon: Icons.history_edu_rounded,
                     iconColor: const Color(0xFF6366F1),
@@ -744,7 +747,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const Divider(height: 1, indent: 60),
 
-                  // 2️⃣ LEARNING PROGRESS & REPORTS (Separated as requested)
                   _buildOptionTile(
                     icon: Icons.insights_rounded,
                     iconColor: const Color(0xFF10B981),
@@ -754,7 +756,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const Divider(height: 1, indent: 60),
 
-                  // 3️⃣ DAILY NOTIFICATION & 10-MIN GOAL (Requested by user)
                   _buildOptionTile(
                     icon: Icons.alarm_on_rounded,
                     iconColor: const Color(0xFFD97706),
@@ -838,7 +839,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 4),
             Text(
               label,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: AppTheme.textSecondary,
                 fontWeight: FontWeight.w500,

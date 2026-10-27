@@ -10,8 +10,12 @@ export const guestGuard: CanActivateFn = (route, state) => {
     const role = authService.getUserRole();
     if (role === 'student') {
       return router.createUrlTree(['/learn']);
-    } else {
+    } else if (role && ['super_admin', 'admin', 'staff'].includes(role)) {
       return router.createUrlTree(['/admin-dashboard']);
+    } else {
+      // Stale/corrupt session: clear and allow staying on login page
+      authService.clearSession();
+      return true;
     }
   }
 

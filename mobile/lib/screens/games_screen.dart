@@ -110,14 +110,16 @@ class _GamesScreenState extends State<GamesScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        shadowColor: Colors.black26,
+        backgroundColor: AppTheme.navBarGreen,
+        elevation: 0,
+        shape: const Border(
+          bottom: BorderSide(color: AppTheme.navBarGreenBorder, width: 1.2),
+        ),
         surfaceTintColor: Colors.transparent,
-        iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
+        iconTheme: const IconThemeData(color: Color(0xFF14361F)),
         title: const Text(
           'Language Games',
-          style: TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold),
+          style: TextStyle(color: Color(0xFF14361F), fontWeight: FontWeight.bold),
         ),
         actions: [
           Container(
@@ -153,20 +155,15 @@ class _GamesScreenState extends State<GamesScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Games Banner
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF10B981), Color(0xFF047857)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  gradient: AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF10B981).withValues(alpha: 0.3),
+                      color: AppTheme.primary.withValues(alpha: 0.22),
                       blurRadius: 15,
                       offset: const Offset(0, 8),
                     ),
@@ -278,150 +275,83 @@ class _GamesScreenState extends State<GamesScreen> {
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () => _openGame(game),
-            child: Stack(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: () => _openGame(game),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
               children: [
-                // Colorful Left Accent Strip
-                Positioned(
-                  left: 0,
-                  top: 0,
-                  bottom: 0,
-                  width: 6,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(24),
-                        bottomLeft: Radius.circular(24),
-                      ),
+                Container(
+                  width: 58,
+                  height: 58,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [color.withValues(alpha: 0.22), color.withValues(alpha: 0.08)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: color.withValues(alpha: 0.35)),
                   ),
+                  child: Center(child: Icon(game.icon, color: color, size: 30)),
                 ),
-
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 16, 16),
-                  child: Row(
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 3D Game Icon Box
-                      Container(
-                        width: 58,
-                        height: 58,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              color.withValues(alpha: 0.22),
-                              color.withValues(alpha: 0.08),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: color.withValues(alpha: 0.35)),
-                        ),
-                        child: Center(
-                          child: Icon(game.icon, color: color, size: 30),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    game.title,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w800,
-                                      color: Color(0xFF0F172A),
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: color.withValues(alpha: 0.12),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Text(
-                                    game.badge,
-                                    style: TextStyle(
-                                      color: color,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              game.subtitle,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              game.title,
                               style: const TextStyle(
-                                fontSize: 12,
-                                height: 1.3,
-                                color: Color(0xFF64748B),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.textPrimary,
                               ),
                             ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                const Icon(Icons.bolt_rounded, size: 16, color: Color(0xFFD97706)),
-                                const SizedBox(width: 3),
-                                Text(
-                                  game.xp,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFFD97706),
-                                  ),
-                                ),
-                                const Spacer(),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [color, color.withValues(alpha: 0.85)],
-                                    ),
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: color.withValues(alpha: 0.3),
-                                        blurRadius: 6,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: const Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'Play',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      SizedBox(width: 4),
-                                      Icon(Icons.play_arrow_rounded, color: Colors.white, size: 16),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: color.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                          ],
-                        ),
+                            child: Text(
+                              game.badge,
+                              style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w800),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        game.subtitle,
+                        style: const TextStyle(fontSize: 12, height: 1.3, color: AppTheme.textSecondary),
+                      ),
+                      const SizedBox(height: 7),
+                      Row(
+                        children: [
+                          const Icon(Icons.bolt_rounded, size: 15, color: Color(0xFFD97706)),
+                          const SizedBox(width: 3),
+                          Text(game.xp, style: const TextStyle(fontSize: 11, color: Color(0xFFD97706))),
+                        ],
                       ),
                     ],
                   ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.85)]),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text('Play  ▶', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
                 ),
               ],
             ),

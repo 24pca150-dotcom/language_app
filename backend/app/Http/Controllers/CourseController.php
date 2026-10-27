@@ -4,34 +4,46 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CourseController extends Controller
 {
     public function index(Request $request)
     {
         $user = $request->user();
-        $query = Course::query()->withCount('levels');
+        $query = Course::query();
 
         if ($user && $user->role === 'student' && $user->tenant_id) {
             $today = now()->toDateString();
-            $query->where('is_active', true)
-                ->whereIn('id', function($subQuery) use ($user, $today) {
-                    $subQuery->select('property_packages.course_id')
-                        ->from('property_packages')
-                        ->join('properties', 'property_packages.property_id', '=', 'properties.id')
-                        ->where('properties.tenant_id', $user->tenant_id)
-                        ->where('property_packages.is_active', true)
-                        ->whereNotNull('property_packages.course_id')
-                        ->where(function ($q) use ($today) {
-                            $q->whereNull('property_packages.start_date')
-                              ->orWhere('property_packages.start_date', '<=', $today);
-                        })
-                        ->where(function ($q) use ($today) {
-                            $q->whereNull('property_packages.end_date')
-                              ->orWhere('property_packages.end_date', '>=', $today);
-                        });
-                });
+            $assignments = $this->activeAssignmentsForTenant($user->tenant_id, $today);
+
+            $query->where('courses.is_active', true)
+                ->whereIn('courses.id', (clone $assignments)->whereNotNull('pp.course_id')->select('pp.course_id')->distinct());
+
+            $activeMappings = DB::table('course_package_levels as cpl')
+                ->whereColumn('cpl.course_id', 'courses.id')
+                ->where('cpl.is_active', true)
+                ->whereIn('cpl.package_id', (clone $assignments)
+                    ->whereColumn('pp.course_id', 'cpl.course_id')
+                    ->select('pp.package_id'));
+        } else {
+            $activeMappings = DB::table('course_package_levels as cpl')
+                ->whereColumn('cpl.course_id', 'courses.id')
+                ->where('cpl.is_active', true);
         }
+
+        $chapterMappings = (clone $activeMappings)
+            ->join('levels as l', 'cpl.level_id', '=', 'l.id')
+            ->join('level_chapter as lc', 'l.id', '=', 'lc.level_id')
+            ->join('chapters as ch', 'lc.chapter_id', '=', 'ch.id')
+            ->where('l.is_active', true)
+            ->where('lc.is_active', true)
+            ->where('ch.is_active', true);
+
+        $query->addSelect([
+            'levels_count' => (clone $activeMappings)->selectRaw('COUNT(DISTINCT cpl.level_id)'),
+            'chapters_count' => $chapterMappings->selectRaw('COUNT(DISTINCT ch.id)'),
+        ]);
 
         $courses = $query->latest()->get();
         $courses->each(function ($course) {
@@ -79,15 +91,31 @@ class CourseController extends Controller
         $course->delete();
         return response()->noContent();
     }
-    public function getPlayerStructure(Course $course)
+    public function getPlayerStructure(Course $course, Request $request)
     {
+        $user = $request->user();
+        $today = now()->toDateString();
+        $tenantAssignments = $user && $user->role === 'student' && $user->tenant_id
+            ? $this->activeAssignmentsForTenant($user->tenant_id, $today)
+            : null;
+
         $structure = $course->load([
-            'levels' => function ($query) {
+            'levels' => function ($query) use ($tenantAssignments) {
                 $query->where('course_package_levels.is_active', true)
+                    ->where('levels.is_active', true)
+                    ->when($tenantAssignments, function ($query) use ($tenantAssignments) {
+                        $query->whereIn(
+                            'course_package_levels.package_id',
+                            (clone $tenantAssignments)
+                                ->whereColumn('pp.course_id', 'course_package_levels.course_id')
+                                ->select('pp.package_id')
+                        );
+                    })
                     ->orderBy('levels.sort_order');
             },
             'levels.chapters' => function ($query) {
                 $query->where('level_chapter.is_active', true)
+                    ->where('chapters.is_active', true)
                     ->orderBy('chapters.sort_order')
                     ->orderBy('level_chapter.sort_order');
             },
@@ -102,5 +130,23 @@ class CourseController extends Controller
         ]);
 
         return response()->json($structure);
+    }
+
+    private function activeAssignmentsForTenant(int $tenantId, string $today)
+    {
+        return DB::table('property_packages as pp')
+            ->join('properties as p', 'pp.property_id', '=', 'p.id')
+            ->join('packages as pkg', 'pp.package_id', '=', 'pkg.id')
+            ->where('p.tenant_id', $tenantId)
+            ->where('p.is_active', true)
+            ->where('pkg.is_active', true)
+            ->where('pp.is_active', true)
+            ->where(function ($query) use ($today) {
+                $query->whereNull('pp.start_date')->orWhere('pp.start_date', '<=', $today);
+            })
+            ->where(function ($query) use ($today) {
+                $query->whereNull('pp.end_date')->orWhere('pp.end_date', '>=', $today);
+            })
+            ->select(['pp.package_id', 'pp.course_id']);
     }
 }
