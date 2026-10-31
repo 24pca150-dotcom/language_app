@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../services/assessment_service.dart';
+import '../services/game_audio_service.dart';
 import '../theme/app_theme.dart';
 
 class AssessmentScreen extends StatefulWidget {
@@ -310,6 +311,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                         padding: const EdgeInsets.only(bottom: 12),
                         child: InkWell(
                           onTap: () {
+                            GameAudioService.playKnifeSlice();
                             setState(() {
                               _selectedOptionIndices[_currentQuestionIndex] =
                                   optIdx;

@@ -13,21 +13,21 @@ class UserModel {
     required this.name,
     required this.email,
     required this.role,
-    this.streakDays = 5,
-    this.xp = 340,
-    this.coins = 120,
+    this.streakDays = 0,
+    this.xp = 0,
+    this.coins = 0,
     this.avatar,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id'] ?? 1,
+      id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '') ?? 1,
       name: json['name'] ?? 'Learner',
       email: json['email'] ?? '',
       role: json['role'] ?? 'learner',
-      streakDays: json['streak_days'] ?? 5,
-      xp: json['xp'] ?? 340,
-      coins: json['coins'] ?? 120,
+      streakDays: json['streak_days'] ?? json['streak'] ?? 0,
+      xp: json['xp'] ?? json['xp_points'] ?? 0,
+      coins: json['coins'] ?? json['gems'] ?? 0,
       avatar: json['avatar'] ?? json['profile_photo_url'],
     );
   }
@@ -39,8 +39,11 @@ class UserModel {
       'email': email,
       'role': role,
       'streak_days': streakDays,
+      'streak': streakDays,
       'xp': xp,
+      'xp_points': xp,
       'coins': coins,
+      'gems': coins,
       'avatar': avatar,
     };
   }

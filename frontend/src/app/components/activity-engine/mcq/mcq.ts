@@ -1,36 +1,43 @@
-import { Component, Input, Output, EventEmitter, signal, OnChanges, SimpleChanges, inject, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AudioService } from '../../../services/audio.service';
 
 export interface MCQOption {
   id: number;
   text: string;
-  isCorrect: boolean;
-  imageUrl?: string;
+  isCorrect?: boolean;
   audioUrl?: string;
+  imageUrl?: string;
 }
 
-export interface MCQData {
-  id?: number;
+export interface MCQActivity {
+  id: number;
+  type: 'mcq';
   question: string;
+  audioUrl?: string;
+  imageUrl?: string;
   options: MCQOption[];
   explanation?: string;
-  audioUrl?: string;
-  imageUrl?: string;
 }
 
+export type MCQData = MCQActivity;
+
 @Component({
-  selector: 'app-activity-mcq',
+  selector: 'app-activity-mcq, app-mcq',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './mcq.html',
   styleUrls: ['./mcq.css']
 })
-export class MCQComponent implements OnChanges, OnDestroy {
-  @Input() activity: MCQData | null = null;
+export class MCQComponent implements OnInit, OnChanges, OnDestroy {
+  @Input() activity: MCQActivity | null = null;
   @Input() showFeedback: boolean = true;
+  @Input() disabled: boolean = false;
 
-  @Output() answered = new EventEmitter<{ selectedOptionId: number; isCorrect: boolean }>();
+  @Output() answered = new EventEmitter<{
+    selectedOptionId: number;
+    isCorrect?: boolean;
+  }>();
 
   selectedOptionId = signal<number | null>(null);
   hasSubmitted = signal<boolean>(false);
@@ -40,10 +47,18 @@ export class MCQComponent implements OnChanges, OnDestroy {
 
   private audioService = inject(AudioService);
 
+  ngOnInit(): void {
+    this.reset();
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['activity']) {
       this.reset();
     }
+  }
+
+  getLetter(index: number): string {
+    return String.fromCharCode(65 + (index % 26));
   }
 
   selectOption(option: MCQOption): void {
@@ -53,6 +68,15 @@ export class MCQComponent implements OnChanges, OnDestroy {
 
     if (this.showFeedback) {
       this.hasSubmitted.set(true);
+      if (option.isCorrect) {
+        this.audioService.playMcqCorrectSound();
+      } else {
+        this.audioService.playWrongAnswerSound();
+      }
+    } else {
+      if (option.isCorrect) {
+        this.audioService.playMcqCorrectSound();
+      }
     }
 
     this.answered.emit({
@@ -70,24 +94,28 @@ export class MCQComponent implements OnChanges, OnDestroy {
       return;
     }
 
+    this.audioService.stopAll();
     this.isPlaying.set(true);
-    this.audioService.playAudioUrl(this.activity.audioUrl);
+
+    this.audioService.playAudioUrl(this.activity.audioUrl, this.activity.question, () => {
+      this.isPlaying.set(false);
+    });
   }
 
   speakQuestion(): void {
-    if (!this.activity || !this.activity.question) return;
-
     if (this.isQuestionSpeaking()) {
       this.audioService.stopAll();
       this.isQuestionSpeaking.set(false);
       return;
     }
 
+    this.audioService.stopAll();
     this.isQuestionSpeaking.set(true);
 
-    let readable = this.activity.question
-      .replace(/<[^>]*>/g, ' ')
+    const raw = this.activity?.question || '';
+    const readable = raw
       .replace(/_{2,}/g, ' blank ')
+      .replace(/[^\w\s.,?!'-]/g, ' ')
       .replace(/\s+/g, ' ')
       .trim();
 
@@ -101,7 +129,7 @@ export class MCQComponent implements OnChanges, OnDestroy {
 
   playOptionAudio(option: MCQOption, event?: Event): void {
     if (event) {
-      event.stopPropagation(); // Prevent selecting the option if only the speaker is clicked
+      event.stopPropagation();
     }
 
     if (this.playingOptionId() === option.id) {
@@ -110,6 +138,7 @@ export class MCQComponent implements OnChanges, OnDestroy {
       return;
     }
 
+    this.audioService.stopAll();
     this.playingOptionId.set(option.id);
 
     const onDone = () => {
@@ -125,8 +154,20 @@ export class MCQComponent implements OnChanges, OnDestroy {
     }
   }
 
-  getLetter(index: number): string {
-    return String.fromCharCode(65 + index); // A, B, C, D...
+  getOptionClass(option: MCQOption): string {
+    if (!this.showFeedback || !this.hasSubmitted()) {
+      return this.selectedOptionId() === option.id ? 'selected' : '';
+    }
+
+    if (option.isCorrect) {
+      return 'correct';
+    }
+
+    if (this.selectedOptionId() === option.id && !option.isCorrect) {
+      return 'incorrect';
+    }
+
+    return '';
   }
 
   reset(): void {

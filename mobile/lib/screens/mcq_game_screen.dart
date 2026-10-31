@@ -1,12 +1,17 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
+import '../data/game_question_bank.dart';
+import '../services/game_audio_service.dart';
 
 class McqGameScreen extends StatefulWidget {
   final String title;
+  final Map<String, dynamic>? dataJson;
 
   const McqGameScreen({
     super.key,
     this.title = 'MCQ Arena: Rapid Grammar & Vocab',
+    this.dataJson,
   });
 
   @override
@@ -29,9 +34,9 @@ class _McqQuestion {
   });
 }
 
-class _McqGameScreenState extends State<McqGameScreen> {
+class _McqGameScreenState extends State<McqGameScreen> with SingleTickerProviderStateMixin {
   int _score = 0;
-  int _lives = 3;
+  int _lives = 5;
   int _streak = 0;
   int _currentIndex = 0;
   int? _selectedOption;
@@ -39,53 +44,107 @@ class _McqGameScreenState extends State<McqGameScreen> {
   int _timeLeft = 15;
   Timer? _countdownTimer;
   String _gameState = 'playing'; // 'playing', 'victory', 'gameover'
+  late AnimationController _swayController;
 
-  final List<_McqQuestion> _questions = [
-    _McqQuestion(
-      question: 'Which of the following is an IRREGULAR past tense verb?',
-      category: 'IRREGULAR VERBS',
-      options: ['Walked', 'Played', 'Caught', 'Opened'],
-      correctIndex: 2,
-      explanation: '"Catch" becomes "Caught", which does not end in "-ed".',
-    ),
-    _McqQuestion(
-      question: 'Choose the correct ANTONYM for the word "ANCIENT":',
-      category: 'VOCABULARY & ANTONYMS',
-      options: ['Historic', 'Modern', 'Antique', 'Prehistoric'],
-      correctIndex: 1,
-      explanation: '"Modern" means of the present time, opposite to "Ancient".',
-    ),
-    _McqQuestion(
-      question: 'Identify the ADVERB in the sentence: "The cheetah ran exceptionally fast."',
-      category: 'PARTS OF SPEECH',
-      options: ['Cheetah', 'Ran', 'Exceptionally', 'Fast'],
-      correctIndex: 2,
-      explanation: '"Exceptionally" is an adverb modifying the adverb "fast".',
-    ),
-    _McqQuestion(
-      question: 'Select the correct PLURAL form of the noun "CRISIS":',
-      category: 'PLURAL NOUNS',
-      options: ['Crisises', 'Crisis', 'Crises', 'Crisii'],
-      correctIndex: 2,
-      explanation: 'Greek origin nouns ending in "-is" become "-es" in plural: "Crises".',
-    ),
-    _McqQuestion(
-      question: 'Complete with correct preposition: "She has been learning English ___ five years."',
-      category: 'PREPOSITIONS & TENSES',
-      options: ['Since', 'For', 'During', 'From'],
-      correctIndex: 1,
-      explanation: 'We use "for" to mention a duration/period of time ("for five years").',
-    ),
-  ];
+  final List<_McqQuestion> _questions = [];
 
   @override
   void initState() {
     super.initState();
+    _swayController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2800),
+    )..repeat();
+    _setupQuestions();
     _startQuestionTimer();
+  }
+
+  void _setupQuestions() {
+    _questions.clear();
+    final dj = widget.dataJson;
+    final List<_McqQuestion> dynamicList = [];
+
+    if (dj != null) {
+      if (dj['questions'] is List && (dj['questions'] as List).isNotEmpty) {
+        for (var q in dj['questions']) {
+          if (q is! Map<String, dynamic>) continue;
+          final qText = (q['question'] ?? q['title'] ?? '').toString();
+          final rawOptions = q['options'] as List<dynamic>? ?? [];
+          final List<String> optTexts = [];
+          int correct = 0;
+
+          for (int i = 0; i < rawOptions.length; i++) {
+            final opt = rawOptions[i];
+            if (opt is Map<String, dynamic>) {
+              optTexts.add((opt['text'] ?? opt['option'] ?? '').toString());
+              if (opt['isCorrect'] == true || opt['is_correct'] == true || opt['correct'] == true) {
+                correct = i;
+              }
+            } else {
+              optTexts.add(opt.toString());
+            }
+          }
+
+          if (qText.isNotEmpty && optTexts.isNotEmpty) {
+            dynamicList.add(_McqQuestion(
+              question: qText,
+              category: (q['category'] ?? dj['title'] ?? 'EXERCISE').toString().toUpperCase(),
+              options: optTexts,
+              correctIndex: correct,
+              explanation: (q['explanation'] ?? 'Great job!').toString(),
+            ));
+          }
+        }
+      } else if (dj['options'] is List && (dj['options'] as List).isNotEmpty) {
+        final qText = (dj['question'] ?? dj['title'] ?? widget.title).toString();
+        final rawOptions = dj['options'] as List<dynamic>;
+        final List<String> optTexts = [];
+        int correct = 0;
+
+        for (int i = 0; i < rawOptions.length; i++) {
+          final opt = rawOptions[i];
+          if (opt is Map<String, dynamic>) {
+            optTexts.add((opt['text'] ?? opt['option'] ?? '').toString());
+            if (opt['isCorrect'] == true || opt['is_correct'] == true || opt['correct'] == true) {
+              correct = i;
+            }
+          } else {
+            optTexts.add(opt.toString());
+          }
+        }
+
+        if (optTexts.isNotEmpty) {
+          dynamicList.add(_McqQuestion(
+            question: qText,
+            category: (dj['category'] ?? 'QUIZ').toString().toUpperCase(),
+            options: optTexts,
+            correctIndex: correct,
+            explanation: (dj['explanation'] ?? 'Correct answer!').toString(),
+          ));
+        }
+      }
+    }
+
+    if (dynamicList.isNotEmpty) {
+      dynamicList.shuffle();
+      _questions.addAll(dynamicList.take(5));
+    } else {
+      final randomPool = GameQuestionBank.getRandomMcqQuestions(5);
+      for (var q in randomPool) {
+        _questions.add(_McqQuestion(
+          question: q['question'] as String,
+          category: q['category'] as String,
+          options: List<String>.from(q['options'] as List),
+          correctIndex: q['correctIndex'] as int,
+          explanation: q['explanation'] as String,
+        ));
+      }
+    }
   }
 
   @override
   void dispose() {
+    _swayController.dispose();
     _countdownTimer?.cancel();
     super.dispose();
   }
@@ -125,10 +184,12 @@ class _McqGameScreenState extends State<McqGameScreen> {
       _answered = true;
 
       if (isCorrect) {
+        GameAudioService.playCorrectDing();
         _streak++;
         final bonus = 100 + (_streak >= 2 ? _streak * 25 : 0);
         _score += bonus;
       } else {
+        GameAudioService.playWrongBuzz();
         _streak = 0;
         _lives--;
         if (_lives <= 0) {
@@ -152,9 +213,10 @@ class _McqGameScreenState extends State<McqGameScreen> {
   }
 
   void _restartGame() {
+    _setupQuestions();
     setState(() {
       _score = 0;
-      _lives = 3;
+      _lives = 5;
       _streak = 0;
       _currentIndex = 0;
       _selectedOption = null;
@@ -200,6 +262,33 @@ class _McqGameScreenState extends State<McqGameScreen> {
               borderRadius: BorderRadius.circular(22),
               child: Stack(
                 children: [
+                  // 1. 🌳 Real Banyan Tree Background (Tree Branches setting)
+                  Positioned.fill(
+                    child: Image.asset(
+                      'assets/images/game_soon_banyan.jpg',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(color: const Color(0xFF1E293B)),
+                    ),
+                  ),
+
+                  // 2. Forest Vignette Gradient for high text contrast
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withValues(alpha: 0.75),
+                            Colors.black.withValues(alpha: 0.45),
+                            Colors.black.withValues(alpha: 0.85),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // 3. Tree Canopy Game Layout
                   Column(
                     children: [
                       // Top HUD
@@ -215,44 +304,84 @@ class _McqGameScreenState extends State<McqGameScreen> {
                         minHeight: 4,
                       ),
 
-                      // Question Body
+                      // Tree Canopy Question Body
                       Expanded(
                         child: SingleChildScrollView(
-                          padding: const EdgeInsets.all(18),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Category Badge
+                              // Top Carved Parchment Question Plaque on Tree Trunk
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF6366F1).withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: const Color(0xFF6366F1)),
-                                ),
-                                child: Text(
-                                  q.category,
-                                  style: const TextStyle(
-                                    color: Color(0xFF818CF8),
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.0,
+                                  gradient: const LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [Color(0xFF2E1A0F), Color(0xFF1F120A)],
                                   ),
+                                  borderRadius: BorderRadius.circular(18),
+                                  border: Border.all(color: const Color(0xFFD97706), width: 2),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.6),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        // Category Badge
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFD97706).withValues(alpha: 0.3),
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(color: const Color(0xFFF59E0B)),
+                                          ),
+                                          child: Text(
+                                            '🌿 ${q.category}',
+                                            style: const TextStyle(
+                                              color: Color(0xFFFDE68A),
+                                              fontSize: 10.5,
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: 1.0,
+                                            ),
+                                          ),
+                                        ),
+                                        const Row(
+                                          children: [
+                                            Icon(Icons.park_rounded, color: Color(0xFF4ADE80), size: 16),
+                                            SizedBox(width: 4),
+                                            Text(
+                                              'TREE OF KNOWLEDGE',
+                                              style: TextStyle(color: Color(0xFF86EFAC), fontSize: 10, fontWeight: FontWeight.bold),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    // Question Text
+                                    Text(
+                                      q.question,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 17.5,
+                                        fontWeight: FontWeight.bold,
+                                        height: 1.35,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(height: 14),
-
-                              // Question Text
-                              Text(
-                                q.question,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  height: 1.35,
-                                ),
-                              ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 18),
 
                               // 4 Options
                               ...List.generate(q.options.length, (idx) {
@@ -354,50 +483,63 @@ class _McqGameScreenState extends State<McqGameScreen> {
   Widget _buildTopHud() {
     return Container(
       color: const Color(0xFF0F172A),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 20),
-              const SizedBox(width: 6),
+              const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 18),
+              const SizedBox(width: 4),
               Text(
                 '$_score',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
               ),
               if (_streak >= 2) ...[
-                const SizedBox(width: 8),
-                Text('🔥 ${_streak}x', style: const TextStyle(color: Colors.orange, fontSize: 11, fontWeight: FontWeight.bold)),
+                const SizedBox(width: 6),
+                Text('🔥${_streak}x', style: const TextStyle(color: Colors.orange, fontSize: 11, fontWeight: FontWeight.bold)),
               ],
             ],
           ),
-          Text(
-            'QUESTION ${_currentIndex + 1}/${_questions.length}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-              fontSize: 13,
-              letterSpacing: 0.8,
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                'Q${_currentIndex + 1}/${_questions.length}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 11,
+                  letterSpacing: 0.5,
+                ),
+              ),
             ),
           ),
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               ...List.generate(
-                3,
-                (i) => Icon(
-                  i < _lives ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                  color: i < _lives ? const Color(0xFFEF4444) : Colors.white24,
-                  size: 18,
+                5,
+                (i) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 0.5),
+                  child: Icon(
+                    i < _lives ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                    color: i < _lives ? const Color(0xFFEF4444) : Colors.white24,
+                    size: 14,
+                  ),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 4),
               Text(
                 '${_timeLeft}s',
                 style: TextStyle(
                   color: _timeLeft > 5 ? const Color(0xFF38BDF8) : const Color(0xFFEF4444),
                   fontWeight: FontWeight.bold,
-                  fontSize: 14,
+                  fontSize: 13,
                 ),
               ),
             ],
@@ -408,69 +550,153 @@ class _McqGameScreenState extends State<McqGameScreen> {
   }
 
   Widget _buildOptionCard(int index, String optionText, int correctIndex) {
-    Color borderColor = Colors.white24;
-    Color bgColor = const Color(0xFF0F172A);
+    final bool isCorrect = _answered && index == correctIndex;
+    final bool isWrong = _answered && index == _selectedOption && _selectedOption != correctIndex;
+
+    Color borderColor = const Color(0xFFB45309);
+    List<Color> bgGradient = [const Color(0xFF2E1A0F), const Color(0xFF1B0E06)];
     Color textColor = Colors.white;
 
     if (_answered) {
-      if (index == correctIndex) {
+      if (isCorrect) {
         borderColor = const Color(0xFF10B981);
-        bgColor = const Color(0xFF10B981).withValues(alpha: 0.25);
-        textColor = const Color(0xFF6EE7B7);
-      } else if (index == _selectedOption) {
+        bgGradient = [const Color(0xFF065F46), const Color(0xFF047857)];
+        textColor = const Color(0xFFD1FAE5);
+      } else if (isWrong) {
         borderColor = const Color(0xFFEF4444);
-        bgColor = const Color(0xFFEF4444).withValues(alpha: 0.25);
-        textColor = const Color(0xFFFCA5A5);
+        bgGradient = [const Color(0xFF7F1D1D), const Color(0xFF991B1B)];
+        textColor = const Color(0xFFFEE2E2);
       }
     }
 
     final letter = String.fromCharCode(65 + index); // A, B, C, D
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: borderColor, width: 1.5),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: _answered ? null : () => _selectOption(index),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: Colors.white12,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.white24),
+    return AnimatedBuilder(
+      animation: _swayController,
+      builder: (context, child) {
+        // Subtle wind swaying pendulum physics
+        final double sway = sin((_swayController.value * 2 * pi) + (index * 1.5)) * 0.032;
+        return Transform.rotate(
+          angle: sway,
+          alignment: Alignment.topCenter,
+          child: child,
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 🌿 Hanging Ropes & Leaves from Tree Branch above
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Left Hanging Rope
+                  Container(
+                    width: 3.0,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD97706),
+                      borderRadius: BorderRadius.circular(2),
+                      boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 2)],
+                    ),
                   ),
-                  child: Center(
-                    child: Text(
-                      letter,
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                  // Small Green Leaf
+                  const Icon(Icons.eco_rounded, color: Color(0xFF4ADE80), size: 14),
+                  // Right Hanging Rope
+                  Container(
+                    width: 3.0,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD97706),
+                      borderRadius: BorderRadius.circular(2),
+                      boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 2)],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // 🪵 Carved Wooden Hanging Signboard
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: bgGradient,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: borderColor, width: 2.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: isCorrect
+                        ? const Color(0xFF10B981).withValues(alpha: 0.5)
+                        : isWrong
+                            ? const Color(0xFFEF4444).withValues(alpha: 0.5)
+                            : Colors.black.withValues(alpha: 0.6),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: _answered ? null : () => _selectOption(index),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    child: Row(
+                      children: [
+                        // Golden Wood Coin with Option Letter
+                        Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: const Color(0xFF78350F),
+                            border: Border.all(color: const Color(0xFFFDE68A), width: 1.5),
+                            boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 4)],
+                          ),
+                          child: Center(
+                            child: Text(
+                              letter,
+                              style: const TextStyle(
+                                color: Color(0xFFFEF3C7),
+                                fontWeight: FontWeight.w900,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            optionText,
+                            style: TextStyle(
+                              color: textColor,
+                              fontSize: 15.5,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.2,
+                              shadows: const [
+                                Shadow(offset: Offset(0, 1), blurRadius: 2, color: Colors.black87),
+                              ],
+                            ),
+                          ),
+                        ),
+                        if (isCorrect)
+                          const Icon(Icons.check_circle_rounded, color: Color(0xFF34D399), size: 24)
+                        else if (isWrong)
+                          const Icon(Icons.cancel_rounded, color: Color(0xFFF87171), size: 24),
+                      ],
                     ),
                   ),
                 ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Text(
-                    optionText,
-                    style: TextStyle(color: textColor, fontSize: 15, fontWeight: FontWeight.w600),
-                  ),
-                ),
-                if (_answered && index == correctIndex)
-                  const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 22)
-                else if (_answered && index == _selectedOption)
-                  const Icon(Icons.cancel_rounded, color: Color(0xFFEF4444), size: 22),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

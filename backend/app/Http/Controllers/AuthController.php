@@ -88,7 +88,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'user' => $user,
+            'user' => self::formatUserResponse($user),
             'access_token' => $token,
             'token_type' => 'Bearer',
             'tenant_code' => $tenant->tenant_code,
@@ -142,11 +142,40 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'user' => $user,
+            'user' => self::formatUserResponse($user),
             'access_token' => $token,
             'token_type' => 'Bearer',
             'tenant_code' => $user->tenant ? $user->tenant->tenant_code : null,
         ]);
+    }
+
+    /**
+     * Helper to format user response with synchronized gamification stats.
+     */
+    public static function formatUserResponse($user)
+    {
+        if (!$user) return null;
+
+        $stats = DashboardController::recalculateUserStats($user->id);
+        $user->refresh();
+
+        $userData = $user->toArray();
+        $streak = $stats['streak'] ?? 0;
+        $xp = $stats['xp'] ?? ($user->xp ?? 0);
+        $gems = $stats['gems'] ?? ($user->gems ?? 0);
+
+        $userData['streak_days'] = $streak;
+        $userData['streak'] = $streak;
+        $userData['coins'] = $gems;
+        $userData['gems'] = $gems;
+        $userData['xp'] = $xp;
+        $userData['xp_points'] = $xp;
+
+        if ($user->tenant) {
+            $userData['tenant'] = $user->tenant;
+        }
+
+        return $userData;
     }
 
     /**
@@ -163,7 +192,7 @@ class AuthController extends Controller
      */
     public function me(Request $request)
     {
-        return response()->json($request->user()->load('tenant'));
+        return response()->json(self::formatUserResponse($request->user()));
     }
 
     /**

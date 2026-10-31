@@ -211,10 +211,11 @@ export class AudioService {
   }
 
   // Fallback Audio Synthesizer (No MP3 required!)
-  private synthesizeSuccess() {
+  public synthesizeSuccess() {
     try {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      const ctx = new AudioContext();
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       
@@ -234,10 +235,11 @@ export class AudioService {
     } catch (e) {}
   }
 
-  private synthesizeError() {
+  public synthesizeError() {
     try {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      const ctx = new AudioContext();
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       
@@ -255,5 +257,201 @@ export class AudioService {
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.3);
     } catch (e) {}
+  }
+
+  // 🚗 CAR RACER: Authentic Engine Acceleration / Rev Sound
+  public playCarEngineSound(): void {
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+      const now = ctx.currentTime;
+
+      // Engine fundamental (Sawtooth)
+      const osc1 = ctx.createOscillator();
+      osc1.type = 'sawtooth';
+      osc1.frequency.setValueAtTime(80, now);
+      osc1.frequency.exponentialRampToValueAtTime(260, now + 0.28);
+      osc1.frequency.exponentialRampToValueAtTime(190, now + 0.45);
+
+      // Sub-bass body rumble (Triangle)
+      const osc2 = ctx.createOscillator();
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(50, now);
+      osc2.frequency.exponentialRampToValueAtTime(130, now + 0.28);
+
+      // Lowpass filter to give deep exhaust tone
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(400, now);
+      filter.frequency.linearRampToValueAtTime(950, now + 0.25);
+      filter.frequency.linearRampToValueAtTime(500, now + 0.45);
+
+      // Volume envelope
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.01, now);
+      gain.gain.linearRampToValueAtTime(0.24, now + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+
+      osc1.connect(filter);
+      osc2.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 0.45);
+      osc2.stop(now + 0.45);
+    } catch (e) {}
+  }
+
+  // 🗡️ FRUIT/WORD NINJA: Sharp Katana / Knife Blade Slice Swish Sound
+  public playKnifeSliceSound(): void {
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+      const now = ctx.currentTime;
+
+      // Fast descending blade whistle (Sine/Triangle)
+      const osc = ctx.createOscillator();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(2600, now);
+      osc.frequency.exponentialRampToValueAtTime(320, now + 0.12);
+
+      // Metal slice filter
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(2200, now);
+      filter.frequency.exponentialRampToValueAtTime(600, now + 0.12);
+      filter.Q.value = 3.5;
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.01, now);
+      gain.gain.linearRampToValueAtTime(0.35, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.12);
+    } catch (e) {}
+  }
+
+  // 🐦 FLAPPY BIRD: Wing Flutter & Chirp Sound
+  public playBirdFlapSound(): void {
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+      const now = ctx.currentTime;
+
+      // Wing stroke flutter
+      const osc = ctx.createOscillator();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(160, now);
+      osc.frequency.linearRampToValueAtTime(360, now + 0.05);
+      osc.frequency.exponentialRampToValueAtTime(130, now + 0.14);
+
+      // Soft air puff filter
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(700, now);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.01, now);
+      gain.gain.linearRampToValueAtTime(0.28, now + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.14);
+    } catch (e) {}
+  }
+
+  // 🎈 BALLOON POP: Crisp Elastic Burst / Pop Sound
+  public playBalloonPopSound(): void {
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+      const now = ctx.currentTime;
+
+      // Fast snap burst
+      const osc = ctx.createOscillator();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(950, now);
+      osc.frequency.exponentialRampToValueAtTime(70, now + 0.06);
+
+      // Thump body
+      const thump = ctx.createOscillator();
+      thump.type = 'sine';
+      thump.frequency.setValueAtTime(140, now);
+      thump.frequency.exponentialRampToValueAtTime(45, now + 0.08);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.4, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+
+      const thumpGain = ctx.createGain();
+      thumpGain.gain.setValueAtTime(0.3, now);
+      thumpGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+      osc.connect(gain);
+      thump.connect(thumpGain);
+      gain.connect(ctx.destination);
+      thumpGain.connect(ctx.destination);
+
+      osc.start(now);
+      thump.start(now);
+      osc.stop(now + 0.07);
+      thump.stop(now + 0.08);
+    } catch (e) {}
+  }
+
+  // ✨ MCQ / QUIZ: Crisp Celebratory Ding & Chime Sound for Correct Answer
+  public playMcqCorrectSound(): void {
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+      const now = ctx.currentTime;
+
+      // Sparkling 3-note harmonic arpeggio (C6, E6, G6)
+      const notes = [
+        { freq: 1046.50, delay: 0.00 }, // C6
+        { freq: 1318.51, delay: 0.05 }, // E6
+        { freq: 1567.98, delay: 0.11 }  // G6
+      ];
+
+      notes.forEach(({ freq, delay }) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + delay);
+
+        // Warm bell decay
+        gain.gain.setValueAtTime(0.001, now + delay);
+        gain.gain.linearRampToValueAtTime(0.25, now + delay + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + delay + 0.42);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now + delay);
+        osc.stop(now + delay + 0.42);
+      });
+    } catch (e) {}
+  }
+
+  // ❌ Soft wrong answer buzz
+  public playWrongAnswerSound(): void {
+    this.synthesizeError();
   }
 }

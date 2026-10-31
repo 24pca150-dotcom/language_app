@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../data/game_question_bank.dart';
 
 class FlashcardGameScreen extends StatefulWidget {
   final String title;
@@ -40,47 +41,12 @@ class _FlashcardGameScreenState extends State<FlashcardGameScreen>
   int _needReviewCount = 0;
   String _gameState = 'playing'; // 'playing', 'victory'
 
-  final List<_FlashcardItem> _deck = [
-    _FlashcardItem(
-      front: 'Eloquent',
-      back: 'Fluent or persuasive in speaking or writing',
-      phonetic: '/ˈɛləkwənt/',
-      example: 'An eloquent speech that moved the audience.',
-      tag: 'ADJECTIVE',
-    ),
-    _FlashcardItem(
-      front: 'Resilient',
-      back: 'Able to withstand or recover quickly from difficult conditions',
-      phonetic: '/rɪˈzɪlɪənt/',
-      example: 'She was resilient and bounced back from failure.',
-      tag: 'ADJECTIVE',
-    ),
-    _FlashcardItem(
-      front: 'Metaphor',
-      back: 'A figure of speech where a word is applied to an object not literally applicable',
-      phonetic: '/ˈmɛtəfɔː/',
-      example: '"Time is a thief" is a well-known metaphor.',
-      tag: 'NOUN',
-    ),
-    _FlashcardItem(
-      front: 'Diligent',
-      back: 'Having or showing care and conscientiousness in work or duties',
-      phonetic: '/ˈdɪlɪdʒ(ə)nt/',
-      example: 'Diligent practice leads to true mastery.',
-      tag: 'ADJECTIVE',
-    ),
-    _FlashcardItem(
-      front: 'Pragmatic',
-      back: 'Dealing with things sensibly and realistically based on practical considerations',
-      phonetic: '/praɡˈmatɪk/',
-      example: 'He took a pragmatic approach to solve the crisis.',
-      tag: 'ADJECTIVE',
-    ),
-  ];
+  final List<_FlashcardItem> _deck = [];
 
   @override
   void initState() {
     super.initState();
+    _setupDeck();
     _flipController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
@@ -88,6 +54,20 @@ class _FlashcardGameScreenState extends State<FlashcardGameScreen>
     _flipAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _flipController, curve: Curves.easeInOut),
     );
+  }
+
+  void _setupDeck() {
+    _deck.clear();
+    final randomPool = GameQuestionBank.getRandomFlashcards(5);
+    for (var c in randomPool) {
+      _deck.add(_FlashcardItem(
+        front: c['front'] as String,
+        back: c['back'] as String,
+        phonetic: c['phonetic'] as String,
+        example: c['example'] as String,
+        tag: c['tag'] as String,
+      ));
+    }
   }
 
   @override
@@ -128,6 +108,7 @@ class _FlashcardGameScreenState extends State<FlashcardGameScreen>
       _flipController.reverse();
       _isFlipped = false;
     }
+    _setupDeck();
     setState(() {
       _currentIndex = 0;
       _masteredCount = 0;
@@ -172,6 +153,32 @@ class _FlashcardGameScreenState extends State<FlashcardGameScreen>
               borderRadius: BorderRadius.circular(22),
               child: Stack(
                 children: [
+                  // 1. 🏛️ Ancient Temple / Scholar Library Background
+                  Positioned.fill(
+                    child: Image.asset(
+                      'assets/images/game_soon_temple.jpg',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(color: const Color(0xFF0F172A)),
+                    ),
+                  ),
+
+                  // 2. High-contrast gradient overlay
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withValues(alpha: 0.75),
+                            Colors.black.withValues(alpha: 0.35),
+                            Colors.black.withValues(alpha: 0.78),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
                   Column(
                     children: [
                       // Top HUD
@@ -183,6 +190,84 @@ class _FlashcardGameScreenState extends State<FlashcardGameScreen>
                         backgroundColor: Colors.white10,
                         valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF10B981)),
                         minHeight: 4,
+                      ),
+
+                      // Highlighted Flashcard Objective Box
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              const Color(0xFF0F172A).withValues(alpha: 0.92),
+                              const Color(0xFF1E293B).withValues(alpha: 0.88),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: const Color(0xFF10B981).withValues(alpha: 0.8),
+                            width: 1.8,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF059669).withValues(alpha: 0.35),
+                              blurRadius: 14,
+                              spreadRadius: 1,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF059669).withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: const Color(0xFF10B981).withValues(alpha: 0.6),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.psychology_rounded, color: Color(0xFF10B981), size: 13),
+                                  const SizedBox(width: 5),
+                                  Flexible(
+                                    child: Text(
+                                      'MASTERY GOAL: CARD ${_currentIndex + 1}/${_deck.length}',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Color(0xFF10B981),
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: 0.8,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            const Text(
+                              'Review the prompt, guess the meaning, then flip to verify!',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w900,
+                                shadows: [
+                                  Shadow(color: Colors.black87, blurRadius: 4, offset: Offset(0, 1)),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
 
                       // Card Area

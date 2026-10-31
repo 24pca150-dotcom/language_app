@@ -1,11 +1,15 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
+import '../data/game_question_bank.dart';
 
 class MatchGameScreen extends StatefulWidget {
   final String title;
+  final Map<String, dynamic>? dataJson;
 
   const MatchGameScreen({
     super.key,
     this.title = 'Match It: Connect the Pairs',
+    this.dataJson,
   });
 
   @override
@@ -26,49 +30,131 @@ class _MatchPair {
   });
 }
 
-class _MatchGameScreenState extends State<MatchGameScreen> {
+class _MatchGameScreenState extends State<MatchGameScreen> with SingleTickerProviderStateMixin {
   int _score = 0;
-  int _lives = 3;
+  int _lives = 5;
   int? _selectedLeftId;
   int? _selectedRightId;
   int? _errorLeftId;
   int? _errorRightId;
   String _gameState = 'playing'; // 'playing', 'victory', 'gameover'
 
-  final List<_MatchPair> _pairs = [
-    _MatchPair(id: 1, leftText: 'Enormous', rightText: 'Extremely Large', color: const Color(0xFF10B981)),
-    _MatchPair(id: 2, leftText: 'Ancient', rightText: 'Belonging to Past', color: const Color(0xFF3B82F6)),
-    _MatchPair(id: 3, leftText: 'Brilliant', rightText: 'Exceptionally Clever', color: const Color(0xFFF59E0B)),
-    _MatchPair(id: 4, leftText: 'Silent', rightText: 'Completely Quiet', color: const Color(0xFF8B5CF6)),
-    _MatchPair(id: 5, leftText: 'Swift', rightText: 'Moving Very Fast', color: const Color(0xFFEC4899)),
-  ];
+  final List<_MatchPair> _pairs = [];
 
   late List<_MatchPair> _leftItems;
   late List<_MatchPair> _rightItems;
   final Set<int> _matchedIds = {};
 
+  // 🚂 70% Original Train Journey Animation
+  late AnimationController _trainController;
+  bool _isTrainRunning = false;
+  bool _isTrainSuccess = false;
+  int _trainFromIndex = 0;
+  int _trainToIndex = 0;
+  int? _activeLeftId;
+  String? _trainFeedback;
+
   @override
   void initState() {
     super.initState();
+    _trainController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 950),
+    );
+    _trainController.addListener(() {
+      setState(() {});
+    });
+    _trainController.addStatusListener((status) {
+      if (status == AnimationStatus.completed && _isTrainSuccess) {
+        setState(() {
+          if (_activeLeftId != null) {
+            _matchedIds.add(_activeLeftId!);
+          }
+          _score += 100;
+          _trainFeedback = 'CHOO CHOO! 🚂 ROUTE CONNECTED! +100';
+          _selectedLeftId = null;
+          _selectedRightId = null;
+          _isTrainRunning = false;
+          if (_matchedIds.length == _pairs.length) {
+            _gameState = 'victory';
+          }
+        });
+      }
+    });
     _startMatchGame();
+  }
+
+  @override
+  void dispose() {
+    _trainController.dispose();
+    super.dispose();
   }
 
   void _startMatchGame() {
     _score = 0;
-    _lives = 3;
+    _lives = 5;
     _matchedIds.clear();
     _selectedLeftId = null;
     _selectedRightId = null;
     _errorLeftId = null;
     _errorRightId = null;
+    _isTrainRunning = false;
+    _trainFeedback = null;
     _gameState = 'playing';
+    _pairs.clear();
+
+    final colors = [
+      const Color(0xFF10B981),
+      const Color(0xFF3B82F6),
+      const Color(0xFFF59E0B),
+      const Color(0xFF8B5CF6),
+      const Color(0xFFEC4899),
+      const Color(0xFF0D9488),
+      const Color(0xFFE11D48),
+    ];
+
+    final dj = widget.dataJson;
+    final List<_MatchPair> dynamicPairs = [];
+    if (dj != null && dj['pairs'] is List && (dj['pairs'] as List).isNotEmpty) {
+      int pId = 1;
+      for (var p in dj['pairs']) {
+        if (p is! Map<String, dynamic>) continue;
+        final left = (p['left'] ?? p['word'] ?? '').toString();
+        final right = (p['right'] ?? p['match'] ?? p['meaning'] ?? '').toString();
+        if (left.isNotEmpty && right.isNotEmpty) {
+          dynamicPairs.add(_MatchPair(
+            id: pId,
+            leftText: left,
+            rightText: right,
+            color: colors[(pId - 1) % colors.length],
+          ));
+          pId++;
+        }
+      }
+    }
+
+    if (dynamicPairs.isNotEmpty) {
+      dynamicPairs.shuffle();
+      _pairs.addAll(dynamicPairs.take(5));
+    } else {
+      final randomPool = GameQuestionBank.getRandomMatchPairs(5);
+      for (int i = 0; i < randomPool.length; i++) {
+        final pair = randomPool[i];
+        _pairs.add(_MatchPair(
+          id: i + 1,
+          leftText: pair['left'] as String,
+          rightText: pair['right'] as String,
+          color: colors[i % colors.length],
+        ));
+      }
+    }
 
     _leftItems = List.from(_pairs)..shuffle();
     _rightItems = List.from(_pairs)..shuffle();
   }
 
   void _onLeftTap(int id) {
-    if (_matchedIds.contains(id) || _gameState != 'playing') return;
+    if (_matchedIds.contains(id) || _gameState != 'playing' || _isTrainRunning) return;
 
     setState(() {
       _selectedLeftId = id;
@@ -82,7 +168,7 @@ class _MatchGameScreenState extends State<MatchGameScreen> {
   }
 
   void _onRightTap(int id) {
-    if (_matchedIds.contains(id) || _gameState != 'playing') return;
+    if (_matchedIds.contains(id) || _gameState != 'playing' || _isTrainRunning) return;
 
     setState(() {
       _selectedRightId = id;
@@ -96,30 +182,48 @@ class _MatchGameScreenState extends State<MatchGameScreen> {
   }
 
   void _checkMatch(int leftId, int rightId) {
-    if (leftId == rightId) {
-      // SUCCESSFUL MATCH!
-      _matchedIds.add(leftId);
-      _score += 100;
-      _selectedLeftId = null;
-      _selectedRightId = null;
+    if (_isTrainRunning) return;
 
-      if (_matchedIds.length == _pairs.length) {
-        _gameState = 'victory';
-      }
+    final fromIdx = _leftItems.indexWhere((e) => e.id == leftId);
+    final toIdx = _rightItems.indexWhere((e) => e.id == rightId);
+    final bool isSuccess = (leftId == rightId);
+
+    setState(() {
+      _activeLeftId = leftId;
+      _isTrainRunning = true;
+      _isTrainSuccess = isSuccess;
+      _trainFromIndex = fromIdx >= 0 ? fromIdx : 0;
+      _trainToIndex = toIdx >= 0 ? toIdx : 0;
+      _trainFeedback = isSuccess ? 'Train Departing to Destination... 🚂💨' : 'Checking Route... 🚂';
+    });
+
+    if (isSuccess) {
+      _trainController.forward(from: 0.0);
     } else {
-      // MISMATCH!
-      _errorLeftId = leftId;
-      _errorRightId = rightId;
-      _lives--;
-
-      Future.delayed(const Duration(milliseconds: 600), () {
+      // 🛑 EMERGENCY BRAKE ANIMATION: Train halts midway, sparks fly!
+      _trainController
+          .animateTo(0.48, duration: const Duration(milliseconds: 400), curve: Curves.easeOut)
+          .then((_) {
         if (!mounted) return;
         setState(() {
-          _selectedLeftId = null;
-          _selectedRightId = null;
-          _errorLeftId = null;
-          _errorRightId = null;
-          if (_lives <= 0) _gameState = 'gameover';
+          _errorLeftId = leftId;
+          _errorRightId = rightId;
+          _trainFeedback = '🛑 EMERGENCY BRAKE! WRONG ANSWER!';
+          _lives--;
+        });
+
+        Future.delayed(const Duration(milliseconds: 800), () {
+          if (!mounted) return;
+          setState(() {
+            _selectedLeftId = null;
+            _selectedRightId = null;
+            _errorLeftId = null;
+            _errorRightId = null;
+            _isTrainRunning = false;
+            _trainFeedback = null;
+            _trainController.reset();
+            if (_lives <= 0) _gameState = 'gameover';
+          });
         });
       });
     }
@@ -159,6 +263,33 @@ class _MatchGameScreenState extends State<MatchGameScreen> {
               borderRadius: BorderRadius.circular(22),
               child: Stack(
                 children: [
+                  // 1. 🏞️ Real Scenic Landscape Background (Railway Track setting)
+                  Positioned.fill(
+                    child: Image.asset(
+                      'assets/images/kids_landscape_bg.jpg',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(color: const Color(0xFF1E293B)),
+                    ),
+                  ),
+
+                  // 2. Dark Landscape Vignette Gradient Overlay
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withValues(alpha: 0.72),
+                            Colors.black.withValues(alpha: 0.45),
+                            Colors.black.withValues(alpha: 0.85),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // 3. Game Content Layout
                   Column(
                     children: [
                       // Top HUD
@@ -220,6 +351,52 @@ class _MatchGameScreenState extends State<MatchGameScreen> {
                     ],
                   ),
 
+                  // 4. 🚂 Train Tracks & Moving Steam Locomotive Canvas Overlay
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: CustomPaint(
+                        painter: _TrainRailwayPainter(
+                          progress: _trainController.value,
+                          fromIndex: _trainFromIndex,
+                          toIndex: _trainToIndex,
+                          isRunning: _isTrainRunning,
+                          isSuccess: _isTrainSuccess,
+                          matchedIds: _matchedIds,
+                          leftItems: _leftItems,
+                          rightItems: _rightItems,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // 5. Train Status / Feedback Floating Banner
+                  if (_trainFeedback != null)
+                    Positioned(
+                      top: 100,
+                      left: 20,
+                      right: 20,
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: _isTrainSuccess
+                                ? const Color(0xFF10B981).withValues(alpha: 0.95)
+                                : const Color(0xFFEF4444).withValues(alpha: 0.95),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 8, offset: Offset(0, 3))],
+                          ),
+                          child: Text(
+                            _trainFeedback!,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
                   // Overlays
                   if (_gameState == 'victory') _buildVictoryOverlay(),
                   if (_gameState == 'gameover') _buildGameOverOverlay(),
@@ -235,36 +412,49 @@ class _MatchGameScreenState extends State<MatchGameScreen> {
   Widget _buildTopHud() {
     return Container(
       color: const Color(0xFF0F172A),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 20),
-              const SizedBox(width: 6),
+              const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 18),
+              const SizedBox(width: 4),
               Text(
                 '$_score',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
               ),
             ],
           ),
-          Text(
-            'MATCHED: ${_matchedIds.length}/${_pairs.length}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-              fontSize: 13,
-              letterSpacing: 0.8,
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                'MATCHED: ${_matchedIds.length}/${_pairs.length}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 11,
+                  letterSpacing: 0.5,
+                ),
+              ),
             ),
           ),
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: List.generate(
-              3,
-              (i) => Icon(
-                i < _lives ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                color: i < _lives ? const Color(0xFFEF4444) : Colors.white24,
-                size: 18,
+              5,
+              (i) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0.5),
+                child: Icon(
+                  i < _lives ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                  color: i < _lives ? const Color(0xFFEF4444) : Colors.white24,
+                  size: 14,
+                ),
               ),
             ),
           ),
@@ -276,31 +466,77 @@ class _MatchGameScreenState extends State<MatchGameScreen> {
   Widget _buildObjectiveBanner() {
     return Container(
       width: double.infinity,
-      color: const Color(0xFF0D1B2A),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: const Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.extension_rounded, color: Color(0xFF10B981), size: 14),
-              SizedBox(width: 6),
-              Text(
-                'MATCH MISSION',
-                style: TextStyle(
-                  color: Color(0xFF10B981),
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.0,
-                ),
-              ),
-            ],
+      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF0F172A).withValues(alpha: 0.92),
+            const Color(0xFF1E293B).withValues(alpha: 0.88),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFF10B981).withValues(alpha: 0.8),
+          width: 1.8,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF059669).withValues(alpha: 0.35),
+            blurRadius: 14,
+            spreadRadius: 1,
+            offset: const Offset(0, 3),
           ),
-          SizedBox(height: 2),
-          Text(
-            'Tap a word on the left, then tap its matching meaning on the right!',
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+            decoration: BoxDecoration(
+              color: const Color(0xFF059669).withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: const Color(0xFF10B981).withValues(alpha: 0.6),
+                width: 1,
+              ),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.train_rounded, color: Color(0xFF10B981), size: 13),
+                SizedBox(width: 5),
+                Flexible(
+                  child: Text(
+                    'RAILWAY MATCH MISSION',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Color(0xFF10B981),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Tap a word on the left, then connect it to its meaning on the right!',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white70, fontSize: 12),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+              height: 1.25,
+              shadows: [
+                Shadow(color: Colors.black87, blurRadius: 4, offset: Offset(0, 1)),
+              ],
+            ),
           ),
         ],
       ),
@@ -486,4 +722,212 @@ class _MatchGameScreenState extends State<MatchGameScreen> {
       ),
     );
   }
+}
+
+// ==============================================================================
+// 🚂 70% Original Train Railway Canvas Painter: Moving Steam Locomotive on Tracks
+// ==============================================================================
+class _TrainRailwayPainter extends CustomPainter {
+  final double progress;
+  final int fromIndex;
+  final int toIndex;
+  final bool isRunning;
+  final bool isSuccess;
+  final Set<int> matchedIds;
+  final List<_MatchPair> leftItems;
+  final List<_MatchPair> rightItems;
+
+  _TrainRailwayPainter({
+    required this.progress,
+    required this.fromIndex,
+    required this.toIndex,
+    required this.isRunning,
+    required this.isSuccess,
+    required this.matchedIds,
+    required this.leftItems,
+    required this.rightItems,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double topOffset = 135.0;
+    final double availableHeight = size.height - topOffset - 25.0;
+    final double rowHeight = availableHeight / 5.0;
+
+    final double leftX = size.width * 0.44;
+    final double rightX = size.width * 0.56;
+
+    // 1. Draw permanently connected glowing tracks for already matched pairs
+    for (var id in matchedIds) {
+      final leftIdx = leftItems.indexWhere((e) => e.id == id);
+      final rightIdx = rightItems.indexWhere((e) => e.id == id);
+      if (leftIdx >= 0 && rightIdx >= 0) {
+        final startY = topOffset + rowHeight * (leftIdx + 0.5);
+        final endY = topOffset + rowHeight * (rightIdx + 0.5);
+
+        final trackPaint = Paint()
+          ..color = const Color(0xFF10B981).withValues(alpha: 0.85)
+          ..strokeWidth = 3.0
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
+
+        canvas.drawLine(Offset(leftX - 8, startY), Offset(rightX + 8, endY), trackPaint);
+
+        final corePaint = Paint()
+          ..color = Colors.white
+          ..strokeWidth = 1.4;
+        canvas.drawLine(Offset(leftX - 8, startY), Offset(rightX + 8, endY), corePaint);
+      }
+    }
+
+    // 2. Active Railway Route & Steam Train Journey
+    if (isRunning) {
+      final double startY = topOffset + rowHeight * (fromIndex + 0.5);
+      final double endY = topOffset + rowHeight * (toIndex + 0.5);
+      final startPos = Offset(size.width * 0.36, startY);
+      final endPos = Offset(size.width * 0.64, endY);
+
+      final double dx = endPos.dx - startPos.dx;
+      final double dy = endPos.dy - startPos.dy;
+      final double angle = atan2(dy, dx);
+      final double distance = sqrt(dx * dx + dy * dy);
+
+      // A. Railway Track (Timber Ties & Dual Metal Rails)
+      final trackPaint = Paint()
+        ..color = const Color(0xFF78350F)
+        ..strokeWidth = 2.0;
+
+      const double tieSpacing = 14.0;
+      final int tieCount = (distance / tieSpacing).floor();
+      final double normalX = -sin(angle);
+      final double normalY = cos(angle);
+
+      for (int i = 0; i <= tieCount; i++) {
+        final double t = (i * tieSpacing) / distance;
+        final double tieCenterX = startPos.dx + dx * t;
+        final double tieCenterY = startPos.dy + dy * t;
+        const double tieHalfLen = 9.0;
+        canvas.drawLine(
+          Offset(tieCenterX - normalX * tieHalfLen, tieCenterY - normalY * tieHalfLen),
+          Offset(tieCenterX + normalX * tieHalfLen, tieCenterY + normalY * tieHalfLen),
+          trackPaint,
+        );
+      }
+
+      // Draw two steel rails
+      final railPaint = Paint()
+        ..color = (isSuccess ? const Color(0xFF38BDF8) : const Color(0xFFEF4444)).withValues(alpha: 0.9)
+        ..strokeWidth = 1.8;
+
+      const double railDist = 4.5;
+      canvas.drawLine(
+        Offset(startPos.dx - normalX * railDist, startPos.dy - normalY * railDist),
+        Offset(endPos.dx - normalX * railDist, endPos.dy - normalY * railDist),
+        railPaint,
+      );
+      canvas.drawLine(
+        Offset(startPos.dx + normalX * railDist, startPos.dy + normalY * railDist),
+        Offset(endPos.dx + normalX * railDist, endPos.dy + normalY * railDist),
+        railPaint,
+      );
+
+      // B. 🚂 Steam Train Locomotive Engine
+      final double curX = startPos.dx + dx * progress;
+      final double curY = startPos.dy + dy * progress;
+
+      canvas.save();
+      canvas.translate(curX, curY);
+      canvas.rotate(angle);
+
+      final Paint trainPaint = Paint()..isAntiAlias = true;
+
+      // Chimney Steam Puffs (Expanding white smoke clouds)
+      for (int p = 0; p < 3; p++) {
+        final double steamP = (progress * 5 + p * 0.3) % 1.0;
+        final double sx = -14.0 - steamP * 18.0;
+        final double sy = -6.0 - steamP * 8.0;
+        final Paint steamPaint = Paint()
+          ..color = Colors.white.withValues(alpha: (0.75 - steamP * 0.6).clamp(0.0, 1.0));
+        canvas.drawCircle(Offset(sx, sy), 3.0 + steamP * 5.0, steamPaint);
+      }
+
+      // Headlight Beam shining forward
+      final headlightGlow = Paint()
+        ..shader = LinearGradient(
+          colors: [
+            (isSuccess ? Colors.amberAccent : Colors.redAccent).withValues(alpha: 0.6),
+            Colors.transparent,
+          ],
+        ).createShader(const Rect.fromLTWH(12, -8, 28, 16));
+      final Path headlightCone = Path()
+        ..moveTo(12, 0)
+        ..lineTo(38, -8)
+        ..lineTo(38, 8)
+        ..close();
+      canvas.drawPath(headlightCone, headlightGlow);
+
+      // Train Engine Chassis & Boiler (Navy / Black Locomotive)
+      trainPaint.shader = const LinearGradient(
+        colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(const Rect.fromLTWH(-14, -6, 26, 12));
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(const Rect.fromLTWH(-14, -6, 26, 12), const Radius.circular(3)),
+        trainPaint,
+      );
+      trainPaint.shader = null;
+
+      // Brass Boiler Bands
+      trainPaint.color = Colors.amber;
+      canvas.drawLine(const Offset(-4, -6), const Offset(-4, 6), trainPaint..strokeWidth = 1.2);
+      canvas.drawLine(const Offset(3, -6), const Offset(3, 6), trainPaint..strokeWidth = 1.2);
+
+      // Red Driver Cabin at back
+      trainPaint.color = const Color(0xFFDC2626);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(const Rect.fromLTWH(-14, -8, 9, 16), const Radius.circular(2)),
+        trainPaint,
+      );
+      // Cabin warm window
+      trainPaint.color = Colors.yellowAccent;
+      canvas.drawRect(const Rect.fromLTWH(-12, -5, 5, 5), trainPaint);
+
+      // Smokestack / Chimney on front
+      trainPaint.color = const Color(0xFFD97706);
+      canvas.drawRect(const Rect.fromLTWH(6, -9, 4, 4), trainPaint);
+
+      // Front Cowcatcher
+      final Path cowcatcher = Path()
+        ..moveTo(12, -5)
+        ..lineTo(17, 0)
+        ..lineTo(12, 5)
+        ..close();
+      trainPaint.color = const Color(0xFFF59E0B);
+      canvas.drawPath(cowcatcher, trainPaint);
+
+      // Wheels
+      trainPaint.color = const Color(0xFF0F172A);
+      canvas.drawCircle(const Offset(-8, 6), 3, trainPaint);
+      canvas.drawCircle(const Offset(0, 6), 3, trainPaint);
+      canvas.drawCircle(const Offset(8, 6), 3, trainPaint);
+
+      // C. Sparks if Emergency Brake!
+      if (!isSuccess && progress >= 0.44) {
+        final sparkPaint = Paint()..color = Colors.amberAccent;
+        for (int s = 0; s < 5; s++) {
+          final double sparkAngle = s * 0.8;
+          canvas.drawCircle(
+            Offset(cos(sparkAngle) * 8 - 4, sin(sparkAngle) * 8 + 6),
+            1.5,
+            sparkPaint,
+          );
+        }
+      }
+
+      canvas.restore();
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _TrainRailwayPainter oldDelegate) => true;
 }

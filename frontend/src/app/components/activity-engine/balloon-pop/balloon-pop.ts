@@ -59,7 +59,7 @@ export class BalloonPopComponent implements OnInit, OnDestroy {
   // Game Signals
   gameState = signal<'start' | 'playing' | 'gameover' | 'victory'>('start');
   score = signal<number>(0);
-  lives = signal<number>(3);
+  lives = signal<number>(5);
   poppedCount = signal<number>(0);
   targetPrompt = signal<string>('Pop the correct balloons!');
   soundEnabled = signal<boolean>(true);
@@ -120,18 +120,35 @@ export class BalloonPopComponent implements OnInit, OnDestroy {
 
     try {
       if (type === 'pop') {
-        // High crisp snap pop
+        // High crisp snap pop + rubber thump
         const osc = ctx.createOscillator();
+        const thump = ctx.createOscillator();
         const gain = ctx.createGain();
+        const thumpGain = ctx.createGain();
+
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(800, now);
-        osc.frequency.exponentialRampToValueAtTime(120, now + 0.07);
-        gain.gain.setValueAtTime(0.25, now);
+        osc.frequency.setValueAtTime(950, now);
+        osc.frequency.exponentialRampToValueAtTime(70, now + 0.06);
+
+        thump.type = 'sine';
+        thump.frequency.setValueAtTime(140, now);
+        thump.frequency.exponentialRampToValueAtTime(45, now + 0.08);
+
+        gain.gain.setValueAtTime(0.4, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+
+        thumpGain.gain.setValueAtTime(0.3, now);
+        thumpGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
         osc.connect(gain);
+        thump.connect(thumpGain);
         gain.connect(ctx.destination);
+        thumpGain.connect(ctx.destination);
+
         osc.start(now);
+        thump.start(now);
         osc.stop(now + 0.07);
+        thump.stop(now + 0.08);
       } else if (type === 'wrong') {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -195,7 +212,7 @@ export class BalloonPopComponent implements OnInit, OnDestroy {
     this.initAudio();
     this.gameState.set('playing');
     this.score.set(0);
-    this.lives.set(3);
+    this.lives.set(5);
     this.poppedCorrectTotal = 0;
     this.poppedWrongTotal = 0;
     this.poppedCount.set(0);

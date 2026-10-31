@@ -238,53 +238,56 @@ class WritingSkillSeeder extends Seeder
                 ]
             ],
             [
-                'title' => 'Regular Plurals - Exercise 1',
+                'title' => 'Regular & Irregular Plurals Master Quiz',
                 'type' => 'mcq',
                 'data_json' => [
-                    'question' => 'Choose the correct plural forms of: <strong>boy</strong>, <strong>park</strong>, and <strong>friend</strong>.',
+                    'title' => 'Regular & Irregular Plurals Master Quiz',
+                    'question' => 'Choose the correct plural forms of: boy, park, and friend.',
                     'options' => [
                         [ 'id' => 1, 'text' => 'boys, parks, friends', 'is_correct' => true ],
                         [ 'id' => 2, 'text' => 'boyes, parkes, friendes', 'is_correct' => false ]
-                    ]
-                ]
-            ],
-            [
-                'title' => 'Regular Plurals - Exercise 2',
-                'type' => 'fill_blanks',
-                'data_json' => [
-                    'question' => 'Write the plural form of the words in brackets to complete the sentence.',
-                    'text' => 'He carried a [boxes] (box) filled with [toys] (toy), two [brushes] (brush), and three [watches] (watch).'
-                ]
-            ],
-            [
-                'title' => 'Regular Plurals - Exercise 3',
-                'type' => 'word_arrange',
-                'data_json' => [
-                    'question' => 'Unscramble the words to make a correct sentence containing plurals.',
-                    'text' => 'The kids saw three foxes in the bushes.'
-                ]
-            ],
-            [
-                'title' => 'Irregular Plurals - Exercise 4',
-                'type' => 'match',
-                'data_json' => [
-                    'question' => 'Match the singular noun with its correct irregular plural.',
-                    'pairs' => [
-                        [ 'left' => 'child', 'right' => 'children' ],
-                        [ 'left' => 'woman', 'right' => 'women' ],
-                        [ 'left' => 'mouse', 'right' => 'mice' ],
-                        [ 'left' => 'foot', 'right' => 'feet' ]
-                    ]
-                ]
-            ],
-            [
-                'title' => 'Irregular Plurals - Exercise 5',
-                'type' => 'mcq',
-                'data_json' => [
-                    'question' => 'Choose the correct plural forms of: <strong>leaf</strong>, <strong>wolf</strong>, <strong>knife</strong>, <strong>loaf</strong>, and <strong>life</strong>.',
-                    'options' => [
-                        [ 'id' => 1, 'text' => 'leaves, wolves, knives, loaves, lives', 'is_correct' => true ],
-                        [ 'id' => 2, 'text' => 'leafs, wolfs, knifes, loafs, lifes', 'is_correct' => false ]
+                    ],
+                    'questions' => [
+                        [
+                            'question' => 'Choose the correct plural forms of: boy, park, and friend.',
+                            'options' => [
+                                [ 'id' => 1, 'text' => 'boys, parks, friends', 'is_correct' => true ],
+                                [ 'id' => 2, 'text' => 'boyes, parkes, friendes', 'is_correct' => false ]
+                            ],
+                            'explanation' => 'Most regular nouns simply add -s.'
+                        ],
+                        [
+                            'question' => 'Choose the correct plural forms of: box, brush, and watch.',
+                            'options' => [
+                                [ 'id' => 1, 'text' => 'boxes, brushes, watches', 'is_correct' => true ],
+                                [ 'id' => 2, 'text' => 'boxs, brushs, watchs', 'is_correct' => false ]
+                            ],
+                            'explanation' => 'Nouns ending in x, sh, ch add -es.'
+                        ],
+                        [
+                            'question' => 'What is the plural of child?',
+                            'options' => [
+                                [ 'id' => 1, 'text' => 'children', 'is_correct' => true ],
+                                [ 'id' => 2, 'text' => 'childs', 'is_correct' => false ]
+                            ],
+                            'explanation' => 'Child has an irregular plural form: children.'
+                        ],
+                        [
+                            'question' => 'What is the plural of woman?',
+                            'options' => [
+                                [ 'id' => 1, 'text' => 'women', 'is_correct' => true ],
+                                [ 'id' => 2, 'text' => 'womans', 'is_correct' => false ]
+                            ],
+                            'explanation' => 'Woman becomes women in plural.'
+                        ],
+                        [
+                            'question' => 'Choose the correct plural forms of: leaf, wolf, knife, and life.',
+                            'options' => [
+                                [ 'id' => 1, 'text' => 'leaves, wolves, knives, lives', 'is_correct' => true ],
+                                [ 'id' => 2, 'text' => 'leafs, wolfs, knifes, lifes', 'is_correct' => false ]
+                            ],
+                            'explanation' => 'Nouns ending in f or fe change to -ves.'
+                        ]
                     ]
                 ]
             ]
@@ -469,18 +472,7 @@ class WritingSkillSeeder extends Seeder
 
         $chapter2Activities = [
             [
-                'title' => 'Gerund spelling - Exercise 1',
-                'type' => 'mcq',
-                'data_json' => [
-                    'question' => 'Identify the correct gerund spelling of the verb: <strong>Mop</strong>',
-                    'options' => [
-                        [ 'id' => 1, 'text' => 'Mopping', 'is_correct' => true ],
-                        [ 'id' => 2, 'text' => 'Moping', 'is_correct' => false ]
-                    ]
-                ]
-            ],
-            [
-                'title' => 'Gerund spelling - Exercise 2',
+                'title' => 'Gerund Spelling Match Challenge',
                 'type' => 'match',
                 'data_json' => [
                     'question' => 'Match the root verb on the left with its correct gerund spelling on the right.',
@@ -488,16 +480,9 @@ class WritingSkillSeeder extends Seeder
                         [ 'left' => 'paint', 'right' => 'painting' ],
                         [ 'left' => 'write', 'right' => 'writing' ],
                         [ 'left' => 'dance', 'right' => 'dancing' ],
-                        [ 'left' => 'sing', 'right' => 'singing' ]
+                        [ 'left' => 'sing', 'right' => 'singing' ],
+                        [ 'left' => 'mop', 'right' => 'mopping' ]
                     ]
-                ]
-            ],
-            [
-                'title' => 'Gerund spelling - Exercise 3',
-                'type' => 'word_arrange',
-                'data_json' => [
-                    'question' => 'Unscramble the words to make a correct sentence containing a gerund.',
-                    'text' => 'Reading books is one of life\'s pleasures.'
                 ]
             ]
         ];
@@ -571,44 +556,40 @@ class WritingSkillSeeder extends Seeder
             ["She spends her weekends ________ with her friends.", "Shopping", "Shop"]
         ];
 
+        $allGerundQuestions = [];
         foreach ($exercises as $idx => $ex) {
-            $title = "Gerund sentence exercise - " . ($idx + 1);
-            if ($idx % 2 === 0) {
-                $actJson = [
-                    'question' => 'Sentence ' . ($idx + 1) . ': ' . $ex[0],
-                    'options' => [
-                        [ 'id' => 1, 'text' => $ex[1], 'is_correct' => true ],
-                        [ 'id' => 2, 'text' => $ex[2], 'is_correct' => false ]
-                    ]
-                ];
-                $type = 'mcq';
-            } else {
-                // Replace "________" with "[Gerund]" for fill_blanks format
-                $blankText = str_replace("________", "[" . $ex[1] . "]", $ex[0]);
-                $actJson = [
-                    'question' => 'Sentence ' . ($idx + 1) . ': Fill in the blank with the correct gerund form of verb <strong>' . strtolower($ex[2]) . '</strong>.',
-                    'text' => $blankText
-                ];
-                $type = 'fill_blanks';
-            }
-
-            $act = \App\Models\Activity::updateOrCreate(
-                ['title' => $title, 'tenant_id' => null],
-                [
-                    'type' => $type,
-                    'data_json' => $actJson,
-                    'created_by' => null
-                ]
-            );
-
-            $blocks2b[] = [
-                'type' => 'activity',
-                'data' => [
-                    'type' => 'activity_reference',
-                    'activityReferenceId' => $act->id
-                ]
+            $allGerundQuestions[] = [
+                'question' => "Fill in the blank with the correct gerund: " . $ex[0],
+                'options' => [
+                    [ 'id' => 1, 'text' => $ex[1], 'is_correct' => true ],
+                    [ 'id' => 2, 'text' => $ex[2], 'is_correct' => false ]
+                ],
+                'explanation' => "Correct gerund form is '{$ex[1]}'."
             ];
         }
+
+        $actGerund = \App\Models\Activity::updateOrCreate(
+            ['title' => 'Gerunds & Sentence Grammar Master Quiz', 'tenant_id' => null],
+            [
+                'type' => 'mcq',
+                'course_id' => $course->id,
+                'data_json' => [
+                    'title' => 'Gerunds & Sentence Grammar Master Quiz',
+                    'question' => $allGerundQuestions[0]['question'],
+                    'options' => $allGerundQuestions[0]['options'],
+                    'questions' => $allGerundQuestions
+                ],
+                'created_by' => null
+            ]
+        );
+
+        $blocks2b[] = [
+            'type' => 'activity',
+            'data' => [
+                'type' => 'activity_reference',
+                'activityReferenceId' => $actGerund->id
+            ]
+        ];
 
         // Save Content 2b
         $content2b = Content::create([

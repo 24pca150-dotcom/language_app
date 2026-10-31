@@ -295,7 +295,7 @@ class ListeningSkillSeeder extends Seeder
 
         $examples = [
             [
-                'title' => 'Animal Sound MCQ Exercise',
+                'title' => 'Animal Sounds',
                 'type' => 'mcq',
                 'data_json' => [
                     'question' => 'Listen carefully and select the animal that makes this sound!',
@@ -326,7 +326,7 @@ class ListeningSkillSeeder extends Seeder
                 ]
             ],
             [
-                'title' => 'Cloud Compound Match Exercise',
+                'title' => 'Compound Words',
                 'type' => 'match',
                 'data_json' => [
                     'question' => 'Match the compound word parts to form complete words:',
@@ -364,68 +364,91 @@ class ListeningSkillSeeder extends Seeder
                 ]
             ],
             [
-                'title' => 'Homophones Example 1',
+                'title' => 'Homophones',
                 'type' => 'mcq',
                 'data_json' => [
+                    'title' => 'Homophones',
                     'question' => 'Choose the correct word: I can ______ the blue sea from my window.',
                     'options' => [
-                        [ 'id' => 1, 'text' => 'see', 'is_correct' => true ],
-                        [ 'id' => 2, 'text' => 'sea', 'is_correct' => false ]
-                    ]
-                ]
-            ],
-            [
-                'title' => 'Homophones Example 2',
-                'type' => 'mcq',
-                'data_json' => [
-                    'question' => 'Choose the correct word: I can see the blue ______ from my window.',
-                    'options' => [
-                        [ 'id' => 1, 'text' => 'sea', 'is_correct' => true ],
-                        [ 'id' => 2, 'text' => 'see', 'is_correct' => false ]
-                    ]
-                ]
-            ],
-            [
-                'title' => 'Homophones Example 3',
-                'type' => 'mcq',
-                'data_json' => [
-                    'question' => 'Choose the correct word: The ______ is bright, and my son is playing outside.',
-                    'options' => [
-                        [ 'id' => 1, 'text' => 'sun', 'is_correct' => true ],
-                        [ 'id' => 2, 'text' => 'son', 'is_correct' => false ]
-                    ]
-                ]
-            ],
-            [
-                'title' => 'Homophones Example 4',
-                'type' => 'mcq',
-                'data_json' => [
-                    'question' => 'Choose the correct word: The sun is bright, and my ______ is playing outside.',
-                    'options' => [
-                        [ 'id' => 1, 'text' => 'son', 'is_correct' => true ],
-                        [ 'id' => 2, 'text' => 'sun', 'is_correct' => false ]
-                    ]
-                ]
-            ],
-            [
-                'title' => 'Homophones Example 5',
-                'type' => 'mcq',
-                'data_json' => [
-                    'question' => 'Choose the correct word: I will ______ my name on the right side of the page.',
-                    'options' => [
-                        [ 'id' => 1, 'text' => 'write', 'is_correct' => true ],
-                        [ 'id' => 2, 'text' => 'right', 'is_correct' => false ]
-                    ]
-                ]
-            ],
-            [
-                'title' => 'Homophones Example 6',
-                'type' => 'mcq',
-                'data_json' => [
-                    'question' => 'Choose the correct word: I will write my name on the ______ side of the page.',
-                    'options' => [
-                        [ 'id' => 1, 'text' => 'right', 'is_correct' => true ],
-                        [ 'id' => 2, 'text' => 'write', 'is_correct' => false ]
+                        ['id' => 1, 'text' => 'see', 'is_correct' => true],
+                        ['id' => 2, 'text' => 'sea', 'is_correct' => false]
+                    ],
+                    'questions' => [
+                        [
+                            'question' => 'Choose the correct word: I can ______ the blue sea from my window.',
+                            'options' => [
+                                ['id' => 1, 'text' => 'see', 'is_correct' => true],
+                                ['id' => 2, 'text' => 'sea', 'is_correct' => false]
+                            ],
+                            'explanation' => 'See means looking with your eyes; sea is the ocean.'
+                        ],
+                        [
+                            'question' => 'Choose the correct word: I can see the blue ______ from my window.',
+                            'options' => [
+                                ['id' => 1, 'text' => 'sea', 'is_correct' => true],
+                                ['id' => 2, 'text' => 'see', 'is_correct' => false]
+                            ],
+                            'explanation' => 'Sea refers to the large body of saltwater.'
+                        ],
+                        [
+                            'question' => 'Choose the correct word: The ______ is bright, and my son is playing outside.',
+                            'options' => [
+                                ['id' => 1, 'text' => 'sun', 'is_correct' => true],
+                                ['id' => 2, 'text' => 'son', 'is_correct' => false]
+                            ],
+                            'explanation' => 'Sun is the bright star in our solar system.'
+                        ],
+                        [
+                            'question' => 'Choose the correct word: The sun is bright, and my ______ is playing outside.',
+                            'options' => [
+                                ['id' => 1, 'text' => 'son', 'is_correct' => true],
+                                ['id' => 2, 'text' => 'sun', 'is_correct' => false]
+                            ],
+                            'explanation' => 'Son means a male child.'
+                        ],
+                        [
+                            'question' => 'Choose the correct word: I will ______ my name on the right side of the page.',
+                            'options' => [
+                                ['id' => 1, 'text' => 'write', 'is_correct' => true],
+                                ['id' => 2, 'text' => 'right', 'is_correct' => false]
+                            ],
+                            'explanation' => 'Write means putting letters on paper.'
+                        ],
+                        [
+                            'question' => 'Choose the correct word: I will write my name on the ______ side of the page.',
+                            'options' => [
+                                ['id' => 1, 'text' => 'right', 'is_correct' => true],
+                                ['id' => 2, 'text' => 'write', 'is_correct' => false]
+                            ],
+                            'explanation' => 'Right means the opposite of left, or correct.'
+                        ],
+                        // Practice Sentences
+                        ['question' => 'Please ______ my gift.', 'options' => [['id' => 1, 'text' => 'accept', 'is_correct' => true], ['id' => 2, 'text' => 'except', 'is_correct' => false]], 'explanation' => 'Accept means to receive willingly.'],
+                        ['question' => 'We can ______ the library online.', 'options' => [['id' => 1, 'text' => 'access', 'is_correct' => true], ['id' => 2, 'text' => 'excess', 'is_correct' => false]], 'explanation' => 'Access means permission or ability to enter.'],
+                        ['question' => 'I saw an ______ in the newspaper.', 'options' => [['id' => 1, 'text' => 'ad', 'is_correct' => true], ['id' => 2, 'text' => 'add', 'is_correct' => false]], 'explanation' => 'Ad is short for advertisement.'],
+                        ['question' => 'This is the latest ______ of the book.', 'options' => [['id' => 1, 'text' => 'edition', 'is_correct' => true], ['id' => 2, 'text' => 'addition', 'is_correct' => false]], 'explanation' => 'Edition is an issue of a publication.'],
+                        ['question' => 'Loud noise can ______ sleep.', 'options' => [['id' => 1, 'text' => 'affect', 'is_correct' => true], ['id' => 2, 'text' => 'effect', 'is_correct' => false]], 'explanation' => 'Affect is a verb meaning to influence.'],
+                        ['question' => 'Students are ______ to play outside.', 'options' => [['id' => 1, 'text' => 'allowed', 'is_correct' => true], ['id' => 2, 'text' => 'aloud', 'is_correct' => false]], 'explanation' => 'Allowed means permitted.'],
+                        ['question' => 'My ______ visited us yesterday.', 'options' => [['id' => 1, 'text' => 'aunt', 'is_correct' => true], ['id' => 2, 'text' => 'ant', 'is_correct' => false]], 'explanation' => 'Aunt is a family relative.'],
+                        ['question' => '______ school is very big.', 'options' => [['id' => 1, 'text' => 'Our', 'is_correct' => true], ['id' => 2, 'text' => 'Are', 'is_correct' => false]], 'explanation' => 'Our shows possession (belonging to us).'],
+                        ['question' => 'She ______ two apples.', 'options' => [['id' => 1, 'text' => 'ate', 'is_correct' => true], ['id' => 2, 'text' => 'eight', 'is_correct' => false]], 'explanation' => 'Ate is the past tense of eat.'],
+                        ['question' => 'A ______ is sitting on the flower.', 'options' => [['id' => 1, 'text' => 'bee', 'is_correct' => true], ['id' => 2, 'text' => 'be', 'is_correct' => false]], 'explanation' => 'Bee is a flying insect.'],
+                        ['question' => 'The ______ lives in the forest.', 'options' => [['id' => 1, 'text' => 'bear', 'is_correct' => true], ['id' => 2, 'text' => 'bare', 'is_correct' => false]], 'explanation' => 'Bear is a large mammal.'],
+                        ['question' => 'They ______ the treasure underground.', 'options' => [['id' => 1, 'text' => 'bury', 'is_correct' => true], ['id' => 2, 'text' => 'berry', 'is_correct' => false]], 'explanation' => 'Bury means to place in the ground.'],
+                        ['question' => 'The wind ______ strongly last night.', 'options' => [['id' => 1, 'text' => 'blew', 'is_correct' => true], ['id' => 2, 'text' => 'blue', 'is_correct' => false]], 'explanation' => 'Blew is the past tense of blow.'],
+                        ['question' => 'I was ______ during the long speech.', 'options' => [['id' => 1, 'text' => 'bored', 'is_correct' => true], ['id' => 2, 'text' => 'board', 'is_correct' => false]], 'explanation' => 'Bored means uninterested.'],
+                        ['question' => 'Use the ______ before the turn.', 'options' => [['id' => 1, 'text' => 'brake', 'is_correct' => true], ['id' => 2, 'text' => 'break', 'is_correct' => false]], 'explanation' => 'Brake is a device for stopping a vehicle.'],
+                        ['question' => 'I will ______ a new bag today.', 'options' => [['id' => 1, 'text' => 'buy', 'is_correct' => true], ['id' => 2, 'text' => 'bye', 'is_correct' => false]], 'explanation' => 'Buy means to purchase.'],
+                        ['question' => 'Chennai is the ______ of Tamil Nadu.', 'options' => [['id' => 1, 'text' => 'capital', 'is_correct' => true], ['id' => 2, 'text' => 'capitol', 'is_correct' => false]], 'explanation' => 'Capital means the chief administrative city.'],
+                        ['question' => 'The ______ fan is new.', 'options' => [['id' => 1, 'text' => 'ceiling', 'is_correct' => true], ['id' => 2, 'text' => 'sealing', 'is_correct' => false]], 'explanation' => 'Ceiling is the upper interior surface of a room.'],
+                        ['question' => 'My father receives his ______ every month.', 'options' => [['id' => 1, 'text' => 'salary', 'is_correct' => true], ['id' => 2, 'text' => 'celery', 'is_correct' => false]], 'explanation' => 'Salary is monthly compensation.'],
+                        ['question' => 'They ______ fruits in the market.', 'options' => [['id' => 1, 'text' => 'sell', 'is_correct' => true], ['id' => 2, 'text' => 'cell', 'is_correct' => false]], 'explanation' => 'Sell means to exchange for money.'],
+                        ['question' => 'She ______ me a birthday card.', 'options' => [['id' => 1, 'text' => 'sent', 'is_correct' => true], ['id' => 2, 'text' => 'cent', 'is_correct' => false]], 'explanation' => 'Sent is past tense of send.'],
+                        ['question' => 'I eat ______ every morning.', 'options' => [['id' => 1, 'text' => 'cereal', 'is_correct' => true], ['id' => 2, 'text' => 'serial', 'is_correct' => false]], 'explanation' => 'Cereal is a breakfast grain food.'],
+                        ['question' => 'Please ______ your favourite colour.', 'options' => [['id' => 1, 'text' => 'choose', 'is_correct' => true], ['id' => 2, 'text' => 'chews', 'is_correct' => false]], 'explanation' => 'Choose means to select.'],
+                        ['question' => 'Fold your ______ neatly.', 'options' => [['id' => 1, 'text' => 'clothes', 'is_correct' => true], ['id' => 2, 'text' => 'close', 'is_correct' => false]], 'explanation' => 'Clothes are garments worn on the body.'],
+                        ['question' => 'He was ______ after the accident.', 'options' => [['id' => 1, 'text' => 'conscious', 'is_correct' => true], ['id' => 2, 'text' => 'conscience', 'is_correct' => false]], 'explanation' => 'Conscious means awake and aware.'],
+                        ['question' => 'The ______ met to discuss the problem.', 'options' => [['id' => 1, 'text' => 'council', 'is_correct' => true], ['id' => 2, 'text' => 'counsel', 'is_correct' => false]], 'explanation' => 'Council is an advisory or legislative body.']
                     ]
                 ]
             ]
@@ -436,6 +459,7 @@ class ListeningSkillSeeder extends Seeder
                 ['title' => $ex['title'], 'tenant_id' => null],
                 [
                     'type' => $ex['type'],
+                    'course_id' => $course->id,
                     'data_json' => $ex['data_json'],
                     'created_by' => null
                 ]
@@ -480,113 +504,21 @@ class ListeningSkillSeeder extends Seeder
                     "content" => $tableContent
                 ]
             ],
-            [ "type" => "header", "data" => [ "text" => "Let’s Begin the Practice Exercises! 🎯", "level" => 2 ] ],
-            [ "type" => "paragraph", "data" => [ "text" => "Choose the correct spelling of the homophone to complete the sentences." ] ]
+            [ "type" => "header", "data" => [ "text" => "Homophones Master Practice Challenge 🎯", "level" => 2 ] ],
+            [ "type" => "paragraph", "data" => [ "text" => "Choose the correct spelling of the homophone to complete each sentence in this master interactive challenge." ] ]
         ];
 
-        // 26 Main Exercises
-        $exercises = [
-            ["Please ______ my gift.", "accept", "except"],
-            ["We can ______ the library online.", "access", "excess"],
-            ["I saw an ______ in the newspaper.", "ad", "add"],
-            ["This is the latest ______ of the book.", "edition", "addition"],
-            ["Loud noise can ______ sleep.", "affect", "effect"],
-            ["Students are ______ to play outside.", "allowed", "aloud"],
-            ["My ______ visited us yesterday.", "aunt", "ant"],
-            ["______ school is very big.", "Our", "Are"],
-            ["She ______ two apples.", "ate", "eight"],
-            ["A ______ is sitting on the flower.", "bee", "be"],
-            ["The ______ lives in the forest.", "bear", "bare"],
-            ["They ______ the treasure underground.", "bury", "berry"],
-            ["The wind ______ strongly last night.", "blew", "blue"],
-            ["I was ______ during the long speech.", "bored", "board"],
-            ["Use the ______ before the turn.", "brake", "break"],
-            ["I will ______ a new bag today.", "buy", "bye"],
-            ["Chennai is the ______ of Tamil Nadu.", "capital", "capitol"],
-            ["The ______ fan is new.", "ceiling", "sealing"],
-            ["My father receives his ______ every month.", "salary", "celery"],
-            ["They ______ fruits in the market.", "sell", "cell"],
-            ["She ______ me a birthday card.", "sent", "cent"],
-            ["I eat ______ every morning.", "cereal", "serial"],
-            ["Please ______ your favourite colour.", "choose", "chews"],
-            ["Fold your ______ neatly.", "clothes", "close"],
-            ["He was ______ after the accident.", "conscious", "conscience"],
-            ["The ______ met to discuss the problem.", "council", "counsel"]
-        ];
+        // Clean up individual practice activities to keep activity list clean and consolidated
+        Activity::whereNull('tenant_id')->where('title', 'like', 'Homophones Practice%')->delete();
+        Activity::whereNull('tenant_id')->where('title', 'like', 'Homophones Example%')->delete();
 
-        foreach ($exercises as $idx => $ex) {
-            $title = "Homophones Practice " . ($idx + 1);
-            
-            // Alternate between MCQ, Fill Blanks, Word Arrange, and Match
-            $mod = $idx % 4;
-
-            if ($mod === 0) {
-                // MCQ format
-                $question = $ex[0];
-                $correct = $ex[1];
-                $wrong = $ex[2];
-
-                $actJson = [
-                    'question' => $question,
-                    'options' => [
-                        [ 'id' => 1, 'text' => $correct, 'is_correct' => true ],
-                        [ 'id' => 2, 'text' => $wrong, 'is_correct' => false ]
-                    ]
-                ];
-                $type = 'mcq';
-            } 
-            elseif ($mod === 1) {
-                // Fill in Blanks format
-                $blankText = str_replace("______", "[" . $ex[1] . "] (" . $ex[1] . " / " . $ex[2] . ")", $ex[0]);
-                $actJson = [
-                    'question' => 'Choose the correct word to fill in the blank.',
-                    'text' => $blankText
-                ];
-                $type = 'fill_blanks';
-            } 
-            elseif ($mod === 2) {
-                // Word Arrange format
-                $correctSentence = str_replace("______", $ex[1], $ex[0]);
-                $actJson = [
-                    'question' => 'Unscramble the words to make a correct sentence.',
-                    'text' => $correctSentence
-                ];
-                $type = 'word_arrange';
-            } 
-            else {
-                // Matching format (using current homophone + next 2 or 3 to build match pairs)
-                $pairs = [
-                    [ 'left' => $ex[1], 'right' => $ex[2] ]
-                ];
-                
-                // Add two more pairs from previous or next elements to make it a 3-pair match
-                $p1 = $exercises[($idx + 1) % count($exercises)];
-                $p2 = $exercises[($idx + 2) % count($exercises)];
-                
-                $pairs[] = [ 'left' => $p1[1], 'right' => $p1[2] ];
-                $pairs[] = [ 'left' => $p2[1], 'right' => $p2[2] ];
-
-                $actJson = [
-                    'question' => 'Match the homophone pairs:',
-                    'pairs' => $pairs
-                ];
-                $type = 'match';
-            }
-
-            $act = Activity::updateOrCreate(
-                ['title' => $title, 'tenant_id' => null],
-                [
-                    'type' => $type,
-                    'data_json' => $actJson,
-                    'created_by' => null
-                ]
-            );
-
+        $homophoneMasterAct = Activity::where('title', 'Homophones')->first();
+        if ($homophoneMasterAct) {
             $blocks2[] = [
                 'type' => 'activity',
                 'data' => [
                     'type' => 'activity_reference',
-                    'activityReferenceId' => $act->id
+                    'activityReferenceId' => $homophoneMasterAct->id
                 ]
             ];
         }

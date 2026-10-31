@@ -48,66 +48,23 @@ export class CloudTransitionService {
   }
 
   /**
-   * Starts the enter animation (clouds swoop in to cover the screen)
-   * Used by router guards and programmatic transitions
+   * Starts the enter animation - resolves immediately for instant page navigation
    */
   startEnterPhase(): Promise<void> {
-    if (this.isInitialLoad) {
-      return Promise.resolve();
-    }
-
-    if (this.isLocked) {
-      return Promise.resolve();
-    }
-
-    this.isLocked = true;
-
-    if (this.prefersReducedMotion) {
-      this.phase.set('covered');
-      return new Promise(resolve => setTimeout(resolve, 150));
-    }
-
-    this.phase.set('enter');
-
-    return new Promise(resolve => {
-      // 550ms allows clouds to swoop in from all 4 corners and firmly seal the viewport
-      setTimeout(() => {
-        this.phase.set('covered');
-        resolve();
-      }, 550);
-    });
+    return Promise.resolve();
   }
 
   /**
-   * Starts the reveal animation (clouds part smoothly to reveal new page)
+   * Starts the reveal animation - resets immediately
    */
   startRevealPhase(): void {
-    if (this.prefersReducedMotion) {
-      setTimeout(() => {
-        this.reset();
-      }, 150);
-      return;
-    }
-
-    // Brief 50ms pause to ensure Angular has attached the new view
-    setTimeout(() => {
-      this.phase.set('reveal');
-
-      // 650ms for clouds to gracefully glide away offscreen
-      setTimeout(() => {
-        this.reset();
-      }, 650);
-    }, 60);
+    this.reset();
   }
 
   /**
    * Programmatic transition helper for internal view switches (Level -> Map, Chapter -> Lesson)
    */
   async triggerTransition(action?: () => void | Promise<any>): Promise<void> {
-    if (this.isLocked) return;
-
-    await this.startEnterPhase();
-
     if (action) {
       try {
         await action();
@@ -115,17 +72,13 @@ export class CloudTransitionService {
         console.error('Error during transition action:', err);
       }
     }
-
-    this.startRevealPhase();
+    this.reset();
   }
 
   /**
-   * Programmatic navigation with cloud transition
+   * Programmatic navigation with instant transition
    */
   async navigate(commands: any[], extras?: NavigationExtras): Promise<boolean> {
-    if (this.isLocked) return false;
-
-    await this.startEnterPhase();
     return this.router.navigate(commands, extras);
   }
 

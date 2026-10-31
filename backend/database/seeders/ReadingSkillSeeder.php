@@ -167,54 +167,49 @@ class ReadingSkillSeeder extends Seeder
               ->orWhere('title', 'like', 'Compound Word Match%');
         })->delete();
 
-        // 1. Task 1 Activities: Count letters (alternate between MCQ and Fill in Blanks)
+        // 1. Task 1 Activities: Count letters Master Quiz
         $task1Words = [
             ["On", 2], ["Cat", 3], ["Book", 4], ["Apple", 5], ["Garden", 6],
             ["Teacher", 7], ["Elephant", 8], ["Notebook", 8], ["Backpack", 8], ["Sunflower", 9]
         ];
 
+        $task1Questions = [];
         foreach ($task1Words as $idx => $item) {
             $word = $item[0];
             $count = $item[1];
-            $title = "Reading Task 1 - Word " . ($idx + 1);
-
-            if ($idx % 2 === 0) {
-                // MCQ format
-                $actJson = [
-                    'question' => "How many letters are in the word \"{$word}\"?",
-                    'options' => [
-                        [ 'id' => 1, 'text' => (string)$count, 'is_correct' => true ],
-                        [ 'id' => 2, 'text' => (string)($count + 1), 'is_correct' => false ],
-                        [ 'id' => 3, 'text' => (string)($count - 1), 'is_correct' => false ]
-                    ]
-                ];
-                $type = 'mcq';
-            } else {
-                // Fill Blanks format
-                $actJson = [
-                    'question' => "Fill in the correct count of letters for the word \"{$word}\".",
-                    'text' => "{$word} is a [{$count}] (" . ($count - 1) . " / {$count} / " . ($count + 1) . ") letter word."
-                ];
-                $type = 'fill_blanks';
-            }
-
-            $act = Activity::updateOrCreate(
-                ['title' => $title, 'tenant_id' => null],
-                [
-                    'type' => $type,
-                    'data_json' => $actJson,
-                    'created_by' => null
-                ]
-            );
-
-            $blocks1[] = [
-                'type' => 'activity',
-                'data' => [
-                    'type' => 'activity_reference',
-                    'activityReferenceId' => $act->id
-                ]
+            $task1Questions[] = [
+                'question' => "How many letters are in the word \"{$word}\"?",
+                'options' => [
+                    [ 'id' => 1, 'text' => (string)$count, 'is_correct' => true ],
+                    [ 'id' => 2, 'text' => (string)($count + 1), 'is_correct' => false ],
+                    [ 'id' => 3, 'text' => (string)($count - 1), 'is_correct' => false ]
+                ],
+                'explanation' => "The word \"{$word}\" has {$count} letters."
             ];
         }
+
+        $act1 = Activity::updateOrCreate(
+            ['title' => 'Reading Letter Count Master Quiz', 'tenant_id' => null],
+            [
+                'type' => 'mcq',
+                'course_id' => $course->id,
+                'data_json' => [
+                    'title' => 'Reading Letter Count Master Quiz',
+                    'question' => $task1Questions[0]['question'],
+                    'options' => $task1Questions[0]['options'],
+                    'questions' => $task1Questions
+                ],
+                'created_by' => null
+            ]
+        );
+
+        $blocks1[] = [
+            'type' => 'activity',
+            'data' => [
+                'type' => 'activity_reference',
+                'activityReferenceId' => $act1->id
+            ]
+        ];
 
         // Save Content 1
         DB::table('content_chapters')->where('chapter_id', $chapter->id)->delete();
@@ -262,7 +257,7 @@ class ReadingSkillSeeder extends Seeder
             [ "type" => "paragraph", "data" => [ "text" => "Read each word carefully, then identify the correct set of vowels and consonants." ] ]
         ];
 
-        // 2. Task 2 Activities: Vowels and Consonants
+        // 2. Task 2 Activities: Vowels and Consonants Master Quiz
         $task2Data = [
             ["Cat", "a", "c, t"],
             ["Pen", "e", "p, n"],
@@ -276,74 +271,68 @@ class ReadingSkillSeeder extends Seeder
             ["Pencil", "e, i", "p, n, c, l"]
         ];
 
+        $task2Questions = [];
         foreach ($task2Data as $idx => $item) {
             $word = $item[0];
             $vowels = $item[1];
             $consonants = $item[2];
-            $title = "Reading Task 2 - Word " . ($idx + 1);
-
-            $actJson = [
+            $task2Questions[] = [
                 'question' => "Identify the Vowels and Consonants in the word: \"{$word}\"",
                 'options' => [
                     [ 'id' => 1, 'text' => "Vowels: {$vowels} | Consonants: {$consonants}", 'is_correct' => true ],
                     [ 'id' => 2, 'text' => "Vowels: {$consonants} | Consonants: {$vowels}", 'is_correct' => false ]
-                ]
-            ];
-
-            $act = Activity::updateOrCreate(
-                ['title' => $title, 'tenant_id' => null],
-                [
-                    'type' => 'mcq',
-                    'data_json' => $actJson,
-                    'created_by' => null
-                ]
-            );
-
-            $blocks2[] = [
-                'type' => 'activity',
-                'data' => [
-                    'type' => 'activity_reference',
-                    'activityReferenceId' => $act->id
-                ]
+                ],
+                'explanation' => "In \"{$word}\", vowels are [{$vowels}] and consonants are [{$consonants}]."
             ];
         }
+
+        $act2 = Activity::updateOrCreate(
+            ['title' => 'Vowels & Consonants Identification Quiz', 'tenant_id' => null],
+            [
+                'type' => 'mcq',
+                'course_id' => $course->id,
+                'data_json' => [
+                    'title' => 'Vowels & Consonants Identification Quiz',
+                    'question' => $task2Questions[0]['question'],
+                    'options' => $task2Questions[0]['options'],
+                    'questions' => $task2Questions
+                ],
+                'created_by' => null
+            ]
+        );
+
+        $blocks2[] = [
+            'type' => 'activity',
+            'data' => [
+                'type' => 'activity_reference',
+                'activityReferenceId' => $act2->id
+            ]
+        ];
 
         $blocks2[] = [ "type" => "header", "data" => [ "text" => "Task 3: Unscramble the Jumbled Words! 🧩", "level" => 2 ] ];
         $blocks2[] = [ "type" => "paragraph", "data" => [ "text" => "Rearrange the given letters to form a meaningful word." ] ];
 
-        // 3. Task 3 Activities: Jumbled Words
-        $jumbledWords = [
-            ["wolfre", "flower"], ["lcaned", "candle"], ["nirat", "train"], ["olocmn", "column"], ["tescal", "castle"],
-            ["kormey", "monkey"], ["ridgeb", "bridge"], ["ronwcb", "brown"], ["tnegar", "garden"], ["nlitouma", "mountain"]
+        // 3. Task 3 Activity: Jumbled Words Unscramble Master Challenge
+        $act3 = Activity::updateOrCreate(
+            ['title' => 'Reading Jumbled Words Challenge', 'tenant_id' => null],
+            [
+                'type' => 'word_arrange',
+                'course_id' => $course->id,
+                'data_json' => [
+                    'question' => 'Rearrange the jumbled letters to make the correct word: "wolfre"',
+                    'text' => 'flower'
+                ],
+                'created_by' => null
+            ]
+        );
+
+        $blocks2[] = [
+            'type' => 'activity',
+            'data' => [
+                'type' => 'activity_reference',
+                'activityReferenceId' => $act3->id
+            ]
         ];
-
-        foreach ($jumbledWords as $idx => $item) {
-            $jumbled = $item[0];
-            $correct = $item[1];
-            $title = "Reading Jumbled Word " . ($idx + 1);
-
-            $actJson = [
-                'question' => "Rearrange the jumbled letters: \"{$jumbled}\"",
-                'text' => $correct
-            ];
-
-            $act = Activity::updateOrCreate(
-                ['title' => $title, 'tenant_id' => null],
-                [
-                    'type' => 'word_arrange',
-                    'data_json' => $actJson,
-                    'created_by' => null
-                ]
-            );
-
-            $blocks2[] = [
-                'type' => 'activity',
-                'data' => [
-                    'type' => 'activity_reference',
-                    'activityReferenceId' => $act->id
-                ]
-            ];
-        }
 
         // Save Content 2
         $content2 = Content::create([
@@ -405,66 +394,29 @@ class ReadingSkillSeeder extends Seeder
         $blocks3[] = [ "type" => "header", "data" => [ "text" => "Cloud Match Challenge! ☁️", "level" => 2 ] ];
         $blocks3[] = [ "type" => "paragraph", "data" => [ "text" => "Match words from the left and right columns to form correct compound words." ] ];
 
-        // 4. Cloud Match Activities (Matching compound words)
-        $matchPairs1 = [
+        // 4. Cloud Match Activity (Master Matching compound words)
+        $masterCompoundPairs = [
             ['left' => 'Sun', 'right' => 'Flower'],
             ['left' => 'Tooth', 'right' => 'Brush'],
             ['left' => 'Rain', 'right' => 'Bow'],
-            ['left' => 'Class', 'right' => 'Room'],
-            ['left' => 'Foot', 'right' => 'Ball']
-        ];
-        $act1 = Activity::updateOrCreate(
-            ['title' => 'Compound Word Match 1', 'tenant_id' => null],
-            [
-                'type' => 'match',
-                'data_json' => [
-                    'question' => 'Match to form Closed Compound words:',
-                    'pairs' => $matchPairs1
-                ],
-                'created_by' => null
-            ]
-        );
-        $blocks3[] = [ 'type' => 'activity', 'data' => [ 'type' => 'activity_reference', 'activityReferenceId' => $act1->id ] ];
-
-        $matchPairs2 = [
             ['left' => 'Ice', 'right' => 'Cream'],
             ['left' => 'Post', 'right' => 'Office'],
-            ['left' => 'Living', 'right' => 'Room'],
-            ['left' => 'High', 'right' => 'School'],
-            ['left' => 'Alarm', 'right' => 'Clock']
+            ['left' => 'Well', 'right' => 'Known']
         ];
-        $act2 = Activity::updateOrCreate(
-            ['title' => 'Compound Word Match 2', 'tenant_id' => null],
+        $actCompound = Activity::updateOrCreate(
+            ['title' => 'Compound Words Master Match', 'tenant_id' => null],
             [
                 'type' => 'match',
+                'course_id' => $course->id,
                 'data_json' => [
-                    'question' => 'Match to form Open Compound words:',
-                    'pairs' => $matchPairs2
+                    'question' => 'Match words from the left and right columns to form compound words:',
+                    'theme' => 'cloud',
+                    'pairs' => $masterCompoundPairs
                 ],
                 'created_by' => null
             ]
         );
-        $blocks3[] = [ 'type' => 'activity', 'data' => [ 'type' => 'activity_reference', 'activityReferenceId' => $act2->id ] ];
-
-        $matchPairs3 = [
-            ['left' => 'Mother', 'right' => 'In-law'],
-            ['left' => 'Well', 'right' => 'Known'],
-            ['left' => 'Part', 'right' => 'Time'],
-            ['left' => 'Self', 'right' => 'Esteem'],
-            ['left' => 'Cut', 'right' => 'Off']
-        ];
-        $act3 = Activity::updateOrCreate(
-            ['title' => 'Compound Word Match 3', 'tenant_id' => null],
-            [
-                'type' => 'match',
-                'data_json' => [
-                    'question' => 'Match to form Hyphenated Compound words:',
-                    'pairs' => $matchPairs3
-                ],
-                'created_by' => null
-            ]
-        );
-        $blocks3[] = [ 'type' => 'activity', 'data' => [ 'type' => 'activity_reference', 'activityReferenceId' => $act3->id ] ];
+        $blocks3[] = [ 'type' => 'activity', 'data' => [ 'type' => 'activity_reference', 'activityReferenceId' => $actCompound->id ] ];
 
         $blocks3[] = [ "type" => "header", "data" => [ "text" => "Keep reading and keep learning! 🌟", "level" => 2 ] ];
         $blocks3[] = [ "type" => "paragraph", "data" => [ "text" => "Excellent work! We have successfully completed our journey through the fundamentals of Reading Skills. Through these activities, you have strengthened your vocabulary, improved your word recognition skills, and enhanced your reading ability.<br><br>Remember, reading is the key to learning and knowledge. Every page you read takes you one step closer to becoming a better reader and communicator." ] ];

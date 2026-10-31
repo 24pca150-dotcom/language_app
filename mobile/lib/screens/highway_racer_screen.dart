@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../data/game_question_bank.dart';
+import '../services/game_audio_service.dart';
 
 class HighwayRacerScreen extends StatefulWidget {
   final String title;
@@ -17,7 +20,7 @@ class HighwayRacerScreen extends StatefulWidget {
 class _HighwayRacerScreenState extends State<HighwayRacerScreen> with TickerProviderStateMixin {
   // Game Loop & State
   int _score = 0;
-  int _lives = 3;
+  int _lives = 5;
   int _streak = 0;
   int _currentChallenge = 0;
   bool _soundEnabled = true;
@@ -38,54 +41,18 @@ class _HighwayRacerScreenState extends State<HighwayRacerScreen> with TickerProv
   bool _screenFlash = false;
   Color _flashColor = Colors.transparent;
 
-  // Database Challenges (Matching web Irregular Past Tense questions)
-  final List<Map<String, dynamic>> _challenges = [
-    {
-      'question': 'Steer to the Past Tense of "Drive":',
-      'options': [
-        {'text': 'Drove', 'isCorrect': true},
-        {'text': 'Drived', 'isCorrect': false},
-        {'text': 'Drives', 'isCorrect': false},
-      ],
-    },
-    {
-      'question': 'Steer to the Past Tense of "Write":',
-      'options': [
-        {'text': 'Writing', 'isCorrect': false},
-        {'text': 'Wrote', 'isCorrect': true},
-        {'text': 'Written', 'isCorrect': false},
-      ],
-    },
-    {
-      'question': 'Steer to the Past Tense of "Go":',
-      'options': [
-        {'text': 'Goes', 'isCorrect': false},
-        {'text': 'Going', 'isCorrect': false},
-        {'text': 'Went', 'isCorrect': true},
-      ],
-    },
-    {
-      'question': 'Steer to the Past Tense of "Eat":',
-      'options': [
-        {'text': 'Eating', 'isCorrect': false},
-        {'text': 'Ate', 'isCorrect': true},
-        {'text': 'Eaten', 'isCorrect': false},
-      ],
-    },
-    {
-      'question': 'Steer to the Past Tense of "Buy":',
-      'options': [
-        {'text': 'Bought', 'isCorrect': true},
-        {'text': 'Buyed', 'isCorrect': false},
-        {'text': 'Buying', 'isCorrect': false},
-      ],
-    },
-  ];
+  final List<Map<String, dynamic>> _challenges = [];
 
   @override
   void initState() {
     super.initState();
+    _setupChallenges();
     _startAnimationLoop();
+  }
+
+  void _setupChallenges() {
+    _challenges.clear();
+    _challenges.addAll(GameQuestionBank.getRandomRacerChallenges(5));
   }
 
   @override
@@ -126,6 +93,7 @@ class _HighwayRacerScreenState extends State<HighwayRacerScreen> with TickerProv
   void _steerLeft() {
     if (_gameState != 'playing') return;
     if (_playerLane > 0) {
+      GameAudioService.playCarEngine();
       setState(() {
         _playerLane--;
         _playerCarX = _playerLane.toDouble();
@@ -136,6 +104,7 @@ class _HighwayRacerScreenState extends State<HighwayRacerScreen> with TickerProv
   void _steerRight() {
     if (_gameState != 'playing') return;
     if (_playerLane < 2) {
+      GameAudioService.playCarEngine();
       setState(() {
         _playerLane++;
         _playerCarX = _playerLane.toDouble();
@@ -146,6 +115,9 @@ class _HighwayRacerScreenState extends State<HighwayRacerScreen> with TickerProv
   void _setLane(int lane) {
     if (_gameState != 'playing') return;
     if (lane >= 0 && lane <= 2) {
+      if (lane != _playerLane) {
+        GameAudioService.playCarEngine();
+      }
       setState(() {
         _playerLane = lane;
         _playerCarX = lane.toDouble();
@@ -155,6 +127,7 @@ class _HighwayRacerScreenState extends State<HighwayRacerScreen> with TickerProv
 
   void _activateNitro() {
     if (_gameState != 'playing' || _nitroActive) return;
+    GameAudioService.playCarNitro();
     setState(() => _nitroActive = true);
     Timer(const Duration(milliseconds: 1400), () {
       if (mounted) setState(() => _nitroActive = false);
@@ -169,6 +142,7 @@ class _HighwayRacerScreenState extends State<HighwayRacerScreen> with TickerProv
 
     if (chosenOption['isCorrect'] == true) {
       // SUCCESS HIT!
+      GameAudioService.playCorrectDing();
       final bonus = _nitroActive ? 150 : 100;
       _score += bonus;
       _streak++;
@@ -186,11 +160,13 @@ class _HighwayRacerScreenState extends State<HighwayRacerScreen> with TickerProv
             _feedbackText = null;
           });
         } else {
+          GameAudioService.playVictoryFanfare();
           setState(() => _gameState = 'victory');
         }
       });
     } else {
       // CRASH!
+      GameAudioService.playWrongBuzz();
       _streak = 0;
       _lives--;
       _feedbackText = 'CRASH! 💥';
@@ -225,9 +201,10 @@ class _HighwayRacerScreenState extends State<HighwayRacerScreen> with TickerProv
   }
 
   void _restartGame() {
+    _setupChallenges();
     setState(() {
       _score = 0;
-      _lives = 3;
+      _lives = 5;
       _streak = 0;
       _currentChallenge = 0;
       _gameState = 'playing';
@@ -411,23 +388,23 @@ class _HighwayRacerScreenState extends State<HighwayRacerScreen> with TickerProv
           // Score & Trophy
           Row(
             children: [
-              const Icon(Icons.emoji_events_rounded, color: Color(0xFFF59E0B), size: 20),
-              const SizedBox(width: 6),
+              const Icon(Icons.emoji_events_rounded, color: Color(0xFFF59E0B), size: 18),
+              const SizedBox(width: 4),
               Text(
                 '$_score',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
               ),
               if (_streak >= 2) ...[
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.orange),
+                    color: Colors.orange.withValues(alpha: 0.25),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: Colors.orange, width: 0.8),
                   ),
                   child: Text(
-                    '🔥 ${_streak}x',
+                    '🔥${_streak}x',
                     style: const TextStyle(color: Colors.orange, fontSize: 10, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -436,34 +413,46 @@ class _HighwayRacerScreenState extends State<HighwayRacerScreen> with TickerProv
           ),
 
           // Challenge Tracker
-          Text(
-            'CHALLENGE ${_currentChallenge + 1}/${_challenges.length}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.8,
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                'ROUND ${_currentChallenge + 1}/${_challenges.length}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.5,
+                ),
+              ),
             ),
           ),
 
           // Lives (Hearts) & Sound
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               ...List.generate(
-                3,
-                (i) => Icon(
-                  i < _lives ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                  color: i < _lives ? const Color(0xFFEF4444) : Colors.white24,
-                  size: 18,
+                5,
+                (i) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 0.5),
+                  child: Icon(
+                    i < _lives ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                    color: i < _lives ? const Color(0xFFEF4444) : Colors.white24,
+                    size: 14,
+                  ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 4),
               GestureDetector(
                 onTap: () => setState(() => _soundEnabled = !_soundEnabled),
                 child: Icon(
                   _soundEnabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
                   color: Colors.white70,
-                  size: 18,
+                  size: 16,
                 ),
               ),
             ],
@@ -477,35 +466,77 @@ class _HighwayRacerScreenState extends State<HighwayRacerScreen> with TickerProv
   Widget _buildObjectiveBanner(String question) {
     return Container(
       width: double.infinity,
-      color: const Color(0xFF0D1B2A),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF0F172A).withValues(alpha: 0.92),
+            const Color(0xFF1E293B).withValues(alpha: 0.88),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFFF59E0B).withValues(alpha: 0.8),
+          width: 1.8,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFD97706).withValues(alpha: 0.35),
+            blurRadius: 14,
+            spreadRadius: 1,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
       child: Column(
         children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.track_changes_rounded, color: Color(0xFFF59E0B), size: 14),
-              SizedBox(width: 6),
-              Text(
-                'TARGET OBJECTIVE',
-                style: TextStyle(
-                  color: Color(0xFFF59E0B),
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.0,
-                ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF59E0B).withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: const Color(0xFFF59E0B).withValues(alpha: 0.6),
+                width: 1,
               ),
-            ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.sports_score_rounded, color: Color(0xFFF59E0B), size: 13),
+                const SizedBox(width: 5),
+                Flexible(
+                  child: Text(
+                    'HIGHWAY: WAVE ${_currentChallenge + 1}/${_challenges.length}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Color(0xFFF59E0B),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             question,
+            textAlign: TextAlign.center,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+              height: 1.25,
+              shadows: [
+                Shadow(color: Colors.black87, blurRadius: 4, offset: Offset(0, 1)),
+              ],
             ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -628,156 +659,192 @@ class _HighwayRacerScreenState extends State<HighwayRacerScreen> with TickerProv
           final laneWidth = constraints.maxWidth / 3;
           final carLeft = (_playerCarX * laneWidth) + (laneWidth / 2) - 22;
 
+          // Steering banking roll angle (tilts when changing lanes)
+          final double rollAngle = ((_playerLane.toDouble() - _playerCarX) * -0.18).clamp(-0.16, 0.16);
+          // Flame animation flicker
+          final double flameFlicker = (sin(_roadOffset * 0.35) * 0.35 + 0.75);
+          final double flameH = (_nitroActive ? 26.0 : 12.0) * flameFlicker;
+
           return Stack(
             clipBehavior: Clip.none,
             children: [
               Positioned(
                 left: carLeft,
                 top: 0,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Red Racing Sports Car (Matching photo & web canvas player car)
-                    Container(
-                      width: 44,
-                      height: 74,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDC2626), // Vibrant Racing Red
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.amber, width: 2.2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: (_nitroActive ? Colors.cyanAccent : Colors.redAccent).withValues(alpha: 0.85),
-                            blurRadius: _nitroActive ? 24 : 14,
-                            spreadRadius: _nitroActive ? 4 : 1,
-                            offset: const Offset(0, 4),
+                child: Transform.rotate(
+                  angle: rollAngle,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Red Racing Sports Car with 70% Original Arcade Details
+                      Container(
+                        width: 44,
+                        height: 74,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Color(0xFFEF4444), Color(0xFFB91C1C)],
                           ),
-                        ],
-                      ),
-                      child: Stack(
-                        children: [
-                          // Yellow Center Racing Stripes
-                          Center(
-                            child: Container(
-                              width: 8,
-                              height: 74,
-                              color: Colors.amber,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.amber, width: 2.2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: (_nitroActive ? const Color(0xFF00E5FF) : Colors.redAccent)
+                                  .withValues(alpha: 0.85),
+                              blurRadius: _nitroActive ? 26 : 14,
+                              spreadRadius: _nitroActive ? 4 : 1,
+                              offset: const Offset(0, 4),
                             ),
-                          ),
-                          // Front Headlights
-                          Positioned(
-                            top: 3,
-                            left: 4,
-                            right: 4,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                  width: 6,
-                                  height: 4,
-                                  decoration: BoxDecoration(
-                                    color: Colors.yellowAccent,
-                                    borderRadius: BorderRadius.circular(2),
-                                    boxShadow: const [
-                                      BoxShadow(color: Colors.yellowAccent, blurRadius: 4),
-                                    ],
+                          ],
+                        ),
+                        child: Stack(
+                          children: [
+                            // Yellow Center Dual Racing Stripes
+                            Center(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(width: 3.5, height: 74, color: Colors.amber),
+                                  const SizedBox(width: 2),
+                                  Container(width: 3.5, height: 74, color: Colors.amber),
+                                ],
+                              ),
+                            ),
+                            // Front Xenon Headlights
+                            Positioned(
+                              top: 3,
+                              left: 4,
+                              right: 4,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    width: 7,
+                                    height: 5,
+                                    decoration: BoxDecoration(
+                                      color: Colors.yellowAccent,
+                                      borderRadius: BorderRadius.circular(2),
+                                      boxShadow: const [
+                                        BoxShadow(color: Colors.yellowAccent, blurRadius: 6, spreadRadius: 1),
+                                      ],
+                                    ),
                                   ),
+                                  Container(
+                                    width: 7,
+                                    height: 5,
+                                    decoration: BoxDecoration(
+                                      color: Colors.yellowAccent,
+                                      borderRadius: BorderRadius.circular(2),
+                                      boxShadow: const [
+                                        BoxShadow(color: Colors.yellowAccent, blurRadius: 6, spreadRadius: 1),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Tinted Glass Windshield with White Glare
+                            Positioned(
+                              top: 14,
+                              left: 6,
+                              right: 6,
+                              child: Container(
+                                height: 18,
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [Color(0xFF38BDF8), Color(0xFF0F172A)],
+                                  ),
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(color: Colors.white30, width: 1),
                                 ),
-                                Container(
-                                  width: 6,
-                                  height: 4,
-                                  decoration: BoxDecoration(
-                                    color: Colors.yellowAccent,
-                                    borderRadius: BorderRadius.circular(2),
-                                    boxShadow: const [
-                                      BoxShadow(color: Colors.yellowAccent, blurRadius: 4),
-                                    ],
-                                  ),
+                              ),
+                            ),
+                            // Rear Tinted Window
+                            Positioned(
+                              top: 42,
+                              left: 8,
+                              right: 8,
+                              child: Container(
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1E293B),
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                              ),
+                            ),
+                            // Elevated Black Aerodynamic Rear Spoiler
+                            Positioned(
+                              bottom: 2,
+                              left: 1,
+                              right: 1,
+                              child: Container(
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF0F172A),
+                                  borderRadius: BorderRadius.circular(3),
+                                  border: Border.all(color: Colors.amber, width: 0.8),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Animated Twin Exhaust Nitro Fire Jets
+                      const SizedBox(height: 2),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: _nitroActive ? 9 : 7,
+                            height: flameH,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: _nitroActive
+                                    ? [Colors.white, const Color(0xFF00E5FF), const Color(0xFF0284C7)]
+                                    : [Colors.yellowAccent, Colors.orangeAccent, Colors.redAccent],
+                              ),
+                              borderRadius: BorderRadius.circular(4),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: _nitroActive ? const Color(0xFF00E5FF) : Colors.orangeAccent,
+                                  blurRadius: _nitroActive ? 12 : 6,
+                                  spreadRadius: _nitroActive ? 2 : 0,
                                 ),
                               ],
                             ),
                           ),
-                          // Windshield
-                          Positioned(
-                            top: 14,
-                            left: 6,
-                            right: 6,
-                            child: Container(
-                              height: 18,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF0F172A),
-                                borderRadius: BorderRadius.circular(4),
-                                border: Border.all(color: Colors.white24, width: 1),
+                          const SizedBox(width: 14),
+                          Container(
+                            width: _nitroActive ? 9 : 7,
+                            height: flameH * 0.95,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: _nitroActive
+                                    ? [Colors.white, const Color(0xFF00E5FF), const Color(0xFF0284C7)]
+                                    : [Colors.yellowAccent, Colors.orangeAccent, Colors.redAccent],
                               ),
-                            ),
-                          ),
-                          // Rear Window
-                          Positioned(
-                            top: 42,
-                            left: 8,
-                            right: 8,
-                            child: Container(
-                              height: 10,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF1E293B),
-                                borderRadius: BorderRadius.circular(3),
-                              ),
-                            ),
-                          ),
-                          // Rear spoiler
-                          Positioned(
-                            bottom: 2,
-                            left: 2,
-                            right: 2,
-                            child: Container(
-                              height: 6,
-                              decoration: BoxDecoration(
-                                color: Colors.black,
-                                borderRadius: BorderRadius.circular(2),
-                              ),
+                              borderRadius: BorderRadius.circular(4),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: _nitroActive ? const Color(0xFF00E5FF) : Colors.orangeAccent,
+                                  blurRadius: _nitroActive ? 12 : 6,
+                                  spreadRadius: _nitroActive ? 2 : 0,
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                    ),
-
-                    // Exhaust Nitro Smoke / Flames
-                    const SizedBox(height: 3),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 7,
-                          height: _nitroActive ? 16 : 8,
-                          decoration: BoxDecoration(
-                            color: _nitroActive ? Colors.cyanAccent : Colors.orangeAccent,
-                            borderRadius: BorderRadius.circular(4),
-                            boxShadow: [
-                              BoxShadow(
-                                color: _nitroActive ? Colors.cyanAccent : Colors.orangeAccent,
-                                blurRadius: 6,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Container(
-                          width: 7,
-                          height: _nitroActive ? 16 : 8,
-                          decoration: BoxDecoration(
-                            color: _nitroActive ? Colors.cyanAccent : Colors.orangeAccent,
-                            borderRadius: BorderRadius.circular(4),
-                            boxShadow: [
-                              BoxShadow(
-                                color: _nitroActive ? Colors.cyanAccent : Colors.orangeAccent,
-                                blurRadius: 6,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -985,7 +1052,7 @@ class _HighwayRacerScreenState extends State<HighwayRacerScreen> with TickerProv
   }
 }
 
-// Custom Painter for Asphalt Road, Red-and-White Curbs & Dashed Lane Dividers
+// 70% Original Arcade Painter for Asphalt Road, Red-and-White Curbs & Nitro Warp Streaks
 class _RoadPainter extends CustomPainter {
   final double roadOffset;
   final bool nitroActive;
@@ -994,15 +1061,22 @@ class _RoadPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // 1. Asphalt Road Background
-    final asphaltPaint = Paint()..color = const Color(0xFF1E293B);
+    // 1. Asphalt Road with subtle vertical gradient for speed depth
+    final asphaltPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: nitroActive
+            ? [const Color(0xFF0F172A), const Color(0xFF1E293B), const Color(0xFF0F2642)]
+            : [const Color(0xFF0F172A), const Color(0xFF1E293B)],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), asphaltPaint);
 
-    // 2. Red and White Alternating Curbs (Left & Right borders)
-    const curbWidth = 10.0;
+    // 2. Red and White 3D Alternating Curbs (Left & Right borders)
+    const curbWidth = 11.0;
     const stripeHeight = 24.0;
     final redPaint = Paint()..color = const Color(0xFFDC2626);
-    final whitePaint = Paint()..color = Colors.white;
+    final whitePaint = Paint()..color = const Color(0xFFF8FAFC);
 
     for (double y = (roadOffset % (stripeHeight * 2)) - (stripeHeight * 2); y < size.height; y += stripeHeight) {
       final isRed = ((y - roadOffset) / stripeHeight).floor() % 2 == 0;
@@ -1014,19 +1088,50 @@ class _RoadPainter extends CustomPainter {
       canvas.drawRect(Rect.fromLTWH(size.width - curbWidth, y, curbWidth, stripeHeight), paint);
     }
 
+    // Curb neon edge lines
+    final Paint curbEdge = Paint()
+      ..color = Colors.amber.withValues(alpha: 0.6)
+      ..strokeWidth = 1.2;
+    canvas.drawLine(const Offset(curbWidth, 0), Offset(curbWidth, size.height), curbEdge);
+    canvas.drawLine(Offset(size.width - curbWidth, 0), Offset(size.width - curbWidth, size.height), curbEdge);
+
     // 3. Lane Dividers (2 White Dashed Lines separating 3 lanes)
     final laneWidth = size.width / 3;
     final dividerPaint = Paint()
-      ..color = Colors.white.withValues(alpha: nitroActive ? 0.9 : 0.7)
-      ..strokeWidth = 3.5;
+      ..color = (nitroActive ? const Color(0xFF38BDF8) : Colors.white).withValues(alpha: nitroActive ? 0.95 : 0.75)
+      ..strokeWidth = nitroActive ? 4.0 : 3.5;
 
-    const dashHeight = 26.0;
+    const dashHeight = 28.0;
     const dashGap = 20.0;
 
     for (int lane = 1; lane <= 2; lane++) {
       final x = lane * laneWidth;
       for (double y = (roadOffset % (dashHeight + dashGap)) - (dashHeight + dashGap); y < size.height; y += (dashHeight + dashGap)) {
         canvas.drawLine(Offset(x, y), Offset(x, y + dashHeight), dividerPaint);
+      }
+    }
+
+    // 4. 🌟 Nitro Speed Warp Streaks (Blazing vertical light speed lines)
+    if (nitroActive) {
+      final warpPaint = Paint()..strokeCap = StrokeCap.round;
+      for (int i = 0; i < 7; i++) {
+        final double warpX = (size.width * 0.15) + (i * (size.width * 0.70) / 6);
+        final double warpSpeed = (roadOffset * 2.5 + i * 80) % size.height;
+        final double warpLength = 40.0 + (i % 3) * 25.0;
+
+        warpPaint
+          ..shader = LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.transparent,
+              (i % 2 == 0 ? const Color(0xFF00E5FF) : Colors.white).withValues(alpha: 0.8),
+              Colors.transparent,
+            ],
+          ).createShader(Rect.fromLTWH(warpX, warpSpeed, 2.5, warpLength))
+          ..strokeWidth = 2.0;
+
+        canvas.drawLine(Offset(warpX, warpSpeed), Offset(warpX, warpSpeed + warpLength), warpPaint);
       }
     }
   }

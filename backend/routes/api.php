@@ -195,4 +195,5 @@ Route::middleware(['auth:sanctum', 'identify.tenant'])->group(function () {
 
     // Record student activity for XP & streak tracking
     Route::post('student/record-activity', [DashboardController::class, 'recordActivity']);
+    Route::post('dashboard/record-activity', [DashboardController::class, 'recordActivity']);
 });

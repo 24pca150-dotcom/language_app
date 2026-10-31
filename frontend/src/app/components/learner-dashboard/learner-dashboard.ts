@@ -275,9 +275,11 @@ export class LearnerDashboard implements OnInit {
   isFullscreen = signal(false);
   uiTheme = signal<'adventure' | 'classic'>('adventure');
   xp = signal<number>(0);
+  coins = signal<number>(0);
   streakDays = signal<number>(0);
   wordsMastered = signal<number>(0);
   studyTimeMinutes = signal<number>(0);
+  studyTimeHours = signal<number>(3.9);
   lessonsFinished = signal<number>(0);
   quizzesPassed = signal<number>(0);
   accuracyRate = signal<number>(0);
@@ -286,9 +288,37 @@ export class LearnerDashboard implements OnInit {
   grammarScore = signal<number>(0);
   speakingScore = signal<number>(0);
 
+  // 📈 Progress & Analytics Signals (Assessments, Practice, Games & Courses)
+  overallCompletionPercentage = signal<number>(0);
+  totalLessonsCount = signal<number>(0);
+  allAssessments = signal<any[]>([]);
+  assessmentStats = signal<any>(null);
+  practiceStats = signal<any>(null);
+  gamesStats = signal<any>(null);
+  progressFilter = signal<'all' | 'assessments' | 'practice' | 'games' | 'courses'>('all');
+
+  totalAssessmentsCount = computed(() => this.assessmentStats()?.total_assessments || this.allAssessments().length || 0);
+  assessmentCompletionPercent = computed(() => this.assessmentStats()?.completion_percent || 0);
+  assessmentPassPercent = computed(() => this.assessmentStats()?.pass_percent || 0);
+  practiceAvgPercent = computed(() => this.practiceStats()?.completion_percent || 0);
+  practiceCompletedCount = computed(() => this.practiceStats()?.completed_count || 0);
+  totalPracticeTopics = computed(() => this.practiceStats()?.total_topics || 5);
+  practiceTopicsList = computed(() => this.practiceStats()?.topics || []);
+  gamesAvgPercent = computed(() => this.gamesStats()?.completion_percent || 0);
+  gamesPlayedCount = computed(() => this.gamesStats()?.played_count || 0);
+  gamesTotalStars = computed(() => this.gamesStats()?.stars_earned || 0);
+  gamesList = computed(() => this.gamesStats()?.games || []);
+  formattedStudyTime = computed(() => {
+    const hours = this.studyTimeHours();
+    if (hours && hours > 0) return hours + 'h';
+    const mins = this.studyTimeMinutes();
+    return (mins || 45) + 'm';
+  });
+
   // 🌟 Gamified Badges & Home Companions
-  effectiveStreak = computed(() => (this.streakDays() > 0 ? this.streakDays() : 3));
-  effectiveStars = computed(() => (this.xp() > 0 ? this.xp() : 150));
+  effectiveStreak = computed(() => this.streakDays());
+  effectiveStars = computed(() => this.xp());
+  effectiveCoins = computed(() => this.coins());
   learnerLevel = computed(() => Math.max(1, Math.floor(this.effectiveStars() / 100) + 1));
   mascotSpeechBubble = signal<string | null>(null);
   owlSpeechBubble = signal<string | null>(null);
@@ -636,10 +666,73 @@ export class LearnerDashboard implements OnInit {
   };
   showAchievementModal = signal(false);
 
+  // ⚡ Static in-memory cache for instant zero-latency loading
+  private static cachedStats: any = null;
+  private static cachedCourses: Course[] = [];
+  private static cachedUpcomingClasses: LiveClassItem[] = [];
+  private static cachedDynamicActivities: Activity[] = [];
+
+  private applyDashboardStats(stats: any): void {
+    if (!stats) return;
+    if (stats.course_progressions && Array.isArray(stats.course_progressions)) {
+      this.courseProgressions.set(stats.course_progressions);
+    }
+    if (stats.xp_points !== undefined) this.xp.set(stats.xp_points);
+    else if (stats.xp !== undefined) this.xp.set(stats.xp);
+
+    if (stats.gems !== undefined) this.coins.set(stats.gems);
+    else if (stats.coins !== undefined) this.coins.set(stats.coins);
+
+    if (stats.streak_days !== undefined) this.streakDays.set(stats.streak_days);
+    else if (stats.streak !== undefined) this.streakDays.set(stats.streak);
+
+    if (stats.average_score !== undefined) this.accuracyRate.set(Math.round(stats.average_score));
+    if (stats.completed_chapters !== undefined) this.lessonsFinished.set(stats.completed_chapters);
+    if (stats.total_chapters !== undefined) this.totalLessonsCount.set(stats.total_chapters);
+    if (stats.completion_percentage !== undefined) this.overallCompletionPercentage.set(stats.completion_percentage);
+    if (stats.passed_attempts !== undefined) this.quizzesPassed.set(stats.passed_attempts);
+
+    if (stats.words_mastered !== undefined) this.wordsMastered.set(stats.words_mastered);
+    if (stats.study_time_hours !== undefined) this.studyTimeHours.set(stats.study_time_hours);
+    if (stats.study_time_minutes !== undefined) this.studyTimeMinutes.set(stats.study_time_minutes);
+
+    if (stats.core_skills) {
+      if (stats.core_skills.listening !== undefined) this.listeningScore.set(stats.core_skills.listening);
+      if (stats.core_skills.reading !== undefined) this.readingScore.set(stats.core_skills.reading);
+      if (stats.core_skills.grammar !== undefined) this.grammarScore.set(stats.core_skills.grammar);
+      if (stats.core_skills.speaking !== undefined) this.speakingScore.set(stats.core_skills.speaking);
+    }
+
+    if (stats.all_assessments && Array.isArray(stats.all_assessments)) {
+      this.allAssessments.set(stats.all_assessments);
+    }
+    if (stats.assessment_stats) {
+      this.assessmentStats.set(stats.assessment_stats);
+    }
+    if (stats.practice_stats) {
+      this.practiceStats.set(stats.practice_stats);
+    }
+    if (stats.games_stats) {
+      this.gamesStats.set(stats.games_stats);
+    }
+
+    if (stats.monthly_study_hours && stats.monthly_study_hours.length > 0) {
+      const latest = stats.monthly_study_hours[stats.monthly_study_hours.length - 1];
+      if (latest && latest.hours) this.studyTimeMinutes.set(Math.round(latest.hours * 60));
+    }
+    if (stats.weekly_activity && Array.isArray(stats.weekly_activity)) {
+      this.initWeeklyConsistency(stats.weekly_activity);
+    }
+  }
+
   ngOnInit() {
-    const user = this.authService.getUser();
-    if (user && user.name) {
-      this.learnerName.set(user.name);
+    const user = this.authService.getUser() as any;
+    if (user) {
+      if (user.name) this.learnerName.set(user.name);
+      if (user.xp !== undefined) this.xp.set(user.xp);
+      if (user.gems !== undefined) this.coins.set(user.gems);
+      if (user.coins !== undefined) this.coins.set(user.coins);
+      if (user.streak_days !== undefined) this.streakDays.set(user.streak_days);
     }
 
     // Load active school/tenant branding
@@ -660,24 +753,31 @@ export class LearnerDashboard implements OnInit {
 
     this.initWeeklyConsistency();
 
-    // Load student stats
+    // ⚡ Instant Cache Hydration - Instant display without waiting for network
+    if (LearnerDashboard.cachedStats) {
+      this.applyDashboardStats(LearnerDashboard.cachedStats);
+    }
+    if (LearnerDashboard.cachedCourses.length > 0) {
+      this.courses.set(LearnerDashboard.cachedCourses);
+      this.isLoading.set(false);
+    }
+    if (LearnerDashboard.cachedUpcomingClasses.length > 0) {
+      this.allUpcomingClasses.set(LearnerDashboard.cachedUpcomingClasses);
+      this.upcomingLiveClass.set(LearnerDashboard.cachedUpcomingClasses[0]);
+      this.isLoadingLiveClass.set(false);
+    }
+    if (LearnerDashboard.cachedDynamicActivities.length > 0) {
+      this.allDynamicActivities.set(LearnerDashboard.cachedDynamicActivities);
+      this.processDynamicActivities(LearnerDashboard.cachedDynamicActivities);
+      this.isLoadingActivities.set(false);
+    }
+
+    // Load student stats in background
     this.http.get<any>(`${environment.apiUrl}/student/dashboard`).subscribe({
       next: (stats) => {
         if (stats) {
-          if (stats.course_progressions && Array.isArray(stats.course_progressions)) {
-            this.courseProgressions.set(stats.course_progressions);
-          }
-          if (stats.xp_points !== undefined) this.xp.set(stats.xp_points);
-          if (stats.streak_days !== undefined) this.streakDays.set(stats.streak_days);
-          if (stats.average_score !== undefined) this.accuracyRate.set(Math.round(stats.average_score));
-          if (stats.completed_chapters !== undefined) this.lessonsFinished.set(stats.completed_chapters);
-          if (stats.monthly_study_hours && stats.monthly_study_hours.length > 0) {
-            const latest = stats.monthly_study_hours[stats.monthly_study_hours.length - 1];
-            if (latest && latest.hours) this.studyTimeMinutes.set(Math.round(latest.hours * 60));
-          }
-          if (stats.weekly_activity && Array.isArray(stats.weekly_activity)) {
-            this.initWeeklyConsistency(stats.weekly_activity);
-          }
+          LearnerDashboard.cachedStats = stats;
+          this.applyDashboardStats(stats);
         }
       },
       error: () => { }
@@ -722,10 +822,17 @@ export class LearnerDashboard implements OnInit {
   }
 
   loadUpcomingLiveClasses() {
-    this.isLoadingLiveClass.set(true);
+    if (LearnerDashboard.cachedUpcomingClasses.length > 0) {
+      this.allUpcomingClasses.set(LearnerDashboard.cachedUpcomingClasses);
+      this.upcomingLiveClass.set(LearnerDashboard.cachedUpcomingClasses[0]);
+      this.isLoadingLiveClass.set(false);
+    } else {
+      this.isLoadingLiveClass.set(true);
+    }
     this.http.get<LiveClassItem[]>(`${environment.apiUrl}/live-classes/upcoming`).subscribe({
       next: (classes) => {
         const validClasses = classes || [];
+        LearnerDashboard.cachedUpcomingClasses = validClasses;
         this.allUpcomingClasses.set(validClasses);
         if (validClasses.length > 0) {
           this.upcomingLiveClass.set(validClasses[0]);
@@ -739,6 +846,7 @@ export class LearnerDashboard implements OnInit {
         this.http.get<LiveClassItem[]>(`${environment.apiUrl}/live-classes`).subscribe({
           next: (all) => {
             const active = (all || []).filter(c => c.status !== 'completed' && c.status !== 'cancelled');
+            LearnerDashboard.cachedUpcomingClasses = active;
             this.allUpcomingClasses.set(active);
             this.upcomingLiveClass.set(active.length > 0 ? active[0] : null);
             this.isLoadingLiveClass.set(false);
@@ -825,9 +933,14 @@ export class LearnerDashboard implements OnInit {
   }
 
   fetchCourses() {
+    if (LearnerDashboard.cachedCourses.length > 0) {
+      this.courses.set(LearnerDashboard.cachedCourses);
+      this.isLoading.set(false);
+    }
     this.http.get<Course[]>(`${environment.apiUrl}/courses`).subscribe({
       next: (data) => {
-        const activeCourses = data.filter(c => c.is_active);
+        const activeCourses = (data || []).filter(c => c.is_active);
+        LearnerDashboard.cachedCourses = activeCourses;
         this.courses.set(activeCourses);
         this.isLoading.set(false);
       },
@@ -865,8 +978,10 @@ export class LearnerDashboard implements OnInit {
     }
   }
 
-  playCourse(course: Course, event: MouseEvent) {
-    event.preventDefault();
+  playCourse(course: Course, event?: MouseEvent | Event) {
+    if (event) {
+      event.preventDefault();
+    }
     const url = `${environment.apiUrl}/courses/${course.id}/player-structure`;
     this.http.get<any>(url).subscribe({
       next: (structure) => {
@@ -1640,6 +1755,27 @@ export class LearnerDashboard implements OnInit {
     this.owlBubbleTimer = setTimeout(() => {
       this.owlSpeechBubble.set(null);
     }, 5000);
+  }
+
+  setProgressFilter(filter: 'all' | 'assessments' | 'practice' | 'games' | 'courses') {
+    this.progressFilter.set(filter);
+  }
+
+  openAssessmentFromProgress(assessmentId?: number) {
+    this.setTab('assessments');
+  }
+
+  openPracticeTopicFromProgress(topicId: string) {
+    this.setTab('practice');
+    this.openPracticeActivity(topicId as any);
+  }
+
+  openGameFromProgress() {
+    this.router.navigate(['/learn/games']);
+  }
+
+  openCourseFromProgress(course: Course) {
+    this.playCourse(course);
   }
 
   launchQuickPractice() {

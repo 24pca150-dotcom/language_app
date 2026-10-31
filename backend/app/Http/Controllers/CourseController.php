@@ -16,17 +16,26 @@ class CourseController extends Controller
         if ($user && $user->role === 'student' && $user->tenant_id) {
             $today = now()->toDateString();
             $assignments = $this->activeAssignmentsForTenant($user->tenant_id, $today);
+            $hasTenantAssignments = (clone $assignments)->whereNotNull('pp.course_id')->exists();
 
-            $query->where('courses.is_active', true)
-                ->whereIn('courses.id', (clone $assignments)->whereNotNull('pp.course_id')->select('pp.course_id')->distinct());
+            if ($hasTenantAssignments) {
+                $query->where('courses.is_active', true)
+                    ->whereIn('courses.id', (clone $assignments)->whereNotNull('pp.course_id')->select('pp.course_id')->distinct());
 
-            $activeMappings = DB::table('course_package_levels as cpl')
-                ->whereColumn('cpl.course_id', 'courses.id')
-                ->where('cpl.is_active', true)
-                ->whereIn('cpl.package_id', (clone $assignments)
-                    ->whereColumn('pp.course_id', 'cpl.course_id')
-                    ->select('pp.package_id'));
+                $activeMappings = DB::table('course_package_levels as cpl')
+                    ->whereColumn('cpl.course_id', 'courses.id')
+                    ->where('cpl.is_active', true)
+                    ->whereIn('cpl.package_id', (clone $assignments)
+                        ->whereColumn('pp.course_id', 'cpl.course_id')
+                        ->select('pp.package_id'));
+            } else {
+                $query->where('courses.is_active', true);
+                $activeMappings = DB::table('course_package_levels as cpl')
+                    ->whereColumn('cpl.course_id', 'courses.id')
+                    ->where('cpl.is_active', true);
+            }
         } else {
+            $query->where('courses.is_active', true);
             $activeMappings = DB::table('course_package_levels as cpl')
                 ->whereColumn('cpl.course_id', 'courses.id')
                 ->where('cpl.is_active', true);
@@ -46,10 +55,45 @@ class CourseController extends Controller
         ]);
 
         $courses = $query->latest()->get();
-        $courses->each(function ($course) {
+
+        // Attach user progress to courses if authenticated
+        $userId = $user ? $user->id : null;
+        $completedChapterIds = [];
+        if ($userId) {
+            $completedChapterQuery = DB::table('user_course_progress')
+                ->where('user_id', $userId)
+                ->where('status', 'completed')
+                ->whereNotNull('chapter_id');
+            if (\Schema::hasColumn('user_course_progress', 'content_id')) {
+                $completedChapterQuery->whereNull('content_id');
+            }
+            $completedChapterIds = $completedChapterQuery->pluck('chapter_id')->map(fn($id) => (int)$id)->toArray();
+        }
+
+        $courses->each(function ($course) use ($completedChapterIds) {
             if (isset($course->levels_count) && $course->levels_count > 0) {
                 $course->no_of_levels = $course->levels_count;
             }
+
+            $allChapterIds = DB::table('chapters')
+                ->join('level_chapter', 'chapters.id', '=', 'level_chapter.chapter_id')
+                ->join('levels', 'level_chapter.level_id', '=', 'levels.id')
+                ->join('course_package_levels', 'levels.id', '=', 'course_package_levels.level_id')
+                ->where('course_package_levels.course_id', $course->id)
+                ->where('chapters.is_active', true)
+                ->pluck('chapters.id')
+                ->map(fn($id) => (int)$id)
+                ->unique()
+                ->toArray();
+
+            $total = count($allChapterIds);
+            $done = count(array_intersect($allChapterIds, $completedChapterIds));
+            $pct = $total > 0 ? round(($done / $total) * 100, 1) : 0;
+
+            $course->total_chapters = $total;
+            $course->completed_chapters = $done;
+            $course->progress = $total > 0 ? round($done / $total, 4) : 0.0;
+            $course->percentage = $pct;
         });
 
         return response()->json($courses);
@@ -91,6 +135,7 @@ class CourseController extends Controller
         $course->delete();
         return response()->noContent();
     }
+
     public function getPlayerStructure(Course $course, Request $request)
     {
         $user = $request->user();
@@ -98,6 +143,9 @@ class CourseController extends Controller
         $tenantAssignments = $user && $user->role === 'student' && $user->tenant_id
             ? $this->activeAssignmentsForTenant($user->tenant_id, $today)
             : null;
+        if ($tenantAssignments && !(clone $tenantAssignments)->exists()) {
+            $tenantAssignments = null;
+        }
 
         $structure = $course->load([
             'levels' => function ($query) use ($tenantAssignments) {
@@ -128,6 +176,40 @@ class CourseController extends Controller
                 $query->where('assessments.is_active', true);
             }
         ]);
+
+        // Attach user's completed chapters and progress to player structure
+        $userId = $user ? $user->id : null;
+        $completedChapterIds = [];
+        if ($userId) {
+            $completedChapterQuery = DB::table('user_course_progress')
+                ->where('user_id', $userId)
+                ->where('status', 'completed')
+                ->whereNotNull('chapter_id');
+            if (\Schema::hasColumn('user_course_progress', 'content_id')) {
+                $completedChapterQuery->whereNull('content_id');
+            }
+            $completedChapterIds = $completedChapterQuery->pluck('chapter_id')->map(fn($id) => (int)$id)->toArray();
+        }
+
+        if ($structure->relationLoaded('levels')) {
+            foreach ($structure->levels as $level) {
+                if ($level->relationLoaded('chapters')) {
+                    foreach ($level->chapters as $chapter) {
+                        $isDone = in_array((int)$chapter->id, $completedChapterIds);
+                        $chapter->is_completed = $isDone;
+                        $chapter->progress = $isDone ? 1.0 : 0.0;
+                    }
+                }
+            }
+
+            $allChapterIds = $structure->levels->flatMap->chapters->pluck('id')->map(fn($id) => (int)$id)->toArray();
+            $total = count($allChapterIds);
+            $done = count(array_intersect($allChapterIds, $completedChapterIds));
+            $structure->total_chapters = $total;
+            $structure->completed_chapters = $done;
+            $structure->progress = $total > 0 ? round($done / $total, 4) : 0.0;
+            $structure->percentage = $total > 0 ? round(($done / $total) * 100, 1) : 0;
+        }
 
         return response()->json($structure);
     }

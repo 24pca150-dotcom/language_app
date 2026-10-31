@@ -20,6 +20,7 @@ import { FlappyWordComponent, FlappyWordData } from '../flappy-word/flappy-word'
 import { SpaceDefenderComponent, SpaceDefenderData } from '../space-defender/space-defender';
 import { BalloonPopComponent, BalloonPopData } from '../balloon-pop/balloon-pop';
 
+
 export interface NormalizedActivity {
   type: 'mcq' | 'fill_blanks' | 'flashcard' | 'match' | 'crossword' | 'word_arrange' | 'speaking' | 'role_play' | 'sequencing' | 'parts_of_speech' | 'mind_map' | 'writing' | 'custom' | 'car_racer' | 'word_ninja' | 'flappy_word' | 'space_defender' | 'balloon_pop';
   question?: string;
@@ -36,7 +37,7 @@ export interface NormalizedActivity {
   allowDragDrop?: boolean;
   allowClickMatch?: boolean;
   enableAudio?: boolean;
-  
+
   // MCQ and Fill Blanks enhancements
   audioUrl?: string;
   imageUrl?: string;
@@ -194,7 +195,8 @@ export class ActivityRenderer implements OnChanges, OnDestroy {
     if (raw && (raw.type === 'activity' || !raw.question) && raw.data && typeof raw.data === 'object') {
       raw = { ...raw.data, ...raw, type: raw.data.type || raw.type };
     }
-    
+
+
     // 1. Determine type
     let typeInput = raw.type || raw.question_type || 'mcq';
     let type: NormalizedActivity['type'] = 'mcq';
@@ -277,11 +279,11 @@ export class ActivityRenderer implements OnChanges, OnDestroy {
         result: pair.result ?? ''
       }));
       normalized.theme = raw.theme ?? additional.theme ?? (typeInput.toLowerCase().includes('cloud') ? 'cloud' : 'standard');
-      
+
       const rawMode = raw.matchMode ?? additional.matchMode;
       normalized.allowDragDrop = !!(raw.allowDragDrop ?? additional.allowDragDrop ?? (rawMode !== 'click_match'));
       normalized.allowClickMatch = !!(raw.allowClickMatch ?? additional.allowClickMatch ?? (rawMode !== 'drag_drop'));
-      
+
       normalized.enableAudio = !!(raw.enableAudio ?? additional.enableAudio ?? false);
     } else if (type === 'crossword') {
       normalized.gridSize = raw.gridSize || additional.gridSize || 10;
@@ -302,11 +304,11 @@ export class ActivityRenderer implements OnChanges, OnDestroy {
         if (rawRole.includes('student') || rawRole.includes('learner') || rawRole.includes('pupil') || rawRole === 'user') {
           mappedRole = 'student';
         }
-        
+
         let name = line.name || line.role || '';
         if (name.toLowerCase() === 'system') name = 'Interviewer';
         if (name.toLowerCase() === 'student') name = 'Student';
-        
+
         return {
           role: mappedRole,
           name: name,

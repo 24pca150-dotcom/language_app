@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../services/course_service.dart';
 import '../theme/app_theme.dart';
+import 'balloon_pop_screen.dart';
 import 'chapter_content_screen.dart';
 import 'fill_blanks_game_screen.dart';
+import 'flashcard_game_screen.dart';
+import 'flappy_word_screen.dart';
+import 'highway_racer_screen.dart';
 import 'match_game_screen.dart';
 import 'mcq_game_screen.dart';
+import 'word_ninja_screen.dart';
 
 class LearnScreen extends StatefulWidget {
   final bool isActive;
@@ -47,6 +52,9 @@ class _LearnScreenState extends State<LearnScreen> {
         setState(() {
           _courses = list;
           _isLoading = false;
+          if (_selectedCourse == null && list.isNotEmpty) {
+            _selectedCourse = list.first;
+          }
         });
       }
     } catch (error) {
@@ -95,7 +103,7 @@ class _LearnScreenState extends State<LearnScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppTheme.bgLight,
       appBar: AppBar(
         backgroundColor: AppTheme.navBarGreen,
         elevation: 0,
@@ -103,11 +111,11 @@ class _LearnScreenState extends State<LearnScreen> {
           bottom: BorderSide(color: AppTheme.navBarGreenBorder, width: 1.2),
         ),
         surfaceTintColor: Colors.transparent,
-        iconTheme: const IconThemeData(color: Color(0xFF14361F)),
+        iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
           'My Courses',
           style: TextStyle(
-            color: Color(0xFF14361F),
+            color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -116,8 +124,9 @@ class _LearnScreenState extends State<LearnScreen> {
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: const Color(0xFFFEF3C7),
+              color: const Color(0xFF1E293B),
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFF283548), width: 1),
             ),
             child: Row(
               children: [
@@ -127,7 +136,7 @@ class _LearnScreenState extends State<LearnScreen> {
                   '${_courses.length} Courses',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFFD97706),
+                    color: Color(0xFFFBBF24),
                     fontSize: 11,
                   ),
                 ),
@@ -258,12 +267,12 @@ class _LearnScreenState extends State<LearnScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF161F38),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+        border: Border.all(color: const Color(0xFF283548), width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: courseColor.withValues(alpha: 0.08),
+            color: courseColor.withValues(alpha: 0.12),
             blurRadius: 18,
             offset: const Offset(0, 6),
           ),
@@ -342,7 +351,7 @@ class _LearnScreenState extends State<LearnScreen> {
                   child: LinearProgressIndicator(
                     value: course.progress,
                     minHeight: 8,
-                    backgroundColor: const Color(0xFFF1F5F9),
+                    backgroundColor: const Color(0xFF1E293B),
                     valueColor: AlwaysStoppedAnimation<Color>(courseColor),
                   ),
                 ),
@@ -429,6 +438,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
       Color(0xFF6366F1), // Indigo
       Color(0xFFF59E0B), // Amber
       Color(0xFFEC4899), // Pink
+      Color(0xFF8B5CF6), // Purple for Gerunds
     ];
     return colors[index % colors.length];
   }
@@ -440,373 +450,9 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
     });
   }
 
-  void _openLessonDialog(MobileChapter chapter, Color color, String levelName) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        final bottomInset = MediaQuery.of(context).viewPadding.bottom;
-        return Container(
-          padding: EdgeInsets.fromLTRB(
-            24,
-            20,
-            24,
-            bottomInset > 0 ? bottomInset + 20 : 36,
-          ),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-              Text(
-                chapter.name,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                chapter.description ??
-                    'Interactive lessons, examples, and practice tests.',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppTheme.cardBorder),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.video_library_rounded,
-                          color: color,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          '${chapter.contentsCount} Interactive Learning Contents',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.assignment_turned_in_rounded,
-                          color: AppTheme.secondary,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          '${chapter.assessmentsCount} Comprehensive Assessment',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 52,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _navigateToChapter(chapter, levelName);
-                        },
-                        icon: const Icon(Icons.menu_book_rounded, size: 18),
-                        label: const Text(
-                          'Read Lessons',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primary,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: SizedBox(
-                      height: 52,
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _openChapterActivitiesSheet(chapter);
-                        },
-                        icon: const Icon(
-                          Icons.sports_esports_rounded,
-                          size: 18,
-                          color: Color(0xFF6366F1),
-                        ),
-                        label: const Text(
-                          'Activities',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            color: Color(0xFF6366F1),
-                          ),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(
-                            color: Color(0xFF6366F1),
-                            width: 1.5,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-            ],
-          ),
-        );
-      },
-    );
-  }
 
-  void _openChapterActivitiesSheet(MobileChapter chapter) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        final bottomInset = MediaQuery.of(context).viewPadding.bottom;
-        return Container(
-          padding: EdgeInsets.fromLTRB(
-            24,
-            20,
-            24,
-            bottomInset > 0 ? bottomInset + 20 : 36,
-          ),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF6366F1).withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Icon(
-                      Icons.extension_rounded,
-                      color: Color(0xFF6366F1),
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${chapter.name} - Activities',
-                          style: const TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        const Text(
-                          'Choose an activity to practice this chapter',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
 
-              _buildActivityTile(
-                title: 'MCQ Arena Challenge',
-                subtitle: '5 speed questions testing chapter grammar & terms',
-                icon: Icons.quiz_rounded,
-                color: const Color(0xFF6366F1),
-                xp: '+100 XP',
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          McqGameScreen(title: '${chapter.name} - MCQ'),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 12),
 
-              _buildActivityTile(
-                title: 'Match It: Word & Meaning Pairs',
-                subtitle: 'Pair chapter vocabulary with corresponding meanings',
-                icon: Icons.extension_rounded,
-                color: const Color(0xFF10B981),
-                xp: '+100 XP',
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          MatchGameScreen(title: '${chapter.name} - Match It'),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 12),
-
-              _buildActivityTile(
-                title: 'Fill in the Blanks: Sentence Builder',
-                subtitle: 'Place missing grammar chips into chapter sentences',
-                icon: Icons.edit_note_rounded,
-                color: const Color(0xFF8B5CF6),
-                xp: '+100 XP',
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => FillBlanksGameScreen(
-                        title: '${chapter.name} - Fill in Blanks',
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildActivityTile({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Color color,
-    required String xp,
-    required VoidCallback onTap,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.cardBorder),
-      ),
-      child: ListTile(
-        onTap: onTap,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        leading: Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: color, size: 22),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-            color: AppTheme.textPrimary,
-          ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
-        ),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            xp,
-            style: TextStyle(
-              color: color,
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -866,15 +512,17 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppTheme.bgLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        shadowColor: Colors.black26,
+        backgroundColor: const Color(0xFF161F38),
+        elevation: 0,
+        shape: const Border(
+          bottom: BorderSide(color: Color(0xFF283548), width: 1.2),
+        ),
         surfaceTintColor: Colors.transparent,
-        iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
+        iconTheme: const IconThemeData(color: Colors.white),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF0F172A)),
+          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
           onPressed: () {
             if (widget.onBack != null) {
               widget.onBack!();
@@ -886,7 +534,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
         title: Text(
           widget.course.name,
           style: const TextStyle(
-            color: Color(0xFF0F172A),
+            color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -895,8 +543,9 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: const Color(0xFFFEF3C7),
+              color: const Color(0xFF1E293B),
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFF283548), width: 1),
             ),
             child: Row(
               children: [
@@ -906,7 +555,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                   widget.course.code,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFFD97706),
+                    color: Color(0xFFFBBF24),
                     fontSize: 11,
                   ),
                 ),
@@ -929,12 +578,12 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: const Color(0xFF161F38),
                   borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  border: Border.all(color: const Color(0xFF283548)),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
+                      color: Colors.black.withValues(alpha: 0.15),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -1019,7 +668,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                 style: TextStyle(
                   fontSize: 19,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF0F172A),
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(height: 14),
@@ -1079,7 +728,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                             vertical: 10,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: const Color(0xFF161F38),
                             borderRadius: BorderRadius.circular(18),
                             border: Border.all(
                               color: levelColor.withValues(alpha: 0.4),
@@ -1087,7 +736,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: levelColor.withValues(alpha: 0.08),
+                                color: levelColor.withValues(alpha: 0.12),
                                 blurRadius: 10,
                                 offset: const Offset(0, 3),
                               ),
@@ -1156,6 +805,98 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
     );
   }
 
+  void _launchActivity(MobileActivityInfo activity, MobileChapter chapter) {
+    Widget targetScreen;
+    final title = '${chapter.name} - ${activity.title}';
+    switch (activity.type) {
+      case 'word_ninja':
+        targetScreen = WordNinjaScreen(title: title);
+        break;
+      case 'car_racer':
+        targetScreen = HighwayRacerScreen(title: title);
+        break;
+      case 'flappy_word':
+        targetScreen = FlappyWordScreen(title: title);
+        break;
+      case 'balloon_pop':
+        targetScreen = BalloonPopScreen(title: title);
+        break;
+      case 'flashcard':
+        targetScreen = FlashcardGameScreen(title: title);
+        break;
+      case 'match':
+        targetScreen = MatchGameScreen(title: title);
+        break;
+      case 'fill_blanks':
+      case 'writing':
+        targetScreen = FillBlanksGameScreen(title: title);
+        break;
+      case 'mcq':
+      case 'space_defender':
+      case 'crossword':
+      case 'word_arrange':
+      default:
+        targetScreen = McqGameScreen(title: title);
+        break;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => targetScreen),
+    );
+  }
+
+  Color _getActivityColor(String type) {
+    switch (type) {
+      case 'word_ninja':
+        return const Color(0xFFE11D48); // Rose
+      case 'car_racer':
+        return const Color(0xFF0284C7); // Sky Blue
+      case 'flappy_word':
+        return const Color(0xFF0D9488); // Teal
+      case 'balloon_pop':
+        return const Color(0xFFD946EF); // Fuchsia
+      case 'flashcard':
+        return const Color(0xFFD97706); // Amber
+      case 'match':
+        return const Color(0xFF10B981); // Emerald
+      case 'fill_blanks':
+      case 'writing':
+        return const Color(0xFF8B5CF6); // Purple
+      case 'mcq':
+      default:
+        return const Color(0xFF6366F1); // Indigo
+    }
+  }
+
+  IconData _getActivityIcon(String type) {
+    switch (type) {
+      case 'word_ninja':
+        return Icons.sports_kabaddi_rounded;
+      case 'car_racer':
+        return Icons.directions_car_rounded;
+      case 'flappy_word':
+        return Icons.flutter_dash_rounded;
+      case 'balloon_pop':
+        return Icons.celebration_rounded;
+      case 'flashcard':
+        return Icons.style_rounded;
+      case 'match':
+        return Icons.extension_rounded;
+      case 'fill_blanks':
+        return Icons.edit_note_rounded;
+      case 'writing':
+        return Icons.border_color_rounded;
+      case 'space_defender':
+        return Icons.rocket_launch_rounded;
+      case 'crossword':
+        return Icons.grid_on_rounded;
+      case 'mcq':
+      default:
+        return Icons.quiz_rounded;
+    }
+  }
+
   Widget _buildChapterCard(
     MobileChapter chapter,
     Color color,
@@ -1165,129 +906,303 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
     final double progress = chapter.progress;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF161F38),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(
           color: progress > 0
               ? color.withValues(alpha: 0.4)
-              : const Color(0xFFE2E8F0),
+              : const Color(0xFF283548),
           width: progress > 0 ? 1.5 : 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: progress > 0 ? 0.08 : 0.03),
-            blurRadius: 12,
+            color: color.withValues(alpha: progress > 0 ? 0.12 : 0.05),
+            blurRadius: 14,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(20),
-          onTap: () => _openLessonDialog(chapter, color, levelName),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Chapter Header Row
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          isCompleted
-                              ? Icons.check_circle_rounded
-                              : (progress > 0
-                                    ? Icons.play_arrow_rounded
-                                    : Icons.lock_outline_rounded),
-                          color: color,
-                          size: 24,
-                        ),
-                      ),
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      isCompleted
+                          ? Icons.check_circle_rounded
+                          : (progress > 0
+                                ? Icons.play_arrow_rounded
+                                : Icons.menu_book_rounded),
+                      color: color,
+                      size: 24,
                     ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            chapter.name,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.textPrimary,
-                            ),
-                          ),
-                          if (chapter.description != null &&
-                              chapter.description!.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            Text(
-                              chapter.description!,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: AppTheme.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                // Progress bar
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 6,
-                    backgroundColor: const Color(0xFFF1F5F9),
-                    valueColor: AlwaysStoppedAnimation<Color>(color),
                   ),
                 ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '${chapter.contentsCount} Lessons • ${chapter.assessmentsCount} Quiz',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textMuted,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.bolt_rounded,
-                          size: 16,
-                          color: Color(0xFFD97706),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        chapter.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
                         ),
+                      ),
+                      if (chapter.description != null &&
+                          chapter.description!.isNotEmpty) ...[
+                        const SizedBox(height: 4),
                         Text(
-                          '+${chapter.contentsCount * 20} XP',
+                          chapter.description!,
                           style: const TextStyle(
                             fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFFD97706),
+                            color: AppTheme.textSecondary,
                           ),
                         ),
                       ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+
+            // Progress bar
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 6,
+                backgroundColor: const Color(0xFF1E293B),
+                valueColor: AlwaysStoppedAnimation<Color>(color),
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '${chapter.contents.length} Lessons • ${chapter.activities.length} Activities',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textMuted,
+                  ),
+                ),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.bolt_rounded,
+                      size: 16,
+                      color: Color(0xFFD97706),
+                    ),
+                    Text(
+                      '+${chapter.activities.length * 50 + chapter.contents.length * 25} XP',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFD97706),
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
-          ),
+
+            // 📖 MAPPED LESSONS & CONTENT SECTION
+            if (chapter.contents.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              const Divider(height: 1, color: Color(0xFF283548)),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Icon(Icons.menu_book_rounded, size: 16, color: AppTheme.primary),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Lessons & Content (${chapter.contents.length})',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ...chapter.contents.map((content) {
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFF283548)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: AppTheme.primary.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.article_rounded, size: 16, color: AppTheme.primary),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              content.title.isNotEmpty ? content.title : content.name,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.textPrimary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const Text(
+                              'Interactive Audio & Vocabulary Lesson',
+                              style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                            ),
+                          ],
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => _navigateToChapter(chapter, levelName),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          elevation: 0,
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('Read', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                            SizedBox(width: 4),
+                            Icon(Icons.arrow_forward_rounded, size: 12),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+
+            // 🎮 MAPPED ACTIVITIES & GAMES SECTION
+            if (chapter.activities.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Icon(Icons.sports_esports_rounded, size: 16, color: Color(0xFF6366F1)),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Practice Activities & Games (${chapter.activities.length})',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ...chapter.activities.map((act) {
+                final actColor = _getActivityColor(act.type);
+                final actIcon = _getActivityIcon(act.type);
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFF283548)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: actColor.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(actIcon, size: 18, color: actColor),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              act.title,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.textPrimary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              act.subtitle,
+                              style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      OutlinedButton(
+                        onPressed: () => _launchActivity(act, chapter),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: actColor,
+                          side: BorderSide(color: actColor, width: 1.2),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('Play', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                            SizedBox(width: 4),
+                            Icon(Icons.play_arrow_rounded, size: 14),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ],
         ),
       ),
     );

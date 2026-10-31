@@ -52,7 +52,10 @@ class DatabaseSeeder extends Seeder
             DB::table('tenants')->where('tenant_code', '!=', 'SCH-001')->delete();
         }
         if (Schema::hasTable('users')) {
-            DB::table('users')->whereNotIn('username', ['superadmin', 'coordinator', 'karthik_std'])->delete();
+            DB::table('users')->whereNotIn('username', [
+                'superadmin', 'coordinator', 'staff', 'karthik', 'karthik_std',
+                'priya', 'rahul', 'ananya', 'vijay', 'divya'
+            ])->delete();
         }
         
         Schema::enableForeignKeyConstraints();
@@ -94,20 +97,43 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 5. Seed Student
-        User::updateOrCreate(
-            ['username' => 'karthik'],
-            [
-                'name' => 'Karthik',
-                'email' => null,
-                'password' => Hash::make('student123'),
-                'role' => 'student',
-                'tenant_id' => $tenant->id,
-            ]
+        // 5. Seed Students
+        $studentsToSeed = [
+            ['username' => 'karthik', 'name' => 'Karthik', 'email' => 'karthik@ariga.school'],
+            ['username' => 'priya', 'name' => 'Priya Sharma', 'email' => 'priya@ariga.school'],
+            ['username' => 'rahul', 'name' => 'Rahul Kumar', 'email' => 'rahul@ariga.school'],
+            ['username' => 'ananya', 'name' => 'Ananya Patel', 'email' => 'ananya@ariga.school'],
+            ['username' => 'vijay', 'name' => 'Vijay Raj', 'email' => 'vijay@ariga.school'],
+            ['username' => 'divya', 'name' => 'Divya Mohan', 'email' => 'divya@ariga.school'],
+        ];
+
+        foreach ($studentsToSeed as $std) {
+            User::updateOrCreate(
+                ['username' => $std['username']],
+                [
+                    'name' => $std['name'],
+                    'email' => $std['email'],
+                    'password' => Hash::make('student123'),
+                    'role' => 'student',
+                    'tenant_id' => $tenant->id,
+                ]
+            );
+        }
+
+        \App\Models\LearningMode::firstOrCreate(
+            ['code' => 'BEGINNER'],
+            ['name' => 'Beginner', 'description' => 'Beginner Track', 'is_active' => true]
+        );
+        \App\Models\LearningMode::firstOrCreate(
+            ['code' => 'CHILDEREN'],
+            ['name' => 'Children', 'description' => 'Children Track', 'is_active' => true]
         );
 
-        $this->call(CurriculumMasterSeeder::class);
-        $this->call(ActivitySeeder::class);
+        $this->call(ListeningSkillSeeder::class);
+        $this->call(ReadingSkillSeeder::class);
+        $this->call(SpeakingSkillSeeder::class);
+        $this->call(WritingSkillSeeder::class);
+        $this->call(AllActivitiesSeeder::class);
     }
 }
 

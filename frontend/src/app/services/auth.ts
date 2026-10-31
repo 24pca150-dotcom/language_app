@@ -11,6 +11,12 @@ export interface UserData {
   role: string;
   tenant_id?: number;
   dob?: string | null;
+  xp?: number;
+  xp_points?: number;
+  gems?: number;
+  coins?: number;
+  streak?: number;
+  streak_days?: number;
 }
 
 export interface AuthResponse {

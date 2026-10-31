@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../data/game_question_bank.dart';
 
 class FillBlanksGameScreen extends StatefulWidget {
   final String title;
@@ -32,54 +33,34 @@ class _BlankQuestion {
 
 class _FillBlanksGameScreenState extends State<FillBlanksGameScreen> {
   int _score = 0;
-  int _lives = 3;
+  int _lives = 5;
   int _currentIndex = 0;
   String? _selectedWord;
   bool _answered = false;
   String _gameState = 'playing'; // 'playing', 'victory', 'gameover'
 
-  final List<_BlankQuestion> _questions = [
-    _BlankQuestion(
-      prompt: 'Select the missing auxiliary verb:',
-      beforeBlank: 'She',
-      afterBlank: 'reading a fascinating novel right now.',
-      correctWord: 'is',
-      choices: ['is', 'are', 'were', 'have'],
-      translation: 'She is reading a fascinating novel right now.',
-    ),
-    _BlankQuestion(
-      prompt: 'Select the missing preposition:',
-      beforeBlank: 'The meeting is scheduled',
-      afterBlank: 'Monday morning at 10 AM.',
-      correctWord: 'for',
-      choices: ['for', 'at', 'into', 'from'],
-      translation: 'The meeting is scheduled for Monday morning at 10 AM.',
-    ),
-    _BlankQuestion(
-      prompt: 'Choose the correct comparative adjective:',
-      beforeBlank: 'Mount Everest is',
-      afterBlank: 'than any other mountain on Earth.',
-      correctWord: 'taller',
-      choices: ['taller', 'tallest', 'more tall', 'tall'],
-      translation: 'Mount Everest is taller than any other mountain on Earth.',
-    ),
-    _BlankQuestion(
-      prompt: 'Select the correct conjunction:',
-      beforeBlank: 'He wanted to go outside,',
-      afterBlank: 'it started raining heavily.',
-      correctWord: 'but',
-      choices: ['but', 'so', 'because', 'although'],
-      translation: 'He wanted to go outside, but it started raining heavily.',
-    ),
-    _BlankQuestion(
-      prompt: 'Choose the correct relative pronoun:',
-      beforeBlank: 'The doctor',
-      afterBlank: 'treated me was very polite and kind.',
-      correctWord: 'who',
-      choices: ['who', 'which', 'whose', 'whom'],
-      translation: 'The doctor who treated me was very polite and kind.',
-    ),
-  ];
+  final List<_BlankQuestion> _questions = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _setupQuestions();
+  }
+
+  void _setupQuestions() {
+    _questions.clear();
+    final randomPool = GameQuestionBank.getRandomBlankQuestions(5);
+    for (var q in randomPool) {
+      _questions.add(_BlankQuestion(
+        prompt: q['prompt'] as String,
+        beforeBlank: q['beforeBlank'] as String,
+        afterBlank: q['afterBlank'] as String,
+        correctWord: q['correctWord'] as String,
+        choices: List<String>.from(q['choices'] as List),
+        translation: q['translation'] as String,
+      ));
+    }
+  }
 
   void _chooseWord(String word) {
     if (_answered || _gameState != 'playing') return;
@@ -114,9 +95,10 @@ class _FillBlanksGameScreenState extends State<FillBlanksGameScreen> {
   }
 
   void _restart() {
+    _setupQuestions();
     setState(() {
       _score = 0;
-      _lives = 3;
+      _lives = 5;
       _currentIndex = 0;
       _selectedWord = null;
       _answered = false;
@@ -160,6 +142,33 @@ class _FillBlanksGameScreenState extends State<FillBlanksGameScreen> {
               borderRadius: BorderRadius.circular(22),
               child: Stack(
                 children: [
+                  // 1. 🌲 Enchanted Magical Forest Background
+                  Positioned.fill(
+                    child: Image.asset(
+                      'assets/images/game_magic_forest.jpg',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(color: const Color(0xFF1E293B)),
+                    ),
+                  ),
+
+                  // 2. Dark Forest Vignette Gradient Overlay
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withValues(alpha: 0.72),
+                            Colors.black.withValues(alpha: 0.45),
+                            Colors.black.withValues(alpha: 0.85),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // 3. Main Game Layout
                   Column(
                     children: [
                       // Top HUD
@@ -183,14 +192,14 @@ class _FillBlanksGameScreenState extends State<FillBlanksGameScreen> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.2),
+                                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: const Color(0xFF8B5CF6)),
+                                  border: Border.all(color: const Color(0xFFA78BFA)),
                                 ),
                                 child: Text(
-                                  q.prompt,
+                                  '✨ ${q.prompt}',
                                   style: const TextStyle(
-                                    color: Color(0xFFA78BFA),
+                                    color: Color(0xFFDDD6FE),
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -203,9 +212,19 @@ class _FillBlanksGameScreenState extends State<FillBlanksGameScreen> {
                                 width: double.infinity,
                                 padding: const EdgeInsets.all(20),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF0F172A),
+                                  color: Colors.black.withValues(alpha: 0.65),
                                   borderRadius: BorderRadius.circular(18),
-                                  border: Border.all(color: Colors.white12, width: 1.5),
+                                  border: Border.all(
+                                    color: const Color(0xFFA78BFA).withValues(alpha: 0.6),
+                                    width: 1.5,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFF8B5CF6).withValues(alpha: 0.2),
+                                      blurRadius: 16,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
                                 ),
                                 child: Wrap(
                                   crossAxisAlignment: WrapCrossAlignment.center,
@@ -406,36 +425,49 @@ class _FillBlanksGameScreenState extends State<FillBlanksGameScreen> {
   Widget _buildTopHud() {
     return Container(
       color: const Color(0xFF0F172A),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 20),
-              const SizedBox(width: 6),
+              const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 18),
+              const SizedBox(width: 4),
               Text(
                 '$_score',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
               ),
             ],
           ),
-          Text(
-            'CHALLENGE ${_currentIndex + 1}/${_questions.length}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-              fontSize: 13,
-              letterSpacing: 0.8,
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                'CHALLENGE ${_currentIndex + 1}/${_questions.length}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 11,
+                  letterSpacing: 0.5,
+                ),
+              ),
             ),
           ),
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: List.generate(
-              3,
-              (i) => Icon(
-                i < _lives ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                color: i < _lives ? const Color(0xFFEF4444) : Colors.white24,
-                size: 18,
+              5,
+              (i) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0.5),
+                child: Icon(
+                  i < _lives ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                  color: i < _lives ? const Color(0xFFEF4444) : Colors.white24,
+                  size: 14,
+                ),
               ),
             ),
           ),

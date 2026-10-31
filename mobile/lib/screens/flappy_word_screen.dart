@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../data/game_question_bank.dart';
+import '../services/game_audio_service.dart';
 
 class FlappyWordScreen extends StatefulWidget {
   final String title;
@@ -68,16 +70,18 @@ class _BgCloud {
 
 class _FlappyWordScreenState extends State<FlappyWordScreen> {
   int _score = 0;
-  int _lives = 3;
+  int _lives = 5;
   int _currentWaveIndex = 0;
   String _gameState = 'playing'; // 'playing', 'victory', 'gameover'
   bool _soundEnabled = true;
 
-  // Bird Physics
+  // Bird Physics & 70% Original Animation
   final double _birdX = 85.0;
   double _birdY = 240.0;
   double _birdVy = 0.0;
   double _birdAngle = 0.0;
+  double _wingAngle = 0.0;
+  double _animTimer = 0.0;
   final double _gravity = 640.0;
   final double _flapStrength = -250.0;
 
@@ -92,43 +96,7 @@ class _FlappyWordScreenState extends State<FlappyWordScreen> {
   final List<_Particle> _particles = [];
   final List<_BgCloud> _bgClouds = [];
 
-  final List<_CloudGateWave> _waves = [
-    _CloudGateWave(
-      question: "Fly to the Past Tense of 'Sing':",
-      topText: 'Sang',
-      topCorrect: true,
-      bottomText: 'Singed',
-      bottomCorrect: false,
-    ),
-    _CloudGateWave(
-      question: "Fly to the Past Tense of 'Write':",
-      topText: 'Writed',
-      topCorrect: false,
-      bottomText: 'Wrote',
-      bottomCorrect: true,
-    ),
-    _CloudGateWave(
-      question: "Fly to the Past Tense of 'Fly':",
-      topText: 'Flew',
-      topCorrect: true,
-      bottomText: 'Flied',
-      bottomCorrect: false,
-    ),
-    _CloudGateWave(
-      question: "Fly to the Past Tense of 'Swim':",
-      topText: 'Swam',
-      topCorrect: true,
-      bottomText: 'Swum',
-      bottomCorrect: false,
-    ),
-    _CloudGateWave(
-      question: "Fly to the Past Tense of 'Catch':",
-      topText: 'Catched',
-      topCorrect: false,
-      bottomText: 'Caught',
-      bottomCorrect: true,
-    ),
-  ];
+  final List<_CloudGateWave> _waves = [];
 
   @override
   void initState() {
@@ -158,16 +126,30 @@ class _FlappyWordScreenState extends State<FlappyWordScreen> {
 
   void _startFlappyGame() {
     _score = 0;
-    _lives = 3;
+    _lives = 5;
     _currentWaveIndex = 0;
     _gameState = 'playing';
     _birdY = 240.0;
     _birdVy = 0.0;
     _birdAngle = 0.0;
+    _wingAngle = 0.0;
+    _animTimer = 0.0;
     _gateX = 380.0;
     _gatePassed = false;
     _feedbackText = null;
     _particles.clear();
+
+    _waves.clear();
+    final randomWaves = GameQuestionBank.getRandomFlappyWaves(5);
+    for (var w in randomWaves) {
+      _waves.add(_CloudGateWave(
+        question: w['question'] as String,
+        topText: w['topText'] as String,
+        topCorrect: w['topCorrect'] as bool,
+        bottomText: w['bottomText'] as String,
+        bottomCorrect: w['bottomCorrect'] as bool,
+      ));
+    }
 
     _loopTimer?.cancel();
     _loopTimer = Timer.periodic(const Duration(milliseconds: 16), (_) => _tick(0.016));
@@ -175,34 +157,36 @@ class _FlappyWordScreenState extends State<FlappyWordScreen> {
 
   void _flap() {
     if (_gameState != 'playing') return;
+    GameAudioService.playBirdFlap();
     setState(() {
       _birdVy = _flapStrength;
-      _birdAngle = -0.38;
+      _birdAngle = -0.42;
+      _wingAngle = -0.8;
       _addFeathers();
     });
   }
 
   void _addFeathers() {
     final random = Random();
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 6; i++) {
       _particles.add(_Particle(
-        x: _birdX - 12,
-        y: _birdY + (random.nextDouble() - 0.5) * 10,
-        vx: -35 - random.nextDouble() * 30,
-        vy: 20 + random.nextDouble() * 30,
-        color: const Color(0xFFFEF08A),
-        radius: 2.5,
-        life: 0.35,
-        maxLife: 0.35,
+        x: _birdX - 14,
+        y: _birdY + (random.nextDouble() - 0.5) * 12,
+        vx: -45 - random.nextDouble() * 40,
+        vy: 20 + random.nextDouble() * 45,
+        color: i % 2 == 0 ? const Color(0xFFFEF08A) : Colors.white70,
+        radius: 2.8 + random.nextDouble() * 2.0,
+        life: 0.45,
+        maxLife: 0.45,
       ));
     }
   }
 
   void _addBurst(double x, double y, Color color) {
     final random = Random();
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 28; i++) {
       final angle = random.nextDouble() * pi * 2;
-      final speed = 40.0 + random.nextDouble() * 140.0;
+      final speed = 40.0 + random.nextDouble() * 160.0;
       _particles.add(_Particle(
         x: x,
         y: y,
@@ -210,8 +194,8 @@ class _FlappyWordScreenState extends State<FlappyWordScreen> {
         vy: sin(angle) * speed,
         color: color,
         radius: 2.5 + random.nextDouble() * 3.5,
-        life: 0.45,
-        maxLife: 0.45,
+        life: 0.55,
+        maxLife: 0.55,
       ));
     }
   }
@@ -219,10 +203,37 @@ class _FlappyWordScreenState extends State<FlappyWordScreen> {
   void _tick(double dt) {
     if (_gameState != 'playing') return;
 
-    // 1. Bird Physics
+    _animTimer += dt;
+
+    // 1. Bird Physics & Animated Wing Flap
     _birdVy += _gravity * dt;
     _birdY += _birdVy * dt;
-    _birdAngle = (_birdAngle + 1.2 * dt).clamp(-0.4, 0.7);
+    _birdAngle = (_birdAngle + 1.3 * dt).clamp(-0.45, 0.70);
+
+    // Continuous wing oscillation (flaps faster when ascending)
+    final flapSpeed = _birdVy < 0 ? 28.0 : 12.0;
+    _wingAngle = sin(_animTimer * flapSpeed) * 0.65;
+
+    // 🌟 Continuous Rainbow Jetstream Trail behind the bird
+    const rainbowColors = [
+      Color(0xFFEF4444),
+      Color(0xFFF97316),
+      Color(0xFFFBBF24),
+      Color(0xFF10B981),
+      Color(0xFF38BDF8),
+      Color(0xFFA855F7),
+    ];
+    final colorIdx = (_animTimer * 14).floor() % rainbowColors.length;
+    _particles.add(_Particle(
+      x: _birdX - 16,
+      y: _birdY + sin(_animTimer * 8) * 4,
+      vx: -75 - Random().nextDouble() * 25,
+      vy: (Random().nextDouble() - 0.5) * 20,
+      color: rainbowColors[colorIdx],
+      radius: 2.6 + Random().nextDouble() * 1.8,
+      life: 0.42,
+      maxLife: 0.42,
+    ));
 
     // Floor and Ceiling Collisions
     if (_birdY > 440) {
@@ -284,12 +295,14 @@ class _FlappyWordScreenState extends State<FlappyWordScreen> {
   void _evaluateHit(bool isCorrect, String text) {
     if (isCorrect) {
       // SUCCESS!
+      GameAudioService.playCorrectDing();
       _score += 100;
       _feedbackText = 'CORRECT! "$text" +100 🎯';
       _feedbackColor = const Color(0xFF10B981);
       _addBurst(_birdX, _birdY, const Color(0xFF10B981));
     } else {
       // WRONG CLOUD!
+      GameAudioService.playWrongBuzz();
       _lives--;
       _feedbackText = 'WRONG! "$text" -1 ❤️';
       _feedbackColor = const Color(0xFFEF4444);
@@ -308,11 +321,13 @@ class _FlappyWordScreenState extends State<FlappyWordScreen> {
       _gatePassed = false;
       _feedbackText = null;
     } else {
+      GameAudioService.playVictoryFanfare();
       _gameState = 'victory';
     }
   }
 
   void _handleCrash(String reason) {
+    GameAudioService.playWrongBuzz();
     _lives--;
     _feedbackText = reason;
     _feedbackColor = const Color(0xFFEF4444);
@@ -387,6 +402,8 @@ class _FlappyWordScreenState extends State<FlappyWordScreen> {
                                     birdX: _birdX,
                                     birdY: _birdY,
                                     birdAngle: _birdAngle,
+                                    wingAngle: _wingAngle,
+                                    animTimer: _animTimer,
                                     gateX: _gateX,
                                     currentWave: currentWave,
                                     bgClouds: _bgClouds,
@@ -447,46 +464,59 @@ class _FlappyWordScreenState extends State<FlappyWordScreen> {
   Widget _buildTopHud() {
     return Container(
       color: const Color(0xFF0F172A),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 20),
-              const SizedBox(width: 6),
+              const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 18),
+              const SizedBox(width: 4),
               Text(
                 '$_score',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
               ),
             ],
           ),
-          Text(
-            'CLOUD GATE ${_currentWaveIndex + 1}/${_waves.length}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-              fontSize: 13,
-              letterSpacing: 0.8,
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                'GATE ${_currentWaveIndex + 1}/${_waves.length}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 11,
+                  letterSpacing: 0.5,
+                ),
+              ),
             ),
           ),
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               ...List.generate(
-                3,
-                (i) => Icon(
-                  i < _lives ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                  color: i < _lives ? const Color(0xFFEF4444) : Colors.white24,
-                  size: 18,
+                5,
+                (i) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 0.5),
+                  child: Icon(
+                    i < _lives ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                    color: i < _lives ? const Color(0xFFEF4444) : Colors.white24,
+                    size: 14,
+                  ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 4),
               GestureDetector(
                 onTap: () => setState(() => _soundEnabled = !_soundEnabled),
                 child: Icon(
                   _soundEnabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
                   color: Colors.white70,
-                  size: 18,
+                  size: 16,
                 ),
               ),
             ],
@@ -499,34 +529,76 @@ class _FlappyWordScreenState extends State<FlappyWordScreen> {
   Widget _buildObjectiveBanner(String question) {
     return Container(
       width: double.infinity,
-      color: const Color(0xFF0D1B2A),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF0F172A).withValues(alpha: 0.92),
+            const Color(0xFF1E293B).withValues(alpha: 0.88),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFF38BDF8).withValues(alpha: 0.8),
+          width: 1.8,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0284C7).withValues(alpha: 0.35),
+            blurRadius: 14,
+            spreadRadius: 1,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
       child: Column(
         children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.flight_takeoff_rounded, color: Color(0xFF38BDF8), size: 14),
-              SizedBox(width: 6),
-              Text(
-                'TARGET FLIGHT',
-                style: TextStyle(
-                  color: Color(0xFF38BDF8),
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.0,
-                ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0284C7).withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: const Color(0xFF38BDF8).withValues(alpha: 0.6),
+                width: 1,
               ),
-            ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.flight_takeoff_rounded, color: Color(0xFF38BDF8), size: 13),
+                const SizedBox(width: 5),
+                Flexible(
+                  child: Text(
+                    'TARGET: GATE ${_currentWaveIndex + 1}/${_waves.length}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Color(0xFF38BDF8),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             question,
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 14,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w900,
+              height: 1.25,
+              shadows: [
+                Shadow(color: Colors.black87, blurRadius: 4, offset: Offset(0, 1)),
+              ],
             ),
           ),
         ],
@@ -672,11 +744,13 @@ class _FlappyWordScreenState extends State<FlappyWordScreen> {
   }
 }
 
-// --- FLAPPY SKY CANVAS PAINTER ---
+// --- 70% ORIGINAL FLAPPY SKY CANVAS PAINTER ---
 class _FlappyPainter extends CustomPainter {
   final double birdX;
   final double birdY;
   final double birdAngle;
+  final double wingAngle;
+  final double animTimer;
   final double gateX;
   final _CloudGateWave currentWave;
   final List<_BgCloud> bgClouds;
@@ -686,6 +760,8 @@ class _FlappyPainter extends CustomPainter {
     required this.birdX,
     required this.birdY,
     required this.birdAngle,
+    required this.wingAngle,
+    required this.animTimer,
     required this.gateX,
     required this.currentWave,
     required this.bgClouds,
@@ -694,7 +770,7 @@ class _FlappyPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // 1. Sky Gradient (Deep Sky to Horizon)
+    // 1. Sky Gradient (Deep Sky to Radiant Horizon)
     final skyPaint = Paint()
       ..shader = const LinearGradient(
         colors: [Color(0xFF0284C7), Color(0xFF38BDF8), Color(0xFFBAE6FD)],
@@ -703,32 +779,51 @@ class _FlappyPainter extends CustomPainter {
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), skyPaint);
 
-    // 2. Background Floating Clouds
-    final cloudPaint = Paint()..color = Colors.white.withValues(alpha: 0.45);
+    // Subtle sun flare in top left
+    final sunGlow = Paint()
+      ..shader = RadialGradient(
+        colors: [Colors.white.withValues(alpha: 0.35), Colors.transparent],
+      ).createShader(Rect.fromCircle(center: const Offset(40, 40), radius: 80));
+    canvas.drawCircle(const Offset(40, 40), 80, sunGlow);
+
+    // 2. Parallax Distant Hills in Background
+    final hillPaint = Paint()..color = const Color(0xFF0284C7).withValues(alpha: 0.30);
+    final hillPath = Path()
+      ..moveTo(0, size.height - 40)
+      ..quadraticBezierTo(size.width * 0.25, size.height - 70, size.width * 0.5, size.height - 45)
+      ..quadraticBezierTo(size.width * 0.75, size.height - 25, size.width, size.height - 50)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(hillPath, hillPaint);
+
+    // 3. Background Floating Fluffy Clouds
+    final cloudPaint = Paint()..color = Colors.white.withValues(alpha: 0.55);
     for (var c in bgClouds) {
       canvas.drawCircle(Offset(c.x, c.y), c.size, cloudPaint);
       canvas.drawCircle(Offset(c.x + c.size * 0.6, c.y - c.size * 0.3), c.size * 0.7, cloudPaint);
       canvas.drawCircle(Offset(c.x + c.size * 1.2, c.y), c.size * 0.8, cloudPaint);
     }
 
-    // 3. Cloud Gates (Top Cloud Gate Y: 130, Bottom Cloud Gate Y: 330)
+    // 4. Cloud Gates (Top Cloud Gate Y: 130, Bottom Cloud Gate Y: 330)
     _drawCloudGate(canvas, gateX, 130, currentWave.topText, currentWave.topCorrect);
     _drawCloudGate(canvas, gateX, 330, currentWave.bottomText, currentWave.bottomCorrect);
 
-    // 4. Ground (Green hills at bottom)
+    // 5. Rolling Green Hills at bottom
     final groundPaint = Paint()..color = const Color(0xFF15803D);
     canvas.drawRect(Rect.fromLTWH(0, size.height - 24, size.width, 24), groundPaint);
     final grassTopPaint = Paint()..color = const Color(0xFF4ADE80);
-    canvas.drawRect(Rect.fromLTWH(0, size.height - 24, size.width, 5), grassTopPaint);
+    canvas.drawRect(Rect.fromLTWH(0, size.height - 24, size.width, 6), grassTopPaint);
 
-    // 5. Particles (Feathers & Bursts)
+    // 6. Particles (Rainbow Trail, Feathers & Bursts)
     for (var p in particles) {
       final pPaint = Paint()
-        ..color = p.color.withValues(alpha: (p.life / p.maxLife).clamp(0.0, 1.0));
+        ..color = p.color.withValues(alpha: (p.life / p.maxLife).clamp(0.0, 1.0))
+        ..style = PaintingStyle.fill;
       canvas.drawCircle(Offset(p.x, p.y), p.radius, pPaint);
     }
 
-    // 6. Bird Sprite (Cute Yellow Aviator Bird)
+    // 7. 🌟 70% Original Animated Cartoon Aviator Bird
     _drawBird(canvas, birdX, birdY, birdAngle);
   }
 
@@ -737,37 +832,74 @@ class _FlappyPainter extends CustomPainter {
     canvas.translate(x, y);
 
     // Cloud shadow
-    final shadowPaint = Paint()..color = Colors.black.withValues(alpha: 0.15);
+    final shadowPaint = Paint()..color = Colors.black.withValues(alpha: 0.18);
     canvas.drawRRect(
-      RRect.fromRectAndRadius(Rect.fromCenter(center: const Offset(0, 4), width: 140, height: 74), const Radius.circular(22)),
+      RRect.fromRectAndRadius(
+        Rect.fromCenter(center: const Offset(0, 5), width: 144, height: 78),
+        const Radius.circular(24),
+      ),
       shadowPaint,
     );
 
-    // Cloud body
-    final bodyPaint = Paint()..color = Colors.white.withValues(alpha: 0.95);
+    // Glowing Neon Pulse Aura
+    final double pulse = (sin(animTimer * 6) * 0.5 + 0.5);
+    final auraPaint = Paint()
+      ..color = (isCorrect ? const Color(0xFF10B981) : const Color(0xFF64748B))
+          .withValues(alpha: 0.25 + pulse * 0.2)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromCenter(center: Offset.zero, width: 148, height: 82),
+        const Radius.circular(26),
+      ),
+      auraPaint,
+    );
+
+    // Cloud Body with Soft 3D Gradient
+    final bodyPaint = Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [Colors.white, Color(0xFFF1F5F9)],
+      ).createShader(Rect.fromCenter(center: Offset.zero, width: 140, height: 74));
+
     final borderPaint = Paint()
       ..color = isCorrect ? const Color(0xFF10B981) : const Color(0xFF94A3B8)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.5;
+      ..strokeWidth = 2.8;
 
-    final rrect = RRect.fromRectAndRadius(Rect.fromCenter(center: Offset.zero, width: 140, height: 74), const Radius.circular(22));
+    final rrect = RRect.fromRectAndRadius(
+      Rect.fromCenter(center: Offset.zero, width: 140, height: 74),
+      const Radius.circular(22),
+    );
     canvas.drawRRect(rrect, bodyPaint);
     canvas.drawRRect(rrect, borderPaint);
 
-    // Text Option
+    // Top Cloud Puffs on Gate for extra fluffiness
+    final puffPaint = Paint()..color = Colors.white;
+    canvas.drawCircle(const Offset(-42, -30), 16, puffPaint);
+    canvas.drawCircle(const Offset(0, -34), 18, puffPaint);
+    canvas.drawCircle(const Offset(42, -30), 16, puffPaint);
+
+    // Floating Golden Star Coin Indicator
+    final starPaint = Paint()..color = isCorrect ? Colors.amber : const Color(0xFF94A3B8);
+    canvas.drawCircle(const Offset(-52, 0), 6, starPaint);
+
+    // Word Text Option (Crisp Bold Typography)
     final tp = TextPainter(
       text: TextSpan(
         text: text,
         style: const TextStyle(
           color: Color(0xFF0F172A),
-          fontSize: 15,
-          fontWeight: FontWeight.bold,
+          fontSize: 15.5,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.3,
         ),
       ),
       textDirection: TextDirection.ltr,
     );
     tp.layout();
-    tp.paint(canvas, Offset(-tp.width / 2, -tp.height / 2));
+    tp.paint(canvas, Offset(-tp.width / 2 + 5, -tp.height / 2));
 
     canvas.restore();
   }
@@ -777,27 +909,96 @@ class _FlappyPainter extends CustomPainter {
     canvas.translate(x, y);
     canvas.rotate(angle);
 
-    // Bird Body (Bright Yellow)
-    final bodyPaint = Paint()..color = const Color(0xFFFACC15);
-    canvas.drawCircle(Offset.zero, 18, bodyPaint);
+    final Paint paint = Paint()..isAntiAlias = true;
 
-    // Wing
-    final wingPaint = Paint()..color = const Color(0xFFEAB308);
-    canvas.drawOval(Rect.fromCenter(center: const Offset(-6, 2), width: 18, height: 12), wingPaint);
-
-    // Eye White
-    canvas.drawCircle(const Offset(8, -5), 5.5, Paint()..color = Colors.white);
-    // Pupil
-    canvas.drawCircle(const Offset(10, -5), 2.8, Paint()..color = const Color(0xFF0F172A));
-
-    // Beak (Orange)
-    final beakPaint = Paint()..color = const Color(0xFFF97316);
-    final path = Path()
-      ..moveTo(14, -3)
-      ..lineTo(24, 2)
-      ..lineTo(14, 7)
+    // 1. Red Aviator Scarf Fluttering Behind Bird
+    final scarfWave = sin(animTimer * 16) * 3;
+    final Path scarf = Path()
+      ..moveTo(-10, 3)
+      ..quadraticBezierTo(-20, 2 + scarfWave, -28, 6 + scarfWave)
+      ..lineTo(-26, 12 + scarfWave)
+      ..quadraticBezierTo(-18, 8 + scarfWave, -8, 6)
       ..close();
-    canvas.drawPath(path, beakPaint);
+    paint.color = const Color(0xFFEF4444);
+    canvas.drawPath(scarf, paint);
+
+    // 2. Cute Yellow Tail Feathers
+    final Path tail = Path()
+      ..moveTo(-12, -4)
+      ..lineTo(-22, -8)
+      ..lineTo(-18, -1)
+      ..lineTo(-24, 2)
+      ..lineTo(-12, 4)
+      ..close();
+    paint.color = const Color(0xFFEAB308);
+    canvas.drawPath(tail, paint);
+
+    // 3. Bird Body (Vibrant 3D Yellow Gradient Sphere)
+    paint.shader = const RadialGradient(
+      center: Alignment(-0.25, -0.35),
+      colors: [Color(0xFFFEF08A), Color(0xFFFACC15), Color(0xFFEAB308)],
+    ).createShader(Rect.fromCircle(center: Offset.zero, radius: 19));
+    canvas.drawCircle(Offset.zero, 18.5, paint);
+    paint.shader = null;
+
+    // Soft feathered belly highlight
+    paint.color = Colors.white.withValues(alpha: 0.35);
+    canvas.drawCircle(const Offset(2, 6), 9, paint);
+
+    // 4. Large Expressive Cartoon Eye
+    paint.color = Colors.white;
+    canvas.drawCircle(const Offset(8, -5), 6.0, paint);
+    paint.color = const Color(0xFF0F172A);
+    canvas.drawCircle(const Offset(10, -5), 3.2, paint);
+    // Eye specular shine sparkles
+    paint.color = Colors.white;
+    canvas.drawCircle(const Offset(11.2, -6.5), 1.4, paint);
+    canvas.drawCircle(const Offset(8.8, -3.8), 0.7, paint);
+
+    // 5. Orange Beak with Smile Line
+    final Path beak = Path()
+      ..moveTo(14, -4)
+      ..lineTo(26, 1)
+      ..lineTo(14, 6)
+      ..close();
+    paint.color = const Color(0xFFF97316);
+    canvas.drawPath(beak, paint);
+    // Lower lip highlight
+    paint.color = const Color(0xFFEA580C);
+    canvas.drawLine(const Offset(14, 1), const Offset(22, 1), paint..strokeWidth = 1.0);
+
+    // 6. Fluttering Animated Wing (Rotates with dynamic wing angle)
+    canvas.save();
+    canvas.translate(-4, 2);
+    canvas.rotate(wingAngle);
+
+    final Path wing = Path()
+      ..moveTo(0, 0)
+      ..quadraticBezierTo(-10, -14, -18, -6)
+      ..quadraticBezierTo(-14, 6, 0, 4)
+      ..close();
+    paint.color = const Color(0xFFF59E0B);
+    canvas.drawPath(wing, paint);
+
+    // Inner wing feather layer
+    final Path innerWing = Path()
+      ..moveTo(-1, 0)
+      ..quadraticBezierTo(-7, -9, -12, -4)
+      ..quadraticBezierTo(-9, 4, -1, 3)
+      ..close();
+    paint.color = const Color(0xFFFBBF24);
+    canvas.drawPath(innerWing, paint);
+
+    canvas.restore();
+
+    // 7. Golden Pilot Crest on top
+    final Path crest = Path()
+      ..moveTo(-2, -16)
+      ..quadraticBezierTo(-5, -23, 1, -25)
+      ..quadraticBezierTo(4, -20, 3, -16)
+      ..close();
+    paint.color = const Color(0xFFEAB308);
+    canvas.drawPath(crest, paint);
 
     canvas.restore();
   }

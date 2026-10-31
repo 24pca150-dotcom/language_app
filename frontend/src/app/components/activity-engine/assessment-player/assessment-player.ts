@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ActivityRenderer, NormalizedActivity } from '../activity-renderer/activity-renderer';
 import { AuthService } from '../../../services/auth';
+import { AudioService } from '../../../services/audio.service';
 import { environment } from '../../../../environments/environment';
 
 interface Option {
@@ -47,6 +48,7 @@ export class AssessmentPlayerComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private audioService = inject(AudioService);
 
   @Input() set inputAssessmentId(val: number | null | undefined) {
     if (val) {
@@ -172,6 +174,7 @@ export class AssessmentPlayerComponent implements OnInit, OnDestroy {
     // We capture MCQ answer selection
     if (event.type === 'mcq' && event.selectedOptionId) {
       this.answersMap.set(event.questionId, event.selectedOptionId);
+      this.audioService.playMcqCorrectSound();
     }
   }
 

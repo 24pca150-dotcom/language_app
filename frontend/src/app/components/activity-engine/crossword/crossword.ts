@@ -106,11 +106,21 @@ export class CrosswordComponent implements OnInit, OnChanges {
     }
 
     const words = this.activity.words;
+    if (!words || words.length === 0) return;
     
+    // Auto-detect 0-based vs 1-based coordinates from input data
+    const minRow = Math.min(...words.map(w => (w.row !== undefined ? w.row : 1)));
+    const minCol = Math.min(...words.map(w => (w.col !== undefined ? w.col : 1)));
+    const isZeroBased = minRow === 0 || minCol === 0;
+
     // Sort words by coordinates so we assign number labels consistently (top-left first)
     const sortedWords = [...words].sort((a, b) => {
-      if (a.row !== b.row) return a.row - b.row;
-      return a.col - b.col;
+      const aRow = isZeroBased ? a.row + 1 : a.row;
+      const bRow = isZeroBased ? b.row + 1 : b.row;
+      const aCol = isZeroBased ? a.col + 1 : a.col;
+      const bCol = isZeroBased ? b.col + 1 : b.col;
+      if (aRow !== bRow) return aRow - bRow;
+      return aCol - bCol;
     });
 
     // We assign sequence numbers based on starting grid intersections
@@ -119,7 +129,9 @@ export class CrosswordComponent implements OnInit, OnChanges {
 
     // First, map start cell coordinates to Clue Numbers
     sortedWords.forEach(w => {
-      const coordKey = `${w.row}-${w.col}`;
+      const nRow = isZeroBased ? w.row + 1 : w.row;
+      const nCol = isZeroBased ? w.col + 1 : w.col;
+      const coordKey = `${nRow}-${nCol}`;
       if (!startNumberMap.has(coordKey)) {
         startNumberMap.set(coordKey, numSequence++);
       }
@@ -130,13 +142,15 @@ export class CrosswordComponent implements OnInit, OnChanges {
 
     // Lay words onto our grid
     words.forEach((w, index) => {
-      const startNum = startNumberMap.get(`${w.row}-${w.col}`) || 0;
+      const nRow = isZeroBased ? w.row + 1 : w.row;
+      const nCol = isZeroBased ? w.col + 1 : w.col;
+      const startNum = startNumberMap.get(`${nRow}-${nCol}`) || 0;
       const wordStr = w.word.toUpperCase().replace(/\s/g, '');
       const cellsList: { row: number, col: number }[] = [];
 
       for (let i = 0; i < wordStr.length; i++) {
-        const rowIdx = w.direction === 'down' ? (w.row - 1 + i) : (w.row - 1);
-        const colIdx = w.direction === 'across' ? (w.col - 1 + i) : (w.col - 1);
+        const rowIdx = w.direction === 'down' ? (nRow - 1 + i) : (nRow - 1);
+        const colIdx = w.direction === 'across' ? (nCol - 1 + i) : (nCol - 1);
 
         // Protect grid boundary issues
         if (rowIdx >= 0 && rowIdx < size && colIdx >= 0 && colIdx < size) {
@@ -163,8 +177,8 @@ export class CrosswordComponent implements OnInit, OnChanges {
         number: startNum,
         word: wordStr,
         clue: w.clue,
-        row: w.row,
-        col: w.col,
+        row: nRow,
+        col: nCol,
         direction: w.direction,
         cells: cellsList
       };

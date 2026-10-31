@@ -3,7 +3,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
+import '../services/assessment_service.dart';
 import 'assessment_history_screen.dart';
+import 'assessment_screen.dart';
+import 'learning_progress_screen.dart';
+import 'daily_reminders_screen.dart';
 import 'login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -16,6 +20,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   UserModel? _user;
   bool _isLoading = true;
+  List<AssessmentModel> _assessments = [];
 
   // Daily Reminder Settings State
   bool _reminderEnabled = true;
@@ -31,9 +36,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadProfile() async {
     final user = await AuthService.getUserProfile();
+    List<AssessmentModel> assessments = [];
+    try {
+      assessments = await AssessmentService.getAssessments();
+    } catch (_) {}
+
     if (mounted) {
       setState(() {
         _user = user;
+        _assessments = assessments;
         _isLoading = false;
       });
     }
@@ -47,33 +58,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _reminderTime = prefs.getString('daily_reminder_time') ?? '07:00 PM';
         _dailyGoalMinutes = prefs.getInt('daily_goal_minutes') ?? 10;
       });
-    }
-  }
-
-  Future<void> _saveReminderSettings(bool enabled, String time, int minutes) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('daily_reminder_enabled', enabled);
-    await prefs.setString('daily_reminder_time', time);
-    await prefs.setInt('daily_goal_minutes', minutes);
-
-    if (mounted) {
-      setState(() {
-        _reminderEnabled = enabled;
-        _reminderTime = time;
-        _dailyGoalMinutes = minutes;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            enabled
-                ? '🔔 Daily $minutes-min practice reminder set for $time!'
-                : '🔕 Daily practice reminders turned off.',
-          ),
-          backgroundColor: AppTheme.secondary,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      );
     }
   }
 
@@ -92,7 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Container(
             padding: EdgeInsets.fromLTRB(24, 20, 24, bottomInset > 0 ? bottomInset + 20 : 32),
             decoration: const BoxDecoration(
-              color: Colors.white,
+              color: Color(0xFF161F38),
               borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
             ),
           child: Column(
@@ -105,7 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: const Color(0xFF283548),
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -196,331 +180,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   );
 }
 
-  void _showDailyReminderDialog() {
-    bool tempEnabled = _reminderEnabled;
-    String tempTime = _reminderTime;
-    int tempGoal = _dailyGoalMinutes;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setModalState) => Container(
-          padding: const EdgeInsets.all(24),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Icon(Icons.alarm_on_rounded, color: Color(0xFFD97706), size: 26),
-                  ),
-                  const SizedBox(width: 14),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Daily Practice Reminder',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
-                        ),
-                        Text(
-                          'Build a consistent 10-minute daily learning habit',
-                          style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              // Motivation Banner
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFFCD34D)),
-                ),
-                child: const Row(
-                  children: [
-                    Text('🔥', style: TextStyle(fontSize: 24)),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        'Spending just 10 minutes a day on LangNest boosts vocabulary retention by 80% and keeps your streak alive!',
-                        style: TextStyle(fontSize: 12, color: Color(0xFF92400E), height: 1.3),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Notification Switch
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Daily Notification Reminder', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                subtitle: const Text('Receive a reminder notification every day', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
-                value: tempEnabled,
-                activeThumbColor: AppTheme.primary,
-                onChanged: (val) {
-                  setModalState(() => tempEnabled = val);
-                },
-              ),
-              const Divider(height: 24),
-
-              // Daily Goal Selection (10 min use requested by user)
-              const Text('Daily Goal (Minutes / Day):', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.textPrimary)),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [10, 15, 20].map((mins) {
-                  final isSelected = tempGoal == mins;
-                  return ChoiceChip(
-                    label: Text(
-                      mins == 10 ? '⭐ $mins Mins (Recommended)' : '$mins Mins',
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : AppTheme.textSecondary,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                        fontSize: 12,
-                      ),
-                    ),
-                    selected: isSelected,
-                    onSelected: (_) => setModalState(() => tempGoal = mins),
-                    selectedColor: const Color(0xFFD97706),
-                    backgroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(color: isSelected ? const Color(0xFFD97706) : AppTheme.cardBorder),
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 20),
-
-              // Reminder Time Selection
-              const Text('Reminder Time:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.textPrimary)),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: ['07:00 AM', '01:00 PM', '07:00 PM', '08:30 PM', '09:00 PM'].map((t) {
-                  final isSelected = tempTime == t;
-                  return ChoiceChip(
-                    label: Text(
-                      t,
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : AppTheme.textPrimary,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                        fontSize: 12,
-                      ),
-                    ),
-                    selected: isSelected,
-                    onSelected: (_) => setModalState(() => tempTime = t),
-                    selectedColor: AppTheme.primary,
-                    backgroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      side: BorderSide(color: isSelected ? AppTheme.primary : AppTheme.cardBorder),
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 24),
-
-              // Save Button
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    _saveReminderSettings(tempEnabled, tempTime, tempGoal);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFD97706),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  child: const Text('Save Reminder & Goal', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                ),
-              ),
-              const SizedBox(height: 10),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showLearningProgressDialog() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 20),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: const Icon(Icons.insights_rounded, color: Color(0xFF10B981), size: 26),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        'Learning Progress & Analytics',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
-                      ),
-                      SizedBox(height: 2),
-                      Text(
-                        'Comprehensive breakdown of your English learning journey',
-                        style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 22),
-
-            // Progress Summary Cards
-            Row(
-              children: [
-                _buildProgressMetric('14', 'Lessons Done', const Color(0xFF6366F1)),
-                const SizedBox(width: 10),
-                _buildProgressMetric('92%', 'Quiz Accuracy', const Color(0xFF10B981)),
-                const SizedBox(width: 10),
-                _buildProgressMetric('$_dailyGoalMinutes min', 'Daily Target', const Color(0xFFD97706)),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Level Progress Indicator
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppTheme.cardBorder),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Course Completion', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                      Text('85% (Level 1 Cleared)', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF10B981), fontSize: 12)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: const LinearProgressIndicator(
-                      value: 0.85,
-                      minHeight: 8,
-                      backgroundColor: Color(0xFFE2E8F0),
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF10B981)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                ),
-                child: const Text('Close Report', style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProgressMetric(String value, String label, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
-        ),
-        child: Column(
-          children: [
-            Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
-            const SizedBox(height: 4),
-            Text(label, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary, fontWeight: FontWeight.w500)),
-          ],
-        ),
-      ),
-    );
-  }
-
   void _handleLogout() {
     final navigator = Navigator.of(context);
     showDialog(
@@ -584,14 +243,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           bottom: BorderSide(color: AppTheme.navBarGreenBorder, width: 1.2),
         ),
         surfaceTintColor: Colors.transparent,
-        iconTheme: const IconThemeData(color: Color(0xFF14361F)),
+        iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
           'My Profile',
-          style: TextStyle(color: Color(0xFF14361F), fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_outlined, color: Color(0xFF14361F)),
+            icon: const Icon(Icons.edit_outlined, color: Colors.white),
             tooltip: 'Edit Profile',
             onPressed: _showEditProfileDialog,
           ),
@@ -715,7 +374,204 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _buildStatItem('🪙 ${user.coins}', 'Coins'),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 18),
+
+            // 📝 LATEST ASSESSMENT SCORECARD CARD
+            if (_assessments.isNotEmpty) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFF334155)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.25),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.assignment_turned_in_rounded,
+                            color: Color(0xFFFBBF24),
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        const Expanded(
+                          child: Text(
+                            'Assessment Performance',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textPrimary,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '${_assessments.where((a) => (a.bestScore ?? 0) > 0).length}/${_assessments.length} Attempted',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF60A5FA),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+
+                    // First / Latest Assessment Preview
+                    Builder(builder: (context) {
+                      final attempted = _assessments.firstWhere(
+                        (a) => a.bestScore != null,
+                        orElse: () => _assessments.first,
+                      );
+                      final bool hasScore = attempted.bestScore != null;
+                      final double score = attempted.bestScore ?? 0.0;
+                      final bool isPassed = attempted.isPassed;
+
+                      return Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF161F38),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: isPassed
+                                ? const Color(0xFF10B981).withValues(alpha: 0.3)
+                                : (hasScore
+                                    ? const Color(0xFFF59E0B).withValues(alpha: 0.3)
+                                    : const Color(0xFF283548)),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    attempted.title,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                      color: AppTheme.textPrimary,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: isPassed
+                                        ? const Color(0xFF10B981).withValues(alpha: 0.15)
+                                        : (hasScore
+                                            ? const Color(0xFFF59E0B).withValues(alpha: 0.15)
+                                            : const Color(0xFF6B7280).withValues(alpha: 0.15)),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    isPassed
+                                        ? 'Passed'
+                                        : (hasScore ? '${score.toStringAsFixed(1)}% (Needs 60%)' : 'Not Taken'),
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: isPassed
+                                          ? const Color(0xFF34D399)
+                                          : (hasScore ? const Color(0xFFFBBF24) : Colors.white70),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+
+                            // Score Progress Bar
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: hasScore ? (score / 100.0).clamp(0.0, 1.0) : 0.0,
+                                backgroundColor: Colors.white12,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  isPassed ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                                ),
+                                minHeight: 6,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+
+                            // Action Buttons inside scorecard
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Pass Mark: ${attempted.passPercentage}%',
+                                  style: const TextStyle(color: AppTheme.textMuted, fontSize: 11),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => AssessmentScreen(assessment: attempted),
+                                      ),
+                                    );
+                                    _loadProfile();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: isPassed
+                                        ? const Color(0xFF10B981)
+                                        : (hasScore ? const Color(0xFFF59E0B) : AppTheme.primary),
+                                    foregroundColor: isPassed || !hasScore ? Colors.white : Colors.black,
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    minimumSize: Size.zero,
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    hasScore ? 'Retake' : 'Start Test',
+                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+            ],
 
             // Profile settings
             Container(
@@ -752,7 +608,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     iconColor: const Color(0xFF10B981),
                     title: 'Learning Progress & Reports',
                     subtitle: 'Track completed lessons, accuracy % & XP growth',
-                    onTap: _showLearningProgressDialog,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LearningProgressScreen()),
+                      );
+                    },
                   ),
                   const Divider(height: 1, indent: 60),
 
@@ -760,9 +621,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: Icons.alarm_on_rounded,
                     iconColor: const Color(0xFFD97706),
                     title: 'Daily Practice Reminders',
-                    subtitle: '$_dailyGoalMinutes-Min Daily Habit • Daily at $_reminderTime',
-                    badge: '${_dailyGoalMinutes}M / DAY',
-                    onTap: _showDailyReminderDialog,
+                    subtitle: _reminderEnabled
+                        ? '$_dailyGoalMinutes-Min Daily Habit • Daily at $_reminderTime'
+                        : 'Daily practice reminders are currently off',
+                    badge: _reminderEnabled ? '${_dailyGoalMinutes}M / DAY' : 'OFF',
+                    onTap: () async {
+                      final updated = await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const DailyRemindersScreen()),
+                      );
+                      if (updated == true) {
+                        _loadReminderSettings();
+                      }
+                    },
                   ),
                 ],
               ),
@@ -786,8 +657,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: OutlinedButton(
                 onPressed: _handleLogout,
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFEF2F2),
-                  side: const BorderSide(color: Color(0xFFFCA5A5), width: 1.2),
+                  backgroundColor: AppTheme.danger.withValues(alpha: 0.15),
+                  side: const BorderSide(color: Color(0xFFEF4444), width: 1.2),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),

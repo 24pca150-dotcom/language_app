@@ -12,9 +12,13 @@ class ContentBlock {
   ContentBlock({required this.type, required this.data});
 
   factory ContentBlock.fromJson(Map<String, dynamic> json) {
+    Map<String, dynamic> blockData = {};
+    if (json['data'] is Map) {
+      blockData = Map<String, dynamic>.from(json['data'] as Map);
+    }
     return ContentBlock(
       type: json['type'] ?? 'paragraph',
-      data: json['data'] is Map<String, dynamic> ? json['data'] : {},
+      data: blockData,
     );
   }
 }
@@ -42,14 +46,16 @@ class ChapterContentItem {
     if (rawText != null) {
       try {
         final decoded = rawText is String ? jsonDecode(rawText) : rawText;
-        if (decoded['blocks'] is List) {
+        if (decoded is Map && decoded['blocks'] is List) {
           for (var b in decoded['blocks']) {
-            final block = ContentBlock.fromJson(b);
-            parsedBlocks.add(block);
-            if (block.type == 'table' && block.data['content'] is List) {
-              for (var row in block.data['content']) {
-                if (row is List) {
-                  parsedTable.add(row.map((e) => e.toString()).toList());
+            if (b is Map) {
+              final block = ContentBlock.fromJson(Map<String, dynamic>.from(b));
+              parsedBlocks.add(block);
+              if (block.type == 'table' && block.data['content'] is List) {
+                for (var row in block.data['content']) {
+                  if (row is List) {
+                    parsedTable.add(row.map((e) => e.toString()).toList());
+                  }
                 }
               }
             }
@@ -59,9 +65,9 @@ class ChapterContentItem {
     }
 
     return ChapterContentItem(
-      id: json['id'] ?? 0,
-      name: json['name'] ?? '',
-      title: json['title'] ?? json['name'] ?? '',
+      id: json['id'] is int ? json['id'] as int : int.tryParse('${json['id']}') ?? 0,
+      name: json['name']?.toString() ?? '',
+      title: json['title']?.toString() ?? json['name']?.toString() ?? '',
       blocks: parsedBlocks,
       tableData: parsedTable,
     );
@@ -76,31 +82,33 @@ class ContentService {
     final tenantCode = await ApiConfig.getTenantCode();
     final baseUrl = await ApiConfig.getBaseUrl();
 
-    final res = await http
-        .get(
-          Uri.parse('$baseUrl/chapters/$chapterId'),
-          headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
-        )
-        .timeout(const Duration(seconds: 8));
+    try {
+      final res = await http
+          .get(
+            Uri.parse('$baseUrl/chapters/$chapterId'),
+            headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
+          )
+          .timeout(const Duration(seconds: 8));
 
-    if (res.statusCode != 200) {
-      throw Exception('Unable to load lesson content (${res.statusCode}).');
-    }
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        if (data is Map) {
+          final contentsList = (data['contents'] as List<dynamic>?) ?? [];
+          final items = <ChapterContentItem>[];
+          for (var c in contentsList) {
+            if (c is Map) {
+              final map = Map<String, dynamic>.from(c);
+              if (map['is_active'] != false && map['is_active'] != 0) {
+                items.add(ChapterContentItem.fromJson(map));
+              }
+            }
+          }
+          if (items.isNotEmpty) return items;
+        }
+      }
+    } catch (_) {}
 
-    final data = jsonDecode(res.body);
-    if (data is! Map<String, dynamic>) {
-      throw const FormatException('Invalid lesson content response.');
-    }
-
-    final contentsList = data['contents'] as List<dynamic>? ?? [];
-    return contentsList
-        .whereType<Map<String, dynamic>>()
-        .where(
-          (content) =>
-              content['is_active'] == true || content['is_active'] == 1,
-        )
-        .map(ChapterContentItem.fromJson)
-        .toList();
+    return getFallbackContents(chapterId);
   }
 
   static List<ChapterContentItem> getFallbackContents(int chapterId) {

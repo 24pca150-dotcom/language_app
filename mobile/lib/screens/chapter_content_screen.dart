@@ -8,6 +8,14 @@ import '../services/content_service.dart';
 import '../services/course_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/celebration_dialog.dart';
+import 'balloon_pop_screen.dart';
+import 'fill_blanks_game_screen.dart';
+import 'flashcard_game_screen.dart';
+import 'flappy_word_screen.dart';
+import 'highway_racer_screen.dart';
+import 'match_game_screen.dart';
+import 'mcq_game_screen.dart';
+import 'word_ninja_screen.dart';
 
 class ChapterContentScreen extends StatefulWidget {
   final MobileChapter chapter;
@@ -208,15 +216,17 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
         : null;
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppTheme.bgLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        shadowColor: Colors.black26,
+        backgroundColor: AppTheme.surfaceWhite,
+        elevation: 0,
+        shape: const Border(
+          bottom: BorderSide(color: Color(0xFF283548), width: 1.2),
+        ),
         surfaceTintColor: Colors.transparent,
-        iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
+        iconTheme: const IconThemeData(color: Colors.white),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF0F172A)),
+          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
           onPressed: () {
             if (widget.onBack != null) {
               widget.onBack!();
@@ -232,7 +242,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
               widget.levelName,
               style: const TextStyle(
                 fontSize: 11,
-                color: Color(0xFF64748B),
+                color: Color(0xFFFBBF24),
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -241,7 +251,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF0F172A),
+                color: Colors.white,
               ),
             ),
           ],
@@ -327,7 +337,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                               onSelected: (_) =>
                                   setState(() => _activeContentIndex = idx),
                               selectedColor: AppTheme.primary,
-                              backgroundColor: Colors.white,
+                              backgroundColor: const Color(0xFF161F38),
                               labelStyle: TextStyle(
                                 color: isSelected
                                     ? Colors.white
@@ -342,7 +352,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                                 side: BorderSide(
                                   color: isSelected
                                       ? AppTheme.primary
-                                      : AppTheme.cardBorder,
+                                      : const Color(0xFF283548),
                                 ),
                               ),
                             ),
@@ -466,7 +476,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
 
                             if (isHeader) {
                               return Container(
-                                color: const Color(0xFFF1F5F9),
+                                color: const Color(0xFF1E293B),
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                   vertical: 12,
@@ -480,6 +490,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 13,
+                                          color: Color(0xFFFBBF24),
                                         ),
                                       ),
                                     ),
@@ -490,6 +501,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 13,
+                                          color: Color(0xFFFBBF24),
                                         ),
                                       ),
                                     ),
@@ -501,6 +513,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 12,
+                                            color: Color(0xFF94A3B8),
                                           ),
                                         ),
                                       ),
@@ -605,6 +618,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                             if (_activeContentIndex < _contents.length - 1) {
                               setState(() => _activeContentIndex++);
                             } else {
+                              CourseService.completeChapter(widget.chapter.id);
                               CelebrationDialog.show(
                                 context,
                                 title: 'Chapter Completed! 🎉',
@@ -645,6 +659,27 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
     );
   }
 
+  void _launchActivity(String type, String title, Map<String, dynamic> data) {
+    final lower = type.toLowerCase();
+    if (lower.contains('flappy')) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => FlappyWordScreen(title: title)));
+    } else if (lower.contains('balloon')) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => BalloonPopScreen(title: title)));
+    } else if (lower.contains('ninja')) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => WordNinjaScreen(title: title)));
+    } else if (lower.contains('mcq')) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => McqGameScreen(title: title)));
+    } else if (lower.contains('match')) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => MatchGameScreen(title: title)));
+    } else if (lower.contains('flashcard')) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => FlashcardGameScreen(title: title)));
+    } else if (lower.contains('fill_blanks') || lower.contains('blank')) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => FillBlanksGameScreen(title: title)));
+    } else {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => HighwayRacerScreen(title: title)));
+    }
+  }
+
   Widget _buildBlock(ContentBlock block) {
     if (block.type == 'header') {
       return Padding(
@@ -672,20 +707,125 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: const Color(0xFF161F38),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppTheme.cardBorder),
+            border: Border.all(color: const Color(0xFF283548)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
           child: Text(
             block.data['text'] ?? '',
             style: const TextStyle(
-              fontSize: 14,
-              height: 1.5,
+              fontSize: 14.5,
+              height: 1.6,
               color: AppTheme.textPrimary,
             ),
           ),
         ),
       );
+    } else if (block.type == 'activity') {
+      final actData = block.data;
+      final title = actData['activityReferenceTitle'] ?? actData['title'] ?? 'Interactive Activity';
+      final actType = (actData['activityReferenceType'] ?? actData['type'] ?? 'mcq').toString().toLowerCase();
+
+      return Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF6366F1), Color(0xFF4F46E5)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(Icons.sports_esports_rounded, color: Colors.white, size: 28),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('PRACTICE ACTIVITY', style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                  const SizedBox(height: 2),
+                  Text(title, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => _launchActivity(actType, title, actData),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: const Color(0xFF4F46E5),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              ),
+              child: const Text('Play 🎮', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      );
+    } else if (block.type == 'list') {
+      final items = block.data['items'] as List<dynamic>? ?? [];
+      return Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF161F38),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFF283548)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: items.map((it) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('• ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.primary)),
+                Expanded(child: Text(it.toString(), style: const TextStyle(fontSize: 14, height: 1.4, color: AppTheme.textPrimary))),
+              ],
+            ),
+          )).toList(),
+        ),
+      );
+    } else if (block.type == 'image') {
+      final url = block.data['file']?['url'] ?? block.data['url'] ?? '';
+      if (url.toString().isNotEmpty) {
+        return Container(
+          margin: const EdgeInsets.only(bottom: 14),
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: AppTheme.cardBorder),
+          ),
+          child: Image.network(
+            url,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+          ),
+        );
+      }
     }
     return const SizedBox.shrink();
   }

@@ -134,11 +134,20 @@
                 </div>
 
                 <!-- ⭐ Stars / XP -->
-                <div class="stat-pill star-pill" title="Total Stars Earned">
-                  <span class="stat-pill-icon star-glow">⭐</span>
+                <div class="stat-pill star-pill" title="Total XP Earned">
+                  <span class="stat-pill-icon star-glow">⚡</span>
                   <div class="d-flex flex-column text-start">
                     <span class="stat-pill-val">{{ effectiveStars() }}</span>
-                    <span class="stat-pill-lbl">Stars</span>
+                    <span class="stat-pill-lbl">Total XP</span>
+                  </div>
+                </div>
+
+                <!-- 🪙 Coins -->
+                <div class="stat-pill coin-pill" title="Total Coins Collected">
+                  <span class="stat-pill-icon coin-shine">🪙</span>
+                  <div class="d-flex flex-column text-start">
+                    <span class="stat-pill-val">{{ effectiveCoins() }}</span>
+                    <span class="stat-pill-lbl">Coins</span>
                   </div>
                 </div>
 
@@ -359,6 +368,86 @@
               </div>
             </div>
 
+          </div>
+
+          <!-- 📝 ASSESSMENTS & QUIZZES (Home Dashboard Section) -->
+          <div class="row g-4 justify-content-center mb-3" style="max-width: 960px; margin: 0 auto;">
+            <div class="col-12">
+              <div class="neat-home-card assessment-home-card">
+                <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="neat-card-tag tag-assessment">
+                      <i class="bi bi-clipboard-check-fill text-warning"></i> Active Assessments & Quizzes
+                    </span>
+                    @if (allAssessments().length > 0) {
+                      <span class="badge rounded-pill bg-warning text-dark fw-bold px-2 py-1" style="font-size: 0.72rem;">
+                        {{ allAssessments().length }} Total
+                      </span>
+                    }
+                  </div>
+                  <button type="button" class="btn btn-sm btn-link text-warning text-decoration-none fw-bold p-0 d-inline-flex align-items-center" (click)="setTab('assessments')">
+                    Open Assessments Hub <i class="bi bi-arrow-right ms-1"></i>
+                  </button>
+                </div>
+
+                @if (allAssessments().length === 0) {
+                  <div class="py-3 text-center text-white-50">
+                    <i class="bi bi-patch-check text-success fs-3 mb-1 d-block"></i>
+                    <p class="mb-1 fw-bold text-white">No active assessments right now!</p>
+                    <p class="small mb-0">Check back after finishing your upcoming lesson chapters.</p>
+                  </div>
+                } @else {
+                  <div class="row g-3">
+                    @for (item of allAssessments(); track item.id) {
+                      <div class="col-12 col-md-6">
+                        <div class="assessment-mini-tile p-3 rounded-4 h-100 d-flex flex-column justify-content-between"
+                             style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
+                          <div>
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                              <span class="badge rounded-pill px-2 py-1"
+                                    [ngClass]="item.is_passed ? 'bg-success text-white' : (item.latest_score !== null ? 'bg-warning text-dark' : 'bg-primary text-white')"
+                                    style="font-size: 0.72rem;">
+                                {{ item.is_passed ? 'Passed 🎉' : (item.latest_score !== null ? 'Score: ' + (item.latest_score | number:'1.0-1') + '% (Needs 60%)' : 'Not Attempted') }}
+                              </span>
+                              <span class="text-white-50 small">
+                                <i class="bi bi-clock me-1 text-warning"></i>{{ item.duration_minutes || 15 }}m • {{ item.questions_count }} Qs
+                              </span>
+                            </div>
+                            <h5 class="text-white fw-bold mb-1 fs-6 text-truncate" [title]="item.title">{{ item.title }}</h5>
+                            <p class="text-white-50 small mb-2 text-truncate">{{ item.course_name }} • {{ item.chapter_title }}</p>
+
+                            <!-- Score / Mastery Bar -->
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                              <div class="progress rounded-pill flex-grow-1" style="height: 6px; background: rgba(255,255,255,0.12);">
+                                <div class="progress-bar rounded-pill"
+                                     [ngClass]="item.is_passed ? 'bg-success' : 'bg-warning'"
+                                     role="progressbar"
+                                     [style.width.%]="item.latest_score || 0">
+                                </div>
+                              </div>
+                              <span class="fw-bold small" [ngClass]="item.is_passed ? 'text-success' : (item.latest_score !== null ? 'text-warning' : 'text-white-50')" style="font-size: 0.78rem;">
+                                {{ item.latest_score !== null ? (item.latest_score | number:'1.0-1') + '%' : '0%' }}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div class="d-flex align-items-center justify-content-between pt-2 border-top border-white border-opacity-10 mt-2">
+                            <span class="text-white-50 small" style="font-size: 0.75rem;">
+                              <i class="bi bi-check2-circle text-info me-1"></i>Required: {{ item.pass_percentage }}%
+                            </span>
+                            <button type="button" class="btn btn-sm btn-warning rounded-pill px-3 fw-bold text-dark d-inline-flex align-items-center gap-1 shadow-sm"
+                                    (click)="openAssessmentFromProgress(item.id)">
+                              <span>{{ item.latest_score !== null ? 'Retake Test' : 'Start Test' }}</span>
+                              <i class="bi bi-arrow-right-short fs-6"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
           </div>
 
           <!-- 🌟 Item 4 (Recent Badges Showcase) & Item 5 (Interactive Owl Companion) -->
@@ -1475,105 +1564,658 @@
       <!-- 📈 TAB 5: PROGRESS (ZEROED METRICS AS REQUESTED IN 4th IMAGE)    -->
       <!-- ================================================================ -->
       @if (activeTab() === 'progress') {
-        <div class="tab-fade-in">
-          <div class="d-flex align-items-center gap-3 mb-4 learner-top-header-row">
-            <button class="btn-back-circle shadow-sm" (click)="setTab('home')" title="Back to Dashboard">
-              <i class="bi bi-arrow-left fs-5"></i>
-            </button>
-            <div>
-              <h2 class="fw-bold text-white mb-0"><i class="bi bi-bar-chart-fill text-warning me-2"></i>Fluency & Progress Analytics</h2>
-              <p class="text-white-50 mb-0 small">Detailed breakdown of your language development and mastery.</p>
+        <div class="tab-fade-in progress-analytics-wrapper">
+          <!-- Top Header -->
+          <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3 learner-top-header-row">
+            <div class="d-flex align-items-center gap-3">
+              <button class="btn-back-circle shadow-sm" (click)="setTab('home')" title="Back to Dashboard">
+                <i class="bi bi-arrow-left fs-5"></i>
+              </button>
+              <div>
+                <h2 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+                  <i class="bi bi-bar-chart-fill text-warning"></i>
+                  Fluency & Progress Analytics
+                </h2>
+                <p class="text-white-50 mb-0 small">Comprehensive mastery breakdown of your assessments, practice, games & course syllabus.</p>
+              </div>
+            </div>
+
+            <!-- Mobile & Desktop Quick Filter Pills -->
+            <div class="progress-filter-bar d-flex align-items-center gap-2 overflow-x-auto py-1">
+              <button type="button" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold progress-filter-btn"
+                      [class.btn-warning]="progressFilter() === 'all'"
+                      [class.text-dark]="progressFilter() === 'all'"
+                      [class.btn-outline-light]="progressFilter() !== 'all'"
+                      (click)="setProgressFilter('all')">
+                <i class="bi bi-grid-fill me-1"></i>Overview
+              </button>
+              <button type="button" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold progress-filter-btn"
+                      [class.btn-warning]="progressFilter() === 'assessments'"
+                      [class.text-dark]="progressFilter() === 'assessments'"
+                      [class.btn-outline-light]="progressFilter() !== 'assessments'"
+                      (click)="setProgressFilter('assessments')">
+                <i class="bi bi-clipboard-check-fill me-1"></i>Assessments ({{ allAssessments().length }})
+              </button>
+              <button type="button" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold progress-filter-btn"
+                      [class.btn-warning]="progressFilter() === 'practice'"
+                      [class.text-dark]="progressFilter() === 'practice'"
+                      [class.btn-outline-light]="progressFilter() !== 'practice'"
+                      (click)="setProgressFilter('practice')">
+                <i class="bi bi-puzzle-fill me-1"></i>Practice ({{ totalPracticeTopics() }})
+              </button>
+              <button type="button" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold progress-filter-btn"
+                      [class.btn-warning]="progressFilter() === 'games'"
+                      [class.text-dark]="progressFilter() === 'games'"
+                      [class.btn-outline-light]="progressFilter() !== 'games'"
+                      (click)="setProgressFilter('games')">
+                <i class="bi bi-controller me-1"></i>Games ({{ gamesList().length || 5 }})
+              </button>
+              <button type="button" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold progress-filter-btn"
+                      [class.btn-warning]="progressFilter() === 'courses'"
+                      [class.text-dark]="progressFilter() === 'courses'"
+                      [class.btn-outline-light]="progressFilter() !== 'courses'"
+                      (click)="setProgressFilter('courses')">
+                <i class="bi bi-journal-bookmark-fill me-1"></i>Courses ({{ courses().length }})
+              </button>
             </div>
           </div>
 
-          <div class="row g-4 mb-4">
-            <!-- 4 Skill Breakdown Bars (Zeroed) -->
-            <div class="col-lg-6">
-              <div class="dashboard-glass-card p-4 rounded-4 h-100">
-                <h5 class="fw-bold text-white mb-4"><i class="bi bi-pie-chart text-info me-2"></i>Core Skills Competency</h5>
-
-                <div class="mb-4">
-                  <div class="d-flex justify-content-between text-white small mb-1">
-                    <span>Listening Comprehension</span>
-                    <span class="text-warning fw-bold">{{ listeningScore() }}%</span>
-                  </div>
-                  <div class="progress rounded-pill" style="height: 10px; background: rgba(255,255,255,0.15);">
-                    <div class="progress-bar bg-info rounded-pill" [style.width]="listeningScore() + '%'"></div>
-                  </div>
-                </div>
-
-                <div class="mb-4">
-                  <div class="d-flex justify-content-between text-white small mb-1">
-                    <span>Reading & Vocabulary</span>
-                    <span class="text-warning fw-bold">{{ readingScore() }}%</span>
-                  </div>
-                  <div class="progress rounded-pill" style="height: 10px; background: rgba(255,255,255,0.15);">
-                    <div class="progress-bar bg-success rounded-pill" [style.width]="readingScore() + '%'"></div>
+          <!-- ================================================================ -->
+          <!-- 🌟 TOP KPI MASTERY CARDS (Assessments, Practice, Games, Courses)  -->
+          <!-- ================================================================ -->
+          <div class="row g-3 g-md-4 mb-4">
+            <!-- 1. Assessments KPI -->
+            <div class="col-6 col-lg-3">
+              <div class="dashboard-glass-card progress-kpi-card p-3 p-md-4 rounded-4 h-100 cursor-pointer"
+                   (click)="setProgressFilter('assessments')">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill px-2.5 py-1 small fw-bold">
+                    <i class="bi bi-award-fill me-1"></i>Tests
+                  </span>
+                  <div class="kpi-icon-wrap bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center">
+                    <i class="bi bi-clipboard-check fs-5"></i>
                   </div>
                 </div>
-
-                <div class="mb-4">
-                  <div class="d-flex justify-content-between text-white small mb-1">
-                    <span>Grammar & Syntax</span>
-                    <span class="text-warning fw-bold">{{ grammarScore() }}%</span>
-                  </div>
-                  <div class="progress rounded-pill" style="height: 10px; background: rgba(255,255,255,0.15);">
-                    <div class="progress-bar bg-warning rounded-pill" [style.width]="grammarScore() + '%'"></div>
-                  </div>
+                <div class="display-6 fw-bold text-white mb-1">
+                  {{ accuracyRate() }}<span class="fs-5 text-warning">%</span>
                 </div>
-
-                <div class="mb-2">
-                  <div class="d-flex justify-content-between text-white small mb-1">
-                    <span>Speaking & Pronunciation</span>
-                    <span class="text-warning fw-bold">{{ speakingScore() }}%</span>
-                  </div>
-                  <div class="progress rounded-pill" style="height: 10px; background: rgba(255,255,255,0.15);">
-                    <div class="progress-bar bg-danger rounded-pill" [style.width]="speakingScore() + '%'"></div>
-                  </div>
+                <div class="text-white-50 small mb-2 text-truncate">Average Assessment Mark</div>
+                <div class="progress rounded-pill mb-2" style="height: 6px;">
+                  <div class="progress-bar bg-warning rounded-pill" [style.width]="accuracyRate() + '%'"></div>
+                </div>
+                <div class="d-flex justify-content-between text-white-50 extra-small">
+                  <span>{{ quizzesPassed() }} / {{ totalAssessmentsCount() }} Passed</span>
+                  <span class="text-warning fw-semibold">{{ assessmentCompletionPercent() }}% Done</span>
                 </div>
               </div>
             </div>
 
-            <!-- Milestone Numbers (Zeroed) -->
-            <div class="col-lg-6">
-              <div class="dashboard-glass-card p-4 rounded-4 h-100 d-flex flex-column justify-content-between">
+            <!-- 2. Practice Drills KPI -->
+            <div class="col-6 col-lg-3">
+              <div class="dashboard-glass-card progress-kpi-card p-3 p-md-4 rounded-4 h-100 cursor-pointer"
+                   (click)="setProgressFilter('practice')">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <span class="badge bg-info bg-opacity-25 text-info rounded-pill px-2.5 py-1 small fw-bold">
+                    <i class="bi bi-puzzle-fill me-1"></i>Practice
+                  </span>
+                  <div class="kpi-icon-wrap bg-info bg-opacity-10 text-info rounded-circle d-flex align-items-center justify-content-center">
+                    <i class="bi bi-lightning-charge fs-5"></i>
+                  </div>
+                </div>
+                <div class="display-6 fw-bold text-white mb-1">
+                  {{ practiceAvgPercent() }}<span class="fs-5 text-info">%</span>
+                </div>
+                <div class="text-white-50 small mb-2 text-truncate">Practice Drill Mastery</div>
+                <div class="progress rounded-pill mb-2" style="height: 6px;">
+                  <div class="progress-bar bg-info rounded-pill" [style.width]="practiceAvgPercent() + '%'"></div>
+                </div>
+                <div class="d-flex justify-content-between text-white-50 extra-small">
+                  <span>{{ practiceCompletedCount() }} / {{ totalPracticeTopics() }} Topics</span>
+                  <span class="text-info fw-semibold">Interactive</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Arcade Games KPI -->
+            <div class="col-6 col-lg-3">
+              <div class="dashboard-glass-card progress-kpi-card p-3 p-md-4 rounded-4 h-100 cursor-pointer"
+                   (click)="setProgressFilter('games')">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <span class="badge bg-danger bg-opacity-25 text-danger rounded-pill px-2.5 py-1 small fw-bold">
+                    <i class="bi bi-controller me-1"></i>Arcade
+                  </span>
+                  <div class="kpi-icon-wrap bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center">
+                    <i class="bi bi-joystick fs-5"></i>
+                  </div>
+                </div>
+                <div class="display-6 fw-bold text-white mb-1">
+                  {{ gamesAvgPercent() }}<span class="fs-5 text-danger">%</span>
+                </div>
+                <div class="text-white-50 small mb-2 text-truncate">Game Challenges Won</div>
+                <div class="progress rounded-pill mb-2" style="height: 6px;">
+                  <div class="progress-bar bg-danger rounded-pill" [style.width]="gamesAvgPercent() + '%'"></div>
+                </div>
+                <div class="d-flex justify-content-between text-white-50 extra-small">
+                  <span>⭐ {{ gamesTotalStars() }} Stars</span>
+                  <span class="text-danger fw-semibold">{{ gamesPlayedCount() }} Active Games</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. Course Syllabus KPI -->
+            <div class="col-6 col-lg-3">
+              <div class="dashboard-glass-card progress-kpi-card p-3 p-md-4 rounded-4 h-100 cursor-pointer"
+                   (click)="setProgressFilter('courses')">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-2.5 py-1 small fw-bold">
+                    <i class="bi bi-book-half me-1"></i>Syllabus
+                  </span>
+                  <div class="kpi-icon-wrap bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center">
+                    <i class="bi bi-mortarboard fs-5"></i>
+                  </div>
+                </div>
+                <div class="display-6 fw-bold text-white mb-1">
+                  {{ overallCompletionPercentage() }}<span class="fs-5 text-success">%</span>
+                </div>
+                <div class="text-white-50 small mb-2 text-truncate">Overall Syllabus Finished</div>
+                <div class="progress rounded-pill mb-2" style="height: 6px;">
+                  <div class="progress-bar bg-success rounded-pill" [style.width]="overallCompletionPercentage() + '%'"></div>
+                </div>
+                <div class="d-flex justify-content-between text-white-50 extra-small">
+                  <span>{{ lessonsFinished() }} / {{ totalLessonsCount() }} Chapters</span>
+                  <span class="text-success fw-semibold">On Track</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================================================================ -->
+          <!-- 📊 CORE SKILLS & FLUENCY MILESTONES (Zero-free Dynamic Metrics)   -->
+          <!-- ================================================================ -->
+          @if (progressFilter() === 'all') {
+            <div class="row g-4 mb-4">
+              <!-- 4 Skill Breakdown Bars (Dynamic Real Values) -->
+              <div class="col-lg-6">
+                <div class="dashboard-glass-card p-4 rounded-4 h-100">
+                  <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h5 class="fw-bold text-white mb-0"><i class="bi bi-pie-chart text-info me-2"></i>Core Skills Competency</h5>
+                    <span class="badge bg-info-subtle text-info rounded-pill px-3 py-1 small fw-semibold">Real-Time Evaluation</span>
+                  </div>
+
+                  <div class="mb-4">
+                    <div class="d-flex justify-content-between text-white small mb-1">
+                      <span><i class="bi bi-headphones me-2 text-info"></i>Listening Comprehension</span>
+                      <span class="text-warning fw-bold">{{ listeningScore() }}%</span>
+                    </div>
+                    <div class="progress rounded-pill" style="height: 10px; background: rgba(255,255,255,0.15);">
+                      <div class="progress-bar bg-info rounded-pill progress-bar-striped progress-bar-animated" [style.width]="listeningScore() + '%'"></div>
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <div class="d-flex justify-content-between text-white small mb-1">
+                      <span><i class="bi bi-book me-2 text-success"></i>Reading & Vocabulary</span>
+                      <span class="text-warning fw-bold">{{ readingScore() }}%</span>
+                    </div>
+                    <div class="progress rounded-pill" style="height: 10px; background: rgba(255,255,255,0.15);">
+                      <div class="progress-bar bg-success rounded-pill progress-bar-striped progress-bar-animated" [style.width]="readingScore() + '%'"></div>
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <div class="d-flex justify-content-between text-white small mb-1">
+                      <span><i class="bi bi-spellcheck me-2 text-warning"></i>Grammar & Syntax</span>
+                      <span class="text-warning fw-bold">{{ grammarScore() }}%</span>
+                    </div>
+                    <div class="progress rounded-pill" style="height: 10px; background: rgba(255,255,255,0.15);">
+                      <div class="progress-bar bg-warning rounded-pill progress-bar-striped progress-bar-animated" [style.width]="grammarScore() + '%'"></div>
+                    </div>
+                  </div>
+
+                  <div class="mb-2">
+                    <div class="d-flex justify-content-between text-white small mb-1">
+                      <span><i class="bi bi-mic me-2 text-danger"></i>Speaking & Pronunciation</span>
+                      <span class="text-warning fw-bold">{{ speakingScore() }}%</span>
+                    </div>
+                    <div class="progress rounded-pill" style="height: 10px; background: rgba(255,255,255,0.15);">
+                      <div class="progress-bar bg-danger rounded-pill progress-bar-striped progress-bar-animated" [style.width]="speakingScore() + '%'"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Milestone Numbers (Dynamic Real Values) -->
+              <div class="col-lg-6">
+                <div class="dashboard-glass-card p-4 rounded-4 h-100 d-flex flex-column justify-content-between">
+                  <div>
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                      <h5 class="fw-bold text-white mb-0"><i class="bi bi-activity text-success me-2"></i>Fluency Milestones</h5>
+                      <span class="badge bg-success-subtle text-success rounded-pill px-3 py-1 small fw-semibold">🔥 {{ streakDays() }} Day Streak</span>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                      <div class="col-6">
+                        <div class="p-3 rounded-3 bg-white bg-opacity-10 text-center progress-milestone-box">
+                          <div class="display-6 fw-bold text-warning mb-1">{{ wordsMastered() }}</div>
+                          <div class="text-white-50 small">Words Mastered</div>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div class="p-3 rounded-3 bg-white bg-opacity-10 text-center progress-milestone-box">
+                          <div class="display-6 fw-bold text-info mb-1">{{ lessonsFinished() }}</div>
+                          <div class="text-white-50 small">Lessons Finished</div>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div class="p-3 rounded-3 bg-white bg-opacity-10 text-center progress-milestone-box">
+                          <div class="display-6 fw-bold text-success mb-1">{{ quizzesPassed() }}</div>
+                          <div class="text-white-50 small">Quizzes Passed</div>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div class="p-3 rounded-3 bg-white bg-opacity-10 text-center progress-milestone-box">
+                          <div class="display-6 fw-bold text-danger mb-1">{{ formattedStudyTime() }}</div>
+                          <div class="text-white-50 small">Total Study Time</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="p-3 rounded-3 border border-warning border-opacity-50 text-white small bg-warning bg-opacity-10 d-flex align-items-center gap-2">
+                    <span class="fs-4">🦉</span>
+                    <div>
+                      <strong>Coach Tip:</strong>
+                      @if (quizzesPassed() === 0 && totalAssessmentsCount() > 0) {
+                        <span> Retake your test to score 70%+ and unlock your official Chapter Champion badge!</span>
+                      } @else if (quizzesPassed() > 0) {
+                        <span> Fantastic job passing assessments! Continue daily practice drills to keep your streak burning! 🔥</span>
+                      } @else {
+                        <span> Start practicing your first lesson to build up your fluency statistics and stars!</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- ================================================================ -->
+          <!-- 📝 SECTION 1: ASSESSMENT MARKS & SCORECARD TABLE / CARDS         -->
+          <!-- ================================================================ -->
+          @if (progressFilter() === 'all' || progressFilter() === 'assessments') {
+            <div class="dashboard-glass-card p-3 p-md-4 rounded-4 mb-4">
+              <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
                 <div>
-                  <h5 class="fw-bold text-white mb-4"><i class="bi bi-activity text-success me-2"></i>Fluency Milestones</h5>
+                  <h4 class="fw-bold text-white mb-1 d-flex align-items-center gap-2">
+                    <i class="bi bi-clipboard-check-fill text-warning"></i>
+                    Assessment Marks & Scorecards
+                  </h4>
+                  <p class="text-white-50 mb-0 small">Review exact scores, pass requirements, and test statuses for all assessments.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill px-3 py-1.5 fw-semibold">
+                    Avg Score: {{ accuracyRate() }}%
+                  </span>
+                  <button type="button" class="btn btn-sm btn-warning rounded-pill px-3 py-1.5 fw-bold text-dark shadow-sm"
+                          (click)="openAssessmentFromProgress()">
+                    <i class="bi bi-arrow-right-circle me-1"></i>Go to Assessments
+                  </button>
+                </div>
+              </div>
 
-                  <div class="row g-3 mb-4">
-                    <div class="col-6">
-                      <div class="p-3 rounded-3 bg-white bg-opacity-10 text-center">
-                        <div class="display-6 fw-bold text-warning mb-1">{{ wordsMastered() }}</div>
-                        <div class="text-white-50 small">Words Mastered</div>
+              @if (allAssessments().length === 0) {
+                <div class="p-4 rounded-3 text-center bg-white bg-opacity-5 text-white-50">
+                  <i class="bi bi-clipboard-x fs-1 d-block mb-2 text-warning"></i>
+                  No assessments available yet for your course.
+                </div>
+              } @else {
+                <!-- DESKTOP TABLE VIEW (Screens >= 768px) -->
+                <div class="d-none d-md-block table-responsive">
+                  <table class="table table-hover align-middle mb-0 progress-table-glass">
+                    <thead class="text-white-50 small text-uppercase">
+                      <tr>
+                        <th class="ps-3 py-3">Assessment Title</th>
+                        <th class="py-3">Course</th>
+                        <th class="py-3 text-center">Score / Marks</th>
+                        <th class="py-3 text-center">Pass Req.</th>
+                        <th class="py-3 text-center">Status</th>
+                        <th class="py-3 text-center">Attempts</th>
+                        <th class="pe-3 py-3 text-end">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (asm of allAssessments(); track asm.id) {
+                        <tr>
+                          <td class="ps-3 py-3">
+                            <div class="d-flex align-items-center gap-2.5">
+                              <div class="assessment-status-dot"
+                                   [class.bg-success]="asm.is_passed"
+                                   [class.bg-warning]="asm.has_attempted && !asm.is_passed"
+                                   [class.bg-secondary]="!asm.has_attempted"></div>
+                              <div>
+                                <span class="fw-bold text-white d-block">{{ asm.title }}</span>
+                                <small class="text-white-50">Duration: {{ asm.duration_minutes || 15 }} mins</small>
+                              </div>
+                            </div>
+                          </td>
+                          <td class="py-3 text-white-50 small">
+                            {{ asm.course_name || 'English for Beginner' }}
+                          </td>
+                          <td class="py-3 text-center">
+                            @if (asm.has_attempted) {
+                              <span class="fw-bold fs-6 px-2.5 py-1 rounded-pill"
+                                    [class.bg-success-subtle]="asm.is_passed"
+                                    [class.text-success]="asm.is_passed"
+                                    [class.bg-danger-subtle]="!asm.is_passed"
+                                    [class.text-danger]="!asm.is_passed">
+                                {{ asm.latest_score }}%
+                              </span>
+                            } @else {
+                              <span class="text-white-50">—</span>
+                            }
+                          </td>
+                          <td class="py-3 text-center text-white-50 small">
+                            <span class="badge bg-white bg-opacity-10 text-white px-2.5 py-1 rounded-pill">
+                              {{ asm.pass_percentage }}%
+                            </span>
+                          </td>
+                          <td class="py-3 text-center">
+                            @if (asm.is_passed) {
+                              <span class="badge bg-success text-white rounded-pill px-3 py-1.5 fw-semibold shadow-sm">
+                                <i class="bi bi-check-circle-fill me-1"></i>Passed
+                              </span>
+                            } @else if (asm.has_attempted) {
+                              <span class="badge bg-danger text-white rounded-pill px-3 py-1.5 fw-semibold shadow-sm">
+                                <i class="bi bi-arrow-repeat me-1"></i>Needs Practice
+                              </span>
+                            } @else {
+                              <span class="badge bg-secondary text-white rounded-pill px-3 py-1.5 fw-normal">
+                                Not Started
+                              </span>
+                            }
+                          </td>
+                          <td class="py-3 text-center text-white-50 small">
+                            {{ asm.total_attempts || 0 }}
+                          </td>
+                          <td class="pe-3 py-3 text-end">
+                            <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold shadow-sm"
+                                    [class.btn-warning]="asm.has_attempted && !asm.is_passed"
+                                    [class.text-dark]="asm.has_attempted && !asm.is_passed"
+                                    [class.btn-outline-success]="asm.is_passed"
+                                    [class.btn-outline-light]="!asm.has_attempted"
+                                    (click)="openAssessmentFromProgress(asm.id)">
+                              @if (asm.is_passed) {
+                                <i class="bi bi-eye me-1"></i>Review
+                              } @else if (asm.has_attempted) {
+                                <i class="bi bi-play-circle-fill me-1"></i>Retake Test
+                              } @else {
+                                <i class="bi bi-play-circle-fill me-1"></i>Start Test
+                              }
+                            </button>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- MOBILE CARDS VIEW (Screens < 768px) -->
+                <div class="d-block d-md-none">
+                  <div class="d-flex flex-column gap-3">
+                    @for (asm of allAssessments(); track asm.id) {
+                      <div class="progress-mobile-card p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-15">
+                        <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                          <div>
+                            <h6 class="fw-bold text-white mb-0">{{ asm.title }}</h6>
+                            <small class="text-white-50">{{ asm.course_name || 'English for Beginner' }}</small>
+                          </div>
+                          @if (asm.is_passed) {
+                            <span class="badge bg-success rounded-pill px-2.5 py-1 extra-small">
+                              <i class="bi bi-check-circle-fill me-1"></i>Passed
+                            </span>
+                          } @else if (asm.has_attempted) {
+                            <span class="badge bg-danger rounded-pill px-2.5 py-1 extra-small">
+                              <i class="bi bi-arrow-repeat me-1"></i>Needs Practice
+                            </span>
+                          } @else {
+                            <span class="badge bg-secondary rounded-pill px-2.5 py-1 extra-small">
+                              Not Started
+                            </span>
+                          }
+                        </div>
+
+                        <!-- Score & Pass Req Grid -->
+                        <div class="row g-2 mb-3 mt-1">
+                          <div class="col-6">
+                            <div class="p-2 rounded-3 bg-white bg-opacity-10 text-center">
+                              <div class="extra-small text-white-50">Your Score</div>
+                              <div class="fs-5 fw-bold"
+                                   [class.text-success]="asm.is_passed"
+                                   [class.text-danger]="asm.has_attempted && !asm.is_passed"
+                                   [class.text-white-50]="!asm.has_attempted">
+                                {{ asm.has_attempted ? asm.latest_score + '%' : '—' }}
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-6">
+                            <div class="p-2 rounded-3 bg-white bg-opacity-10 text-center">
+                              <div class="extra-small text-white-50">Pass Mark</div>
+                              <div class="fs-5 fw-bold text-warning">{{ asm.pass_percentage }}%</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between extra-small text-white-50 mb-3">
+                          <span>Attempts: {{ asm.total_attempts || 0 }}</span>
+                          <span>Duration: {{ asm.duration_minutes || 15 }}m</span>
+                        </div>
+
+                        <button type="button" class="btn btn-sm w-100 rounded-pill py-2 fw-bold"
+                                [class.btn-warning]="asm.has_attempted && !asm.is_passed"
+                                [class.text-dark]="asm.has_attempted && !asm.is_passed"
+                                [class.btn-outline-success]="asm.is_passed"
+                                [class.btn-outline-light]="!asm.has_attempted"
+                                (click)="openAssessmentFromProgress(asm.id)">
+                          @if (asm.is_passed) {
+                            <i class="bi bi-eye me-1"></i>Review Result
+                          } @else if (asm.has_attempted) {
+                            <i class="bi bi-play-circle-fill me-1"></i>Retake Test (70% to Pass)
+                          } @else {
+                            <i class="bi bi-play-circle-fill me-1"></i>Take Test Now
+                          }
+                        </button>
                       </div>
-                    </div>
-                    <div class="col-6">
-                      <div class="p-3 rounded-3 bg-white bg-opacity-10 text-center">
-                        <div class="display-6 fw-bold text-info mb-1">{{ lessonsFinished() }}</div>
-                        <div class="text-white-50 small">Lessons Finished</div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- ================================================================ -->
+          <!-- 🧩 SECTION 2: PRACTICE TOPICS & DRILLS PROGRESS                  -->
+          <!-- ================================================================ -->
+          @if (progressFilter() === 'all' || progressFilter() === 'practice') {
+            <div class="dashboard-glass-card p-3 p-md-4 rounded-4 mb-4">
+              <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                <div>
+                  <h4 class="fw-bold text-white mb-1 d-flex align-items-center gap-2">
+                    <i class="bi bi-puzzle-fill text-info"></i>
+                    Practice Arena Mastery
+                  </h4>
+                  <p class="text-white-50 mb-0 small">Completion and accuracy rates across interactive practice drills.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge bg-info bg-opacity-25 text-info rounded-pill px-3 py-1.5 fw-semibold">
+                    {{ practiceAvgPercent() }}% Completed
+                  </span>
+                  <button type="button" class="btn btn-sm btn-info rounded-pill px-3 py-1.5 fw-bold text-dark shadow-sm"
+                          (click)="setTab('practice')">
+                    <i class="bi bi-arrow-right-circle me-1"></i>Open Practice Tab
+                  </button>
+                </div>
+              </div>
+
+              <div class="row g-3">
+                @for (topic of practiceTopicsList(); track topic.id) {
+                  <div class="col-12 col-md-6 col-lg-4">
+                    <div class="progress-topic-card p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-15 h-100 d-flex flex-column justify-content-between">
+                      <div>
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                          <span class="badge rounded-pill px-2.5 py-1 extra-small fw-bold"
+                                [style.backgroundColor]="topic.color + '33'"
+                                [style.color]="topic.color">
+                            {{ topic.title }}
+                          </span>
+                          <span class="fw-bold fs-6" [style.color]="topic.color">{{ topic.percentage }}%</span>
+                        </div>
+                        <p class="text-white-50 small mb-3">{{ topic.description }}</p>
                       </div>
-                    </div>
-                    <div class="col-6">
-                      <div class="p-3 rounded-3 bg-white bg-opacity-10 text-center">
-                        <div class="display-6 fw-bold text-success mb-1">{{ quizzesPassed() }}</div>
-                        <div class="text-white-50 small">Quizzes Passed</div>
-                      </div>
-                    </div>
-                    <div class="col-6">
-                      <div class="p-3 rounded-3 bg-white bg-opacity-10 text-center">
-                        <div class="display-6 fw-bold text-danger mb-1">{{ studyTimeMinutes() }}h</div>
-                        <div class="text-white-50 small">Total Study Time</div>
+
+                      <div>
+                        <div class="progress rounded-pill mb-3" style="height: 8px;">
+                          <div class="progress-bar rounded-pill"
+                               [style.width]="topic.percentage + '%'"
+                               [style.backgroundColor]="topic.color"></div>
+                        </div>
+
+                        <button type="button" class="btn btn-sm w-100 rounded-pill py-1.5 fw-semibold"
+                                [style.backgroundColor]="topic.color"
+                                style="color: #0F172A;"
+                                (click)="openPracticeTopicFromProgress(topic.id)">
+                          <i class="bi bi-play-circle-fill me-1"></i>Practice Drill
+                        </button>
                       </div>
                     </div>
                   </div>
-                </div>
-
-                <div class="p-3 rounded-3 border border-warning border-opacity-50 text-white small">
-                  🌟 <strong>Coach Tip:</strong> Start practicing your first lesson to build up your fluency statistics!
-                </div>
+                }
               </div>
             </div>
-          </div>
+          }
+
+          <!-- ================================================================ -->
+          <!-- 🎮 SECTION 3: ARCADE LEARNING GAMES PROGRESS                     -->
+          <!-- ================================================================ -->
+          @if (progressFilter() === 'all' || progressFilter() === 'games') {
+            <div class="dashboard-glass-card p-3 p-md-4 rounded-4 mb-4">
+              <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                <div>
+                  <h4 class="fw-bold text-white mb-1 d-flex align-items-center gap-2">
+                    <i class="bi bi-controller text-danger"></i>
+                    Arcade Learning Games Progress
+                  </h4>
+                  <p class="text-white-50 mb-0 small">Gamified missions, star rewards, and high score tracking.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge bg-danger bg-opacity-25 text-danger rounded-pill px-3 py-1.5 fw-semibold">
+                    ⭐ {{ gamesTotalStars() }} Stars Earned
+                  </span>
+                  <button type="button" class="btn btn-sm btn-danger rounded-pill px-3 py-1.5 fw-bold text-white shadow-sm"
+                          (click)="openGameFromProgress()">
+                    <i class="bi bi-play-fill me-1"></i>Play Games
+                  </button>
+                </div>
+              </div>
+
+              <div class="row g-3">
+                @for (game of gamesList(); track game.id) {
+                  <div class="col-12 col-md-6 col-lg-4">
+                    <div class="progress-game-card p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-15 h-100 d-flex flex-column justify-content-between">
+                      <div>
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                          <div class="d-flex align-items-center gap-2">
+                            <span class="fs-4">{{ game.id === 'car_racer' ? '🏎️' : (game.id === 'word_ninja' ? '🥷' : (game.id === 'flappy_word' ? '🐦' : (game.id === 'space_defender' ? '🚀' : '🎈'))) }}</span>
+                            <h6 class="fw-bold text-white mb-0">{{ game.title }}</h6>
+                          </div>
+                          <span class="fw-bold fs-6 text-warning">{{ game.percentage }}%</span>
+                        </div>
+                        <p class="text-white-50 small mb-2">{{ game.description }}</p>
+                        
+                        <div class="d-flex align-items-center justify-content-between mb-3 extra-small">
+                          <span class="text-white-50">High Score: <strong class="text-white">{{ game.high_score }}</strong></span>
+                          <span>
+                            @for (s of [1,2,3]; track s) {
+                              <span [class.text-warning]="s <= game.stars" [class.text-white-50]="s > game.stars">★</span>
+                            }
+                          </span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div class="progress rounded-pill mb-3" style="height: 8px;">
+                          <div class="progress-bar rounded-pill bg-danger" [style.width]="game.percentage + '%'"></div>
+                        </div>
+
+                        <button type="button" class="btn btn-sm w-100 rounded-pill py-1.5 fw-semibold btn-outline-danger text-white border-danger"
+                                (click)="openGameFromProgress()">
+                          <i class="bi bi-joystick me-1"></i>Launch Game
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- ================================================================ -->
+          <!-- 📚 SECTION 4: ENROLLED COURSES & SYLLABUS PROGRESSION            -->
+          <!-- ================================================================ -->
+          @if (progressFilter() === 'all' || progressFilter() === 'courses') {
+            <div class="dashboard-glass-card p-3 p-md-4 rounded-4 mb-4">
+              <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                <div>
+                  <h4 class="fw-bold text-white mb-1 d-flex align-items-center gap-2">
+                    <i class="bi bi-journal-bookmark-fill text-success"></i>
+                    Course Syllabus Progression
+                  </h4>
+                  <p class="text-white-50 mb-0 small">Chapter completions and curriculum milestones for all assigned courses.</p>
+                </div>
+                <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-3 py-1.5 fw-semibold">
+                  {{ overallCompletionPercentage() }}% Overall Progress
+                </span>
+              </div>
+
+              <div class="row g-3">
+                @for (cp of allCoursesProgress(); track cp.id) {
+                  <div class="col-12 col-md-6">
+                    <div class="p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-15 h-100 d-flex flex-column justify-content-between">
+                      <div>
+                        <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                          <div>
+                            <h6 class="fw-bold text-white mb-0">{{ cp.name }}</h6>
+                            <small class="text-white-50">{{ cp.completedChapters }} of {{ cp.totalChapters }} Chapters Finished</small>
+                          </div>
+                          <span class="badge rounded-pill px-2.5 py-1 extra-small fw-bold"
+                                [class.bg-success]="cp.percentage === 100"
+                                [class.bg-warning]="cp.percentage > 0 && cp.percentage < 100"
+                                [class.text-dark]="cp.percentage > 0 && cp.percentage < 100"
+                                [class.bg-secondary]="cp.percentage === 0">
+                            {{ cp.percentage }}% Done
+                          </span>
+                        </div>
+
+                        <div class="progress rounded-pill my-3" style="height: 10px;">
+                          <div class="progress-bar rounded-pill bg-success progress-bar-striped progress-bar-animated"
+                               [style.width]="cp.percentage + '%'"></div>
+                        </div>
+                      </div>
+
+                      <div class="d-flex align-items-center justify-content-between pt-2 border-top border-white border-opacity-10">
+                        <span class="extra-small text-white-50">
+                          <i class="bi bi-clock me-1"></i>{{ cp.remainingChapters }} Chapters remaining
+                        </span>
+                        <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 fw-semibold"
+                                (click)="openCourseFromProgress(cp.course)">
+                          <i class="bi bi-play-circle-fill me-1"></i>Resume Course
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
         </div>
       }
 

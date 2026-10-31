@@ -66,7 +66,7 @@ export class CarRacerComponent implements OnInit, OnDestroy {
   // Game Signals
   gameState = signal<'start' | 'playing' | 'paused' | 'gameover' | 'victory'>('start');
   score = signal<number>(0);
-  lives = signal<number>(3);
+  lives = signal<number>(5);
   currentRoundIndex = signal<number>(0);
   totalRounds = signal<number>(1);
   streak = signal<number>(0);
@@ -141,18 +141,36 @@ export class CarRacerComponent implements OnInit, OnDestroy {
 
     try {
       if (type === 'lane') {
-        // Quick swish
+        // Car engine rev & tire swish
         const osc = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const filter = ctx.createBiquadFilter();
         const gain = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(220, now);
-        osc.frequency.exponentialRampToValueAtTime(440, now + 0.08);
-        gain.gain.setValueAtTime(0.12, now);
-        gain.gain.linearRampToValueAtTime(0, now + 0.08);
-        osc.connect(gain);
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(85, now);
+        osc.frequency.exponentialRampToValueAtTime(240, now + 0.14);
+
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(55, now);
+        osc2.frequency.exponentialRampToValueAtTime(130, now + 0.14);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(500, now);
+
+        gain.gain.setValueAtTime(0.01, now);
+        gain.gain.linearRampToValueAtTime(0.22, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+        osc.connect(filter);
+        osc2.connect(filter);
+        filter.connect(gain);
         gain.connect(ctx.destination);
+
         osc.start(now);
-        osc.stop(now + 0.08);
+        osc2.start(now);
+        osc.stop(now + 0.15);
+        osc2.stop(now + 0.15);
       } else if (type === 'correct') {
         // Joyful 2-tone arpeggio
         [523.25, 659.25, 783.99].forEach((freq, idx) => {
@@ -181,18 +199,36 @@ export class CarRacerComponent implements OnInit, OnDestroy {
         osc.start(now);
         osc.stop(now + 0.25);
       } else if (type === 'nitro') {
-        // Rising power whoosh
+        // High-power turbo engine rev
         const osc = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const filter = ctx.createBiquadFilter();
         const gain = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(300, now);
-        osc.frequency.exponentialRampToValueAtTime(800, now + 0.2);
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.linearRampToValueAtTime(0, now + 0.2);
-        osc.connect(gain);
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(110, now);
+        osc.frequency.exponentialRampToValueAtTime(480, now + 0.28);
+
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(70, now);
+        osc2.frequency.exponentialRampToValueAtTime(220, now + 0.28);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(800, now);
+
+        gain.gain.setValueAtTime(0.01, now);
+        gain.gain.linearRampToValueAtTime(0.28, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+        osc.connect(filter);
+        osc2.connect(filter);
+        filter.connect(gain);
         gain.connect(ctx.destination);
+
         osc.start(now);
-        osc.stop(now + 0.2);
+        osc2.start(now);
+        osc.stop(now + 0.3);
+        osc2.stop(now + 0.3);
       } else if (type === 'win') {
         // Fanfare chord
         [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
@@ -292,7 +328,7 @@ export class CarRacerComponent implements OnInit, OnDestroy {
     this.initAudio();
     this.gameState.set('playing');
     this.score.set(0);
-    this.lives.set(3);
+    this.lives.set(5);
     this.streak.set(0);
     this.currentRoundIndex.set(0);
     this.correctHits = 0;

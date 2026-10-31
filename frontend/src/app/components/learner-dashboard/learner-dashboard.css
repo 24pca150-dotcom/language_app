@@ -590,7 +590,10 @@
   border-color: rgba(249, 115, 22, 0.35);
 }
 .star-pill {
-  border-color: rgba(234, 179, 8, 0.35);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+.coin-pill {
+  border-color: rgba(245, 158, 11, 0.35);
 }
 .rank-pill {
   border-color: rgba(168, 85, 247, 0.35);
@@ -3223,6 +3226,20 @@
   color: #F87171;
 }
 
+.neat-card-tag.tag-assessment {
+  color: #38BDF8;
+}
+
+.assessment-mini-tile {
+  transition: all 0.25s ease;
+}
+
+.assessment-mini-tile:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(251, 191, 36, 0.35) !important;
+  transform: translateY(-2px);
+}
+
 .neat-card-badge {
   font-size: 0.74rem;
   font-weight: 700;
@@ -3842,6 +3859,149 @@
 
   .practice-heading-colorful {
     font-size: 0.92rem !important;
+  }
+}
+
+/* ==========================================================================
+   📈 PROGRESS ANALYTICS & ASSESSMENT SCORECARD STYLES
+   ========================================================================== */
+.progress-analytics-wrapper {
+  padding-bottom: 2rem;
+}
+
+.progress-kpi-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border-top: 3px solid transparent;
+}
+
+.progress-kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.18) !important;
+}
+
+.kpi-icon-wrap {
+  width: 42px;
+  height: 42px;
+}
+
+.progress-filter-bar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.progress-filter-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.progress-filter-btn {
+  font-size: 0.82rem;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+
+.progress-table-glass {
+  border-collapse: separate;
+  border-spacing: 0 6px;
+  background: transparent !important;
+}
+
+.progress-table-glass thead th {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-bottom: none !important;
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.progress-table-glass tbody tr {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.progress-table-glass tbody tr:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  transform: scale(1.003);
+}
+
+.progress-table-glass tbody td {
+  border: none !important;
+}
+
+.progress-table-glass tbody tr td:first-child {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+.progress-table-glass tbody tr td:last-child {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.assessment-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.progress-mobile-card {
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease;
+}
+
+.progress-topic-card,
+.progress-game-card {
+  backdrop-filter: blur(14px);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.progress-topic-card:hover,
+.progress-game-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.16);
+}
+
+.progress-milestone-box {
+  transition: transform 0.2s ease;
+}
+.progress-milestone-box:hover {
+  transform: scale(1.03);
+}
+
+.extra-small {
+  font-size: 0.72rem !important;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .progress-filter-bar {
+    width: 100%;
+    padding-bottom: 6px;
+  }
+  
+  .progress-kpi-card {
+    padding: 12px !important;
+  }
+
+  .progress-kpi-card .display-6 {
+    font-size: 1.5rem !important;
+  }
+
+  .progress-mobile-card h6 {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .progress-kpi-card .display-6 {
+    font-size: 1.35rem !important;
+  }
+
+  .progress-filter-btn {
+    font-size: 0.75rem;
+    padding: 4px 10px !important;
   }
 }
 

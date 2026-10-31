@@ -244,7 +244,7 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
     if (lower.includes('listening') || lower.includes('listen')) return '#0e7490 !important';
     if (lower.includes('reading') || lower.includes('read')) return '#1e40af !important';
     if (lower.includes('speaking') || lower.includes('speak')) return '#5b21b6 !important';
-    if (lower.includes('grammar') || lower.includes('vocab')) return '#047857 !important';
+    if (lower.includes('gerund') || lower.includes('grammar') || lower.includes('vocab')) return '#047857 !important';
     if (lower.includes('interactive') || lower.includes('test') || lower.includes('demo')) return '#9d174d !important';
     return '#1b5e20 !important';
   }
@@ -255,7 +255,7 @@ export class KidsDashboard implements OnChanges, AfterViewInit {
     if (lower.includes('listening') || lower.includes('listen')) return '/assets/images/level_listening.jpg';
     if (lower.includes('reading') || lower.includes('read')) return '/assets/images/level_reading.jpg';
     if (lower.includes('speaking') || lower.includes('speak')) return '/assets/images/level_speaking.jpg';
-    if (lower.includes('grammar') || lower.includes('vocab')) return '/assets/images/level_grammar.jpg';
+    if (lower.includes('gerund') || lower.includes('grammar') || lower.includes('vocab')) return '/assets/images/level_grammar.jpg';
     if (lower.includes('interactive') || lower.includes('test') || lower.includes('demo') || lower.includes('game')) return '/assets/images/level_games.jpg';
 
     const fallbackList = [

@@ -751,39 +751,42 @@
   border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
 }
 
-/* Middle Content Area - Top Aligned, Never Clips Top, Zero Scrollbar */
+/* Middle Content Area - Smooth Vertical Scroll for All Activities When Needed */
 .activity-stage-box .activity-render-wrapper {
-  flex: 1 1 0 !important;
+  flex: 1 1 auto !important;
   min-height: 0 !important;
   height: 100% !important;
   width: 100% !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
-  justify-content: center !important;
-  overflow: hidden !important;
-  padding: 0.1rem 0.25rem !important;
+  justify-content: flex-start !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 0.5rem 0.5rem !important;
 }
 
 .activity-stage-box .activity-render-wrapper app-activity-renderer {
   width: 100% !important;
-  max-width: 860px !important;
-  height: 100% !important;
-  max-height: 100% !important;
+  max-width: 960px !important;
+  min-height: 0 !important;
   display: flex !important;
+  flex-direction: column !important;
   align-items: center !important;
-  justify-content: center !important;
-  margin: 0 !important;
+  justify-content: flex-start !important;
+  margin: 0 auto !important;
 }
 
 .activity-stage-box .activity-render-wrapper .activity-renderer-container {
   margin: 0 !important;
   width: 100% !important;
-  height: 100% !important;
-  max-height: 100% !important;
+  min-height: 100% !important;
   display: flex !important;
+  flex-direction: column !important;
   align-items: center !important;
-  justify-content: center !important;
+  justify-content: flex-start !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
 }
 
 .activity-stage-box .activity-render-wrapper app-activity-renderer app-activity-car-racer,

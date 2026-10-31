@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../data/game_question_bank.dart';
+import '../services/game_audio_service.dart';
 
 class BalloonPopScreen extends StatefulWidget {
   final String title;
@@ -79,7 +81,7 @@ class _BalloonMission {
 
 class _BalloonPopScreenState extends State<BalloonPopScreen> {
   int _score = 0;
-  int _lives = 3;
+  int _lives = 5;
   int _currentMissionIndex = 0;
   int _missionPops = 0;
   final int _popsPerMission = 3; // 3 per mission, 5 missions = 15 total
@@ -93,39 +95,7 @@ class _BalloonPopScreenState extends State<BalloonPopScreen> {
   final List<_BalloonItem> _balloons = [];
   final List<_ConfettiParticle> _confetti = [];
 
-  // 5 Distinct Language Missions (Matching user's request for 5 questions/missions)
-  final List<_BalloonMission> _missions = [
-    _BalloonMission(
-      title: 'Mission 1/5: Nature & Weather',
-      prompt: 'Pop only NATURE & WEATHER words! Don\'t let them escape!',
-      targets: ['Sun', 'Moon', 'Sky', 'Star', 'Cloud', 'Rain', 'Breeze'],
-      distractors: ['Car', 'Table', 'Phone', 'Book', 'Shoe'],
-    ),
-    _BalloonMission(
-      title: 'Mission 2/5: Animal Kingdom',
-      prompt: 'Pop only ANIMAL words! (Birds, beasts & sea life)',
-      targets: ['Lion', 'Tiger', 'Eagle', 'Dolphin', 'Falcon', 'Panda'],
-      distractors: ['Pencil', 'Shirt', 'Clock', 'Cup', 'Door'],
-    ),
-    _BalloonMission(
-      title: 'Mission 3/5: Colors & Gems',
-      prompt: 'Pop only COLORS & GEMS! (Vibrant shades)',
-      targets: ['Emerald', 'Ruby', 'Azure', 'Amber', 'Violet', 'Gold'],
-      distractors: ['Paper', 'Road', 'Lamp', 'Box', 'Fork'],
-    ),
-    _BalloonMission(
-      title: 'Mission 4/5: Delicious Food',
-      prompt: 'Pop only FOOD & FRUIT words!',
-      targets: ['Honey', 'Mango', 'Bread', 'Peach', 'Berries', 'Apple'],
-      distractors: ['Rock', 'Desk', 'Iron', 'Glass', 'Wire'],
-    ),
-    _BalloonMission(
-      title: 'Mission 5/5: Ocean Life',
-      prompt: 'Pop only OCEAN & SEA words!',
-      targets: ['Whale', 'Shark', 'Coral', 'Wave', 'Starfish', 'Turtle'],
-      distractors: ['Train', 'Bike', 'Spoon', 'Key', 'Ruler'],
-    ),
-  ];
+  final List<_BalloonMission> _missions = [];
 
   final List<Color> _balloonPalette = [
     const Color(0xFFEF4444), // Crimson
@@ -150,13 +120,26 @@ class _BalloonPopScreenState extends State<BalloonPopScreen> {
 
   void _startBalloonGame() {
     _score = 0;
-    _lives = 3;
+    _lives = 5;
     _currentMissionIndex = 0;
     _missionPops = 0;
     _gameState = 'playing';
     _balloons.clear();
     _confetti.clear();
     _spawnTimer = 0.3;
+
+    _missions.clear();
+    final randomMissions = GameQuestionBank.getRandomBalloonMissions(5);
+    for (int i = 0; i < randomMissions.length; i++) {
+      final m = randomMissions[i];
+      final titleStr = m['title'].toString().replaceFirst('Mission: ', '');
+      _missions.add(_BalloonMission(
+        title: titleStr,
+        prompt: m['prompt'] as String,
+        targets: List<String>.from(m['targets'] as List),
+        distractors: List<String>.from(m['distractors'] as List),
+      ));
+    }
 
     _loopTimer?.cancel();
     _loopTimer = Timer.periodic(const Duration(milliseconds: 16), (_) => _tick(0.016));
@@ -248,9 +231,11 @@ class _BalloonPopScreenState extends State<BalloonPopScreen> {
 
   void _popBalloon(_BalloonItem b) {
     b.popped = true;
+    GameAudioService.playBalloonPop();
 
     if (b.isTarget) {
       // CORRECT!
+      GameAudioService.playCorrectDing();
       _missionPops++;
       _score += 100;
       _addConfetti(b.x, b.y, b.color, 28);
@@ -261,11 +246,13 @@ class _BalloonPopScreenState extends State<BalloonPopScreen> {
           _missionPops = 0;
           _balloons.clear();
         } else {
+          GameAudioService.playVictoryFanfare();
           _gameState = 'victory';
         }
       }
     } else {
       // WRONG!
+      GameAudioService.playWrongBuzz();
       _lives--;
       _addConfetti(b.x, b.y, const Color(0xFFEF4444), 32);
 
@@ -327,6 +314,32 @@ class _BalloonPopScreenState extends State<BalloonPopScreen> {
               borderRadius: BorderRadius.circular(22),
               child: Stack(
                 children: [
+                  // 1. ☁️ Real Cloud Realm / Sky Background
+                  Positioned.fill(
+                    child: Image.asset(
+                      'assets/images/bg_option3_cloud_kingdom.jpg',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(color: const Color(0xFF0F172A)),
+                    ),
+                  ),
+
+                  // 2. Atmospheric Dark Vignette Gradient for High Contrast
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withValues(alpha: 0.72),
+                            Colors.black.withValues(alpha: 0.35),
+                            Colors.black.withValues(alpha: 0.72),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
                   Column(
                     children: [
                       // Top HUD
@@ -368,46 +381,59 @@ class _BalloonPopScreenState extends State<BalloonPopScreen> {
   Widget _buildTopHud() {
     return Container(
       color: const Color(0xFF0F172A),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 20),
-              const SizedBox(width: 6),
+              const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 18),
+              const SizedBox(width: 4),
               Text(
                 '$_score',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
               ),
             ],
           ),
-          Text(
-            'MISSION ${_currentMissionIndex + 1}/${_missions.length}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-              fontSize: 13,
-              letterSpacing: 0.8,
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                'MISSION ${_currentMissionIndex + 1}/${_missions.length}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 11,
+                  letterSpacing: 0.5,
+                ),
+              ),
             ),
           ),
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               ...List.generate(
-                3,
-                (i) => Icon(
-                  i < _lives ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                  color: i < _lives ? const Color(0xFFEF4444) : Colors.white24,
-                  size: 18,
+                5,
+                (i) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 0.5),
+                  child: Icon(
+                    i < _lives ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                    color: i < _lives ? const Color(0xFFEF4444) : Colors.white24,
+                    size: 14,
+                  ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 4),
               GestureDetector(
                 onTap: () => setState(() => _soundEnabled = !_soundEnabled),
                 child: Icon(
                   _soundEnabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
                   color: Colors.white70,
-                  size: 18,
+                  size: 16,
                 ),
               ),
             ],
@@ -421,34 +447,76 @@ class _BalloonPopScreenState extends State<BalloonPopScreen> {
     final currentM = _missions[_currentMissionIndex];
     return Container(
       width: double.infinity,
-      color: const Color(0xFF0D1B2A),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF0F172A).withValues(alpha: 0.92),
+            const Color(0xFF1E293B).withValues(alpha: 0.88),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFF38BDF8).withValues(alpha: 0.8),
+          width: 1.8,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0284C7).withValues(alpha: 0.35),
+            blurRadius: 14,
+            spreadRadius: 1,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.bubble_chart_rounded, color: Color(0xFF10B981), size: 14),
-              const SizedBox(width: 6),
-              Text(
-                'MISSION ${_currentMissionIndex + 1}/5: ${currentM.title.toUpperCase()}',
-                style: const TextStyle(
-                  color: Color(0xFF10B981),
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.0,
-                ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0284C7).withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: const Color(0xFF38BDF8).withValues(alpha: 0.6),
+                width: 1,
               ),
-            ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.bubble_chart_rounded, color: Color(0xFF38BDF8), size: 13),
+                const SizedBox(width: 5),
+                Flexible(
+                  child: Text(
+                    'MISSION ${_currentMissionIndex + 1}/5: ${currentM.title.toUpperCase()}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Color(0xFF38BDF8),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             currentM.prompt,
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+              height: 1.25,
+              shadows: [
+                Shadow(color: Colors.black87, blurRadius: 4, offset: Offset(0, 1)),
+              ],
             ),
           ),
         ],
@@ -572,16 +640,7 @@ class _BalloonSkyPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // 1. Sky Gradient (Sunset/Sunrise Sky)
-    final bgPaint = Paint()
-      ..shader = const LinearGradient(
-        colors: [Color(0xFF0F172A), Color(0xFF1E293B), Color(0xFF0D1B2A)],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bgPaint);
-
-    // 2. Confetti Particles
+    // 1. Confetti Particles
     for (final c in confetti) {
       final pPaint = Paint()
         ..color = c.color.withValues(alpha: (c.life / c.maxLife).clamp(0.0, 1.0));

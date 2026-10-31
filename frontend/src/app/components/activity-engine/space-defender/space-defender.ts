@@ -77,7 +77,7 @@ export class SpaceDefenderComponent implements OnInit, OnDestroy {
   // Game Signals
   gameState = signal<'start' | 'playing' | 'gameover' | 'victory'>('start');
   score = signal<number>(0);
-  lives = signal<number>(3);
+  lives = signal<number>(5);
   currentChallengeIndex = signal<number>(0);
   totalChallenges = signal<number>(1);
   currentPrompt = signal<string>('Shoot the correct answer UFO!');
@@ -247,7 +247,7 @@ export class SpaceDefenderComponent implements OnInit, OnDestroy {
     this.initAudio();
     this.gameState.set('playing');
     this.score.set(0);
-    this.lives.set(3);
+    this.lives.set(5);
     this.currentChallengeIndex.set(0);
     this.correctHits = 0;
     this.wrongHits = 0;

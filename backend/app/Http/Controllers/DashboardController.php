@@ -315,7 +315,7 @@ class DashboardController extends Controller
         }
         $completedChapterIds = $completedChapterQuery->pluck('chapter_id')->toArray();
 
-        // 11. Individual Assessment Attempts & Marks for staff
+        // 11. Individual Assessment Attempts & Marks
         $assessmentAttempts = DB::table('user_assessment_attempts')
             ->join('assessments', 'user_assessment_attempts.assessment_id', '=', 'assessments.id')
             ->leftJoin('levels', 'assessments.level_id', '=', 'levels.id')
@@ -336,6 +336,162 @@ class DashboardController extends Controller
             ->orderBy('user_assessment_attempts.attempted_at', 'desc')
             ->get();
 
+        // 12. Full Active Assessments List with User Progress Status
+        $allActiveAssessments = DB::table('assessments')
+            ->leftJoin('levels', 'assessments.level_id', '=', 'levels.id')
+            ->leftJoin('course_package_levels', 'levels.id', '=', 'course_package_levels.level_id')
+            ->leftJoin('courses', 'course_package_levels.course_id', '=', 'courses.id')
+            ->where('assessments.is_active', true)
+            ->select(
+                'assessments.id',
+                'assessments.title',
+                'assessments.pass_percentage',
+                'assessments.duration_minutes',
+                'courses.name as course_name'
+            )
+            ->distinct()
+            ->get();
+
+        $userAttemptsGrouped = DB::table('user_assessment_attempts')
+            ->where('user_id', $userId)
+            ->orderBy('attempted_at', 'desc')
+            ->get()
+            ->groupBy('assessment_id');
+
+        $assessmentsList = [];
+        $totalAssessmentsCount = $allActiveAssessments->count();
+        $distinctAttemptedCount = 0;
+        $distinctPassedCount = 0;
+
+        foreach ($allActiveAssessments as $asm) {
+            $userAttemptsForAsm = $userAttemptsGrouped->get($asm->id, collect());
+            $hasAttempted = $userAttemptsForAsm->count() > 0;
+            $bestScore = $hasAttempted ? $userAttemptsForAsm->max('score') : null;
+            $isPassed = $hasAttempted ? $userAttemptsForAsm->contains('passed', true) : false;
+            $latestAttempt = $userAttemptsForAsm->first();
+
+            if ($hasAttempted) {
+                $distinctAttemptedCount++;
+            }
+            if ($isPassed) {
+                $distinctPassedCount++;
+            }
+
+            $assessmentsList[] = [
+                'id' => $asm->id,
+                'title' => $asm->title,
+                'pass_percentage' => (float) $asm->pass_percentage,
+                'duration_minutes' => $asm->duration_minutes ?? 15,
+                'course_name' => $asm->course_name ?? 'General Course',
+                'has_attempted' => $hasAttempted,
+                'total_attempts' => $userAttemptsForAsm->count(),
+                'best_score' => $bestScore !== null ? (float) $bestScore : null,
+                'latest_score' => $latestAttempt ? (float) $latestAttempt->score : null,
+                'is_passed' => $isPassed,
+                'latest_attempt_at' => $latestAttempt ? $latestAttempt->attempted_at : null,
+                'status' => $isPassed ? 'passed' : ($hasAttempted ? 'needs_practice' : 'not_started'),
+            ];
+        }
+
+        $assessmentCompletionPercent = $totalAssessmentsCount > 0 
+            ? round(($distinctAttemptedCount / $totalAssessmentsCount) * 100, 1) 
+            : 0;
+
+        $assessmentPassPercent = $totalAssessmentsCount > 0
+            ? round(($distinctPassedCount / $totalAssessmentsCount) * 100, 1)
+            : 0;
+
+        // 13. Dynamic Practice Topics Progress (Real completion tracking from user_course_progress)
+        $practiceLogs = DB::table('user_course_progress')
+            ->where('user_id', $userId)
+            ->where('status', 'like', 'practice:%')
+            ->get();
+
+        $practiceDefs = [
+            ['id' => 'match', 'title' => 'Word Match Wonder', 'type' => 'match', 'icon' => 'puzzle-piece', 'color' => '#845EC2', 'description' => 'Match vocabulary words and pairs'],
+            ['id' => 'flashcards', 'title' => 'Flashcard Safari', 'type' => 'flashcard', 'icon' => 'card-text', 'color' => '#FF9671', 'description' => 'Explore vocabulary flashcards and flip terms'],
+            ['id' => 'quiz', 'title' => 'Speed Quiz Challenge', 'type' => 'mcq', 'icon' => 'lightning-charge', 'color' => '#FFC75F', 'description' => 'Quick-fire questions to test recall speed'],
+            ['id' => 'scramble', 'title' => 'Word Scramble Party', 'type' => 'scramble', 'icon' => 'sort-alpha-down', 'color' => '#00D2FC', 'description' => 'Arrange words into perfect sentences'],
+            ['id' => 'blanks', 'title' => 'Bubble Pop Sentences', 'type' => 'blanks', 'icon' => 'chat-square-quote', 'color' => '#4D8076', 'description' => 'Fill missing words into interactive speech bubbles'],
+        ];
+
+        $practiceTopics = [];
+        foreach ($practiceDefs as $p) {
+            $log = $practiceLogs->firstWhere('status', 'practice:' . $p['id']);
+            $percent = $log ? min(100, (int) $log->score) : 0;
+            $practiceTopics[] = [
+                'id' => $p['id'],
+                'title' => $p['title'],
+                'type' => $p['type'],
+                'icon' => $p['icon'],
+                'color' => $p['color'],
+                'description' => $p['description'],
+                'completed' => $percent >= 70,
+                'percentage' => $percent,
+            ];
+        }
+
+        $practiceTotal = count($practiceTopics);
+        $practiceCompletedCount = count(array_filter($practiceTopics, fn($p) => $p['completed']));
+        $practiceAvgPercent = count(array_filter($practiceTopics, fn($p) => $p['percentage'] > 0)) > 0
+            ? round(array_sum(array_column($practiceTopics, 'percentage')) / $practiceTotal, 1)
+            : 0;
+
+        // 14. Dynamic Arcade Games Progress (Real gameplay tracking from user_course_progress)
+        $gameLogs = DB::table('user_course_progress')
+            ->where('user_id', $userId)
+            ->where('status', 'like', 'game:%')
+            ->get();
+
+        $gameDefs = [
+            ['id' => 'car_racer', 'title' => 'Car Racer', 'icon' => 'car-front-fill', 'color' => '#FF5E7E', 'description' => 'Speed down lanes and pick the correct translation', 'target' => 200],
+            ['id' => 'word_ninja', 'title' => 'Word Ninja', 'icon' => 'slash-circle', 'color' => '#A0E418', 'description' => 'Slice the target vocabulary in mid-air', 'target' => 250],
+            ['id' => 'flappy_word', 'title' => 'Flappy Word', 'icon' => 'feather', 'color' => '#00C9A7', 'description' => 'Fly through obstacles and hit correct grammar gates', 'target' => 150],
+            ['id' => 'space_defender', 'title' => 'Space Defender', 'icon' => 'rocket-takeoff-fill', 'color' => '#845EC2', 'description' => 'Defend the galaxy against incorrect spelling aliens', 'target' => 300],
+            ['id' => 'balloon_pop', 'title' => 'Balloon Pop', 'icon' => 'balloon-fill', 'color' => '#FF9671', 'description' => 'Pop the floating word balloons before time runs out', 'target' => 200],
+        ];
+
+        $gamesList = [];
+        foreach ($gameDefs as $g) {
+            $log = $gameLogs->firstWhere('status', 'game:' . $g['id']);
+            $score = $log ? (int) $log->score : 0;
+            $percent = $score > 0 ? min(100, (int) round(($score / $g['target']) * 100)) : 0;
+            $stars = $percent >= 80 ? 3 : ($percent >= 50 ? 2 : ($percent > 0 ? 1 : 0));
+            $gamesList[] = [
+                'id' => $g['id'],
+                'title' => $g['title'],
+                'icon' => $g['icon'],
+                'color' => $g['color'],
+                'description' => $g['description'],
+                'stars' => $stars,
+                'high_score' => $score,
+                'percentage' => $percent,
+                'played' => $score > 0,
+            ];
+        }
+
+        $gamesTotal = count($gamesList);
+        $gamesPlayedCount = count(array_filter($gamesList, fn($g) => $g['played']));
+        $gamesAvgPercent = $gamesPlayedCount > 0
+            ? round(array_sum(array_column($gamesList, 'percentage')) / $gamesTotal, 1)
+            : 0;
+        $gamesTotalStars = array_sum(array_column($gamesList, 'stars'));
+
+        // 15. Words Mastered and Dynamic Study Time
+        $contentsCount = DB::table('content_chapters')->whereIn('chapter_id', $completedChapterIds)->count();
+        $wordsMastered = ($completedChapters * 20) + ($activityCompletions * 8) + ($contentsCount * 4);
+
+        $totalStudyMinutes = ($completedChapters * 45) + ($totalAttempts * 20) + ($activityCompletions * 15);
+        $studyTimeHours = round($totalStudyMinutes / 60, 1);
+
+        // 16. Dynamic Core Skills Competency
+        $coreSkills = [
+            'listening' => min(100, max(25, (int) round(($completionPercentage * 0.65) + ($averageScore * 0.35)))),
+            'reading' => min(100, max(30, (int) round(($completionPercentage * 0.75) + min(25, $wordsMastered * 0.35)))),
+            'grammar' => min(100, max(20, (int) round(($averageScore > 0 ? $averageScore * 0.8 : 35) + ($completedChapters * 3.5)))),
+            'speaking' => min(100, max(15, (int) round(($completionPercentage * 0.5) + ($streak * 8) + 20))),
+        ];
+
         return response()->json([
             'completion_percentage' => $completionPercentage,
             'completed_chapters' => $completedChapters,
@@ -346,7 +502,11 @@ class DashboardController extends Controller
             'xp_points' => $xpPoints,
             'gems' => $gems,
             'streak_days' => $streak,
+            'words_mastered' => $wordsMastered,
+            'study_time_hours' => $studyTimeHours,
+            'study_time_minutes' => $totalStudyMinutes,
             'course_progressions' => $courseProgressions,
+            'core_skills' => $coreSkills,
             'skill_mastery' => $skillMastery,
             'weekly_activity' => $weeklyActivity,
             'monthly_study_hours' => $monthlyStudyHours,
@@ -354,6 +514,28 @@ class DashboardController extends Controller
             'badges' => $badges,
             'completed_chapter_ids' => $completedChapterIds,
             'assessment_attempts' => $assessmentAttempts,
+            'all_assessments' => $assessmentsList,
+            'assessment_stats' => [
+                'total_assessments' => $totalAssessmentsCount,
+                'attempted_count' => $distinctAttemptedCount,
+                'passed_count' => $distinctPassedCount,
+                'completion_percent' => $assessmentCompletionPercent,
+                'pass_percent' => $assessmentPassPercent,
+                'average_score' => $averageScore,
+            ],
+            'practice_stats' => [
+                'total_topics' => $practiceTotal,
+                'completed_count' => $practiceCompletedCount,
+                'completion_percent' => $practiceAvgPercent,
+                'topics' => $practiceTopics,
+            ],
+            'games_stats' => [
+                'total_games' => $gamesTotal,
+                'played_count' => $gamesPlayedCount,
+                'completion_percent' => $gamesAvgPercent,
+                'stars_earned' => $gamesTotalStars,
+                'games' => $gamesList,
+            ],
         ]);
     }
 
@@ -844,7 +1026,7 @@ class DashboardController extends Controller
     {
         $validated = $request->validate([
             'content_id' => 'nullable|integer',
-            'activity_type' => 'required|string|in:mcq,match,flashcard,assessment',
+            'activity_type' => 'required|string|in:mcq,match,flashcard,assessment,car_racer,word_ninja,flappy_word,space_defender,balloon_pop,word_arrange,fill_blanks,crossword,writing,practice,game,custom',
             'score' => 'required|integer|min:0',
             'total' => 'required|integer|min:1',
         ]);
@@ -867,18 +1049,52 @@ class DashboardController extends Controller
             case 'assessment':
                 $xpEarned = (int) round(($validated['score'] / max($validated['total'], 1)) * 200);
                 break;
+            case 'car_racer':
+            case 'word_ninja':
+            case 'flappy_word':
+            case 'space_defender':
+            case 'balloon_pop':
+            case 'game':
+                $xpEarned = max(35, (int) round(($validated['score'] / max($validated['total'], 1)) * 60));
+                break;
+            case 'word_arrange':
+            case 'fill_blanks':
+            case 'crossword':
+            case 'writing':
+            case 'practice':
+            default:
+                $xpEarned = max(25, (int) round(($validated['score'] / max($validated['total'], 1)) * 50));
+                break;
         }
 
-        // Record the activity in user_course_progress as a general activity log entry
-        // This feeds into the streak calculation (calculateStreak uses completed_at dates)
-        DB::table('user_course_progress')->insert([
-            'user_id' => $userId,
-            'chapter_id' => null,
-            'status' => 'activity_completed',
-            'completed_at' => now(),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // Record the activity in user_course_progress
+        $isGame = in_array($validated['activity_type'], ['car_racer', 'word_ninja', 'flappy_word', 'space_defender', 'balloon_pop', 'game']);
+        $statusKey = $isGame ? ('game:' . $validated['activity_type']) : ('practice:' . $validated['activity_type']);
+
+        $existing = DB::table('user_course_progress')
+            ->where('user_id', $userId)
+            ->where('status', $statusKey)
+            ->first();
+
+        if ($existing) {
+            DB::table('user_course_progress')
+                ->where('id', $existing->id)
+                ->update([
+                    'score' => max((int)$existing->score, (int)$validated['score']),
+                    'completed_at' => now(),
+                    'updated_at' => now(),
+                ]);
+        } else {
+            DB::table('user_course_progress')->insert([
+                'user_id' => $userId,
+                'chapter_id' => null,
+                'status' => $statusKey,
+                'score' => (int)$validated['score'],
+                'completed_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         // Recalculate stats and save to users table
         self::recalculateUserStats($userId);

@@ -229,23 +229,40 @@ export class UserActivity implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
+  // ⚡ Static in-memory cache for instant zero-latency loading
+  private static cachedCourses: any[] = [];
+  private static cachedPlayerStructures = new Map<number, any>();
+
   loadCourses(targetCourseId: number | null, targetChapterId: number | null): void {
-    this.isLoading.set(true);
+    if (UserActivity.cachedCourses.length > 0) {
+      this.courses.set(UserActivity.cachedCourses);
+      this.isLoading.set(false);
+      if (targetCourseId && targetChapterId) {
+        this.pickCourse(targetCourseId, false, targetChapterId);
+      } else if (targetCourseId) {
+        this.pickCourse(targetCourseId, false);
+      } else {
+        this.stage.set('courses');
+      }
+    } else {
+      this.isLoading.set(true);
+    }
+
     this.http.get<any[]>(`${environment.apiUrl}/courses`).subscribe({
       next: (courses) => {
         const activeCourses = (courses || []).filter(c => c.is_active !== false);
+        UserActivity.cachedCourses = activeCourses;
         this.courses.set(activeCourses);
         this.isLoading.set(false);
 
-        if (targetCourseId && targetChapterId) {
-          // Direct deep link: Stage 3 (Player)
-          this.pickCourse(targetCourseId, false, targetChapterId);
-        } else if (targetCourseId) {
-          // Direct deep link: Stage 2 (Chapters)
-          this.pickCourse(targetCourseId, false);
-        } else {
-          // Default: Stage 1 (Courses Grid)
-          this.stage.set('courses');
+        if (UserActivity.cachedCourses.length === activeCourses.length) {
+          if (targetCourseId && targetChapterId) {
+            this.pickCourse(targetCourseId, false, targetChapterId);
+          } else if (targetCourseId) {
+            this.pickCourse(targetCourseId, false);
+          } else {
+            this.stage.set('courses');
+          }
         }
       },
       error: (err) => {
@@ -258,7 +275,6 @@ export class UserActivity implements OnInit, OnDestroy {
   pickCourse(courseId: number, updateUrl: boolean = true, targetChapterId: number | null = null): void {
     const doPick = () => {
       this.selectedCourseId.set(courseId);
-      this.isLoadingStructure.set(true);
 
       if (targetChapterId) {
         this.stage.set('player');
@@ -269,12 +285,24 @@ export class UserActivity implements OnInit, OnDestroy {
         }
       }
 
+      if (UserActivity.cachedPlayerStructures.has(courseId)) {
+        const cached = UserActivity.cachedPlayerStructures.get(courseId);
+        this.courseStructure.set(cached);
+        this.isLoadingStructure.set(false);
+        if (targetChapterId) {
+          this.pickChapter(targetChapterId, false);
+        }
+      } else {
+        this.isLoadingStructure.set(true);
+      }
+
       this.http.get<any>(`${environment.apiUrl}/courses/${courseId}/player-structure`).subscribe({
         next: (structure) => {
+          UserActivity.cachedPlayerStructures.set(courseId, structure);
           this.courseStructure.set(structure);
           this.isLoadingStructure.set(false);
 
-          if (targetChapterId) {
+          if (targetChapterId && !this.selectedChapterId()) {
             this.pickChapter(targetChapterId, false);
           }
         },
@@ -285,11 +313,7 @@ export class UserActivity implements OnInit, OnDestroy {
       });
     };
 
-    if (updateUrl) {
-      this.cloudTransition.triggerTransition(() => doPick());
-    } else {
-      doPick();
-    }
+    doPick();
   }
 
   pickChapter(chapterId: number, updateUrl: boolean = true): void {
@@ -334,9 +358,26 @@ export class UserActivity implements OnInit, OnDestroy {
             if (act.type === 'balloon_pop') humanType = 'Balloon Word Pop';
 
             const realData = typeof act.data_json === 'string' ? JSON.parse(act.data_json) : (act.data_json || {});
+            const randomData = { ...realData };
+
+            if (Array.isArray(randomData.rounds) && randomData.rounds.length > 5) {
+              randomData.rounds = this.pickRandom(randomData.rounds, 5);
+            }
+            if (Array.isArray(randomData.gates) && randomData.gates.length > 5) {
+              randomData.gates = this.pickRandom(randomData.gates, 5);
+            }
+            if (Array.isArray(randomData.challenges) && randomData.challenges.length > 5) {
+              randomData.challenges = this.pickRandom(randomData.challenges, 5);
+            }
+            if (Array.isArray(randomData.correctWords) && randomData.correctWords.length > 10) {
+              randomData.correctWords = this.pickRandom(randomData.correctWords, 10);
+            }
+            if (Array.isArray(randomData.wrongWords) && randomData.wrongWords.length > 10) {
+              randomData.wrongWords = this.pickRandom(randomData.wrongWords, 10);
+            }
 
             return {
-              id: `arcade_${act.id}_${idx}`,
+              id: `arcade_${act.id}_${idx}_${Date.now()}`,
               contentId: act.id,
               contentTitle: act.title,
               chapterId: 9999,
@@ -346,12 +387,12 @@ export class UserActivity implements OnInit, OnDestroy {
               title: act.title,
               type: act.type,
               typeName: humanType,
-              data: { ...realData, type: act.type, title: act.title },
+              data: { ...randomData, type: act.type, title: act.title },
               difficulty: 'Normal'
             };
           });
 
-          this.allActivities.set(extracted);
+          this.allActivities.set(this.shuffleArray(extracted));
           this.isLoading.set(false);
         },
         error: (err) => {
@@ -485,9 +526,106 @@ export class UserActivity implements OnInit, OnDestroy {
             if (actType === 'fill-blanks') humanType = 'Fill in the Blanks';
 
             const stepTitle = block.data.title || `${content.title || content.name} - ${humanType} ${idx + 1}`;
-            const activityPayload = (block.data && typeof block.data === 'object')
-              ? { ...block.data, type: block.data.type || actType, title: stepTitle }
-              : block;
+            const blockData = (block.data && typeof block.data === 'object') ? { ...block.data } : {};
+
+            // 🎯 Handle question pools: if MCQ has a questions pool of > 1 item, pick 5 random questions and create 5 separate steps
+            if ((actType === 'mcq' || actType === 'multiple_choice') && Array.isArray(blockData.questions) && blockData.questions.length > 1) {
+              const selectedQs = this.pickRandom(blockData.questions, 5);
+              selectedQs.forEach((q: any, qIdx: number) => {
+                list.push({
+                  id: `${content.id}_${idx}_q${qIdx}_${Date.now()}`,
+                  contentId: content.id,
+                  contentTitle: content.title || content.name,
+                  chapterId: chapterInfo.id,
+                  chapterName: chapterInfo.name,
+                  courseId: courseInfo.id,
+                  courseName: courseInfo.name,
+                  title: `${stepTitle} (Q${qIdx + 1}/${selectedQs.length})`,
+                  type: 'mcq',
+                  typeName: humanType,
+                  data: {
+                    ...blockData,
+                    ...q,
+                    type: 'mcq',
+                    title: `${stepTitle} (Q${qIdx + 1}/${selectedQs.length})`
+                  },
+                  difficulty: blockData.difficulty || 'Normal'
+                });
+              });
+              return;
+            }
+
+            // 🎯 Handle Fill in the blanks sentences pool
+            if ((actType === 'fill-blanks' || actType === 'fill_blanks') && Array.isArray(blockData.sentences) && blockData.sentences.length > 1) {
+              const selectedSentences = this.pickRandom(blockData.sentences, 5);
+              selectedSentences.forEach((s: any, sIdx: number) => {
+                list.push({
+                  id: `${content.id}_${idx}_fb${sIdx}_${Date.now()}`,
+                  contentId: content.id,
+                  contentTitle: content.title || content.name,
+                  chapterId: chapterInfo.id,
+                  chapterName: chapterInfo.name,
+                  courseId: courseInfo.id,
+                  courseName: courseInfo.name,
+                  title: `${stepTitle} (Q${sIdx + 1}/${selectedSentences.length})`,
+                  type: 'fill-blanks',
+                  typeName: humanType,
+                  data: {
+                    ...blockData,
+                    ...s,
+                    type: 'fill-blanks',
+                    title: `${stepTitle} (Q${sIdx + 1}/${selectedSentences.length})`
+                  },
+                  difficulty: blockData.difficulty || 'Normal'
+                });
+              });
+              return;
+            }
+
+            // 🎯 Handle Flashcard pool
+            if (actType === 'flashcard' && Array.isArray(blockData.cards) && blockData.cards.length > 1) {
+              const selectedCards = this.pickRandom(blockData.cards, 5);
+              selectedCards.forEach((c: any, cIdx: number) => {
+                list.push({
+                  id: `${content.id}_${idx}_fc${cIdx}_${Date.now()}`,
+                  contentId: content.id,
+                  contentTitle: content.title || content.name,
+                  chapterId: chapterInfo.id,
+                  chapterName: chapterInfo.name,
+                  courseId: courseInfo.id,
+                  courseName: courseInfo.name,
+                  title: `${stepTitle} (Card ${cIdx + 1}/${selectedCards.length})`,
+                  type: 'flashcard',
+                  typeName: humanType,
+                  data: {
+                    ...blockData,
+                    ...c,
+                    type: 'flashcard',
+                    title: `${stepTitle} (Card ${cIdx + 1}/${selectedCards.length})`
+                  },
+                  difficulty: blockData.difficulty || 'Normal'
+                });
+              });
+              return;
+            }
+
+            // Randomize and slice sub-items for single-instance activities
+            const activityPayload = { ...blockData, type: blockData.type || actType, title: stepTitle };
+            if (Array.isArray(activityPayload.pairs) && activityPayload.pairs.length > 5) {
+              activityPayload.pairs = this.pickRandom(activityPayload.pairs, 5);
+            }
+            if (Array.isArray(activityPayload.rounds) && activityPayload.rounds.length > 5) {
+              activityPayload.rounds = this.pickRandom(activityPayload.rounds, 5);
+            }
+            if (Array.isArray(activityPayload.gates) && activityPayload.gates.length > 5) {
+              activityPayload.gates = this.pickRandom(activityPayload.gates, 5);
+            }
+            if (Array.isArray(activityPayload.correctWords) && activityPayload.correctWords.length > 10) {
+              activityPayload.correctWords = this.pickRandom(activityPayload.correctWords, 10);
+            }
+            if (Array.isArray(activityPayload.wrongWords) && activityPayload.wrongWords.length > 10) {
+              activityPayload.wrongWords = this.pickRandom(activityPayload.wrongWords, 10);
+            }
 
             list.push({
               id: `${content.id}_${idx}_${Date.now()}`,
@@ -511,6 +649,20 @@ export class UserActivity implements OnInit, OnDestroy {
     });
 
     return list;
+  }
+
+  shuffleArray<T>(arr: T[]): T[] {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  }
+
+  pickRandom<T>(arr: T[], count: number): T[] {
+    if (!arr || arr.length === 0) return [];
+    return this.shuffleArray(arr).slice(0, count);
   }
 
   setTypeFilter(type: string): void {
@@ -625,12 +777,17 @@ export class UserActivity implements OnInit, OnDestroy {
   }
 
   restartSession(): void {
-    this.currentPlayIndex.set(0);
-    this.isSessionFinished.set(false);
-    this.isAnswered.set(false);
-    this.feedbackState.set(null);
-    this.hearts.set(5);
-    this.activityRenderKey.update(k => k + 1);
+    const cid = this.selectedChapterId();
+    if (cid) {
+      this.selectChapter(cid);
+    } else {
+      this.currentPlayIndex.set(0);
+      this.isSessionFinished.set(false);
+      this.isAnswered.set(false);
+      this.feedbackState.set(null);
+      this.hearts.set(5);
+      this.activityRenderKey.update(k => k + 1);
+    }
   }
 
   goToReadingLesson(): void {

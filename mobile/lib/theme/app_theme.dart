@@ -8,23 +8,23 @@ class AppTheme {
   static const Color accent = Color(0xFFF59E0B); // Amber / Gold
   static const Color danger = Color(0xFFEF4444); // Red (Logout, Error)
   
-  // Backgrounds & Surfaces
-  static const Color bgLight = Color(0xFFF8F9FC);
-  static const Color surfaceWhite = Color(0xFFFFFFFF);
-  static const Color boxColor = Color(0xFFF1F2FF);
-  static const Color boxBorder = Color(0xFFE0E2F5);
-  static const Color cardBorder = Color(0xFFE2E8F0);
+  // Backgrounds & Surfaces (Midnight Dark Blue Palette)
+  static const Color bgLight = Color(0xFF0A0F1D); // Deep Midnight Navy background
+  static const Color surfaceWhite = Color(0xFF161F38); // Elevated dark navy surface
+  static const Color boxColor = Color(0xFF1E293B); // Dark slate box
+  static const Color boxBorder = Color(0xFF283548); // Subtle dark border
+  static const Color cardBorder = Color(0xFF283548); // Subtle dark card border
   
   // App bars and navigation
-  static const Color navBarGreen = surfaceWhite;
-  static const Color navBarGreenBorder = cardBorder;
-  static const Color navBarGreenDark = primaryDark;
-  static const Color navBarGreenMuted = Color(0xFF64748B);
+  static const Color navBarGreen = Color(0xFF0A0F1D); // Dark navy top/bottom bars
+  static const Color navBarGreenBorder = Color(0xFF1E293B);
+  static const Color navBarGreenDark = Color(0xFF818CF8); // Neon indigo highlight
+  static const Color navBarGreenMuted = Color(0xFF94A3B8); // Muted slate
   
-  // Text Colors
-  static const Color textPrimary = Color(0xFF0F172A);
-  static const Color textSecondary = Color(0xFF64748B);
-  static const Color textMuted = Color(0xFF94A3B8);
+  // Text Colors (High Contrast on Dark Blue)
+  static const Color textPrimary = Color(0xFFF8FAFC); // Crisp White/Slate
+  static const Color textSecondary = Color(0xFF94A3B8); // Soft Light Slate
+  static const Color textMuted = Color(0xFF64748B); // Muted Slate
 
   // Gradients
   static const LinearGradient primaryGradient = LinearGradient(
@@ -48,8 +48,10 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
+      brightness: Brightness.dark,
       colorScheme: ColorScheme.fromSeed(
         seedColor: primary,
+        brightness: Brightness.dark,
         primary: primary,
         secondary: secondary,
         surface: surfaceWhite,
@@ -73,6 +75,30 @@ class AppTheme {
           borderRadius: BorderRadius.circular(20),
           side: const BorderSide(color: cardBorder, width: 1),
         ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: const Color(0xFF0A0F1D),
+        indicatorColor: primary.withValues(alpha: 0.25),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(color: Color(0xFF818CF8));
+          }
+          return const IconThemeData(color: Color(0xFF94A3B8));
+        }),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const TextStyle(
+              color: Color(0xFF818CF8),
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            );
+          }
+          return const TextStyle(
+            color: Color(0xFF94A3B8),
+            fontWeight: FontWeight.normal,
+            fontSize: 12,
+          );
+        }),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(

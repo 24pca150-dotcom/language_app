@@ -58,7 +58,7 @@ export class FlappyWordComponent implements OnInit, OnDestroy {
   // Game Signals
   gameState = signal<'start' | 'playing' | 'gameover' | 'victory'>('start');
   score = signal<number>(0);
-  lives = signal<number>(3);
+  lives = signal<number>(5);
   currentWaveIndex = signal<number>(0);
   totalWaves = signal<number>(1);
   currentPrompt = signal<string>('Fly through the correct word cloud!');
@@ -124,17 +124,29 @@ export class FlappyWordComponent implements OnInit, OnDestroy {
 
     try {
       if (type === 'flap') {
+        // Authentic bird wing flutter whoosh
         const osc = ctx.createOscillator();
+        const filter = ctx.createBiquadFilter();
         const gain = ctx.createGain();
+
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(320, now);
-        osc.frequency.exponentialRampToValueAtTime(140, now + 0.08);
-        gain.gain.setValueAtTime(0.12, now);
-        gain.gain.linearRampToValueAtTime(0, now + 0.08);
-        osc.connect(gain);
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.linearRampToValueAtTime(380, now + 0.04);
+        osc.frequency.exponentialRampToValueAtTime(120, now + 0.14);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(650, now);
+
+        gain.gain.setValueAtTime(0.01, now);
+        gain.gain.linearRampToValueAtTime(0.28, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+
+        osc.connect(filter);
+        filter.connect(gain);
         gain.connect(ctx.destination);
+
         osc.start(now);
-        osc.stop(now + 0.08);
+        osc.stop(now + 0.14);
       } else if (type === 'correct') {
         [587.33, 739.99, 880].forEach((freq, idx) => {
           const osc = ctx.createOscillator();
@@ -249,7 +261,7 @@ export class FlappyWordComponent implements OnInit, OnDestroy {
     this.initAudio();
     this.gameState.set('playing');
     this.score.set(0);
-    this.lives.set(3);
+    this.lives.set(5);
     this.currentWaveIndex.set(0);
     this.correctHits = 0;
     this.wrongHits = 0;

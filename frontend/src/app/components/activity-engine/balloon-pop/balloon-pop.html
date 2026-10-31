@@ -15,7 +15,7 @@
     <!-- Lives & Sound -->
     <div class="hud-item d-flex align-items-center gap-2">
       <div class="lives-container d-flex gap-1">
-        @for (heart of [1, 2, 3]; track heart) {
+        @for (heart of [1, 2, 3, 4, 5]; track heart) {
           <i class="bi bi-heart-fill heart-icon" [class.lost]="heart > lives()"></i>
         }
       </div>

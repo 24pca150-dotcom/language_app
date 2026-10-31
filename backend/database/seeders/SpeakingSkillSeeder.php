@@ -308,9 +308,8 @@ class SpeakingSkillSeeder extends Seeder
             ]
         ];
 
-        $blocks2 = [];
+        $allSpeakingQuestions = [];
         foreach ($task1Exercises as $idx => $ex) {
-            $title = "Speaking Task 1 - Sentence " . ($idx + 1);
             $options = [];
             foreach ($ex['opts'] as $oIdx => $opt) {
                 $options[] = [
@@ -319,39 +318,45 @@ class SpeakingSkillSeeder extends Seeder
                     'is_correct' => $opt['correct']
                 ];
             }
-
-            $actJson = [
+            $allSpeakingQuestions[] = [
                 'question' => "Read aloud: \"{$ex['sentence']}\"\n\n{$ex['q']}",
-                'options' => $options
+                'options' => $options,
+                'explanation' => "Correct answer: " . $ex['opts'][0]['text']
             ];
-
-            $act = Activity::updateOrCreate(
-                ['title' => $title, 'tenant_id' => null],
-                [
-                    'type' => 'mcq',
-                    'data_json' => $actJson,
-                    'created_by' => null
-                ]
-            );
-
-            if ($idx < 8) {
-                $blocks1[] = [
-                    'type' => 'activity',
-                    'data' => [
-                        'type' => 'activity_reference',
-                        'activityReferenceId' => $act->id
-                    ]
-                ];
-            } else {
-                $blocks2[] = [
-                    'type' => 'activity',
-                    'data' => [
-                        'type' => 'activity_reference',
-                        'activityReferenceId' => $act->id
-                    ]
-                ];
-            }
         }
+
+        $actSpeaking = Activity::updateOrCreate(
+            ['title' => 'Speaking & Parts of Speech Master Quiz', 'tenant_id' => null],
+            [
+                'type' => 'mcq',
+                'course_id' => $course->id,
+                'data_json' => [
+                    'title' => 'Speaking & Parts of Speech Master Quiz',
+                    'question' => $allSpeakingQuestions[0]['question'],
+                    'options' => $allSpeakingQuestions[0]['options'],
+                    'questions' => $allSpeakingQuestions
+                ],
+                'created_by' => null
+            ]
+        );
+
+        $blocks1[] = [
+            'type' => 'activity',
+            'data' => [
+                'type' => 'activity_reference',
+                'activityReferenceId' => $actSpeaking->id
+            ]
+        ];
+
+        $blocks2 = [
+            [
+                'type' => 'activity',
+                'data' => [
+                    'type' => 'activity_reference',
+                    'activityReferenceId' => $actSpeaking->id
+                ]
+            ]
+        ];
 
         // Save Content 1
         DB::table('content_chapters')->where('chapter_id', $chapter->id)->delete();
@@ -436,33 +441,27 @@ class SpeakingSkillSeeder extends Seeder
             ["homework / completing / my / am / I", "I am completing my homework."]
         ];
 
-        foreach ($task2Sentences as $idx => $item) {
-            $jumbled = $item[0];
-            $correct = $item[1];
-            $title = "Speaking Jumbled Sentence " . ($idx + 1);
+        // 10. Task 2 Activity: Word Arrangement Master Challenge
+        $actWordArrange = Activity::updateOrCreate(
+            ['title' => 'Speaking Sentence Arrangement Challenge', 'tenant_id' => null],
+            [
+                'type' => 'word_arrange',
+                'course_id' => $course->id,
+                'data_json' => [
+                    'question' => 'Rearrange the words to make a complete sentence: "birds / the / singing / are"',
+                    'text' => 'The birds are singing.'
+                ],
+                'created_by' => null
+            ]
+        );
 
-            $actJson = [
-                'question' => "Rearrange the words to make a complete sentence: \"{$jumbled}\"",
-                'text' => $correct
-            ];
-
-            $act = Activity::updateOrCreate(
-                ['title' => $title, 'tenant_id' => null],
-                [
-                    'type' => 'word_arrange',
-                    'data_json' => $actJson,
-                    'created_by' => null
-                ]
-            );
-
-            $blocks3[] = [
-                'type' => 'activity',
-                'data' => [
-                    'type' => 'activity_reference',
-                    'activityReferenceId' => $act->id
-                ]
-            ];
-        }
+        $blocks3[] = [
+            'type' => 'activity',
+            'data' => [
+                'type' => 'activity_reference',
+                'activityReferenceId' => $actWordArrange->id
+            ]
+        ];
 
         // Save Content 3
         $content3 = Content::create([

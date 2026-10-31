@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../data/game_question_bank.dart';
 import '../services/game_service.dart';
 import '../theme/app_theme.dart';
 
@@ -16,7 +17,7 @@ class GamePlayScreen extends StatefulWidget {
 class _GamePlayScreenState extends State<GamePlayScreen> with SingleTickerProviderStateMixin {
   // Common Game State
   int _score = 0;
-  int _lives = 3;
+  int _lives = 5;
   int _timeLeft = 30;
   bool _isGameOver = false;
   Timer? _gameTimer;
@@ -28,28 +29,7 @@ class _GamePlayScreenState extends State<GamePlayScreen> with SingleTickerProvid
   // Highway Racer State
   int _carLane = 1; // 0: Left, 1: Middle, 2: Right
   int _currentRacerRound = 0;
-  final List<Map<String, dynamic>> _racerRounds = [
-    {
-      'question': 'Pick the Past Tense of "WRITE":',
-      'lanes': ['Writing', 'Wrote', 'Written'],
-      'correct': 1,
-    },
-    {
-      'question': 'Pick the Irregular Past Tense of "GO":',
-      'lanes': ['Goes', 'Going', 'Went'],
-      'correct': 2,
-    },
-    {
-      'question': 'Pick the Past Tense of "BUY":',
-      'lanes': ['Bought', 'Buyed', 'Buying'],
-      'correct': 0,
-    },
-    {
-      'question': 'Pick the Past Tense of "EAT":',
-      'lanes': ['Eating', 'Ate', 'Eaten'],
-      'correct': 1,
-    },
-  ];
+  final List<Map<String, dynamic>> _racerRounds = [];
 
   // Balloon Pop State
   final List<_FloatingBalloon> _balloons = [];
@@ -58,7 +38,27 @@ class _GamePlayScreenState extends State<GamePlayScreen> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
+    _setupRounds();
     _startGame();
+  }
+
+  void _setupRounds() {
+    _racerRounds.clear();
+    final racerPool = GameQuestionBank.getRandomRacerChallenges(5);
+    for (var r in racerPool) {
+      final opts = r['options'] as List;
+      int correct = 0;
+      List<String> lanes = [];
+      for (int i = 0; i < opts.length; i++) {
+        lanes.add(opts[i]['text'].toString());
+        if (opts[i]['isCorrect'] == true) correct = i;
+      }
+      _racerRounds.add({
+        'question': r['question'],
+        'lanes': lanes,
+        'correct': correct,
+      });
+    }
   }
 
   @override
@@ -71,7 +71,7 @@ class _GamePlayScreenState extends State<GamePlayScreen> with SingleTickerProvid
 
   void _startGame() {
     _score = 0;
-    _lives = 3;
+    _lives = 5;
     _timeLeft = 35;
     _isGameOver = false;
 
@@ -120,10 +120,16 @@ class _GamePlayScreenState extends State<GamePlayScreen> with SingleTickerProvid
         ? adjectives[random.nextInt(adjectives.length)]
         : nonAdjectives[random.nextInt(nonAdjectives.length)];
 
+    final fruitEmojis = ['🍉', '🍊', '🍎', '🍓', '🍍', '🍌', '🥝', '🥥'];
+    final fruitEmoji = isCorrect
+        ? fruitEmojis[random.nextInt(fruitEmojis.length)]
+        : (random.nextDouble() < 0.4 ? '💣' : fruitEmojis[random.nextInt(fruitEmojis.length)]);
+
     final newWord = _NinjaWord(
       id: DateTime.now().millisecondsSinceEpoch + random.nextInt(100),
       text: word,
       isTarget: isCorrect,
+      fruitEmoji: fruitEmoji,
       x: 0.15 + random.nextDouble() * 0.7,
       y: 0.2 + random.nextDouble() * 0.55,
       color: isCorrect ? const Color(0xFF10B981) : const Color(0xFFEF4444),
@@ -290,30 +296,35 @@ class _GamePlayScreenState extends State<GamePlayScreen> with SingleTickerProvid
         actions: [
           // Hearts Display
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: List.generate(
-              3,
-              (idx) => Icon(
-                idx < _lives ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                color: Colors.redAccent,
-                size: 22,
+              5,
+              (idx) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 1),
+                child: Icon(
+                  idx < _lives ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                  color: Colors.redAccent,
+                  size: 15,
+                ),
               ),
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 8),
           // Score Pill
           Container(
-            margin: const EdgeInsets.only(right: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            margin: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: AppTheme.accent.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.bolt_rounded, color: AppTheme.accent, size: 16),
-                const SizedBox(width: 4),
+                const Icon(Icons.bolt_rounded, color: AppTheme.accent, size: 15),
+                const SizedBox(width: 3),
                 Text(
-                  '$_score XP',
+                  '$_score',
                   style: const TextStyle(color: AppTheme.accent, fontWeight: FontWeight.bold, fontSize: 12),
                 ),
               ],
@@ -431,17 +442,27 @@ class _GamePlayScreenState extends State<GamePlayScreen> with SingleTickerProvid
                     duration: const Duration(milliseconds: 300),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
-                      color: w.isSliced
-                          ? Colors.grey.withValues(alpha: 0.2)
-                          : (w.isTarget ? const Color(0xFF10B981) : const Color(0xFFE11D48)),
-                      borderRadius: BorderRadius.circular(w.isSliced ? 4 : 20),
+                      gradient: LinearGradient(
+                        colors: w.isSliced
+                            ? [Colors.grey.shade800.withValues(alpha: 0.4), Colors.grey.shade900.withValues(alpha: 0.4)]
+                            : [const Color(0xFF2E190E), const Color(0xFF140703)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(w.isSliced ? 6 : 14),
+                      border: Border.all(
+                        color: w.isSliced
+                            ? Colors.grey.withValues(alpha: 0.3)
+                            : (w.isTarget ? const Color(0xFFF59E0B) : const Color(0xFFEF4444)),
+                        width: 1.8,
+                      ),
                       boxShadow: w.isSliced
                           ? []
                           : [
                               BoxShadow(
-                                color: (w.isTarget ? const Color(0xFF10B981) : const Color(0xFFE11D48))
-                                    .withValues(alpha: 0.5),
-                                blurRadius: 15,
+                                color: (w.isTarget ? const Color(0xFFF59E0B) : const Color(0xFFEF4444))
+                                    .withValues(alpha: 0.4),
+                                blurRadius: 14,
                                 offset: const Offset(0, 4),
                               ),
                             ],
@@ -449,12 +470,16 @@ class _GamePlayScreenState extends State<GamePlayScreen> with SingleTickerProvid
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        if (!w.isSliced) ...[
+                          Text(w.fruitEmoji, style: const TextStyle(fontSize: 20)),
+                          const SizedBox(width: 8),
+                        ],
                         if (w.isSliced) ...[
                           const Icon(Icons.check, color: Colors.white70, size: 16),
                           const SizedBox(width: 4),
                         ],
                         Text(
-                          w.isSliced ? 'SLICED 💥' : w.text,
+                          w.isSliced ? '${w.fruitEmoji} SLICED 💥' : w.text,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 15,
@@ -714,6 +739,7 @@ class _NinjaWord {
   final int id;
   final String text;
   final bool isTarget;
+  final String fruitEmoji;
   final double x;
   final double y;
   final Color color;
@@ -723,6 +749,7 @@ class _NinjaWord {
     required this.id,
     required this.text,
     required this.isTarget,
+    required this.fruitEmoji,
     required this.x,
     required this.y,
     required this.color,
