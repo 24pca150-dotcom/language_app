@@ -403,7 +403,11 @@ class CourseService {
           final levels = <MobileLevel>[];
           for (var item in levelsData) {
             if (item is Map) {
-              levels.add(MobileLevel.fromJson(Map<String, dynamic>.from(item)));
+              final lvl = MobileLevel.fromJson(Map<String, dynamic>.from(item));
+              // Filter out empty levels (0 chapters)
+              if (lvl.chapters.isNotEmpty) {
+                levels.add(lvl);
+              }
             }
           }
           if (levels.isNotEmpty) return levels;
@@ -512,46 +516,12 @@ class CourseService {
         chapters: [
           MobileChapter(
             id: 4,
-            name: 'Regular Nouns',
-            description: 'Rules for forming standard plural nouns by adding -s, -es, and -ies.',
-            contentsCount: 1,
+            name: 'Writing Skills Basics',
+            description: 'Master singular & plural regular nouns, irregular nouns, and spelling challenges.',
+            contentsCount: 4,
             assessmentsCount: 1,
             contents: MobileChapter.getContentsForChapter(4),
             activities: MobileChapter.getActivitiesForChapter(4),
-          ),
-          MobileChapter(
-            id: 12,
-            name: 'Irregular Nouns',
-            description: 'Master irregular plural forms and spelling changes in written English.',
-            contentsCount: 1,
-            assessmentsCount: 1,
-            contents: MobileChapter.getContentsForChapter(12),
-            activities: MobileChapter.getActivitiesForChapter(12),
-          ),
-        ],
-      ),
-      MobileLevel(
-        id: 5,
-        name: 'Gerunds',
-        levelNumber: 5,
-        chapters: [
-          MobileChapter(
-            id: 5,
-            name: 'Gerunds - Part 1',
-            description: 'Introduction to gerunds: verb forms ending in -ing acting as nouns.',
-            contentsCount: 1,
-            assessmentsCount: 1,
-            contents: MobileChapter.getContentsForChapter(5),
-            activities: MobileChapter.getActivitiesForChapter(5),
-          ),
-          MobileChapter(
-            id: 13,
-            name: 'Gerunds - Part 2',
-            description: 'Application, sentence building, and practice challenges with gerunds.',
-            contentsCount: 1,
-            assessmentsCount: 1,
-            contents: MobileChapter.getContentsForChapter(13),
-            activities: MobileChapter.getActivitiesForChapter(13),
           ),
         ],
       ),

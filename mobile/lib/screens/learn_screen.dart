@@ -400,6 +400,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
   String? _loadError;
   MobileChapter? _selectedChapter;
   String _selectedLevelName = '';
+  final Set<int> _expandedLevelIndices = {};
 
   @override
   void initState() {
@@ -416,9 +417,11 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
       final levels = await CourseService.getCourseStructure(
         courseId: widget.course.id,
       );
+      // Filter out any empty levels (no chapters)
+      final activeLevels = levels.where((l) => l.chapters.isNotEmpty).toList();
       if (mounted) {
         setState(() {
-          _levels = levels;
+          _levels = activeLevels;
           _isLoading = false;
         });
       }
@@ -663,13 +666,41 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
               ),
               const SizedBox(height: 24),
 
-              const Text(
-                'Course Curriculum Levels',
-                style: TextStyle(
-                  fontSize: 19,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Course Curriculum Levels',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                  if (_levels.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF6366F1).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFF6366F1).withValues(alpha: 0.35),
+                          width: 1,
+                        ),
+                      ),
+                      child: Text(
+                        '${_levels.length} Learning Skills',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF818CF8),
+                        ),
+                      ),
+                    ),
+                ],
               ),
               const SizedBox(height: 14),
 
@@ -709,95 +740,186 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                     ),
                   ),
                 )
-              else
+              else ...[
                 // ================================================================
-                // 📋 ONE BY ONE VERTICAL LEVELS & CHAPTERS (No Horizontal Scroll!)
+                // 📋 EXPANDABLE CURRICULUM LEVELS (Accordion: Tap to expand/collapse)
                 // ================================================================
                 ...List.generate(_levels.length, (levelIndex) {
                   final level = _levels[levelIndex];
                   final levelColor = _getLevelColor(levelIndex);
+                  final isExpanded = _expandedLevelIndices.contains(levelIndex);
 
                   return Container(
-                    margin: const EdgeInsets.only(bottom: 24),
+                    margin: const EdgeInsets.only(bottom: 14),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF161F38),
+                        // 🔹 Interactive Level Header Bar (Matches Circled Box in Screenshot)
+                        Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                if (_expandedLevelIndices.contains(levelIndex)) {
+                                  _expandedLevelIndices.remove(levelIndex);
+                                } else {
+                                  _expandedLevelIndices.add(levelIndex);
+                                }
+                              });
+                            },
                             borderRadius: BorderRadius.circular(18),
-                            border: Border.all(
-                              color: levelColor.withValues(alpha: 0.4),
-                              width: 1.5,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: levelColor.withValues(alpha: 0.12),
-                                blurRadius: 10,
-                                offset: const Offset(0, 3),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 10,
                               ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 28,
-                                height: 28,
-                                decoration: BoxDecoration(
-                                  color: levelColor,
-                                  shape: BoxShape.circle,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF161F38),
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(
+                                  color: isExpanded
+                                      ? levelColor
+                                      : levelColor.withValues(alpha: 0.45),
+                                  width: isExpanded ? 2.0 : 1.5,
                                 ),
-                                child: Center(
-                                  child: Text(
-                                    '${levelIndex + 1}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: levelColor.withValues(
+                                      alpha: isExpanded ? 0.22 : 0.08,
+                                    ),
+                                    blurRadius: isExpanded ? 12 : 6,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  // Circular Level Badge
+                                  Container(
+                                    width: 30,
+                                    height: 30,
+                                    decoration: BoxDecoration(
+                                      color: levelColor,
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: levelColor.withValues(alpha: 0.35),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        '${levelIndex + 1}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
+                                  const SizedBox(width: 12),
+
+                                  // Level Name
+                                  Expanded(
+                                    child: Text(
+                                      level.name,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: isExpanded
+                                            ? FontWeight.w800
+                                            : FontWeight.w700,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+
+                                  // Chapter Count Chip
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 9,
+                                      vertical: 3.5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: levelColor.withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      '${level.chapters.length} ${level.chapters.length == 1 ? 'Chapter' : 'Chapters'}',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                        color: levelColor,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+
+                                  // Chevron Down / Up Indicator
+                                  Container(
+                                    width: 26,
+                                    height: 26,
+                                    decoration: BoxDecoration(
+                                      color: isExpanded
+                                          ? levelColor.withValues(alpha: 0.2)
+                                          : const Color(0xFF1E293B),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      isExpanded
+                                          ? Icons.keyboard_arrow_up_rounded
+                                          : Icons.keyboard_arrow_down_rounded,
+                                      color: isExpanded
+                                          ? levelColor
+                                          : AppTheme.textSecondary,
+                                      size: 18,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 10),
-                              Expanded(
+                            ),
+                          ),
+                        ),
+
+                        // 🔹 Expandable Chapter Cards (Only visible when user taps to expand)
+                        if (isExpanded) ...[
+                          const SizedBox(height: 12),
+                          if (level.chapters.isEmpty)
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(22),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF161F38),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: const Color(0xFF283548)),
+                              ),
+                              child: Center(
                                 child: Text(
-                                  level.name,
+                                  'No chapters available in ${level.name} yet.',
                                   style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.textPrimary,
+                                    color: AppTheme.textSecondary,
+                                    fontSize: 13,
                                   ),
                                 ),
                               ),
-                              Text(
-                                '${level.chapters.length} ${level.chapters.length == 1 ? 'Chapter' : 'Chapters'}',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: levelColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-
-                        // Chapters Under This Level (Vertical One by One)
-                        ...level.chapters.map((chapter) {
-                          return _buildChapterCard(
-                            chapter,
-                            levelColor,
-                            level.name,
-                          );
-                        }),
+                            )
+                          else
+                            ...level.chapters.map((chapter) {
+                              return _buildChapterCard(
+                                chapter,
+                                levelColor,
+                                level.name,
+                              );
+                            }),
+                        ],
                       ],
                     ),
                   );
                 }),
+              ],
             ],
           ),
         ),

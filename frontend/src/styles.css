@@ -72,6 +72,66 @@ body::-webkit-scrollbar {
   scrollbar-width: none !important;
 }
 
+/* Sleek Semi-Transparent Scrollbar for LangNest Desktop Layout */
+.langnest-layout::-webkit-scrollbar {
+  display: block !important;
+  width: 9px !important;
+}
+.langnest-layout::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.45) !important;
+  border-radius: 10px;
+}
+.langnest-layout::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.35) !important;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.langnest-layout::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 213, 79, 0.65) !important;
+}
+.langnest-layout {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(255, 255, 255, 0.35) rgba(15, 23, 42, 0.45) !important;
+}
+
+/* ==========================================================================
+   ⚡ 18px Reading & Content Typography Optimization (User Request)
+   ========================================================================== */
+.reading-content,
+.reading-content p,
+.reading-content div,
+.reading-content span,
+.reading-content li,
+.reading-content td,
+.reading-content th,
+.reading-inner-wrap,
+.reading-inner-wrap p,
+.reading-inner-wrap div,
+.reading-inner-wrap span,
+.reading-inner-wrap li,
+.kids-reading-paragraph,
+.kids-reading-list,
+.kids-reading-list li,
+.kids-reading-table-wrap table,
+.kids-reading-table-wrap td,
+.kids-reading-table-wrap th,
+.lesson-reading-content {
+  font-size: 18px !important;
+  line-height: 1.75 !important;
+  font-family: 'Fredoka', 'Nunito', -apple-system, sans-serif !important;
+}
+
+.kids-reading-heading,
+.reading-content h1,
+.reading-content h2,
+.reading-content h3,
+.reading-content h4 {
+  font-size: 24px !important;
+  line-height: 1.4 !important;
+  font-weight: 800 !important;
+}
+
 /* Fix for MCV Date Range Picker Layout */
 .mcv-weekdays,
 .mcv-days-grid {

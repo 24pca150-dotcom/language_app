@@ -88,6 +88,7 @@ export class KidsLessonPlayer implements OnInit, OnDestroy {
   activityRenderKey = signal<number>(1);
   typedContent = signal<string>('');
   typingTimeout: any;
+  speechDebounceTimeout: any;
   activeUtterances: SpeechSynthesisUtterance[] = [];
   speechStartTimeout: any;
   pageSize = 2;
@@ -165,11 +166,14 @@ export class KidsLessonPlayer implements OnInit, OnDestroy {
 
     effect(() => {
       const html = this.rawReadingHtml();
+      clearTimeout(this.speechDebounceTimeout);
+      this.stopSpeech();
+      this.typedContent.set('');
       if (html) {
-        this.speakText(html);
-      } else {
-        this.stopSpeech();
-        this.typedContent.set('');
+        // ⚡ Debounced speech so rapid page clicks turn pages INSTANTLY with 0ms lag
+        this.speechDebounceTimeout = setTimeout(() => {
+          this.speakText(html);
+        }, 1000);
       }
     });
 
@@ -319,6 +323,7 @@ export class KidsLessonPlayer implements OnInit, OnDestroy {
 
 
   stopSpeech() {
+    clearTimeout(this.speechDebounceTimeout);
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }

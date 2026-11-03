@@ -78,7 +78,7 @@
   </aside>
 
   <!-- 🌟 MAIN CONTENT AREA (FULL SCREEN OVER FIXED FULL-PAGE BACKGROUND) -->
-  <main class="langnest-main flex-grow-1 position-relative d-flex flex-column overflow-y-auto z-2 w-100">
+  <main class="langnest-main flex-grow-1 position-relative d-flex flex-column z-2 w-100">
     <!-- Content Area (Centered cleanly between the 4-left and 4-right floating buttons) -->
     <div class="content-container position-relative z-2">
 
@@ -251,14 +251,14 @@
                     }
 
                     <!-- Course Info -->
-                    <div class="d-flex align-items-center gap-3 my-2">
-                      <img [src]="getCourseImage(cp.name)" [alt]="cp.name" class="neat-thumb-img">
+                    <div class="d-flex align-items-start gap-3 my-2">
+                      <img [src]="getCourseImage(cp.name)" [alt]="cp.name" class="neat-thumb-img mt-1">
                       <div class="flex-grow-1 min-w-0">
-                        <h4 class="neat-card-title text-truncate" [title]="cp.name">{{ cp.name }}</h4>
-                        <div class="neat-card-sub">
+                        <h4 class="neat-card-title text-truncate mb-1" style="font-size: 1.05rem;" [title]="cp.name">{{ cp.name }}</h4>
+                        <div class="neat-card-sub mb-1">
                           {{ cp.completedChapters }} of {{ cp.totalChapters }} Chapters • {{ cp.percentage }}%
                         </div>
-                        <div class="progress rounded-pill" style="height: 6px; background: rgba(255,255,255,0.15);">
+                        <div class="progress rounded-pill mt-1" style="height: 6px; background: rgba(255,255,255,0.15);">
                           <div class="progress-bar bg-warning rounded-pill"
                                role="progressbar"
                                [style.width.%]="cp.percentage > 0 ? cp.percentage : 6">
@@ -309,43 +309,59 @@
                 } @else if (upcomingLiveClass(); as liveSession) {
                   <div>
                     <!-- Header -->
-                    <div class="neat-card-header">
+                    <div class="neat-card-header d-flex justify-content-between align-items-center">
                       <span class="neat-card-tag tag-live">
                         <i class="bi bi-broadcast"></i> Live Class
                       </span>
+                      <button type="button" 
+                              class="btn btn-sm btn-link text-white-50 p-0 text-decoration-none d-inline-flex align-items-center gap-1"
+                              style="font-size: 0.76rem;"
+                              (click)="loadUpcomingLiveClasses()" 
+                              title="Refresh Schedule">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                      </button>
                     </div>
 
                     <!-- Live Class Info -->
-                    <div class="d-flex align-items-center gap-3 my-2">
-                      <div class="neat-thumb-icon icon-live">
+                    <div class="d-flex align-items-start gap-3 my-2">
+                      <div class="neat-thumb-icon icon-live mt-1">
                         <i class="bi bi-camera-video-fill fs-3"></i>
                       </div>
                       <div class="flex-grow-1 min-w-0">
-                        <h4 class="neat-card-title text-truncate" [title]="liveSession.title">{{ liveSession.title }}</h4>
-                        <div class="neat-card-sub text-truncate">
-                          <i class="bi bi-person-fill text-warning me-1"></i>{{ liveSession.instructor_name || 'Instructor' }} • 
-                          <i class="bi bi-clock-fill text-info me-1"></i>{{ formatClassTime(liveSession.start_time) }}
+                        <h4 class="neat-card-title text-truncate mb-1" style="font-size: 1.05rem;" [title]="liveSession.title">{{ liveSession.title }}</h4>
+                        <div class="neat-card-sub text-truncate mb-1">
+                          <i class="bi bi-person-fill text-warning me-1"></i>{{ liveSession.instructor_name || 'Language Coach' }}
                         </div>
-                        @if (liveSession.attachments && liveSession.attachments.length > 0) {
-                          <div class="small">
-                            <a [href]="liveSession.attachments[0].file_url" target="_blank" class="text-warning text-decoration-none" style="font-size: 0.78rem;">
-                              <i class="bi bi-paperclip me-1"></i>{{ liveSession.attachments.length }} Study Material{{ liveSession.attachments.length > 1 ? 's' : '' }}
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                          <span class="badge rounded-pill bg-white bg-opacity-10 text-info fw-semibold px-2 py-1 border border-info border-opacity-25" style="font-size: 0.74rem;">
+                            <i class="bi bi-clock-fill me-1"></i>{{ formatClassTime(liveSession.start_time) }}
+                          </span>
+                          @if (liveSession.status === 'live') {
+                            <span class="badge rounded-pill bg-danger bg-opacity-25 text-danger fw-bold px-2 py-1 border border-danger border-opacity-30" style="font-size: 0.74rem;">
+                              ● LIVE NOW
+                            </span>
+                          }
+                          @if (liveSession.attachments && liveSession.attachments.length > 0) {
+                            <a [href]="liveSession.attachments[0].file_url" target="_blank" class="text-warning text-decoration-none small d-inline-flex align-items-center" style="font-size: 0.74rem;">
+                              <i class="bi bi-paperclip me-1"></i>{{ liveSession.attachments.length }} Material{{ liveSession.attachments.length > 1 ? 's' : '' }}
                             </a>
-                          </div>
-                        }
+                          }
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   <!-- Action -->
                   <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-white border-opacity-10">
-                    <button type="button" 
-                            class="btn btn-sm btn-outline-light rounded-circle p-0 d-flex align-items-center justify-content-center"
-                            style="width: 32px; height: 32px; border-color: rgba(255,255,255,0.2);"
-                            (click)="loadUpcomingLiveClasses()" 
-                            title="Refresh Schedule">
-                      <i class="bi bi-arrow-clockwise text-white-50"></i>
-                    </button>
+                    <span class="text-white-50 small d-inline-flex align-items-center gap-2">
+                      @if (liveSession.status === 'live') {
+                        <span class="live-pulse-dot"></span>
+                        <span class="text-danger fw-bold">Live Now</span>
+                      } @else {
+                        <span class="dot-scheduled"></span>
+                        <span class="text-info fw-semibold">Scheduled</span>
+                      }
+                    </span>
 
                     <button type="button" 
                             [class]="liveSession.status === 'live' ? 'neat-btn-join' : 'neat-btn-scheduled'"

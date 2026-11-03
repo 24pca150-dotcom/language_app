@@ -119,35 +119,21 @@ class WritingSkillSeeder extends Seeder
         }
 
 
-        // 8. Create Chapters
-        $chapter1 = Chapter::firstOrCreate(
-            ['code' => 'CHP-SINGULAR-PLURAL'],
+        // 8. Create Chapter
+        $chapter = Chapter::firstOrCreate(
+            ['code' => 'CHP-WRITING-BASICS'],
             [
-                'name' => 'Singular & Plural Nouns',
-                'description' => 'Understand and form singular and plural words in English.',
+                'name' => 'Writing Skill Basics',
+                'description' => 'Build a strong foundation in writing: singular & plural nouns and gerunds.',
                 'sort_order' => 1,
                 'is_active' => true,
             ]
         );
 
-        $chapter2 = Chapter::firstOrCreate(
-            ['code' => 'CHP-GERUNDS'],
-            [
-                'name' => 'Gerunds',
-                'description' => 'Learn verb forms ending in -ing that behave as nouns.',
-                'sort_order' => 2,
-                'is_active' => true,
-            ]
-        );
-
-        // 9. Map Level -> Chapters
+        // 9. Map Level -> Chapter
         DB::table('level_chapter')->updateOrInsert(
-            ['level_id' => $level->id, 'chapter_id' => $chapter1->id],
+            ['level_id' => $level->id, 'chapter_id' => $chapter->id],
             ['sort_order' => 1, 'is_active' => true, 'created_at' => now(), 'updated_at' => now()]
-        );
-        DB::table('level_chapter')->updateOrInsert(
-            ['level_id' => $level->id, 'chapter_id' => $chapter2->id],
-            ['sort_order' => 2, 'is_active' => true, 'created_at' => now(), 'updated_at' => now()]
         );
 
         // 10. Generate Content Blocks for Chapter 1: Singular & Plural Nouns
@@ -324,8 +310,10 @@ class WritingSkillSeeder extends Seeder
         }
 
         // Save Content 1a (Regular Nouns)
-        DB::table('content_chapters')->where('chapter_id', $chapter1->id)->delete();
-        Content::where('name', 'like', 'Singular & Plural Nouns Lesson%')->delete();
+        DB::table('content_chapters')->where('chapter_id', $chapter->id)->delete();
+        Content::where('name', 'like', 'Singular & Plural Nouns Lesson%')
+            ->orWhere('name', 'like', 'Gerunds Lesson%')
+            ->delete();
 
         $content1a = Content::create([
             'name' => 'Singular & Plural Nouns Lesson - Regular',
@@ -337,7 +325,7 @@ class WritingSkillSeeder extends Seeder
 
         DB::table('content_chapters')->insert([
             'content_id' => $content1a->id,
-            'chapter_id' => $chapter1->id,
+            'chapter_id' => $chapter->id,
             'sort_order' => 1,
             'created_at' => now(),
             'updated_at' => now(),
@@ -439,7 +427,7 @@ class WritingSkillSeeder extends Seeder
 
         DB::table('content_chapters')->insert([
             'content_id' => $content1b->id,
-            'chapter_id' => $chapter1->id,
+            'chapter_id' => $chapter->id,
             'sort_order' => 2,
             'created_at' => now(),
             'updated_at' => now(),
@@ -507,21 +495,18 @@ class WritingSkillSeeder extends Seeder
         }
 
         // Save Content 2a
-        DB::table('content_chapters')->where('chapter_id', $chapter2->id)->delete();
-        Content::where('name', 'like', 'Gerunds Lesson%')->delete();
-
         $content2a = Content::create([
             'name' => 'Gerunds Lesson - Part 1',
             'title' => 'Gerunds: Introduction & Spelling',
-            'sort_order' => 1,
+            'sort_order' => 3,
             'is_active' => true,
             'text_content' => json_encode(['time' => time(), 'blocks' => $blocks2a, 'version' => '2.29.1'], JSON_UNESCAPED_UNICODE)
         ]);
 
         DB::table('content_chapters')->insert([
             'content_id' => $content2a->id,
-            'chapter_id' => $chapter2->id,
-            'sort_order' => 1,
+            'chapter_id' => $chapter->id,
+            'sort_order' => 3,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -595,27 +580,26 @@ class WritingSkillSeeder extends Seeder
         $content2b = Content::create([
             'name' => 'Gerunds Lesson - Part 2',
             'title' => 'Gerunds: Application & Practice',
-            'sort_order' => 2,
+            'sort_order' => 4,
             'is_active' => true,
             'text_content' => json_encode(['time' => time(), 'blocks' => $blocks2b, 'version' => '2.29.1'], JSON_UNESCAPED_UNICODE)
         ]);
 
         DB::table('content_chapters')->insert([
             'content_id' => $content2b->id,
-            'chapter_id' => $chapter2->id,
-            'sort_order' => 2,
+            'chapter_id' => $chapter->id,
+            'sort_order' => 4,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        // 15. Create Assessments & Questions for the Chapters
-        Assessment::where('chapter_id', $chapter1->id)->delete();
-        Assessment::where('chapter_id', $chapter2->id)->delete();
+        // 15. Create Assessments & Questions for the Chapter
+        Assessment::where('chapter_id', $chapter->id)->delete();
 
         // Singular & Plural Quiz
         $assessment1 = Assessment::create([
             'level_id' => $level->id,
-            'chapter_id' => $chapter1->id,
+            'chapter_id' => $chapter->id,
             'title' => 'Singular & Plural Nouns Quiz',
             'description' => 'Test your understanding of singular and plural nouns rules.',
             'pass_percentage' => 70.00,
@@ -661,7 +645,7 @@ class WritingSkillSeeder extends Seeder
         // Gerunds Quiz
         $assessment2 = Assessment::create([
             'level_id' => $level->id,
-            'chapter_id' => $chapter2->id,
+            'chapter_id' => $chapter->id,
             'title' => 'Gerunds Quiz',
             'description' => 'Test your understanding of Gerunds.',
             'pass_percentage' => 70.00,

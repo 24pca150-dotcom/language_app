@@ -14,11 +14,6 @@ class AllActivitiesSeeder extends Seeder
         $course = Course::where('name', 'English for Beginner')->first();
         $courseId = $course ? $course->id : null;
 
-        // Clean up previous activities
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        Activity::truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-
         // 50 Rich MCQ Questions
         $mcqPool = [
             ['question' => 'Which of the following is an IRREGULAR past tense verb?', 'options' => [['id' => 1, 'text' => 'Walked', 'is_correct' => false], ['id' => 2, 'text' => 'Caught', 'is_correct' => true], ['id' => 3, 'text' => 'Played', 'is_correct' => false], ['id' => 4, 'text' => 'Opened', 'is_correct' => false]], 'explanation' => '"Catch" becomes "Caught", an irregular form.'],

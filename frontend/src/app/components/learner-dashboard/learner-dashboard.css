@@ -6,7 +6,10 @@
   color: #0F172A;
   min-height: 100vh;
   height: 100vh;
-  overflow: hidden;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ==========================================================================
@@ -121,8 +124,9 @@
    🌅 FULL-PAGE 3D STUDY ROOM SCENIC BACKGROUND
    ========================================================================== */
 .langnest-main {
-  height: 100vh;
-  overflow-y: auto;
+  min-height: 100%;
+  height: auto !important;
+  overflow-y: visible !important;
   position: relative;
 }
 
@@ -728,14 +732,14 @@
 }
 .shelf-label {
   font-family: 'Fredoka', 'Nunito', sans-serif;
-  font-size: 0.74rem;
+  font-size: 0.95rem;
   font-weight: 800;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.9);
   letter-spacing: 0.5px;
 }
 .shelf-view-all {
   font-family: 'Fredoka', 'Nunito', sans-serif;
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: #FDE047 !important;
   transition: opacity 0.2s ease;
@@ -767,13 +771,13 @@
 }
 .shelf-badge-title {
   font-family: 'Fredoka', 'Nunito', sans-serif;
-  font-size: 0.82rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: #FFFFFF;
   line-height: 1.1;
 }
 .shelf-badge-sub {
-  font-size: 0.68rem;
+  font-size: 0.82rem;
   font-weight: 700;
   line-height: 1;
 }
@@ -814,15 +818,15 @@
 }
 .owl-companion-title {
   font-family: 'Fredoka', 'Nunito', sans-serif;
-  font-size: 0.84rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: #38BDF8;
   line-height: 1.1;
 }
 .owl-companion-sub {
-  font-size: 0.7rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.78);
   line-height: 1;
 }
 .owl-speech-bubble-pop {
@@ -2814,6 +2818,15 @@
   100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 
+.dot-scheduled {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #38BDF8;
+  display: inline-block;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+}
+
 .pill-scheduled {
   background: rgba(56, 189, 248, 0.15);
   color: #38BDF8;
@@ -3284,8 +3297,8 @@
 }
 
 .neat-card-sub {
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 1rem;
   margin-bottom: 8px;
 }
 
@@ -3486,6 +3499,7 @@
   width: 100%;
   padding-left: 105px;
   padding-right: 105px;
+  padding-bottom: 95px !important;
 }
 
 

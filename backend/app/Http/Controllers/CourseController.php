@@ -50,7 +50,7 @@ class CourseController extends Controller
             ->where('ch.is_active', true);
 
         $query->addSelect([
-            'levels_count' => (clone $activeMappings)->selectRaw('COUNT(DISTINCT cpl.level_id)'),
+            'levels_count' => (clone $chapterMappings)->selectRaw('COUNT(DISTINCT cpl.level_id)'),
             'chapters_count' => $chapterMappings->selectRaw('COUNT(DISTINCT ch.id)'),
         ]);
 
@@ -192,6 +192,21 @@ class CourseController extends Controller
         }
 
         if ($structure->relationLoaded('levels')) {
+            // Filter out empty chapters (no content and no assessment) and empty levels (no chapters)
+            $structure->levels->each(function ($level) {
+                if ($level->relationLoaded('chapters')) {
+                    $level->setRelation('chapters', $level->chapters->filter(function ($chapter) {
+                        $hasContents = $chapter->contents && $chapter->contents->count() > 0;
+                        $hasAssessments = $chapter->assessments && $chapter->assessments->count() > 0;
+                        return $hasContents || $hasAssessments;
+                    })->values());
+                }
+            });
+
+            $structure->setRelation('levels', $structure->levels->filter(function ($level) {
+                return $level->chapters && $level->chapters->count() > 0;
+            })->values());
+
             foreach ($structure->levels as $level) {
                 if ($level->relationLoaded('chapters')) {
                     foreach ($level->chapters as $chapter) {

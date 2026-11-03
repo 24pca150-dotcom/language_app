@@ -982,16 +982,8 @@ export class LearnerDashboard implements OnInit {
     if (event) {
       event.preventDefault();
     }
-    const url = `${environment.apiUrl}/courses/${course.id}/player-structure`;
-    this.http.get<any>(url).subscribe({
-      next: (structure) => {
-        this.courseService.cachedStructure = structure;
-        this.router.navigate(['/learn', course.id]);
-      },
-      error: () => {
-        this.router.navigate(['/learn', course.id]);
-      }
-    });
+    // ⚡ Instant 0ms navigation to course player
+    this.router.navigate(['/learn', course.id]);
   }
 
   getCourseImage(name: string): string {

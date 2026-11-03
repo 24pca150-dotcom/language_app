@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CloudTransitionService } from '../../services/cloud-transition.service';
+import { LoaderService } from '../../services/loader.service';
 
 @Component({
   selector: 'app-cloud-transition',
@@ -11,4 +12,5 @@ import { CloudTransitionService } from '../../services/cloud-transition.service'
 })
 export class CloudTransitionComponent {
   protected transitionService = inject(CloudTransitionService);
+  protected loaderService = inject(LoaderService);
 }

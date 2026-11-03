@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { forkJoin, of, Observable } from 'rxjs';
-import { switchMap, map, catchError } from 'rxjs/operators';
+import { switchMap, map, catchError, tap } from 'rxjs/operators';
 
 import { CourseStructure, Level, Chapter, Content } from '../../models/course-structure.model';
 
@@ -73,6 +73,9 @@ export class CoursePlayer implements OnInit, OnDestroy {
   showCorrectSplash = signal<boolean>(false);
   showIncorrectSplash = signal<boolean>(false);
   activityFeedbackState = signal<'correct' | 'incorrect' | null>(null);
+
+  // ⚡ Memory cache for instant chapter loading (0ms latency on revisiting or clicking)
+  private static chapterCache = new Map<number, any>();
 
   // 🌿 Left Navigation Sidebar Sliding State (Auto-collapsed on course player page)
   isNavSidebarOpen = signal<boolean>(false);
@@ -240,12 +243,21 @@ export class CoursePlayer implements OnInit, OnDestroy {
   }
 
   initializeStructure(structure: CourseStructure): void {
-    structure.levels.forEach((l, idx) => {
-      l.is_expanded = idx === 0;
-      l.chapters.forEach((c, cidx) => {
-        c.is_expanded = idx === 0 && cidx === 0;
+    if (structure.levels) {
+      // ⚡ Filter out empty levels (0 chapters) and empty chapters
+      structure.levels = structure.levels.filter(l => l.chapters && l.chapters.length > 0);
+      structure.levels.forEach((l, idx) => {
+        l.chapters = (l.chapters || []).filter(c =>
+          (c.contents && c.contents.length > 0) ||
+          (c.assessments && c.assessments.length > 0)
+        );
+        l.is_expanded = idx === 0;
+        l.chapters.forEach((c, cidx) => {
+          c.is_expanded = idx === 0 && cidx === 0;
+        });
       });
-    });
+      structure.levels = structure.levels.filter(l => l.chapters && l.chapters.length > 0);
+    }
     this.courseStructure.set(structure);
     if (structure.levels && structure.levels.length > 0) {
       this.activeLevelId.set(structure.levels[0].id);
@@ -337,10 +349,8 @@ export class CoursePlayer implements OnInit, OnDestroy {
       this.triggerMascotWarning('🔒 Level is locked! Complete all chapters of the previous level to unlock.');
       return;
     }
-    this.cloudTransition.triggerTransition(() => {
-      this.activeLevelId.set(id);
-      this.currentView.set('map');
-    });
+    this.activeLevelId.set(id);
+    this.currentView.set('map');
   }
 
   selectChapterNode(id: number) {
@@ -348,9 +358,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
       this.triggerMascotWarning('🔒 Chapter is locked! Complete preceding chapters to unlock.');
       return;
     }
-    this.cloudTransition.triggerTransition(() => {
-      this.startLesson(id);
-    });
+    this.startLesson(id);
   }
 
   resolveActivityReferences(contents: Content[]): Observable<Content[]> {
@@ -435,8 +443,15 @@ export class CoursePlayer implements OnInit, OnDestroy {
     this.lessonFinished.set(false);
     this.activityFeedbackState.set(null);
 
-    // Fetch the full chapter details including contents and assessments in a single request
-    this.http.get<any>(`${environment.apiUrl}/chapters/${chapterId}`).pipe(
+    // ⚡ Fetch or instantly retrieve chapter details from RAM cache
+    const cachedChapter = CoursePlayer.chapterCache.get(chapterId);
+    const chapterObs$ = cachedChapter
+      ? of(cachedChapter)
+      : this.http.get<any>(`${environment.apiUrl}/chapters/${chapterId}`).pipe(
+        tap(data => CoursePlayer.chapterCache.set(chapterId, data))
+      );
+
+    chapterObs$.pipe(
       switchMap(chapterData => {
         const contents: Content[] = (chapterData.contents || [])
           .filter((c: any) => c.is_active !== false)
@@ -464,7 +479,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
     const steps: LessonStep[] = [];
 
     contents.forEach(content => {
-      if (content.id === 1) {
+      if (content.id === 1 || (content.name && content.name.includes('Homophones Part 1'))) {
         steps.push({
           type: 'video',
           title: 'Homophones Lesson',
@@ -585,9 +600,7 @@ export class CoursePlayer implements OnInit, OnDestroy {
   }
 
   goToLevels() {
-    this.cloudTransition.triggerTransition(() => {
-      this.currentView.set('levels');
-    });
+    this.currentView.set('levels');
   }
 
   selectTopic(id: number): void {
@@ -598,27 +611,21 @@ export class CoursePlayer implements OnInit, OnDestroy {
     this.http.get<Content>(url).subscribe({
       next: (content) => {
         this.fullContent.set(content);
-        this.cloudTransition.triggerTransition(() => {
-          this.currentView.set('content'); // Switch to content overlay
-        });
+        this.currentView.set('content'); // Switch to content overlay immediately
       },
       error: (err) => console.error('Failed to load topic content:', err)
     });
   }
 
   goToMap(): void {
-    this.cloudTransition.triggerTransition(() => {
-      this.currentView.set('map');
-    });
+    this.currentView.set('map');
   }
 
   goToActivity(): void {
-    this.cloudTransition.triggerTransition(() => {
-      this.hearts.set(5);
-      this.showGameOver.set(false);
-      this.currentActivityIndex.set(0);
-      this.currentView.set('activity');
-    });
+    this.hearts.set(5);
+    this.showGameOver.set(false);
+    this.currentActivityIndex.set(0);
+    this.currentView.set('activity');
   }
 
 

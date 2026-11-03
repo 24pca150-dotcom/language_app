@@ -208,17 +208,13 @@ export class UserActivity implements OnInit, OnDestroy {
 
   goBack(): void {
     if (this.stage() === 'player') {
-      this.cloudTransition.triggerTransition(() => {
-        this.stage.set('chapters');
-        if (this.selectedCourseId()) {
-          this.location.replaceState(`/learn/games/${this.selectedCourseId()}`);
-        }
-      });
+      this.stage.set('chapters');
+      if (this.selectedCourseId()) {
+        this.location.replaceState(`/learn/games/${this.selectedCourseId()}`);
+      }
     } else if (this.stage() === 'chapters') {
-      this.cloudTransition.triggerTransition(() => {
-        this.stage.set('courses');
-        this.location.replaceState('/learn/games');
-      });
+      this.stage.set('courses');
+      this.location.replaceState('/learn/games');
     } else {
       this.router.navigate(['/learn/dashboard']);
     }
@@ -326,11 +322,7 @@ export class UserActivity implements OnInit, OnDestroy {
       this.selectChapter(chapterId);
     };
 
-    if (updateUrl) {
-      this.cloudTransition.triggerTransition(() => doPick());
-    } else {
-      doPick();
-    }
+    doPick();
   }
 
   selectChapter(chapterId: number): void {
