@@ -70,6 +70,7 @@
 
   /* Animations */
   .animate-pop-in {
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
     animation: popIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
@@ -444,7 +445,7 @@
     border: 1.5px solid rgba(255, 255, 255, 0.15);
     border-top: 3px solid #FFC727;
     backdrop-filter: blur(24px);
-    box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 30px rgba(255, 199, 39, 0.12) !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 199, 39, 0.12) !important;
   }
 
 
@@ -490,6 +491,7 @@
   }
 
   .kids-reading-paragraph {
+    font-size: 1.3rem !important;
     font-size: 18px !important;
     line-height: 1.7 !important;
     font-weight: 600 !important;
@@ -498,6 +500,7 @@
   }
 
   .kids-reading-list {
+    font-size: 1.3rem !important;
     font-size: 18px !important;
     line-height: 1.7 !important;
     font-weight: 600 !important;
@@ -505,6 +508,7 @@
   }
 
   .kids-reading-list li {
+    font-size: 1.3rem !important;
     font-size: 18px !important;
     margin-bottom: 6px !important;
   }
@@ -515,15 +519,18 @@
   }
 
   .kids-reading-table-wrap table {
+    font-size: 1.05rem;
     font-size: 18px !important;
   }
 
   .kids-reading-table-wrap th {
+    font-size: 1.05rem;
     font-size: 18px !important;
     padding: 6px 12px !important;
   }
 
   .kids-reading-table-wrap td {
+    font-size: 1rem;
     font-size: 18px !important;
     padding: 6px 12px !important;
   }
@@ -607,7 +614,7 @@
       margin-top: 15px !important;
     }
 
-  
+
     .kids-reading-title-wrap {
       top: -12px !important;
       left: 50% !important;
@@ -634,22 +641,26 @@
     }
 
     .kids-reading-paragraph {
+      font-size: 1.22rem !important;
       font-size: 18px !important;
       line-height: 1.65 !important;
     }
 
     .kids-reading-list,
     .kids-reading-list li {
+      font-size: 1.22rem !important;
       font-size: 18px !important;
     }
 
     .kids-reading-table-wrap table {
+      font-size: 0.9rem;
       font-size: 18px !important;
     }
 
     .kids-reading-table-wrap th,
     .kids-reading-table-wrap td {
       padding: 4px 8px !important;
+      font-size: 0.9rem !important;
       font-size: 18px !important;
     }
   }
@@ -746,6 +757,7 @@
     }
 
     .kids-reading-paragraph {
+      font-size: 1.15rem !important;
       font-size: 17px !important;
       line-height: 1.55 !important;
       margin-bottom: 4px !important;
@@ -753,6 +765,7 @@
 
     .kids-reading-list,
     .kids-reading-list li {
+      font-size: 1.15rem !important;
       font-size: 17px !important;
       line-height: 1.55 !important;
     }
@@ -766,11 +779,15 @@
     }
 
     .kids-reading-table-wrap table {
+      font-size: 0.72rem !important;
       font-size: 16px !important;
     }
 
     .kids-reading-table-wrap th,
     .kids-reading-table-wrap td {
+      padding: 2px 6px !important;
+      line-height: 1.25 !important;
+      font-size: 0.7rem !important;
       padding: 3px 8px !important;
       line-height: 1.3 !important;
       font-size: 16px !important;
@@ -868,4 +885,4 @@
 
   .kids-action-btn {
     font-size: 0.9rem;
-  }
+  }
