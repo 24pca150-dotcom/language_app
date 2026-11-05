@@ -11,7 +11,6 @@ import { environment } from '../../../environments/environment';
 import { ActivityRenderer } from '../activity-engine/activity-renderer/activity-renderer';
 import { AudioService } from '../../services/audio.service';
 import { AuthService } from '../../services/auth';
-import { CloudTransitionService } from '../../services/cloud-transition.service';
 
 export interface ExtractedActivityItem {
   id: string | number;
@@ -42,7 +41,6 @@ export class UserActivity implements OnInit, OnDestroy {
   private location = inject(Location);
   private audioService = inject(AudioService);
   private authService = inject(AuthService);
-  private cloudTransition = inject(CloudTransitionService);
 
   // User state
   userId = signal<number>(1);

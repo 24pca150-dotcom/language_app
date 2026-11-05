@@ -23,7 +23,6 @@ import confetti from 'canvas-confetti';
 import { gsap } from 'gsap';
 import { AudioService } from '../../services/audio.service';
 import { AuthService } from '../../services/auth';
-import { CloudTransitionService } from '../../services/cloud-transition.service';
 
 @Component({
   selector: 'app-course-player',
@@ -39,7 +38,6 @@ export class CoursePlayer implements OnInit, OnDestroy {
   private courseService = inject(CourseService);
   private audioService = inject(AudioService);
   private authService = inject(AuthService);
-  private cloudTransition = inject(CloudTransitionService);
 
   courseId = signal<number | null>(null);
   userId = signal<number>(1);

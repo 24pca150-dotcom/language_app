@@ -8,6 +8,7 @@ import 'crossword_game_screen.dart';
 import 'fill_blanks_game_screen.dart';
 import 'flashcard_game_screen.dart';
 import 'flappy_word_screen.dart';
+import 'game_play_screen.dart';
 import 'highway_racer_screen.dart';
 import 'match_game_screen.dart';
 import 'mcq_game_screen.dart';
