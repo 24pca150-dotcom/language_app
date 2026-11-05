@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../services/game_service.dart';
 import '../data/game_question_bank.dart';
 
 class FlashcardGameScreen extends StatefulWidget {
@@ -72,6 +73,7 @@ class _FlashcardGameScreenState extends State<FlashcardGameScreen>
 
   @override
   void dispose() {
+    _recordResult();
     _flipController.dispose();
     super.dispose();
   }
@@ -103,7 +105,13 @@ class _FlashcardGameScreenState extends State<FlashcardGameScreen>
     }
   }
 
+  void _recordResult() {
+    if (_masteredCount <= 0) return;
+    GameService.recordActivity('flashcard', count: _masteredCount);
+  }
+
   void _restart() {
+    _recordResult();
     if (_isFlipped) {
       _flipController.reverse();
       _isFlipped = false;

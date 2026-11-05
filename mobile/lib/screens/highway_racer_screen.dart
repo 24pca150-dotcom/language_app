@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../services/game_service.dart';
 import '../data/game_question_bank.dart';
 import '../services/game_audio_service.dart';
 
@@ -57,6 +58,7 @@ class _HighwayRacerScreenState extends State<HighwayRacerScreen> with TickerProv
 
   @override
   void dispose() {
+    _recordResult();
     _gameLoopTimer?.cancel();
     super.dispose();
   }
@@ -200,7 +202,13 @@ class _HighwayRacerScreenState extends State<HighwayRacerScreen> with TickerProv
     });
   }
 
+  void _recordResult() {
+    if (_score <= 0) return;
+    GameService.recordActivity('car_racer', score: _score.clamp(1, 100));
+  }
+
   void _restartGame() {
+    _recordResult();
     _setupChallenges();
     setState(() {
       _score = 0;

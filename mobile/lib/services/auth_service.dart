@@ -7,6 +7,17 @@ import '../models/user_model.dart';
 class AuthService {
   static const String _tokenKey = 'auth_token';
   static const String _userKey = 'cached_user';
+  static const List<String> _settingsPrefKeys = [
+    'daily_reminder_enabled',
+    'daily_reminder_time',
+    'daily_goal_minutes',
+    'reminder_frequency',
+    'reminder_sound',
+    'reminder_vibration',
+  ];
+
+  /// Set by main.dart to show the login screen when the server rejects the token.
+  static void Function()? onSessionExpired;
 
   static Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
@@ -15,16 +26,67 @@ class AuthService {
 
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString(_tokenKey);
-    if (token == null || token.isEmpty || token == 'demo_token_fallback') {
-      try {
-        final res = await login('karthik', 'student123', tenantCode: 'SCH-001');
-        if (res['success'] == true && res['token'] != null) {
-          token = res['token'] as String;
-        }
-      } catch (_) {}
+    return prefs.getString(_tokenKey);
+  }
+
+  /// Clears the expired login and lets the app return to the login screen.
+  static Future<void> handleSessionExpired() async {
+    await _clearLocalSession();
+    onSessionExpired?.call();
+  }
+
+  static Future<void> _clearLocalSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tokenKey);
+    await prefs.remove(_userKey);
+    for (final key in _settingsPrefKeys) {
+      await prefs.remove(key);
     }
-    return token;
+  }
+
+  /// Keeps the on-device copy of the settings equal to the account's settings.
+  static Future<void> _cacheSettings(SharedPreferences prefs, dynamic settings) async {
+    if (settings is! Map) return;
+    if (settings['reminder_enabled'] is bool) {
+      await prefs.setBool('daily_reminder_enabled', settings['reminder_enabled']);
+    }
+    if (settings['reminder_time'] is String) {
+      await prefs.setString('daily_reminder_time', settings['reminder_time']);
+    }
+    if (settings['daily_goal_minutes'] is int) {
+      await prefs.setInt('daily_goal_minutes', settings['daily_goal_minutes']);
+    }
+    if (settings['reminder_frequency'] is String) {
+      await prefs.setString('reminder_frequency', settings['reminder_frequency']);
+    }
+    if (settings['sound_enabled'] is bool) {
+      await prefs.setBool('reminder_sound', settings['sound_enabled']);
+    }
+    if (settings['vibration_enabled'] is bool) {
+      await prefs.setBool('reminder_vibration', settings['vibration_enabled']);
+    }
+  }
+
+  static Future<bool> saveSettings(Map<String, dynamic> settings) async {
+    final token = await getToken();
+    final tenantCode = await ApiConfig.getTenantCode();
+    final baseUrl = await ApiConfig.getBaseUrl();
+
+    try {
+      final res = await http
+          .put(
+            Uri.parse('$baseUrl/profile/settings'),
+            headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
+            body: jsonEncode(settings),
+          )
+          .timeout(const Duration(seconds: 8));
+      if (res.statusCode == 401) {
+        await handleSessionExpired();
+      }
+      return res.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
   }
 
   // Login with Laravel API
@@ -55,6 +117,7 @@ class AuthService {
         }
         if (userData != null) {
           await prefs.setString(_userKey, jsonEncode(userData));
+          await _cacheSettings(prefs, userData['settings']);
         }
         await ApiConfig.setTenantCode(serverTenant);
 
@@ -130,9 +193,14 @@ class AuthService {
 
         if (res.statusCode == 200) {
           final data = jsonDecode(res.body);
-          final user = UserModel.fromJson(data['user'] ?? data);
+          final userData = data['user'] ?? data;
+          final user = UserModel.fromJson(userData);
           await prefs.setString(_userKey, jsonEncode(user.toJson()));
+          await _cacheSettings(prefs, userData['settings']);
           return user;
+        }
+        if (res.statusCode == 401) {
+          await handleSessionExpired();
         }
       } catch (_) {}
     }
@@ -158,23 +226,35 @@ class AuthService {
     );
   }
 
+  /// Saves to the server first, so the change also shows on web. Throws if it fails.
   static Future<UserModel> updateUserProfile({required String name, required String email}) async {
-    final prefs = await SharedPreferences.getInstance();
-    final currentUser = await getUserProfile();
+    final token = await getToken();
+    final tenantCode = await ApiConfig.getTenantCode();
+    final baseUrl = await ApiConfig.getBaseUrl();
 
-    final updated = UserModel(
-      id: currentUser.id,
-      name: name.trim().isNotEmpty ? name.trim() : currentUser.name,
-      email: email.trim().isNotEmpty ? email.trim() : currentUser.email,
-      role: currentUser.role,
-      streakDays: currentUser.streakDays,
-      xp: currentUser.xp,
-      coins: currentUser.coins,
-      avatar: currentUser.avatar,
-    );
+    final res = await http
+        .put(
+          Uri.parse('$baseUrl/profile'),
+          headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
+          body: jsonEncode({
+            'name': name.trim(),
+            if (email.trim().isNotEmpty) 'email': email.trim(),
+          }),
+        )
+        .timeout(const Duration(seconds: 8));
 
-    await prefs.setString(_userKey, jsonEncode(updated.toJson()));
-    return updated;
+    if (res.statusCode == 401) {
+      await handleSessionExpired();
+    }
+    if (res.statusCode != 200) {
+      String message = 'Could not save your profile. Please try again.';
+      try {
+        message = jsonDecode(res.body)['message'] ?? message;
+      } catch (_) {}
+      throw Exception(message);
+    }
+
+    return getUserProfile();
   }
 
   static Future<void> logout() async {
@@ -191,8 +271,6 @@ class AuthService {
       } catch (_) {}
     }
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_tokenKey);
-    await prefs.remove(_userKey);
+    await _clearLocalSession();
   }
 }

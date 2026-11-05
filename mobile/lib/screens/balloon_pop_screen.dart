@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../services/game_service.dart';
 import '../data/game_question_bank.dart';
 import '../services/game_audio_service.dart';
 
@@ -114,11 +115,18 @@ class _BalloonPopScreenState extends State<BalloonPopScreen> {
 
   @override
   void dispose() {
+    _recordResult();
     _loopTimer?.cancel();
     super.dispose();
   }
 
+  void _recordResult() {
+    if (_score <= 0) return;
+    GameService.recordActivity('balloon_pop', score: _score.clamp(1, 100));
+  }
+
   void _startBalloonGame() {
+    _recordResult();
     _score = 0;
     _lives = 5;
     _currentMissionIndex = 0;

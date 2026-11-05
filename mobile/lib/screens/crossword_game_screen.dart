@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/game_service.dart';
 import '../services/game_audio_service.dart';
 
 class CrosswordGameScreen extends StatefulWidget {
@@ -105,12 +106,19 @@ class _CrosswordGameScreenState extends State<CrosswordGameScreen> {
 
   @override
   void dispose() {
+    _recordResult();
     _keyboardFocusNode.dispose();
     _textEditingController.dispose();
     super.dispose();
   }
 
+  void _recordResult() {
+    if (_score <= 0) return;
+    GameService.recordActivity('crossword', score: (_score ~/ 2).clamp(1, 100));
+  }
+
   void _initCrossword() {
+    _recordResult();
     _score = 0;
     _lives = 5;
     _grid = List.generate(gridSize, (_) => List.generate(gridSize, (_) => ''));

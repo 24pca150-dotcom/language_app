@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/game_service.dart';
 import '../data/game_question_bank.dart';
 
 class FillBlanksGameScreen extends StatefulWidget {
@@ -94,7 +95,19 @@ class _FillBlanksGameScreenState extends State<FillBlanksGameScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    _recordResult();
+    super.dispose();
+  }
+
+  void _recordResult() {
+    if (_score <= 0) return;
+    GameService.recordActivity('fill_blanks', count: _score ~/ 100);
+  }
+
   void _restart() {
+    _recordResult();
     _setupQuestions();
     setState(() {
       _score = 0;

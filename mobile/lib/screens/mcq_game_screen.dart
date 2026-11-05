@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../services/game_service.dart';
 import '../data/game_question_bank.dart';
 import '../services/game_audio_service.dart';
 
@@ -36,6 +37,7 @@ class _McqQuestion {
 
 class _McqGameScreenState extends State<McqGameScreen> with SingleTickerProviderStateMixin {
   int _score = 0;
+  int _correctCount = 0;
   int _lives = 5;
   int _streak = 0;
   int _currentIndex = 0;
@@ -144,6 +146,7 @@ class _McqGameScreenState extends State<McqGameScreen> with SingleTickerProvider
 
   @override
   void dispose() {
+    _recordResult();
     _swayController.dispose();
     _countdownTimer?.cancel();
     super.dispose();
@@ -188,6 +191,7 @@ class _McqGameScreenState extends State<McqGameScreen> with SingleTickerProvider
         _streak++;
         final bonus = 100 + (_streak >= 2 ? _streak * 25 : 0);
         _score += bonus;
+        _correctCount++;
       } else {
         GameAudioService.playWrongBuzz();
         _streak = 0;
@@ -212,10 +216,17 @@ class _McqGameScreenState extends State<McqGameScreen> with SingleTickerProvider
     }
   }
 
+  void _recordResult() {
+    if (_correctCount <= 0) return;
+    GameService.recordActivity('mcq', count: _correctCount);
+  }
+
   void _restartGame() {
+    _recordResult();
     _setupQuestions();
     setState(() {
       _score = 0;
+      _correctCount = 0;
       _lives = 5;
       _streak = 0;
       _currentIndex = 0;

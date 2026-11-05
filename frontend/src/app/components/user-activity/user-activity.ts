@@ -104,14 +104,6 @@ export class UserActivity implements OnInit, OnDestroy {
       });
     });
 
-    // 🎮 Chapter 6 (Red-circled slot): Interactive Game Arena (25 Games: 5 Car + 5 Ninja + 5 Flappy + 5 Space + 5 Balloon)
-    chaps.push({
-      id: 9999,
-      name: 'Interactive Game Arena',
-      levelName: 'LEVEL 5 - 🎮 ARCADE GAMES',
-      count: 25
-    });
-
     return chaps;
   });
 
@@ -330,68 +322,6 @@ export class UserActivity implements OnInit, OnDestroy {
     this.isAnswered.set(false);
     this.feedbackState.set(null);
     this.isSessionFinished.set(false);
-
-    // 🎮 Direct Loader for Chapter 6 Arcade Games (25 Games)
-    if (chapterId === 9999) {
-      this.http.get<any[]>(`${environment.apiUrl}/activities`).subscribe({
-        next: (activities) => {
-          const gameTypes = ['car_racer', 'word_ninja', 'flappy_word', 'space_defender', 'balloon_pop'];
-          const gameActivities = (activities || []).filter(a => gameTypes.includes(a.type));
-          const course = this.courses().find(c => c.id === this.selectedCourseId());
-
-          const extracted: ExtractedActivityItem[] = gameActivities.map((act, idx) => {
-            let humanType = act.type.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-            if (act.type === 'car_racer') humanType = '3-Lane Highway Racer';
-            if (act.type === 'word_ninja') humanType = 'Word Ninja';
-            if (act.type === 'flappy_word') humanType = 'Flappy Word';
-            if (act.type === 'space_defender') humanType = 'Space Defender';
-            if (act.type === 'balloon_pop') humanType = 'Balloon Word Pop';
-
-            const realData = typeof act.data_json === 'string' ? JSON.parse(act.data_json) : (act.data_json || {});
-            const randomData = { ...realData };
-
-            if (Array.isArray(randomData.rounds) && randomData.rounds.length > 5) {
-              randomData.rounds = this.pickRandom(randomData.rounds, 5);
-            }
-            if (Array.isArray(randomData.gates) && randomData.gates.length > 5) {
-              randomData.gates = this.pickRandom(randomData.gates, 5);
-            }
-            if (Array.isArray(randomData.challenges) && randomData.challenges.length > 5) {
-              randomData.challenges = this.pickRandom(randomData.challenges, 5);
-            }
-            if (Array.isArray(randomData.correctWords) && randomData.correctWords.length > 10) {
-              randomData.correctWords = this.pickRandom(randomData.correctWords, 10);
-            }
-            if (Array.isArray(randomData.wrongWords) && randomData.wrongWords.length > 10) {
-              randomData.wrongWords = this.pickRandom(randomData.wrongWords, 10);
-            }
-
-            return {
-              id: `arcade_${act.id}_${idx}_${Date.now()}`,
-              contentId: act.id,
-              contentTitle: act.title,
-              chapterId: 9999,
-              chapterName: 'Interactive Game Arena',
-              courseId: course?.id || 1,
-              courseName: course?.name || 'English for Beginner',
-              title: act.title,
-              type: act.type,
-              typeName: humanType,
-              data: { ...randomData, type: act.type, title: act.title },
-              difficulty: 'Normal'
-            };
-          });
-
-          this.allActivities.set(this.shuffleArray(extracted));
-          this.isLoading.set(false);
-        },
-        error: (err) => {
-          console.error('Failed to load arcade game activities:', err);
-          this.isLoading.set(false);
-        }
-      });
-      return;
-    }
 
     // Fetch full chapter details including contents and their text_content
     this.http.get<any>(`${environment.apiUrl}/chapters/${chapterId}`).pipe(

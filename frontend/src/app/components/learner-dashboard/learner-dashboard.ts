@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { CourseService } from '../../services/course';
 import { AuthService } from '../../services/auth';
+import { forkJoin, Observable } from 'rxjs';
 import { AudioService } from '../../services/audio.service';
 import { ActivityService, Activity } from '../../services/activity.service';
 import { LottieComponent, AnimationOptions } from 'ngx-lottie';
@@ -331,17 +332,45 @@ export class LearnerDashboard implements OnInit {
   todayProgressMinutes = signal<number>(0);
   todayProgressPercent = signal<number>(0);
 
-  activeTab = signal<'home' | 'learn' | 'practice' | 'assessments' | 'badges' | 'progress' | 'settings'>('home');
+  activeTab = signal<'home' | 'learn' | 'practice' | 'profile' | 'assessments' | 'badges' | 'progress' | 'settings'>('home');
   selectedCourseNotice = signal<string | null>(null);
 
   // Settings State
   learnerName = signal<string>('Learner');
   tenantInfo = signal<any>(null);
   targetLanguage = signal<string>('English');
-  dailyGoal = signal<string>('15');
+  dailyGoal = signal<string>('10');
   soundEnabled = signal<boolean>(true);
   notificationsEnabled = signal<boolean>(true);
+  vibrationEnabled = signal<boolean>(true);
+  reminderTime = signal<string>('07:00 PM');
+  reminderFrequency = signal<string>('Everyday');
+  readonly dailyGoalOptions = [
+    { mins: '5', badge: 'Casual' },
+    { mins: '10', badge: 'Recommended ⭐' },
+    { mins: '15', badge: 'Regular' },
+    { mins: '20', badge: 'Dedicated' },
+    { mins: '30', badge: 'Intensive' }
+  ];
+  readonly reminderTimePresets = ['07:00 AM', '08:30 AM', '01:00 PM', '06:00 PM', '07:00 PM', '08:30 PM', '09:00 PM'];
+  readonly reminderFrequencies = ['Everyday', 'Weekdays (Mon-Fri)', 'Weekends Only'];
+  reminderTime24h = computed(() => {
+    const [clock, period] = this.reminderTime().split(' ');
+    const [hour, minute] = clock.split(':').map(Number);
+    const hour24 = (hour % 12) + (period === 'PM' ? 12 : 0);
+    return `${String(hour24).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+  });
   settingsSavedNotice = signal<boolean>(false);
+  settingsSavedMessage = signal<string>('');
+  settingsSaveFailed = signal<boolean>(false);
+
+  // Profile State
+  profileName = signal<string>('');
+  profileEmail = signal<string>('');
+  profileUsername = signal<string>('');
+  profileSaving = signal<boolean>(false);
+  profileSavedNotice = signal<boolean>(false);
+  profileError = signal<string | null>(null);
 
   // =========================================================================
   // ⚡ PRACTICE HIERARCHY STATE (Courses -> Topics -> Inside Activity)
@@ -734,6 +763,8 @@ export class LearnerDashboard implements OnInit {
       if (user.coins !== undefined) this.coins.set(user.coins);
       if (user.streak_days !== undefined) this.streakDays.set(user.streak_days);
     }
+    this.applySettings(user?.settings);
+    this.refreshAccountFromServer();
 
     // Load active school/tenant branding
     const savedBranding = localStorage.getItem('tenant_branding');
@@ -919,6 +950,9 @@ export class LearnerDashboard implements OnInit {
         this.practiceStage.set('courses');
       }
       this.fetchDynamicActivities();
+    } else if (path.includes('/profile')) {
+      this.activeTab.set('profile');
+      this.loadProfileForm();
     } else if (path.includes('/assessments') || path.includes('/assessment')) {
       this.activeTab.set('assessments');
     } else if (path.includes('/badges') || path.includes('/achievements')) {
@@ -950,7 +984,7 @@ export class LearnerDashboard implements OnInit {
     });
   }
 
-  setTab(tab: 'home' | 'learn' | 'practice' | 'assessments' | 'badges' | 'progress' | 'settings') {
+  setTab(tab: 'home' | 'learn' | 'practice' | 'profile' | 'assessments' | 'badges' | 'progress' | 'settings') {
     this.activeTab.set(tab);
     let routePath = 'dashboard';
     if (tab === 'learn') routePath = 'courses';
@@ -962,6 +996,7 @@ export class LearnerDashboard implements OnInit {
         this.fetchDynamicActivities();
       }
     }
+    else if (tab === 'profile') routePath = 'profile';
     else if (tab === 'assessments') routePath = 'assessments';
     else if (tab === 'badges') routePath = 'badges';
     else if (tab === 'progress') routePath = 'progress';
@@ -1378,6 +1413,7 @@ export class LearnerDashboard implements OnInit {
       this.matchedPairIds.update(m => [...m, left]);
       this.matchScore.update(s => s + 10);
       this.xp.update(x => x + 10);
+      this.recordPracticeXp('match', this.matchedPairIds().length, this.matchSets[this.currentMatchSetIndex()].pairs.length);
       this.matchStreak.update(st => st + 1);
       this.matchFeedback.set('Awesome Match! +10 XP');
       this.audioService.playSuccess();
@@ -1466,6 +1502,7 @@ export class LearnerDashboard implements OnInit {
     if (optionIndex === currentQ.correct) {
       this.quizScore.update(s => s + 10);
       this.xp.update(x => x + 10);
+      this.recordPracticeXp('mcq', this.quizScore() / 10, this.quizQuestions.length);
       this.quizFeedback.set('Correct! +10 XP');
       this.audioService.playSuccess();
       this.triggerCorrectReaction('🎯 BULLSEYE! That\'s the right answer! +10 XP');
@@ -1535,6 +1572,7 @@ export class LearnerDashboard implements OnInit {
     if (assembled === correct) {
       this.scrambleIsCorrect.set(true);
       this.xp.update(x => x + 15);
+      this.recordPracticeXp('word_arrange', this.scrambleIndex() + 1, this.wordScrambleSets.length);
       this.audioService.playSuccess();
       this.triggerCorrectReaction('🚂 CHOO CHOO! You built the sentence! +15 XP');
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
@@ -1571,6 +1609,7 @@ export class LearnerDashboard implements OnInit {
     if (optIndex === q.correctIndex) {
       this.blankIsCorrect.set(true);
       this.xp.update(x => x + 10);
+      this.recordPracticeXp('fill_blanks', this.blankIndex() + 1, this.blankQuestions.length);
       this.audioService.playSuccess();
       this.triggerCorrectReaction('🎈 POP! That completes the sentence! +10 XP');
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
@@ -1676,6 +1715,7 @@ export class LearnerDashboard implements OnInit {
     this.isDraggingOver.set(null);
     if (bucket === 'mastered') {
       this.xp.update(x => x + 10);
+      this.recordPracticeXp('flashcard', this.flashcardIndex() + 1, this.flashcardDeck.length);
       this.audioService.playSuccess();
       this.triggerCorrectReaction('🌟 AWESOME! Card Mastered! +10 XP');
       confetti({ particleCount: 40, spread: 50 });
@@ -1686,11 +1726,122 @@ export class LearnerDashboard implements OnInit {
     this.onDragEnd();
   }
 
+  private applySettings(saved?: Record<string, any> | null) {
+    if (!saved) return;
+    if (saved['reminder_enabled'] !== undefined) this.notificationsEnabled.set(saved['reminder_enabled']);
+    if (saved['daily_goal_minutes'] !== undefined) this.dailyGoal.set(String(saved['daily_goal_minutes']));
+    if (saved['reminder_time']) this.reminderTime.set(saved['reminder_time']);
+    if (saved['reminder_frequency']) this.reminderFrequency.set(saved['reminder_frequency']);
+    if (saved['sound_enabled'] !== undefined) this.soundEnabled.set(saved['sound_enabled']);
+    if (saved['vibration_enabled'] !== undefined) this.vibrationEnabled.set(saved['vibration_enabled']);
+    if (saved['target_language']) this.targetLanguage.set(saved['target_language']);
+  }
+
+  // Picks up anything changed on another device since this browser last logged in
+  private refreshAccountFromServer() {
+    this.authService.refreshUser().subscribe({
+      next: (user) => {
+        if (user.name) this.learnerName.set(user.name);
+        this.applySettings(user.settings);
+        if (this.activeTab() === 'profile') this.loadProfileForm();
+      },
+      error: () => { }
+    });
+  }
+
+  setCustomReminderTime(value: string) {
+    if (!value) return;
+    const [hour, minute] = value.split(':').map(Number);
+    const hour12 = hour % 12 || 12;
+    this.reminderTime.set(`${String(hour12).padStart(2, '0')}:${String(minute).padStart(2, '0')} ${hour < 12 ? 'AM' : 'PM'}`);
+  }
+
   saveSettings() {
+    const user = this.authService.getUser();
+    const name = this.learnerName().trim();
+    const saves: Observable<any>[] = [this.authService.updateSettings({
+      reminder_enabled: this.notificationsEnabled(),
+      daily_goal_minutes: Number(this.dailyGoal()),
+      reminder_time: this.reminderTime(),
+      reminder_frequency: this.reminderFrequency(),
+      sound_enabled: this.soundEnabled(),
+      vibration_enabled: this.vibrationEnabled(),
+      target_language: this.targetLanguage()
+    })];
+    if (name && name !== user?.name) {
+      saves.push(this.authService.updateProfile({ name, email: user?.email }));
+    }
+
+    forkJoin(saves).subscribe({
+      next: () => {
+        this.settingsSaveFailed.set(false);
+        this.showSettingsNotice(this.notificationsEnabled()
+          ? `🔔 Daily ${this.dailyGoal()}-min reminder saved for ${this.reminderTime()} (${this.reminderFrequency()})!`
+          : '🔕 Daily reminders turned off.');
+      },
+      error: () => {
+        this.settingsSaveFailed.set(true);
+        this.showSettingsNotice('Could not save your settings. Please try again.');
+      }
+    });
+  }
+
+  private showSettingsNotice(message: string) {
+    this.settingsSavedMessage.set(message);
     this.settingsSavedNotice.set(true);
     setTimeout(() => {
       this.settingsSavedNotice.set(false);
     }, 3000);
+  }
+
+  loadProfileForm() {
+    const user = this.authService.getUser();
+    this.profileName.set(user?.name || '');
+    this.profileEmail.set(user?.email || '');
+    this.profileUsername.set(user?.username || '');
+    this.profileError.set(null);
+  }
+
+  saveProfile() {
+    const name = this.profileName().trim();
+    if (!name) {
+      this.profileError.set('Please enter your name.');
+      return;
+    }
+
+    this.profileSaving.set(true);
+    this.profileError.set(null);
+    this.authService.updateProfile({ name, email: this.profileEmail().trim() || null }).subscribe({
+      next: () => {
+        this.learnerName.set(name);
+        this.profileName.set(name);
+        this.profileSaving.set(false);
+        this.profileSavedNotice.set(true);
+        setTimeout(() => {
+          this.profileSavedNotice.set(false);
+        }, 3000);
+      },
+      error: (err) => {
+        this.profileSaving.set(false);
+        this.profileError.set(err?.error?.message || 'Could not save your profile. Please try again.');
+      }
+    });
+  }
+
+  // Saves practice XP on the server, then shows the server's totals
+  private recordPracticeXp(activityType: string, done: number, total: number) {
+    this.http.post<any>(`${environment.apiUrl}/dashboard/record-activity`, {
+      activity_type: activityType,
+      score: Math.min(100, Math.round((done / Math.max(total, 1)) * 100)),
+      total: 100
+    }).subscribe({
+      next: (res) => {
+        if (res?.xp !== undefined) this.xp.set(res.xp);
+        if (res?.gems !== undefined) this.coins.set(res.gems);
+        if (res?.streak !== undefined) this.streakDays.set(res.streak);
+      },
+      error: (err) => console.warn('Could not record practice progress:', err)
+    });
   }
 
   triggerAchievement() {

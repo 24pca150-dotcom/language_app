@@ -83,6 +83,24 @@ class LearningProgressController extends Controller
     }
 
     /**
+     * Which contents of a chapter the learner finished, so any device can resume there.
+     */
+    public function getContentProgress(Request $request, $chapterId)
+    {
+        $completedContentIds = \DB::table('user_course_progress')
+            ->where('user_id', $request->user()->id)
+            ->where('chapter_id', $chapterId)
+            ->whereNotNull('content_id')
+            ->where('status', 'completed')
+            ->distinct()
+            ->pluck('content_id')
+            ->map(fn($id) => (int) $id)
+            ->values();
+
+        return response()->json(['completed_content_ids' => $completedContentIds]);
+    }
+
+    /**
      * Mark a chapter as completed in the database.
      */
     public function completeChapter(Request $request, $chapterId)
@@ -110,6 +128,7 @@ class LearningProgressController extends Controller
         $exists = \DB::table('user_course_progress')
             ->where('user_id', $userId)
             ->where('chapter_id', $chapterId)
+            ->whereNull('content_id')
             ->where('status', 'completed')
             ->exists();
 

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../services/game_service.dart';
 import '../data/game_question_bank.dart';
 
 class MatchGameScreen extends StatefulWidget {
@@ -86,11 +87,18 @@ class _MatchGameScreenState extends State<MatchGameScreen> with SingleTickerProv
 
   @override
   void dispose() {
+    _recordResult();
     _trainController.dispose();
     super.dispose();
   }
 
+  void _recordResult() {
+    if (_score <= 0) return;
+    GameService.recordActivity('match', count: _score ~/ 100);
+  }
+
   void _startMatchGame() {
+    _recordResult();
     _score = 0;
     _lives = 5;
     _matchedIds.clear();

@@ -216,13 +216,30 @@ class CourseService {
       return false;
     }
   }
-  static Future<List<MobileCourseItem>> getCourses() async {
-    var token = await AuthService.getToken();
+
+  static Future<bool> completeContent(int chapterId, int contentId) async {
+    final token = await AuthService.getToken();
     final tenantCode = await ApiConfig.getTenantCode();
     final baseUrl = await ApiConfig.getBaseUrl();
 
     try {
-      var res = await http
+      final res = await http.post(
+        Uri.parse('$baseUrl/chapters/$chapterId/contents/$contentId/complete'),
+        headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
+      );
+      return res.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static Future<List<MobileCourseItem>> getCourses() async {
+    final token = await AuthService.getToken();
+    final tenantCode = await ApiConfig.getTenantCode();
+    final baseUrl = await ApiConfig.getBaseUrl();
+
+    try {
+      final res = await http
           .get(
             Uri.parse('$baseUrl/courses'),
             headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
@@ -230,16 +247,8 @@ class CourseService {
           .timeout(const Duration(seconds: 8));
 
       if (res.statusCode == 401) {
-        final loginRes = await AuthService.login('karthik', 'student123', tenantCode: 'SCH-001');
-        if (loginRes['success'] == true && loginRes['token'] != null) {
-          token = loginRes['token'] as String;
-          res = await http
-              .get(
-                Uri.parse('$baseUrl/courses'),
-                headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
-              )
-              .timeout(const Duration(seconds: 8));
-        }
+        await AuthService.handleSessionExpired();
+        return [];
       }
 
       if (res.statusCode == 200) {
@@ -270,12 +279,12 @@ class CourseService {
   static Future<List<MobileLevel>> getCourseStructure({
     required int courseId,
   }) async {
-    var token = await AuthService.getToken();
+    final token = await AuthService.getToken();
     final tenantCode = await ApiConfig.getTenantCode();
     final baseUrl = await ApiConfig.getBaseUrl();
 
     try {
-      var res = await http
+      final res = await http
           .get(
             Uri.parse('$baseUrl/courses/$courseId/player-structure'),
             headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
@@ -283,16 +292,8 @@ class CourseService {
           .timeout(const Duration(seconds: 8));
 
       if (res.statusCode == 401) {
-        final loginRes = await AuthService.login('karthik', 'student123', tenantCode: 'SCH-001');
-        if (loginRes['success'] == true && loginRes['token'] != null) {
-          token = loginRes['token'] as String;
-          res = await http
-              .get(
-                Uri.parse('$baseUrl/courses/$courseId/player-structure'),
-                headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
-              )
-              .timeout(const Duration(seconds: 8));
-        }
+        await AuthService.handleSessionExpired();
+        return [];
       }
 
       if (res.statusCode == 200) {

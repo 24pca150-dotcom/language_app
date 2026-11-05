@@ -4019,11 +4019,226 @@
   }
 }
 
+/* Profile tab */
+.profile-avatar {
+  width: 76px;
+  height: 76px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 3px solid #FFFFFF;
+  background: linear-gradient(180deg, #FFA726 0%, #FB8C00 50%, #E65100 100%);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
+  color: #FFFFFF;
+  font-size: 2rem;
+  font-weight: 700;
+}
 
+.profile-stat {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 8px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.55);
+  text-align: center;
+}
 
+.profile-stat i {
+  font-size: 1.25rem;
+}
 
+/* Settings: daily reminders, same layout as the mobile reminders screen */
+.reminder-toast {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1080;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+}
 
+.reminder-streak-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #78350F 0%, #B45309 100%);
+  box-shadow: 0 6px 16px rgba(217, 119, 6, 0.25);
+  color: #FEF3C7;
+}
 
+.reminder-streak-banner .fw-bold {
+  color: #FFFFFF;
+}
 
+.reminder-streak-icon {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.25);
+  font-size: 1.75rem;
+  line-height: 1.2;
+}
 
+.reminder-card {
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(255, 255, 255, 0.6);
+}
 
+.reminder-card-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(217, 119, 6, 0.15);
+  color: #D97706;
+  font-size: 1.25rem;
+}
+
+.reminder-section-title {
+  margin-bottom: 10px;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.reminder-goal-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  background: rgba(255, 255, 255, 0.75);
+  color: #0F172A;
+}
+
+.reminder-goal-chip.selected {
+  border: 2px solid #D97706;
+  background: #FEF3C7;
+}
+
+.reminder-goal-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.reminder-goal-label i {
+  color: #D97706;
+}
+
+.reminder-goal-badge {
+  color: #64748B;
+  font-size: 0.625rem;
+}
+
+.reminder-goal-chip.selected .reminder-goal-badge {
+  color: #92400E;
+}
+
+.reminder-time-value {
+  color: #D97706;
+  font-size: 1.375rem;
+  font-weight: 700;
+}
+
+.reminder-time-input {
+  width: 150px;
+  border-color: #D97706;
+  border-radius: 14px;
+}
+
+.reminder-time-chip {
+  padding: 6px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  background: rgba(255, 255, 255, 0.75);
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.reminder-time-chip.selected {
+  border-color: #0277BD;
+  background: #0277BD;
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.reminder-list {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.reminder-list-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+}
+
+.reminder-list-row + .reminder-list-row {
+  border-top: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.reminder-list-icon {
+  font-size: 1.25rem;
+}
+
+.reminder-schedule-select {
+  width: auto;
+  max-width: 190px;
+  border-radius: 12px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.reminder-save-btn {
+  min-height: 52px;
+  border-radius: 16px;
+  background: #D97706;
+  box-shadow: 0 6px 14px rgba(217, 119, 6, 0.3);
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.reminder-save-btn:hover,
+.reminder-save-btn:active {
+  background: #B45309 !important;
+  color: #FFFFFF !important;
+}
+
+.langnest-layout div.reminder-toast,
+.langnest-layout .reminder-streak-banner div,
+.langnest-layout div.reminder-section-title,
+.langnest-layout .reminder-hint,
+.langnest-layout div.profile-subname {
+  font-family: 'Fredoka', 'Nunito', sans-serif !important;
+}
+
+.reminder-hint,
+.profile-subname {
+  color: #475569;
+}
+
+.reminder-schedule-row {
+  flex-wrap: wrap;
+}
+
+.reminder-schedule-select {
+  max-width: 100%;
+}

@@ -31,6 +31,33 @@ class MobileGameItem {
 }
 
 class GameService {
+  /// Saves a finished game on the server so its points show on web and mobile.
+  static Future<void> recordActivity(
+    String activityType, {
+    int score = 100,
+    int total = 100,
+    int count = 1,
+  }) async {
+    final token = await AuthService.getToken();
+    final tenantCode = await ApiConfig.getTenantCode();
+    final baseUrl = await ApiConfig.getBaseUrl();
+
+    try {
+      await http
+          .post(
+            Uri.parse('$baseUrl/dashboard/record-activity'),
+            headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
+            body: jsonEncode({
+              'activity_type': activityType,
+              'score': score,
+              'total': total,
+              'count': count.clamp(1, 100),
+            }),
+          )
+          .timeout(const Duration(seconds: 8));
+    } catch (_) {}
+  }
+
   /// Fetches real-time activities created by Admin/Superadmin from Laravel API.
   /// If admin adds an activity in Web, it immediately shows up here!
   static Future<List<MobileGameItem>> getDatabaseGames() async {

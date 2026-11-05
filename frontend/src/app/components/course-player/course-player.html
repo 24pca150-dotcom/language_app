@@ -45,11 +45,11 @@
         <span>Games</span>
       </a>
 
-      <a class="nav-item-btn" routerLink="/learn/practice">
-        <div class="game-nav-icon game-icon-practice">
-          <i class="bi bi-lightning-charge-fill"></i>
+      <a class="nav-item-btn" routerLink="/learn/profile">
+        <div class="game-nav-icon game-icon-profile">
+          <i class="bi bi-person-fill"></i>
         </div>
-        <span>Practice</span>
+        <span>Profile</span>
       </a>
 
       <a class="nav-item-btn" routerLink="/learn/assessments">
@@ -166,7 +166,7 @@
       </header>
     }
 
-    <!-- 🎮 FLOATING DOCK LEFT (4 Buttons: Home, Learn, Games, Practice) -->
+    <!-- 🎮 FLOATING DOCK LEFT (4 Buttons: Home, Learn, Games, Profile) -->
     @if (currentView() !== 'content') {
       <aside class="floating-dock dock-left" aria-label="Learning Navigation">
         <div class="dock-item">
@@ -191,10 +191,10 @@
         </div>
 
         <div class="dock-item">
-          <a class="floating-game-btn game-icon-practice text-decoration-none" routerLink="/learn/practice" title="Practice">
-            <i class="bi bi-lightning-charge-fill"></i>
+          <a class="floating-game-btn game-icon-profile text-decoration-none" routerLink="/learn/profile" title="Profile">
+            <i class="bi bi-person-fill"></i>
           </a>
-          <a routerLink="/learn/practice" class="dock-label text-decoration-none">Practice</a>
+          <a routerLink="/learn/profile" class="dock-label text-decoration-none">Profile</a>
         </div>
       </aside>
 

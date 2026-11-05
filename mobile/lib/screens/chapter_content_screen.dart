@@ -101,9 +101,12 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
     });
     try {
       final list = await ContentService.getChapterContents(widget.chapter.id);
+      final completedIds = await ContentService.getCompletedContentIds(widget.chapter.id);
+      final resumeIndex = list.indexWhere((c) => !completedIds.contains(c.id));
       if (mounted) {
         setState(() {
           _contents = list;
+          _activeContentIndex = resumeIndex > 0 ? resumeIndex : 0;
           _isLoading = false;
         });
       }
@@ -653,10 +656,16 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
+                            final finishedContent = CourseService.completeContent(
+                              widget.chapter.id,
+                              _contents[_activeContentIndex].id,
+                            );
                             if (_activeContentIndex < _contents.length - 1) {
                               setState(() => _activeContentIndex++);
                             } else {
-                              CourseService.completeChapter(widget.chapter.id);
+                              finishedContent.whenComplete(
+                                () => CourseService.completeChapter(widget.chapter.id),
+                              );
                               CelebrationDialog.show(
                                 context,
                                 title: 'Chapter Completed! 🎉',

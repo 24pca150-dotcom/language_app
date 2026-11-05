@@ -17,6 +17,7 @@ export interface UserData {
   coins?: number;
   streak?: number;
   streak_days?: number;
+  settings?: Record<string, any> | null;
 }
 
 export interface AuthResponse {
@@ -108,14 +109,39 @@ export class AuthService {
     return role ? allowedRoles.includes(role) : false;
   }
 
-  updateProfile(data: { name: string; email: string }): Observable<any> {
+  // Replaces the saved session with the latest account data from the server
+  refreshUser(): Observable<UserData> {
+    return this.http.get<UserData>(`${this.apiUrl}/me`).pipe(
+      tap((user) => {
+        localStorage.setItem('user', JSON.stringify(user));
+        this.currentUser.set(user);
+      })
+    );
+  }
+
+  updateSettings(settings: Record<string, any>): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/profile/settings`, settings).pipe(
+      tap((res) => {
+        const current = this.currentUser();
+        if (current) {
+          const user = { ...current, settings: res.settings };
+          localStorage.setItem('user', JSON.stringify(user));
+          this.currentUser.set(user);
+        }
+      })
+    );
+  }
+
+  updateProfile(data: { name: string; email?: string | null }): Observable<any> {
     const token = this.getToken();
     const headers = { 'Authorization': `Bearer ${token || ''}` };
     return this.http.put<any>(`${this.apiUrl}/profile`, data, { headers }).pipe(
       tap((res) => {
         if (res.user) {
-          localStorage.setItem('user', JSON.stringify(res.user));
-          this.currentUser.set(res.user);
+          // The response is the bare user row, so keep stats and tenant from the session
+          const user = { ...this.currentUser(), ...res.user };
+          localStorage.setItem('user', JSON.stringify(user));
+          this.currentUser.set(user);
         }
       })
     );

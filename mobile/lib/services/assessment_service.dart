@@ -146,12 +146,12 @@ class AssessmentModel {
 
 class AssessmentService {
   static Future<List<AssessmentModel>> getAssessments() async {
-    var token = await AuthService.getToken();
+    final token = await AuthService.getToken();
     final tenantCode = await ApiConfig.getTenantCode();
     final baseUrl = await ApiConfig.getBaseUrl();
 
     try {
-      var res = await http
+      final res = await http
           .get(
             Uri.parse('$baseUrl/assessments'),
             headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
@@ -159,16 +159,8 @@ class AssessmentService {
           .timeout(const Duration(seconds: 8));
 
       if (res.statusCode == 401) {
-        final loginRes = await AuthService.login('karthik', 'student123', tenantCode: 'SCH-001');
-        if (loginRes['success'] == true && loginRes['token'] != null) {
-          token = loginRes['token'] as String;
-          res = await http
-              .get(
-                Uri.parse('$baseUrl/assessments'),
-                headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
-              )
-              .timeout(const Duration(seconds: 8));
-        }
+        await AuthService.handleSessionExpired();
+        return [];
       }
 
       if (res.statusCode == 200) {
@@ -187,12 +179,12 @@ class AssessmentService {
   }
 
   static Future<Map<String, dynamic>?> getStudentProgress() async {
-    var token = await AuthService.getToken();
+    final token = await AuthService.getToken();
     final tenantCode = await ApiConfig.getTenantCode();
     final baseUrl = await ApiConfig.getBaseUrl();
 
     try {
-      var res = await http
+      final res = await http
           .get(
             Uri.parse('$baseUrl/student/dashboard'),
             headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
@@ -200,16 +192,8 @@ class AssessmentService {
           .timeout(const Duration(seconds: 8));
 
       if (res.statusCode == 401) {
-        final loginRes = await AuthService.login('karthik', 'student123', tenantCode: 'SCH-001');
-        if (loginRes['success'] == true && loginRes['token'] != null) {
-          token = loginRes['token'] as String;
-          res = await http
-              .get(
-                Uri.parse('$baseUrl/student/dashboard'),
-                headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
-              )
-              .timeout(const Duration(seconds: 8));
-        }
+        await AuthService.handleSessionExpired();
+        return null;
       }
 
       if (res.statusCode == 200) {

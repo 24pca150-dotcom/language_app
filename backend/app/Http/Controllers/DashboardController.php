@@ -83,25 +83,18 @@ class DashboardController extends Controller
         // 3. Calculate streak dynamically
         $streak = $this->calculateStreak($userId);
 
-        // 4. Calculate XP Points and Gems dynamically (with default baselines)
+        // 4. Calculate XP Points and Gems from the student's real activity
+        $userStats = self::recalculateUserStats($userId);
+        $xpPoints = $userStats['xp'];
+        $gems = $userStats['gems'];
+        $user->refresh();
+
         $activityCompletions = DB::table('user_course_progress')
             ->where('user_id', $userId)
-            ->where('status', 'activity_completed')
+            ->where(function ($q) {
+                $q->where('status', 'like', 'practice:%')->orWhere('status', 'like', 'game:%');
+            })
             ->count();
-        
-        $xpPoints = 1250 + ($completedChapters * 100) + ($passedAttempts * 200) + ($totalAttempts * 50) + ($streak * 25) + ($activityCompletions * 75);
-        $gems = 85 + ($completedChapters * 15) + ($passedAttempts * 30) + ($streak * 5) + ($activityCompletions * 10);
-
-        // Save to users table so columns are synchronized
-        if (\Schema::hasColumn('users', 'xp')) {
-            $user->xp = $xpPoints;
-        }
-        if (\Schema::hasColumn('users', 'gems')) {
-            $user->gems = $gems;
-        }
-        if ($user->isDirty()) {
-            $user->save();
-        }
 
         // 5. Course-by-course progressions
         $courseProgressions = [];
@@ -1029,22 +1022,24 @@ class DashboardController extends Controller
             'activity_type' => 'required|string|in:mcq,match,flashcard,assessment,car_racer,word_ninja,flappy_word,space_defender,balloon_pop,word_arrange,fill_blanks,crossword,writing,practice,game,custom',
             'score' => 'required|integer|min:0',
             'total' => 'required|integer|min:1',
+            'count' => 'nullable|integer|min:1|max:100', // correct answers in this result
         ]);
 
         $user = $request->user();
         $userId = $user->id;
+        $count = $validated['count'] ?? 1;
 
         // Calculate XP based on activity type and performance
         $xpEarned = 0;
         switch ($validated['activity_type']) {
             case 'mcq':
-                $xpEarned = $validated['score'] * 50; // 50 XP per correct answer
-                break;
             case 'match':
-                $xpEarned = $validated['score'] * 25; // 25 XP per correct match
-                break;
             case 'flashcard':
-                $xpEarned = 30; // flat 30 XP for reviewing flashcards
+            case 'fill_blanks':
+                $xpEarned = 10 * $count; // 10 XP per correct answer
+                break;
+            case 'word_arrange':
+                $xpEarned = 15 * $count; // 15 XP per sentence built
                 break;
             case 'assessment':
                 $xpEarned = (int) round(($validated['score'] / max($validated['total'], 1)) * 200);
@@ -1057,8 +1052,6 @@ class DashboardController extends Controller
             case 'game':
                 $xpEarned = max(35, (int) round(($validated['score'] / max($validated['total'], 1)) * 60));
                 break;
-            case 'word_arrange':
-            case 'fill_blanks':
             case 'crossword':
             case 'writing':
             case 'practice':
@@ -1069,7 +1062,11 @@ class DashboardController extends Controller
 
         // Record the activity in user_course_progress
         $isGame = in_array($validated['activity_type'], ['car_racer', 'word_ninja', 'flappy_word', 'space_defender', 'balloon_pop', 'game']);
-        $statusKey = $isGame ? ('game:' . $validated['activity_type']) : ('practice:' . $validated['activity_type']);
+        // Practice rows use the topic ids that the practice progress cards look up
+        $practiceTopics = ['mcq' => 'quiz', 'flashcard' => 'flashcards', 'word_arrange' => 'scramble', 'fill_blanks' => 'blanks'];
+        $statusKey = $isGame
+            ? ('game:' . $validated['activity_type'])
+            : ('practice:' . ($practiceTopics[$validated['activity_type']] ?? $validated['activity_type']));
 
         $existing = DB::table('user_course_progress')
             ->where('user_id', $userId)
@@ -1081,6 +1078,7 @@ class DashboardController extends Controller
                 ->where('id', $existing->id)
                 ->update([
                     'score' => max((int)$existing->score, (int)$validated['score']),
+                    'xp_earned' => (int)$existing->xp_earned + $xpEarned,
                     'completed_at' => now(),
                     'updated_at' => now(),
                 ]);
@@ -1090,6 +1088,7 @@ class DashboardController extends Controller
                 'chapter_id' => null,
                 'status' => $statusKey,
                 'score' => (int)$validated['score'],
+                'xp_earned' => $xpEarned,
                 'completed_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -1097,11 +1096,14 @@ class DashboardController extends Controller
         }
 
         // Recalculate stats and save to users table
-        self::recalculateUserStats($userId);
+        $stats = self::recalculateUserStats($userId);
 
         return response()->json([
             'success' => true,
             'xp_earned' => $xpEarned,
+            'xp' => $stats['xp'],
+            'gems' => $stats['gems'],
+            'streak' => $stats['streak'],
             'activity_type' => $validated['activity_type'],
             'message' => "Activity recorded! You earned {$xpEarned} XP.",
         ]);
@@ -1172,13 +1174,12 @@ class DashboardController extends Controller
             }
         }
 
-        $activityCompletions = DB::table('user_course_progress')
+        $activityXp = (int) DB::table('user_course_progress')
             ->where('user_id', $userId)
-            ->where('status', 'activity_completed')
-            ->count();
+            ->sum('xp_earned');
 
-        $xpPoints = 1250 + ($completedChapters * 100) + ($passedAttempts * 200) + ($totalAttempts * 50) + ($streak * 25) + ($activityCompletions * 75);
-        $gems = 85 + ($completedChapters * 15) + ($passedAttempts * 30) + ($streak * 5) + ($activityCompletions * 10);
+        $xpPoints = ($completedChapters * 100) + ($passedAttempts * 200) + ($totalAttempts * 50) + ($streak * 25) + $activityXp;
+        $gems = ($completedChapters * 15) + ($passedAttempts * 30) + ($streak * 5) + intdiv($activityXp, 10);
 
         if (\Schema::hasColumn('users', 'xp')) {
             $user->xp = $xpPoints;

@@ -75,6 +75,31 @@ class ChapterContentItem {
 }
 
 class ContentService {
+  /// Contents of the chapter this user already finished on any device.
+  static Future<Set<int>> getCompletedContentIds(int chapterId) async {
+    final token = await AuthService.getToken();
+    final tenantCode = await ApiConfig.getTenantCode();
+    final baseUrl = await ApiConfig.getBaseUrl();
+
+    try {
+      final res = await http
+          .get(
+            Uri.parse('$baseUrl/chapters/$chapterId/progress'),
+            headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
+          )
+          .timeout(const Duration(seconds: 8));
+
+      if (res.statusCode == 200) {
+        final ids = jsonDecode(res.body)['completed_content_ids'];
+        if (ids is List) {
+          return ids.whereType<int>().toSet();
+        }
+      }
+    } catch (_) {}
+
+    return {};
+  }
+
   static Future<List<ChapterContentItem>> getChapterContents(
     int chapterId,
   ) async {
@@ -93,7 +118,10 @@ class ContentService {
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         if (data is Map) {
-          final contentsList = (data['contents'] as List<dynamic>?) ?? [];
+          final contentsList = [...(data['contents'] as List<dynamic>?) ?? []];
+          // Same order as the web lesson player
+          num sortOrder(dynamic c) => c is Map ? num.tryParse('${c['sort_order']}') ?? 0 : 0;
+          contentsList.sort((a, b) => sortOrder(a).compareTo(sortOrder(b)));
           final items = <ChapterContentItem>[];
           for (var c in contentsList) {
             if (c is Map) {

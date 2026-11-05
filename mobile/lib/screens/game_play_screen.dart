@@ -63,13 +63,20 @@ class _GamePlayScreenState extends State<GamePlayScreen> with SingleTickerProvid
 
   @override
   void dispose() {
+    _recordResult();
     _gameTimer?.cancel();
     _ninjaSpawnTimer?.cancel();
     _balloonSpawnTimer?.cancel();
     super.dispose();
   }
 
+  void _recordResult() {
+    if (_score <= 0) return;
+    GameService.recordActivity('game', score: _score.clamp(1, 100));
+  }
+
   void _startGame() {
+    _recordResult();
     _score = 0;
     _lives = 5;
     _timeLeft = 35;

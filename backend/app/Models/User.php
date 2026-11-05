@@ -29,6 +29,7 @@ class User extends Authenticatable
         'dob',
         'xp',
         'gems',
+        'settings',
     ];
 
     /**
@@ -51,6 +52,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'settings' => 'array',
+            'settings' => 'array',
         ];
     }
 

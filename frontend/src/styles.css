@@ -503,7 +503,7 @@ h1 strong, h2 strong, h3 strong, h4 strong, h5 strong, h6 strong {
 .game-icon-games {
   background: linear-gradient(180deg, #4FC3F7 0%, #039BE5 50%, #0277BD 100%);
 }
-.game-icon-practice {
+.game-icon-profile {
   background: linear-gradient(180deg, #FFA726 0%, #FB8C00 50%, #E65100 100%);
 }
 .game-icon-assessments {

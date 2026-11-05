@@ -91,12 +91,12 @@ class LiveClassModel {
 
 class LiveClassService {
   static Future<List<LiveClassModel>> getUpcomingLiveClasses() async {
-    var token = await AuthService.getToken();
+    final token = await AuthService.getToken();
     final tenantCode = await ApiConfig.getTenantCode();
     final baseUrl = await ApiConfig.getBaseUrl();
 
     try {
-      var res = await http
+      final res = await http
           .get(
             Uri.parse('$baseUrl/live-classes/upcoming'),
             headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
@@ -104,16 +104,8 @@ class LiveClassService {
           .timeout(const Duration(seconds: 8));
 
       if (res.statusCode == 401) {
-        final loginRes = await AuthService.login('karthik', 'student123', tenantCode: 'SCH-001');
-        if (loginRes['success'] == true && loginRes['token'] != null) {
-          token = loginRes['token'] as String;
-          res = await http
-              .get(
-                Uri.parse('$baseUrl/live-classes/upcoming'),
-                headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
-              )
-              .timeout(const Duration(seconds: 8));
-        }
+        await AuthService.handleSessionExpired();
+        return [];
       }
 
       if (res.statusCode == 200) {

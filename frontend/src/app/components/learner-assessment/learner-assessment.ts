@@ -190,6 +190,10 @@ export class LearnerAssessmentComponent implements OnInit {
     return 'General Assessment';
   }
 
+  getTopicBadge(item: AssessmentItem): string {
+    return item.chapter?.name || item.chapter?.title || item.level?.name || this.getCourseBadge(item);
+  }
+
   goBackToDashboard(): void {
     this.router.navigate(['/learn/dashboard']);
   }

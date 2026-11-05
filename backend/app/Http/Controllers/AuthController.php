@@ -375,7 +375,31 @@ class AuthController extends Controller
         
         return response()->json([
             'message' => 'Profile updated successfully',
-            'user' => $user
+            'user' => self::formatUserResponse($user)
+        ]);
+    }
+
+    /**
+     * Save the learner's preferences so web and mobile share them.
+     */
+    public function updateSettings(Request $request)
+    {
+        $validated = $request->validate([
+            'reminder_enabled' => 'sometimes|boolean',
+            'daily_goal_minutes' => 'sometimes|integer|in:5,10,15,20,30',
+            'reminder_time' => ['sometimes', 'string', 'regex:/^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/'],
+            'reminder_frequency' => 'sometimes|string|in:Everyday,Weekdays (Mon-Fri),Weekends Only',
+            'sound_enabled' => 'sometimes|boolean',
+            'vibration_enabled' => 'sometimes|boolean',
+            'target_language' => 'sometimes|string|max:50',
+        ]);
+
+        $user = $request->user();
+        $user->update(['settings' => array_merge($user->settings ?? [], $validated)]);
+
+        return response()->json([
+            'message' => 'Settings updated successfully',
+            'settings' => $user->settings
         ]);
     }
 

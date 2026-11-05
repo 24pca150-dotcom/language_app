@@ -187,11 +187,13 @@ Route::middleware(['auth:sanctum', 'identify.tenant'])->group(function () {
     Route::get('users/{userId}/courses/{courseId}/progress', [LearningProgressController::class, 'getUserProgress']);
     Route::get('users/{userId}/levels/{levelId}/access', [LearningProgressController::class, 'getLevelAccess']);
     Route::get('users/{userId}/levels/{levelId}/chapters/progress', [LearningProgressController::class, 'getChapterProgress']);
+    Route::get('chapters/{chapterId}/progress', [LearningProgressController::class, 'getContentProgress']);
     Route::post('chapters/{chapterId}/complete', [LearningProgressController::class, 'completeChapter']);
     Route::post('chapters/{chapterId}/contents/{contentId}/complete', [LearningProgressController::class, 'completeContent']);
 
     // Profile Settings & dynamic updates
     Route::put('/profile', [AuthController::class, 'updateProfile']);
+    Route::put('/profile/settings', [AuthController::class, 'updateSettings']);
 
     // Record student activity for XP & streak tracking
     Route::post('student/record-activity', [DashboardController::class, 'recordActivity']);

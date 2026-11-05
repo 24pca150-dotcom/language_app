@@ -12,6 +12,7 @@ export interface LessonStep {
   type: 'video' | 'pdf' | 'reading' | 'activity' | 'assessment';
   title: string;
   data: any;
+  contentId?: number;
 }
 
 import { RouterModule, Router } from '@angular/router';
@@ -455,16 +456,22 @@ export class CoursePlayer implements OnInit, OnDestroy {
           .filter((c: any) => c.is_active !== false)
           .sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0));
 
-        return this.resolveActivityReferences(contents).pipe(
-          map(resolvedContents => ({
+        return forkJoin({
+          resolvedContents: this.resolveActivityReferences(contents),
+          progress: this.http.get<any>(`${environment.apiUrl}/chapters/${chapterId}/progress`).pipe(
+            catchError(() => of({ completed_content_ids: [] }))
+          )
+        }).pipe(
+          map(({ resolvedContents, progress }) => ({
             contents: resolvedContents,
-            assessments: chapterData.assessments || []
+            assessments: chapterData.assessments || [],
+            completedContentIds: (progress.completed_content_ids || []) as number[]
           }))
         );
       })
     ).subscribe({
       next: (result) => {
-        this.generateLessonSequence(result.contents, result.assessments);
+        this.generateLessonSequence(result.contents, result.assessments, result.completedContentIds);
       },
       error: (err) => {
         console.error('Failed to load chapter contents', err);
@@ -473,10 +480,12 @@ export class CoursePlayer implements OnInit, OnDestroy {
     });
   }
 
-  generateLessonSequence(contents: Content[], chapterAssessments: any[]) {
+  generateLessonSequence(contents: Content[], chapterAssessments: any[], completedContentIds: number[] = []) {
     const steps: LessonStep[] = [];
 
     contents.forEach(content => {
+      const firstStepOfContent = steps.length;
+
       if (content.id === 1 || (content.name && content.name.includes('Homophones Part 1'))) {
         steps.push({
           type: 'video',
@@ -559,9 +568,20 @@ export class CoursePlayer implements OnInit, OnDestroy {
           });
         }
       }
+
+      steps.slice(firstStepOfContent).forEach(step => step.contentId = content.id);
     });
 
     this.lessonSequence.set(steps);
+
+    // Progress from any device counts, so continue from the first unfinished content
+    const finished = new Set(completedContentIds);
+    const resumeIndex = steps.findIndex(step => !step.contentId || !finished.has(step.contentId));
+    if (finished.size > 0 && resumeIndex > this.currentStepIndex()) {
+      this.currentStepIndex.set(resumeIndex);
+      this.highestStepIndex.set(resumeIndex);
+    }
+
     if (this.currentStepIndex() >= steps.length) {
       this.currentStepIndex.set(0);
     }
@@ -725,11 +745,10 @@ export class CoursePlayer implements OnInit, OnDestroy {
     const activeChapId = this.activeChapterId();
     const chapter = this.selectedChapter();
 
-    if (activeChapId && chapter && chapter.contents && chapter.contents.length > 0) {
-      const content = chapter.contents[Math.min(currentIdx, chapter.contents.length - 1)];
-      if (content) {
-        this.completeContent(activeChapId, content.id);
-      }
+    const steps = this.lessonSequence();
+    const stepContentId = steps[currentIdx]?.contentId;
+    if (activeChapId && stepContentId && steps[currentIdx + 1]?.contentId !== stepContentId) {
+      this.completeContent(activeChapId, stepContentId);
     }
 
     if (currentIdx < this.lessonSequence().length - 1) {

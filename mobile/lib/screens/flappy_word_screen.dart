@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../services/game_service.dart';
 import '../data/game_question_bank.dart';
 import '../services/game_audio_service.dart';
 
@@ -107,6 +108,7 @@ class _FlappyWordScreenState extends State<FlappyWordScreen> {
 
   @override
   void dispose() {
+    _recordResult();
     _loopTimer?.cancel();
     super.dispose();
   }
@@ -124,7 +126,13 @@ class _FlappyWordScreenState extends State<FlappyWordScreen> {
     }
   }
 
+  void _recordResult() {
+    if (_score <= 0) return;
+    GameService.recordActivity('flappy_word', score: _score.clamp(1, 100));
+  }
+
   void _startFlappyGame() {
+    _recordResult();
     _score = 0;
     _lives = 5;
     _currentWaveIndex = 0;

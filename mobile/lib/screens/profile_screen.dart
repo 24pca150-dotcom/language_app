@@ -48,6 +48,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _isLoading = false;
       });
     }
+    await _loadReminderSettings();
   }
 
   Future<void> _loadReminderSettings() async {
@@ -153,17 +154,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     final nav = Navigator.of(context);
                     final messenger = ScaffoldMessenger.of(context);
 
-                    final updated = await AuthService.updateUserProfile(
-                      name: newName,
-                      email: newEmail,
-                    );
-                    if (mounted) {
-                      setState(() => _user = updated);
-                      nav.pop();
+                    try {
+                      final updated = await AuthService.updateUserProfile(
+                        name: newName,
+                        email: newEmail,
+                      );
+                      if (mounted) {
+                        setState(() => _user = updated);
+                        nav.pop();
+                        messenger.showSnackBar(
+                          const SnackBar(
+                            content: Text('🎉 Profile updated successfully!'),
+                            backgroundColor: AppTheme.secondary,
+                          ),
+                        );
+                      }
+                    } catch (error) {
                       messenger.showSnackBar(
-                        const SnackBar(
-                          content: Text('🎉 Profile updated successfully!'),
-                          backgroundColor: AppTheme.secondary,
+                        SnackBar(
+                          content: Text(error.toString().replaceFirst('Exception: ', '')),
+                          backgroundColor: AppTheme.danger,
                         ),
                       );
                     }

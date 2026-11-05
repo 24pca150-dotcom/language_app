@@ -214,6 +214,11 @@ export const routes: Routes = [
     canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff']), cloudTransitionGuard] 
   },
   { 
+    path: 'learn/profile', 
+    component: LearnerDashboard, 
+    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff']), cloudTransitionGuard] 
+  },
+  { 
     path: 'learn/settings', 
     component: LearnerDashboard, 
     canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff']), cloudTransitionGuard] 

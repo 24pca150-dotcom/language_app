@@ -14,7 +14,7 @@
     </div>
   </div>
 
-  <!-- 🎮 FLOATING DOCK LEFT (4 Buttons: Home, Learn, Games, Practice) -->
+  <!-- 🎮 FLOATING DOCK LEFT (4 Buttons: Home, Learn, Games, Profile) -->
   <aside class="floating-dock dock-left" aria-label="Learning Navigation">
     <div class="dock-item" [class.active]="activeTab() === 'home'" (click)="setTab('home')">
       <button class="floating-game-btn game-icon-home" [class.active]="activeTab() === 'home'" title="Home">
@@ -37,11 +37,11 @@
       <a routerLink="/learn/games" class="dock-label text-decoration-none">Games</a>
     </div>
 
-    <div class="dock-item" [class.active]="activeTab() === 'practice'" (click)="setTab('practice')">
-      <button class="floating-game-btn game-icon-practice" [class.active]="activeTab() === 'practice'" title="Practice">
-        <i class="bi bi-lightning-charge-fill"></i>
+    <div class="dock-item" [class.active]="activeTab() === 'profile'" (click)="setTab('profile')">
+      <button class="floating-game-btn game-icon-profile" [class.active]="activeTab() === 'profile'" title="Profile">
+        <i class="bi bi-person-fill"></i>
       </button>
-      <span class="dock-label">Practice</span>
+      <span class="dock-label">Profile</span>
     </div>
   </aside>
 
@@ -2236,6 +2236,93 @@
       }
 
       <!-- ================================================================ -->
+      <!-- 👤 TAB 7: PROFILE                                                 -->
+      <!-- ================================================================ -->
+      @if (activeTab() === 'profile') {
+        <div class="tab-fade-in" style="max-width: 780px;">
+          <div class="d-flex align-items-center gap-3 mb-4 learner-top-header-row">
+            <button class="btn-back-circle shadow-sm" (click)="setTab('home')" title="Back to Dashboard">
+              <i class="bi bi-arrow-left fs-5"></i>
+            </button>
+            <div>
+              <h2 class="fw-bold text-white mb-0"><i class="bi bi-person-fill text-warning me-2"></i>My Profile</h2>
+              <p class="text-white-50 mb-0 small">View your learning stats and update your account details.</p>
+            </div>
+          </div>
+
+          @if (profileSavedNotice()) {
+            <div class="alert alert-success rounded-4 shadow-sm" role="alert">
+              <i class="bi bi-check-circle-fill me-2"></i> Profile saved successfully!
+            </div>
+          }
+          @if (profileError()) {
+            <div class="alert alert-danger rounded-4 shadow-sm" role="alert">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ profileError() }}
+            </div>
+          }
+
+          <div class="dashboard-glass-card p-4 p-md-5 rounded-4 mb-4">
+            <div class="d-flex align-items-center gap-3 mb-4 pb-4 border-bottom border-secondary border-opacity-25">
+              <div class="profile-avatar" aria-hidden="true">{{ (profileUsername() || learnerName() || 'L').charAt(0).toUpperCase() }}</div>
+              <div class="min-w-0">
+                <h4 class="fw-bold text-white mb-1 text-truncate">{{ profileUsername() || learnerName() }}</h4>
+                @if (profileUsername()) {
+                  <div class="profile-subname small text-truncate">{{ learnerName() }}</div>
+                }
+              </div>
+            </div>
+
+            <div class="row g-3 mb-4 pb-4 border-bottom border-secondary border-opacity-25">
+              <div class="col-6 col-md-3">
+                <div class="profile-stat">
+                  <i class="bi bi-trophy-fill text-warning"></i>
+                  <span class="fw-bold text-white">Lvl {{ learnerLevel() }}</span>
+                  <small class="text-white-50">Level</small>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="profile-stat">
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <span class="fw-bold text-white">{{ effectiveStars() }}</span>
+                  <small class="text-white-50">Stars</small>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="profile-stat">
+                  <i class="bi bi-fire text-danger"></i>
+                  <span class="fw-bold text-white">{{ effectiveStreak() }} Days</span>
+                  <small class="text-white-50">Streak</small>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="profile-stat">
+                  <i class="bi bi-gem text-info"></i>
+                  <span class="fw-bold text-white">{{ coins() }}</span>
+                  <small class="text-white-50">Coins</small>
+                </div>
+              </div>
+            </div>
+
+            <h5 class="fw-bold text-white mb-3"><i class="bi bi-person-badge text-primary me-2"></i>Account Details</h5>
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label text-white-50 small" for="profileNameInput">Name</label>
+                <input id="profileNameInput" type="text" maxlength="255" class="form-control bg-dark bg-opacity-50 text-white border-secondary" [(ngModel)]="profileName">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-white-50 small" for="profileEmailInput">Email</label>
+                <input id="profileEmailInput" type="email" class="form-control bg-dark bg-opacity-50 text-white border-secondary" [(ngModel)]="profileEmail">
+              </div>
+            </div>
+
+            <button class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-dark shadow" [disabled]="profileSaving()" (click)="saveProfile()">
+              <i class="bi bi-check2 me-1"></i>{{ profileSaving() ? 'Saving...' : 'Save Profile' }}
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- ================================================================ -->
       <!-- ⚙️ TAB 6: SETTINGS (PROFILE & PREFERENCES)                       -->
       <!-- ================================================================ -->
       @if (activeTab() === 'settings') {
@@ -2249,12 +2336,6 @@
               <p class="text-white-50 mb-0 small">Configure your learning profile, notification goals, and preferences.</p>
             </div>
           </div>
-
-          @if (settingsSavedNotice()) {
-            <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm" role="alert">
-              <i class="bi bi-check-circle-fill me-2"></i> Preferences saved successfully!
-            </div>
-          }
 
           <div class="dashboard-glass-card p-4 p-md-5 rounded-4 mb-4">
             <!-- Account Info -->
@@ -2278,57 +2359,119 @@
               </div>
             </div>
 
-            <!-- Daily Study Goal -->
-            <div class="mb-4 pb-4 border-bottom border-secondary border-opacity-25">
-              <h5 class="fw-bold text-white mb-3"><i class="bi bi-stopwatch text-warning me-2"></i>Daily Learning Goal</h5>
-              <div class="d-flex flex-wrap gap-3">
-                <button type="button" class="btn rounded-pill px-4 py-2 fw-semibold"
-                        [ngClass]="dailyGoal() === '5' ? 'btn-warning text-dark' : 'btn-outline-light'"
-                        (click)="dailyGoal.set('5')">
-                  Casual (5 min/day)
-                </button>
-                <button type="button" class="btn rounded-pill px-4 py-2 fw-semibold"
-                        [ngClass]="dailyGoal() === '15' ? 'btn-warning text-dark' : 'btn-outline-light'"
-                        (click)="dailyGoal.set('15')">
-                  Regular (15 min/day)
-                </button>
-                <button type="button" class="btn rounded-pill px-4 py-2 fw-semibold"
-                        [ngClass]="dailyGoal() === '30' ? 'btn-warning text-dark' : 'btn-outline-light'"
-                        (click)="dailyGoal.set('30')">
-                  Intensive (30 min/day)
-                </button>
+            <!-- Streak Motivation Banner -->
+            <div class="reminder-streak-banner mb-4">
+              <span class="reminder-streak-icon" aria-hidden="true">🔥</span>
+              <div>
+                <div class="fw-bold">Protect Your Learning Streak!</div>
+                <div class="small">Practicing just 10 minutes a day boosts retention by 80% and unlocks exclusive championship badges.</div>
               </div>
             </div>
 
-            <!-- Toggles -->
-            <div class="mb-4">
-              <h5 class="fw-bold text-white mb-3"><i class="bi bi-bell text-info me-2"></i>Sound & Alerts</h5>
-              <div class="d-flex flex-column gap-3">
-                <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="soundSwitch" [checked]="soundEnabled()" (change)="soundEnabled.set(!soundEnabled())">
-                  <label class="form-check-label text-white ms-2" for="soundSwitch">Sound Effects on Correct Answers & Level Up</label>
-                </div>
-                <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="notifSwitch" [checked]="notificationsEnabled()" (change)="notificationsEnabled.set(!notificationsEnabled())">
-                  <label class="form-check-label text-white ms-2" for="notifSwitch">Daily Streak & Study Reminders</label>
-                </div>
+            <!-- Notification Master Toggle -->
+            <div class="reminder-card d-flex align-items-center gap-3 mb-4">
+              <span class="reminder-card-icon" aria-hidden="true"><i class="bi bi-bell-fill"></i></span>
+              <div class="flex-grow-1">
+                <label class="fw-bold text-white d-block" for="notifSwitch">Daily Practice Alerts</label>
+                <small class="text-white-50">Send friendly reminders every day</small>
+              </div>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" role="switch" id="notifSwitch" [checked]="notificationsEnabled()" (change)="notificationsEnabled.set(!notificationsEnabled())">
               </div>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center pt-3">
-              <button class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-dark shadow" (click)="saveSettings()">
-                <i class="bi bi-check2 me-1"></i>Save Preferences
-              </button>
-              <button class="btn btn-outline-danger btn-sm rounded-pill px-3 py-2" (click)="logout()">
-                <i class="bi bi-box-arrow-right me-1"></i>Sign Out
-              </button>
-            </div>
+            @if (notificationsEnabled()) {
+              <!-- Daily Learning Goal -->
+              <div class="reminder-section-title">Daily Learning Goal</div>
+              <div class="reminder-card mb-4">
+                <p class="reminder-hint small mb-3">How much time would you like to dedicate each day?</p>
+                <div class="d-flex flex-wrap gap-2">
+                  @for (goal of dailyGoalOptions; track goal.mins) {
+                    <button type="button" class="reminder-goal-chip" [class.selected]="dailyGoal() === goal.mins" [attr.aria-pressed]="dailyGoal() === goal.mins" (click)="dailyGoal.set(goal.mins)">
+                      <span class="reminder-goal-label">
+                        {{ goal.mins }} Mins
+                        @if (dailyGoal() === goal.mins) {
+                          <i class="bi bi-check-circle-fill ms-1"></i>
+                        }
+                      </span>
+                      <span class="reminder-goal-badge">{{ goal.badge }}</span>
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- Reminder Time -->
+              <div class="reminder-section-title">Reminder Time</div>
+              <div class="reminder-card mb-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 pb-3 mb-3 border-bottom border-secondary border-opacity-25">
+                  <div>
+                    <small class="text-white-50 d-block">Selected Alarm Time</small>
+                    <span class="reminder-time-value">{{ reminderTime() }}</span>
+                  </div>
+                  <div>
+                    <label class="text-white-50 small d-block mb-1" for="customReminderTime">Custom Time</label>
+                    <input id="customReminderTime" type="time" class="form-control reminder-time-input" [value]="reminderTime24h()" (change)="setCustomReminderTime($any($event.target).value)">
+                  </div>
+                </div>
+                <small class="text-white-50 d-block mb-2">Quick Time Presets:</small>
+                <div class="d-flex flex-wrap gap-2">
+                  @for (time of reminderTimePresets; track time) {
+                    <button type="button" class="reminder-time-chip" [class.selected]="reminderTime() === time" [attr.aria-pressed]="reminderTime() === time" (click)="reminderTime.set(time)">{{ time }}</button>
+                  }
+                </div>
+              </div>
+
+              <!-- Frequency & Alert Preferences -->
+              <div class="reminder-section-title">Alert Preferences</div>
+              <div class="reminder-card reminder-list mb-4">
+                <div class="reminder-list-row reminder-schedule-row">
+                  <i class="bi bi-arrow-repeat reminder-list-icon text-primary"></i>
+                  <label class="fw-bold text-white flex-grow-1" for="reminderSchedule">Reminder Schedule</label>
+                  <select id="reminderSchedule" class="form-select reminder-schedule-select" [(ngModel)]="reminderFrequency">
+                    @for (freq of reminderFrequencies; track freq) {
+                      <option [value]="freq">{{ freq }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="reminder-list-row">
+                  <i class="bi bi-volume-up-fill reminder-list-icon text-success"></i>
+                  <div class="flex-grow-1">
+                    <label class="fw-bold text-white d-block" for="soundSwitch">Sound Alerts</label>
+                    <small class="text-white-50">Play gentle chime when alert triggers</small>
+                  </div>
+                  <div class="form-check form-switch mb-0">
+                    <input class="form-check-input" type="checkbox" role="switch" id="soundSwitch" [checked]="soundEnabled()" (change)="soundEnabled.set(!soundEnabled())">
+                  </div>
+                </div>
+                <div class="reminder-list-row">
+                  <i class="bi bi-phone-vibrate-fill reminder-list-icon text-info"></i>
+                  <div class="flex-grow-1">
+                    <label class="fw-bold text-white d-block" for="vibrationSwitch">Vibration</label>
+                    <small class="text-white-50">Vibrate phone on reminder</small>
+                  </div>
+                  <div class="form-check form-switch mb-0">
+                    <input class="form-check-input" type="checkbox" role="switch" id="vibrationSwitch" [checked]="vibrationEnabled()" (change)="vibrationEnabled.set(!vibrationEnabled())">
+                  </div>
+                </div>
+              </div>
+            }
+
+            <button class="btn reminder-save-btn w-100" (click)="saveSettings()">
+              <i class="bi bi-check-circle-fill me-2"></i>Save Reminder &amp; Learning Goal
+            </button>
           </div>
         </div>
       }
 
     </div>
   </main>
+
+  <!-- Settings saved toast, kept outside the animated tab so it stays fixed to the viewport -->
+  @if (settingsSavedNotice()) {
+    <div class="alert rounded-4 shadow reminder-toast" [ngClass]="settingsSaveFailed() ? 'alert-danger' : 'alert-success'" role="status">
+      <i class="bi me-2" [ngClass]="settingsSaveFailed() ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'"></i> {{ settingsSavedMessage() }}
+    </div>
+  }
 
   <!-- Lottie Achievement Modal -->
   @if (showAchievementModal()) {

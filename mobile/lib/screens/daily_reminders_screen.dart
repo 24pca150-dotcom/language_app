@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 
 class DailyRemindersScreen extends StatefulWidget {
@@ -25,6 +26,7 @@ class _DailyRemindersScreenState extends State<DailyRemindersScreen> {
   }
 
   Future<void> _loadSettings() async {
+    await AuthService.getUserProfile();
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
       setState(() {
@@ -47,6 +49,25 @@ class _DailyRemindersScreenState extends State<DailyRemindersScreen> {
     await prefs.setBool('reminder_vibration', _vibrationEnabled);
     await prefs.setBool('reminder_sound', _soundEnabled);
     await prefs.setString('reminder_frequency', _selectedFrequency);
+
+    final synced = await AuthService.saveSettings({
+      'reminder_enabled': _reminderEnabled,
+      'reminder_time': _reminderTime,
+      'daily_goal_minutes': _dailyGoalMinutes,
+      'sound_enabled': _soundEnabled,
+      'vibration_enabled': _vibrationEnabled,
+      'reminder_frequency': _selectedFrequency,
+    });
+
+    if (mounted && !synced) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not save your settings. Check your connection and try again.'),
+          backgroundColor: AppTheme.danger,
+        ),
+      );
+      return;
+    }
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

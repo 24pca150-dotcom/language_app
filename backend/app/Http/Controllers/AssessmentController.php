@@ -7,6 +7,7 @@ use App\Models\AssessmentQuestion;
 use App\Models\QuestionOption;
 use App\Models\UserAssessmentAttempt;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AssessmentController extends Controller
 {
@@ -24,6 +25,17 @@ class AssessmentController extends Controller
         $user = $request->user();
         if ($user && $user->role === 'student') {
             $query->where('is_active', true);
+
+            // Same rule as the course list: only the courses assigned to the student's school
+            $allowedCourseIds = $this->assignedCourseIds($user);
+            if (!empty($allowedCourseIds)) {
+                $query->where(function ($q) use ($allowedCourseIds) {
+                    $q->whereNull('level_id')
+                      ->orWhereHas('level.course', function ($courseQuery) use ($allowedCourseIds) {
+                          $courseQuery->whereIn('courses.id', $allowedCourseIds);
+                      });
+                });
+            }
         }
 
         $assessments = $query->latest()->get();
@@ -385,5 +397,32 @@ class AssessmentController extends Controller
             ],
             'attempts' => $attempts,
         ]);
+    }
+
+    private function assignedCourseIds($user): array
+    {
+        if (!$user->tenant_id) {
+            return [];
+        }
+
+        $today = now()->toDateString();
+
+        return DB::table('property_packages as pp')
+            ->join('properties as p', 'pp.property_id', '=', 'p.id')
+            ->join('packages as pkg', 'pp.package_id', '=', 'pkg.id')
+            ->where('p.tenant_id', $user->tenant_id)
+            ->where('p.is_active', true)
+            ->where('pkg.is_active', true)
+            ->where('pp.is_active', true)
+            ->whereNotNull('pp.course_id')
+            ->where(function ($query) use ($today) {
+                $query->whereNull('pp.start_date')->orWhere('pp.start_date', '<=', $today);
+            })
+            ->where(function ($query) use ($today) {
+                $query->whereNull('pp.end_date')->orWhere('pp.end_date', '>=', $today);
+            })
+            ->distinct()
+            ->pluck('pp.course_id')
+            ->toArray();
     }
 }
