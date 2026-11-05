@@ -1,7 +1,6 @@
 <!-- ⚡ Simple Page Transition Loader Overlay -->
-@if (transitionService.isVisible() || loaderService.isLoading()) {
+@if (loaderService.isLoading()) {
   <div class="page-loader-overlay"
-       [class.fade-out]="transitionService.isFadingOut() && !loaderService.isLoading()"
        role="status"
        aria-live="polite"
        aria-label="Loading page">
