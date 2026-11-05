@@ -129,11 +129,11 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Children', 'description' => 'Children Track', 'is_active' => true]
         );
 
-        $this->call(WritingSkillSeeder::class);
-        $this->call(ListeningSkillSeeder::class);
-        $this->call(ReadingSkillSeeder::class);
-        $this->call(SpeakingSkillSeeder::class);
-        $this->call(AllActivitiesSeeder::class);
+        // $this->call(WritingSkillSeeder::class);
+        // $this->call(ListeningSkillSeeder::class);
+        // $this->call(ReadingSkillSeeder::class);
+        // $this->call(SpeakingSkillSeeder::class);
+        // $this->call(AllActivitiesSeeder::class);
     }
 }
 

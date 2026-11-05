@@ -90,21 +90,26 @@ class AuthService {
       return res['user'] as UserModel;
     }
 
-    // Fallback if network issue
-    final fallbackUser = UserModel(
-      id: 12,
-      name: 'Karthik',
-      email: 'karthik@ariga.school',
-      role: 'student',
-      streakDays: 1,
-      xp: 1475,
-      coins: 120,
-    );
-
+    // If cached user exists from a previous successful session
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_tokenKey, 'demo_token_fallback');
-    await prefs.setString(_userKey, jsonEncode(fallbackUser.toJson()));
-    return fallbackUser;
+    final cached = prefs.getString(_userKey);
+    if (cached != null) {
+      try {
+        final parsed = jsonDecode(cached);
+        return UserModel.fromJson(parsed);
+      } catch (_) {}
+    }
+
+    // Default clean baseline with real 0 starting stats
+    return UserModel(
+      id: 0,
+      name: 'Student',
+      email: '',
+      role: 'student',
+      streakDays: 0,
+      xp: 0,
+      coins: 0,
+    );
   }
 
   static Future<UserModel> getUserProfile() async {
@@ -137,22 +142,19 @@ class AuthService {
     if (cached != null) {
       try {
         final parsed = jsonDecode(cached);
-        // Ignore stale demo fallback user with fake values (id: 10, xp: 450, streak_days: 7)
-        if (parsed['id'] != 10 && parsed['xp'] != 450 && parsed['streak_days'] != 7) {
-          return UserModel.fromJson(parsed);
-        }
+        return UserModel.fromJson(parsed);
       } catch (_) {}
     }
 
-    // 3. Fallback baseline
+    // 3. Fallback baseline (clean zero values, not fake gamified stats)
     return UserModel(
-      id: 12,
-      name: 'Karthik',
-      email: 'karthik@ariga.school',
+      id: 0,
+      name: 'Student',
+      email: '',
       role: 'student',
-      streakDays: 1,
-      xp: 1475,
-      coins: 120,
+      streakDays: 0,
+      xp: 0,
+      coins: 0,
     );
   }
 

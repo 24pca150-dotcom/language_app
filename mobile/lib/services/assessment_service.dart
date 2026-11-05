@@ -178,12 +178,12 @@ class AssessmentService {
               .whereType<Map<String, dynamic>>()
               .map(AssessmentModel.fromJson)
               .toList();
-          if (list.isNotEmpty) return list;
+          return list;
         }
       }
     } catch (_) {}
 
-    return getFallbackAssessments();
+    return [];
   }
 
   static Future<Map<String, dynamic>?> getStudentProgress() async {
@@ -220,7 +220,7 @@ class AssessmentService {
       }
     } catch (_) {}
 
-    return getFallbackStudentProgress();
+    return null;
   }
 
   static Future<Map<String, dynamic>> submitAssessment({
@@ -254,171 +254,5 @@ class AssessmentService {
       throw const FormatException('Invalid assessment submission response.');
     }
     return data;
-  }
-
-  static List<AssessmentModel> getFallbackAssessments() {
-    return [
-      AssessmentModel(
-        id: 1,
-        title: 'Singular & Plural Nouns Quiz',
-        description: 'Test your understanding of singular and plural nouns rules.',
-        totalQuestions: 3,
-        timeLimitMinutes: 15,
-        passPercentage: 70,
-        bestScore: 66.67,
-        isPassed: false,
-        totalAttempts: 1,
-        questions: [
-          AssessmentQuestionModel(
-            id: 1,
-            questionText: 'What is the plural form of "child"?',
-            options: [
-              AssessmentOption(id: 1, text: 'children', isCorrect: true),
-              AssessmentOption(id: 2, text: 'childs', isCorrect: false),
-              AssessmentOption(id: 3, text: 'childrens', isCorrect: false),
-            ],
-          ),
-          AssessmentQuestionModel(
-            id: 2,
-            questionText: 'Which of the following is the correct plural form of "wife"?',
-            options: [
-              AssessmentOption(id: 4, text: 'wifes', isCorrect: false),
-              AssessmentOption(id: 5, text: 'wives', isCorrect: true),
-              AssessmentOption(id: 6, text: 'wive', isCorrect: false),
-            ],
-          ),
-          AssessmentQuestionModel(
-            id: 3,
-            questionText: 'Fill in the blank: The news ________ at 6.30 p.m.',
-            options: [
-              AssessmentOption(id: 7, text: 'is', isCorrect: true),
-              AssessmentOption(id: 8, text: 'are', isCorrect: false),
-            ],
-          ),
-        ],
-      ),
-      AssessmentModel(
-        id: 2,
-        title: 'Gerunds Quiz',
-        description: 'Test your understanding of Gerunds and verbal nouns.',
-        totalQuestions: 3,
-        timeLimitMinutes: 15,
-        passPercentage: 70,
-        bestScore: null,
-        isPassed: false,
-        totalAttempts: 0,
-        questions: [
-          AssessmentQuestionModel(
-            id: 4,
-            questionText: 'Identify the gerund in the sentence: "Swimming is my favourite sport."',
-            options: [
-              AssessmentOption(id: 9, text: 'Swimming', isCorrect: true),
-              AssessmentOption(id: 10, text: 'favourite', isCorrect: false),
-              AssessmentOption(id: 11, text: 'sport', isCorrect: false),
-            ],
-          ),
-          AssessmentQuestionModel(
-            id: 5,
-            questionText: 'Choose the correct word: "My sister enjoys ________."',
-            options: [
-              AssessmentOption(id: 12, text: 'Painting', isCorrect: true),
-              AssessmentOption(id: 13, text: 'Paint', isCorrect: false),
-            ],
-          ),
-          AssessmentQuestionModel(
-            id: 6,
-            questionText: 'Choose the correct form: "We are interested in ________ English."',
-            options: [
-              AssessmentOption(id: 14, text: 'Learning', isCorrect: true),
-              AssessmentOption(id: 15, text: 'Learn', isCorrect: false),
-            ],
-          ),
-        ],
-      ),
-    ];
-  }
-
-  static Map<String, dynamic> getFallbackStudentProgress() {
-    return {
-      'completion_percentage': 33.3,
-      'completed_chapters': 4,
-      'total_chapters': 12,
-      'total_attempts': 1,
-      'passed_attempts': 0,
-      'average_score': 66.7,
-      'xp_points': 1725,
-      'streak_days': 1,
-      'words_mastered': 108,
-      'study_time_hours': 3.9,
-      'core_skills': {
-        'listening': 45,
-        'reading': 50,
-        'grammar': 67,
-        'speaking': 45,
-      },
-      'all_assessments': [
-        {
-          'id': 1,
-          'title': 'Singular & Plural Nouns Quiz',
-          'pass_percentage': 70,
-          'duration_minutes': 15,
-          'course_name': 'English for Beginner',
-          'has_attempted': true,
-          'total_attempts': 1,
-          'best_score': 66.67,
-          'latest_score': 66.67,
-          'is_passed': false,
-          'latest_attempt_at': '2026-10-30 10:42:49',
-          'status': 'needs_practice',
-        },
-        {
-          'id': 2,
-          'title': 'Gerunds Quiz',
-          'pass_percentage': 70,
-          'duration_minutes': 15,
-          'course_name': 'English for Beginner',
-          'has_attempted': false,
-          'total_attempts': 0,
-          'best_score': null,
-          'latest_score': null,
-          'is_passed': false,
-          'latest_attempt_at': null,
-          'status': 'not_started',
-        },
-      ],
-      'assessment_stats': {
-        'total_assessments': 2,
-        'attempted_count': 1,
-        'passed_count': 0,
-        'completion_percent': 50,
-        'pass_percent': 0,
-        'average_score': 66.7,
-      },
-      'practice_stats': {
-        'total_topics': 5,
-        'completed_count': 0,
-        'completion_percent': 0,
-        'topics': [
-          {'name': 'Dialogue Master', 'icon': 'forum_rounded', 'xp': '+100 XP', 'accuracy': 0, 'completed': false},
-          {'name': 'Grammar Sprint', 'icon': 'bolt_rounded', 'xp': '+120 XP', 'accuracy': 0, 'completed': false},
-          {'name': 'Phonics & Speech', 'icon': 'record_voice_over_rounded', 'xp': '+150 XP', 'accuracy': 0, 'completed': false},
-          {'name': 'Reading Comprehension', 'icon': 'menu_book_rounded', 'xp': '+130 XP', 'accuracy': 0, 'completed': false},
-          {'name': 'Vocabulary Lab', 'icon': 'spellcheck_rounded', 'xp': '+90 XP', 'accuracy': 0, 'completed': false},
-        ],
-      },
-      'games_stats': {
-        'total_games': 5,
-        'played_count': 0,
-        'completion_percent': 0,
-        'stars_earned': 0,
-        'games': [
-          {'name': 'Highway Racer', 'genre': 'Speed Typing', 'best_score': 0, 'stars': 0, 'played': false},
-          {'name': 'Word Ninja', 'genre': 'Fruit Slice', 'best_score': 0, 'stars': 0, 'played': false},
-          {'name': 'Flappy Word', 'genre': 'Bird Flight', 'best_score': 0, 'stars': 0, 'played': false},
-          {'name': 'Balloon Pop', 'genre': 'Bubble Blast', 'best_score': 0, 'stars': 0, 'played': false},
-          {'name': 'Crossword Star', 'genre': 'Word Puzzle', 'best_score': 0, 'stars': 0, 'played': false},
-        ],
-      },
-    };
   }
 }

@@ -257,32 +257,33 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
           ],
         ),
         actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppTheme.secondary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.bolt_rounded,
-                  size: 16,
-                  color: AppTheme.secondary,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  '${_activeContentIndex + 1}/${_contents.length} Lessons',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
+          if (_contents.isNotEmpty)
+            Container(
+              margin: const EdgeInsets.only(right: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppTheme.secondary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.bolt_rounded,
+                    size: 16,
                     color: AppTheme.secondary,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 4),
+                  Text(
+                    '${_activeContentIndex + 1}/${_contents.length} Lessons',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.secondary,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
         ],
       ),
       body: _loadError != null
@@ -312,8 +313,45 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
               ),
             )
           : currentContent == null
-          ? const Center(
-              child: Text('No content has been added to this chapter yet.'),
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.05),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.menu_book_rounded,
+                        size: 40,
+                        color: AppTheme.textMuted,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'No Content Available Yet',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'No lesson content has been added to this chapter in the database.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             )
           : SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),

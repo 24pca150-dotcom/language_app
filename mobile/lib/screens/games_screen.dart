@@ -64,201 +64,179 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
     }
   }
 
-  void _openHighwayRacer() {
+  void _openHighwayRacer([String title = 'Highway Racer']) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const HighwayRacerScreen(title: 'Highway Racer'),
+        builder: (context) => HighwayRacerScreen(title: title),
       ),
     );
   }
 
-  void _openWordNinja() {
+  void _openWordNinja([String title = 'Word Ninja']) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const WordNinjaScreen(title: 'Word Ninja'),
+        builder: (context) => WordNinjaScreen(title: title),
       ),
     );
   }
 
-  void _openFlappyWord() {
+  void _openFlappyWord([String title = 'Flappy Word']) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const FlappyWordScreen(title: 'Flappy Word'),
+        builder: (context) => FlappyWordScreen(title: title),
       ),
     );
   }
 
-  void _openBalloonPop() {
+  void _openBalloonPop([String title = 'Balloon Word Pop']) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const BalloonPopScreen(title: 'Balloon Word Pop'),
+        builder: (context) => BalloonPopScreen(title: title),
       ),
     );
   }
 
-  void _openMatchGame() {
+  void _openMatchGame([String title = 'Match It: Pairs']) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const MatchGameScreen(title: 'Match It: Pairs'),
+        builder: (context) => MatchGameScreen(title: title),
       ),
     );
   }
 
-  void _openSentenceBuilder() {
+  void _openSentenceBuilder([String title = 'Fill in the Blanks']) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const FillBlanksGameScreen(title: 'Fill in the Blanks'),
+        builder: (context) => FillBlanksGameScreen(title: title),
       ),
     );
   }
 
-  void _openMcqArena() {
+  void _openMcqArena([String title = 'MCQ Quiz Arena']) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const McqGameScreen(title: 'MCQ Quiz Arena'),
+        builder: (context) => McqGameScreen(title: title),
       ),
     );
   }
 
-  void _openCrossword() {
+  void _openCrossword([String title = 'Crossword Quest']) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const CrosswordGameScreen(title: 'Crossword Quest'),
+        builder: (context) => CrosswordGameScreen(title: title),
       ),
     );
   }
 
-  void _openFlashcards() {
+  void _openFlashcards([String title = 'Flashcard Mastery']) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const FlashcardGameScreen(title: 'Flashcard Mastery'),
+        builder: (context) => FlashcardGameScreen(title: title),
       ),
     );
   }
 
-  List<_ShowcaseGameItem> get _allShowcaseGames => [
-    // 1. Match It (Connect Pairs)
-    _ShowcaseGameItem(
-      title: 'Match It',
-      subtitle: 'Connect Pairs',
-      imagePath: 'assets/images/game_magic_forest.jpg',
-      iconData: Icons.extension_rounded,
-      accentColor: const Color(0xFF10B981),
-      tags: ['all', 'puzzles', 'vocab'],
-      onTap: _openMatchGame,
-    ),
+  String _getImageForType(String type) {
+    final t = type.toLowerCase();
+    if (t.contains('racer') || t.contains('car')) {
+      return 'assets/images/game_highway_racer.jpg';
+    } else if (t.contains('ninja')) {
+      return 'assets/images/game_word_ninja.jpg';
+    } else if (t.contains('flappy') || t.contains('bird')) {
+      return 'assets/images/game_flappy_word.jpg';
+    } else if (t.contains('balloon')) {
+      return 'assets/images/game_ocean_fishing.jpg';
+    } else if (t.contains('match')) {
+      return 'assets/images/game_magic_forest.jpg';
+    } else if (t.contains('blank') || t.contains('fill')) {
+      return 'assets/images/game_letter_basket.jpg';
+    } else if (t.contains('mcq') || t.contains('quiz')) {
+      return 'assets/images/game_soon_neon.jpg';
+    } else if (t.contains('crossword')) {
+      return 'assets/images/game_soon_banyan.jpg';
+    } else if (t.contains('flashcard') || t.contains('card')) {
+      return 'assets/images/game_soon_temple.jpg';
+    } else {
+      return 'assets/images/game_jungle_runner.jpg';
+    }
+  }
 
-    // 2. Fill in the Blanks (Fillups / Sentence Builder)
-    _ShowcaseGameItem(
-      title: 'Fill in Blanks',
-      subtitle: 'Sentence Fillups',
-      imagePath: 'assets/images/game_letter_basket.jpg',
-      iconData: Icons.edit_note_rounded,
-      accentColor: const Color(0xFF8B5CF6),
-      tags: ['all', 'puzzles', 'grammar'],
-      onTap: _openSentenceBuilder,
-    ),
+  List<String> _getTagsForType(String type) {
+    final t = type.toLowerCase();
+    if (t.contains('racer') || t.contains('car') || t.contains('ninja') || t.contains('flappy') || t.contains('balloon')) {
+      return ['all', 'action'];
+    } else if (t.contains('match') || t.contains('crossword') || t.contains('blank') || t.contains('fill')) {
+      return ['all', 'puzzles'];
+    } else if (t.contains('mcq') || t.contains('quiz') || t.contains('flashcard') || t.contains('card')) {
+      return ['all', 'quizzes'];
+    }
+    return ['all'];
+  }
 
-    // 3. MCQ Arena (Rapid Grammar & Vocab Quiz)
-    _ShowcaseGameItem(
-      title: 'MCQ Arena',
-      subtitle: 'Speed Quiz',
-      imagePath: 'assets/images/game_soon_neon.jpg',
-      iconData: Icons.quiz_rounded,
-      accentColor: const Color(0xFF6366F1),
-      tags: ['all', 'quizzes', 'grammar'],
-      onTap: _openMcqArena,
-    ),
-
-    // 4. Crossword Quest (Vocabulary Grid)
-    _ShowcaseGameItem(
-      title: 'Crossword',
-      subtitle: 'Word Grid Quest',
-      imagePath: 'assets/images/game_soon_banyan.jpg',
-      iconData: Icons.grid_on_rounded,
-      accentColor: const Color(0xFF0D9488),
-      tags: ['all', 'puzzles', 'vocab'],
-      onTap: _openCrossword,
-    ),
-
-    // 5. Highway Racer (3-Lane Car Racer)
-    _ShowcaseGameItem(
-      title: 'Highway Racer',
-      subtitle: '3-Lane Speedway',
-      imagePath: 'assets/images/game_highway_racer.jpg',
-      iconData: Icons.directions_car_rounded,
-      accentColor: const Color(0xFF0284C7),
-      tags: ['all', 'action'],
-      onTap: _openHighwayRacer,
-    ),
-
-    // 6. Word Ninja (Katana Slicing Action)
-    _ShowcaseGameItem(
-      title: 'Word Ninja',
-      subtitle: 'Katana Slice',
-      imagePath: 'assets/images/game_word_ninja.jpg',
-      iconData: Icons.sports_martial_arts_rounded,
-      accentColor: const Color(0xFFE11D48),
-      tags: ['all', 'action', 'vocab'],
-      onTap: _openWordNinja,
-    ),
-
-    // 7. Flappy Word (Skyways Flight)
-    _ShowcaseGameItem(
-      title: 'Flappy Word',
-      subtitle: 'Rainbow Flight',
-      imagePath: 'assets/images/game_flappy_word.jpg',
-      iconData: Icons.flight_takeoff_rounded,
-      accentColor: const Color(0xFFF59E0B),
-      tags: ['all', 'action'],
-      onTap: _openFlappyWord,
-    ),
-
-    // 8. Balloon Word Pop (Sky Fiesta)
-    _ShowcaseGameItem(
-      title: 'Balloon Pop',
-      subtitle: 'Pop Words',
-      imagePath: 'assets/images/game_ocean_fishing.jpg',
-      iconData: Icons.bubble_chart_rounded,
-      accentColor: const Color(0xFFD946EF),
-      tags: ['all', 'action', 'vocab'],
-      onTap: _openBalloonPop,
-    ),
-
-    // 9. Flashcard Mastery (3D Flip Deck)
-    _ShowcaseGameItem(
-      title: 'Flashcards',
-      subtitle: '3D Flip Decks',
-      imagePath: 'assets/images/game_soon_temple.jpg',
-      iconData: Icons.style_rounded,
-      accentColor: const Color(0xFFEA580C),
-      tags: ['all', 'quizzes', 'vocab'],
-      onTap: _openFlashcards,
-    ),
-  ];
+  void _openGame(MobileGameItem game) {
+    final type = game.type.toLowerCase();
+    if (type.contains('racer') || type.contains('car')) {
+      _openHighwayRacer(game.title);
+    } else if (type.contains('ninja')) {
+      _openWordNinja(game.title);
+    } else if (type.contains('flappy') || type.contains('bird')) {
+      _openFlappyWord(game.title);
+    } else if (type.contains('balloon')) {
+      _openBalloonPop(game.title);
+    } else if (type.contains('match')) {
+      _openMatchGame(game.title);
+    } else if (type.contains('blank') || type.contains('fill')) {
+      _openSentenceBuilder(game.title);
+    } else if (type.contains('mcq') || type.contains('quiz')) {
+      _openMcqArena(game.title);
+    } else if (type.contains('crossword')) {
+      _openCrossword(game.title);
+    } else if (type.contains('flashcard') || type.contains('card')) {
+      _openFlashcards(game.title);
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => GamePlayScreen(game: game),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
-        backgroundColor: Color(0xFFF0F7FF),
+        backgroundColor: Color(0xFF0A0F1D),
         body: Center(
-          child: CircularProgressIndicator(color: Color(0xFF2563EB)),
+          child: CircularProgressIndicator(color: Color(0xFF6366F1)),
         ),
       );
     }
 
-    final userStars = _user != null && _user!.xp > 0 ? _user!.xp : 513;
-    final displayedGames = _allShowcaseGames
+    final userStars = _user?.xp ?? 0;
+    final List<_ShowcaseGameItem> dynamicShowcaseGames = _games.map((g) {
+      return _ShowcaseGameItem(
+        title: g.title,
+        subtitle: g.subtitle,
+        imagePath: _getImageForType(g.type),
+        iconData: g.icon,
+        accentColor: g.color,
+        tags: _getTagsForType(g.type),
+        onTap: () => _openGame(g),
+      );
+    }).toList();
+
+    final displayedGames = dynamicShowcaseGames
         .where((g) => _selectedFilter == 'all' || g.tags.contains(_selectedFilter))
         .toList();
 
@@ -314,7 +292,6 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
                                 color: Colors.white,
-                                height: 1.15,
                               ),
                             ),
                             Text(
@@ -323,14 +300,13 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
                                 color: Color(0xFF818CF8),
-                                height: 1.15,
                               ),
                             ),
                           ],
                         ),
                       ),
 
-                      // Right Badge 1: 🎮 Games Count (e.g. 9 activities)
+                      // Right Badge 1: 🎮 Games Count (e.g. 0 or active count)
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
@@ -343,7 +319,7 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
                             const Icon(Icons.sports_esports_rounded, size: 16, color: Color(0xFF38BDF8)),
                             const SizedBox(width: 4),
                             Text(
-                              '${_games.isNotEmpty ? _games.length : _allShowcaseGames.length}',
+                              '${_games.length}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF38BDF8),
@@ -355,7 +331,7 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
                       ),
                       const SizedBox(width: 8),
 
-                      // Right Badge 2: ⭐ Stars / XP (e.g. 1475)
+                      // Right Badge 2: ⭐ Stars / XP
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
@@ -402,14 +378,74 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
                   const SizedBox(height: 18),
 
                   // ==============================================================
-                  // 🎮 MAIN SHOWCASE 2-COLUMN GRID (All Real Activities with Bouncy Animations)
+                  // 🎮 MAIN SHOWCASE 2-COLUMN GRID / EMPTY STATE
                   // ==============================================================
-                  ..._buildGameGridRows(displayedGames),
+                  if (displayedGames.isEmpty)
+                    _buildEmptyGamesState()
+                  else
+                    ..._buildGameGridRows(displayedGames),
                   const SizedBox(height: 24),
                 ],
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyGamesState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                color: const Color(0xFF161F38),
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFF283548), width: 1.5),
+              ),
+              child: const Icon(
+                Icons.sports_esports_rounded,
+                size: 54,
+                color: Color(0xFF818CF8),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'No Games Added Yet',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Activities created in the admin dashboard will automatically appear here with their matching game artwork and challenges.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: Color(0xFF94A3B8),
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 22),
+            ElevatedButton.icon(
+              onPressed: _loadData,
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: const Text('Refresh Games', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF6366F1),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+            ),
+          ],
         ),
       ),
     );

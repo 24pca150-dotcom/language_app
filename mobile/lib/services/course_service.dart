@@ -122,127 +122,37 @@ class MobileChapter {
       }
     }
 
-    final finalContents = parsedContents.isNotEmpty ? parsedContents : getContentsForChapter(chId);
-    final finalActivities = getActivitiesForChapter(chId);
+    final parsedActivities = <MobileActivityInfo>[];
+    for (var a in assessments) {
+      if (a is Map) {
+        final aMap = Map<String, dynamic>.from(a);
+        final actId = aMap['id'] is int ? aMap['id'] as int : int.tryParse('${aMap['id']}') ?? 0;
+        final actTitle = (aMap['title'] ?? 'Assessment').toString();
+        final actType = (aMap['activity_type'] ?? 'mcq').toString();
+        final actSubtitle = (aMap['description'] ?? 'Interactive practice challenge').toString();
+        final marks = aMap['total_marks'] ?? 100;
+        parsedActivities.add(
+          MobileActivityInfo(
+            id: actId,
+            title: actTitle,
+            type: actType,
+            subtitle: actSubtitle,
+            xp: '+$marks XP',
+          ),
+        );
+      }
+    }
 
     return MobileChapter(
       id: chId,
       name: (json['name'] ?? '').toString(),
       description: json['description']?.toString(),
-      contentsCount: finalContents.length,
-      assessmentsCount: assessments.length,
+      contentsCount: parsedContents.length,
+      assessmentsCount: parsedActivities.length,
       progress: prog,
-      contents: finalContents,
-      activities: finalActivities,
+      contents: parsedContents,
+      activities: parsedActivities,
     );
-  }
-
-  static List<MobileActivityInfo> getActivitiesForChapter(int chapterId) {
-    switch (chapterId) {
-      case 1: // Homophones
-        return [
-          MobileActivityInfo(id: 1, title: 'MCQ Arena', type: 'mcq', subtitle: '5 speed questions testing homophones & grammar'),
-          MobileActivityInfo(id: 2, title: 'Match It', type: 'match', subtitle: 'Pair homophone words with correct definitions'),
-          MobileActivityInfo(id: 3, title: 'Word Arrange', type: 'word_arrange', subtitle: 'Reorder scrambled homophone sentences'),
-          MobileActivityInfo(id: 6, title: 'Word Ninja', type: 'word_ninja', subtitle: 'Slice flying homophone fruit cards'),
-          MobileActivityInfo(id: 7, title: 'Car Racer', type: 'car_racer', subtitle: 'Speed down lanes and pick the correct homophone word'),
-        ];
-      case 2: // English Alphabet
-      case 7: // Vowels & Consonants
-      case 8: // Compound Words
-        return [
-          MobileActivityInfo(id: 4, title: 'Fill in the Blanks', type: 'fill_blanks', subtitle: 'Select missing alphabet and consonant chips'),
-          MobileActivityInfo(id: 5, title: 'Flashcard Drill', type: 'flashcard', subtitle: 'Flip cards and reinforce compound word recall'),
-          MobileActivityInfo(id: 8, title: 'Flappy Word', type: 'flappy_word', subtitle: 'Guide your bird through the correct letter gates'),
-        ];
-      case 3: // Parts of Speech - Part 1
-      case 9: // Parts of Speech - Part 2
-      case 10: // Word Arrangement
-      case 11: // Interjections Match
-        return [
-          MobileActivityInfo(id: 1, title: 'MCQ Arena', type: 'mcq', subtitle: 'Identify parts of speech, verbs & adverbs'),
-          MobileActivityInfo(id: 2, title: 'Match It', type: 'match', subtitle: 'Match speech categories with example phrases'),
-          MobileActivityInfo(id: 9, title: 'Balloon Pop', type: 'balloon_pop', subtitle: 'Pop the correct speech balloons in time'),
-        ];
-      case 4: // Regular Nouns
-      case 12: // Irregular Nouns
-        return [
-          MobileActivityInfo(id: 10, title: 'Space Defender', type: 'space_defender', subtitle: 'Blast alien ships carrying incorrect plural spellings'),
-          MobileActivityInfo(id: 11, title: 'Crossword Puzzle', type: 'crossword', subtitle: 'Solve regular and irregular noun clues'),
-          MobileActivityInfo(id: 3, title: 'Word Arrange', type: 'word_arrange', subtitle: 'Assemble grammatically sound plural sentences'),
-        ];
-      case 5: // Gerunds - Part 1
-      case 13: // Gerunds - Part 2
-        return [
-          MobileActivityInfo(id: 12, title: 'Writing Challenge', type: 'writing', subtitle: 'Write and complete gerund sentences'),
-          MobileActivityInfo(id: 13, title: 'Gerunds Quiz', type: 'mcq', subtitle: 'Identify -ing verbal nouns in fast quiz questions'),
-          MobileActivityInfo(id: 14, title: 'Grammar Master', type: 'mcq', subtitle: 'Advanced gerund application and mastery challenge'),
-        ];
-      default:
-        return [
-          MobileActivityInfo(id: 1, title: 'MCQ Arena', type: 'mcq', subtitle: 'Interactive speed challenge'),
-          MobileActivityInfo(id: 2, title: 'Match It', type: 'match', subtitle: 'Pair words with their meanings'),
-          MobileActivityInfo(id: 3, title: 'Word Arrange', type: 'word_arrange', subtitle: 'Reorder words into proper sentences'),
-        ];
-    }
-  }
-
-  static List<MobileContentInfo> getContentsForChapter(int chapterId) {
-    switch (chapterId) {
-      case 1:
-        return [
-          MobileContentInfo(id: 1, name: 'Introduction to Listening & Homophones', title: 'Listening Skills Lesson - Homophones Part 1'),
-          MobileContentInfo(id: 2, name: 'Homophones Practice', title: 'Listening Skills Lesson - Homophones Part 2'),
-        ];
-      case 2:
-        return [
-          MobileContentInfo(id: 3, name: 'English Alphabet', title: 'Reading Skills Lesson - English Alphabet'),
-        ];
-      case 7:
-        return [
-          MobileContentInfo(id: 4, name: 'Vowels & Consonants', title: 'Reading Skills Lesson - Vowels & Consonants'),
-        ];
-      case 8:
-        return [
-          MobileContentInfo(id: 5, name: 'Compound Words', title: 'Reading Skills Lesson - Compound Words'),
-        ];
-      case 3:
-        return [
-          MobileContentInfo(id: 6, name: 'Parts of Speech Part 1', title: 'Speaking Skills Lesson - Parts of Speech Part 1'),
-        ];
-      case 9:
-        return [
-          MobileContentInfo(id: 7, name: 'Parts of Speech Part 2', title: 'Speaking Skills Lesson - Parts of Speech Part 2'),
-        ];
-      case 10:
-        return [
-          MobileContentInfo(id: 8, name: 'Word Arrangement', title: 'Speaking Skills Lesson - Word Arrangement'),
-        ];
-      case 11:
-        return [
-          MobileContentInfo(id: 9, name: 'Interjection Match', title: 'Speaking Skills Lesson - Interjection Match'),
-        ];
-      case 4:
-        return [
-          MobileContentInfo(id: 10, name: 'Regular Nouns', title: 'Singular & Plural Nouns Lesson - Regular'),
-        ];
-      case 12:
-        return [
-          MobileContentInfo(id: 11, name: 'Irregular Nouns', title: 'Singular & Plural Nouns Lesson - Irregular'),
-        ];
-      case 5:
-        return [
-          MobileContentInfo(id: 12, name: 'Gerunds Part 1', title: 'Gerunds Lesson - Part 1'),
-        ];
-      case 13:
-        return [
-          MobileContentInfo(id: 13, name: 'Gerunds Part 2', title: 'Gerunds Lesson - Part 2'),
-        ];
-      default:
-        return [
-          MobileContentInfo(id: 1, name: 'Lesson Introduction', title: 'Interactive Learning Content'),
-        ];
-    }
   }
 }
 
@@ -348,24 +258,13 @@ class CourseService {
             .map(MobileCourseItem.fromJson)
             .toList();
 
-        if (courses.isNotEmpty) return courses;
+        return courses;
       }
     } catch (e) {
-      // Fallback below
+      // API error handled gracefully
     }
 
-    // Default fallback to ensure student is never blocked
-    return [
-      MobileCourseItem(
-        id: 1,
-        name: 'English for Beginner',
-        code: 'CRS-00001',
-        description: 'Learn English step by step with writing, listening, reading, and speaking skills.',
-        levelsCount: 5,
-        chaptersCount: 13,
-        progress: 0.25,
-      ),
-    ];
+    return [];
   }
 
   static Future<List<MobileLevel>> getCourseStructure({
@@ -410,121 +309,11 @@ class CourseService {
               }
             }
           }
-          if (levels.isNotEmpty) return levels;
+          return levels;
         }
       }
     } catch (_) {}
 
-    return [
-      MobileLevel(
-        id: 1,
-        name: 'Listening Skills',
-        levelNumber: 1,
-        chapters: [
-          MobileChapter(
-            id: 1,
-            name: 'Homophones',
-            description: 'Introduction to words that sound the same: definitions, concepts, and key examples with interactive challenges.',
-            contentsCount: 2,
-            assessmentsCount: 1,
-            contents: MobileChapter.getContentsForChapter(1),
-            activities: MobileChapter.getActivitiesForChapter(1),
-          ),
-        ],
-      ),
-      MobileLevel(
-        id: 2,
-        name: 'Reading Skills',
-        levelNumber: 2,
-        chapters: [
-          MobileChapter(
-            id: 2,
-            name: 'English Alphabet',
-            description: 'Master letters, letter recognition, and reading basics.',
-            contentsCount: 1,
-            assessmentsCount: 1,
-            contents: MobileChapter.getContentsForChapter(2),
-            activities: MobileChapter.getActivitiesForChapter(2),
-          ),
-          MobileChapter(
-            id: 7,
-            name: 'Vowels & Consonants',
-            description: 'Learn the building blocks of syllables, vowels and consonant sounds.',
-            contentsCount: 1,
-            assessmentsCount: 1,
-            contents: MobileChapter.getContentsForChapter(7),
-            activities: MobileChapter.getActivitiesForChapter(7),
-          ),
-          MobileChapter(
-            id: 8,
-            name: 'Compound Words',
-            description: 'Combine two words to create new meanings and expand reading comprehension.',
-            contentsCount: 1,
-            assessmentsCount: 1,
-            contents: MobileChapter.getContentsForChapter(8),
-            activities: MobileChapter.getActivitiesForChapter(8),
-          ),
-        ],
-      ),
-      MobileLevel(
-        id: 3,
-        name: 'Speaking Skills',
-        levelNumber: 3,
-        chapters: [
-          MobileChapter(
-            id: 3,
-            name: 'Parts of Speech - Part 1',
-            description: 'Speaking essentials: Nouns, Pronouns, Verbs, and Adjectives.',
-            contentsCount: 1,
-            assessmentsCount: 1,
-            contents: MobileChapter.getContentsForChapter(3),
-            activities: MobileChapter.getActivitiesForChapter(3),
-          ),
-          MobileChapter(
-            id: 9,
-            name: 'Parts of Speech - Part 2',
-            description: 'Speaking essentials: Adverbs, Prepositions, Conjunctions, and Interjections.',
-            contentsCount: 1,
-            assessmentsCount: 1,
-            contents: MobileChapter.getContentsForChapter(9),
-            activities: MobileChapter.getActivitiesForChapter(9),
-          ),
-          MobileChapter(
-            id: 10,
-            name: 'Word Arrangement',
-            description: 'Assemble words in correct order to speak clear and meaningful English.',
-            contentsCount: 1,
-            assessmentsCount: 1,
-            contents: MobileChapter.getContentsForChapter(10),
-            activities: MobileChapter.getActivitiesForChapter(10),
-          ),
-          MobileChapter(
-            id: 11,
-            name: 'Interjections Match',
-            description: 'Learn emotive expressions and match interjections in spoken English.',
-            contentsCount: 1,
-            assessmentsCount: 1,
-            contents: MobileChapter.getContentsForChapter(11),
-            activities: MobileChapter.getActivitiesForChapter(11),
-          ),
-        ],
-      ),
-      MobileLevel(
-        id: 4,
-        name: 'Writing Skills',
-        levelNumber: 4,
-        chapters: [
-          MobileChapter(
-            id: 4,
-            name: 'Writing Skills Basics',
-            description: 'Master singular & plural regular nouns, irregular nouns, and spelling challenges.',
-            contentsCount: 4,
-            assessmentsCount: 1,
-            contents: MobileChapter.getContentsForChapter(4),
-            activities: MobileChapter.getActivitiesForChapter(4),
-          ),
-        ],
-      ),
-    ];
+    return [];
   }
 }

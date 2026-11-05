@@ -138,12 +138,12 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
   // 🌟 HERO CURRICULUM CARD
   // =========================================================================
   Widget _buildHeroCurriculumCard() {
-    final completion = (_stats?['completion_percentage'] as num?)?.toDouble() ?? 33.3;
-    final completedChapters = _stats?['completed_chapters']?.toString() ?? '4';
-    final totalChapters = _stats?['total_chapters']?.toString() ?? '12';
-    final streak = _stats?['streak_days']?.toString() ?? '1';
-    final words = _stats?['words_mastered']?.toString() ?? '108';
-    final studyTime = _stats?['study_time_hours']?.toString() ?? '3.9';
+    final completion = (_stats?['completion_percentage'] as num?)?.toDouble() ?? 0.0;
+    final completedChapters = _stats?['completed_chapters']?.toString() ?? '0';
+    final totalChapters = _stats?['total_chapters']?.toString() ?? '0';
+    final streak = _stats?['streak_days']?.toString() ?? '0';
+    final words = _stats?['words_mastered']?.toString() ?? '0';
+    final studyTime = _stats?['study_time_hours']?.toString() ?? '0.0';
 
     return Container(
       width: double.infinity,
@@ -301,12 +301,12 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
   // 📊 TOP 4 KPI MASTERY GRID
   // =========================================================================
   Widget _buildKpiMetricsGrid() {
-    final avgScore = _stats?['average_score']?.toString() ?? '66.7';
+    final avgScore = _stats?['average_score']?.toString() ?? '0';
     final practicePercent = (_stats?['practice_stats']?['completion_percent'] as num?)?.toDouble() ?? 0.0;
     final gamesPercent = (_stats?['games_stats']?['completion_percent'] as num?)?.toDouble() ?? 0.0;
     final gamesStars = _stats?['games_stats']?['stars_earned']?.toString() ?? '0';
     final passedTests = _stats?['passed_attempts']?.toString() ?? '0';
-    final totalTests = _stats?['assessment_stats']?['total_assessments']?.toString() ?? '2';
+    final totalTests = _stats?['assessment_stats']?['total_assessments']?.toString() ?? '0';
 
     return Row(
       children: [
@@ -394,7 +394,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
             'best_score': a.bestScore,
             'total_attempts': a.totalAttempts > 0 ? a.totalAttempts : (a.bestScore != null ? 1 : 0),
           }).toList();
-    final avgScore = _stats?['average_score']?.toString() ?? '66.7';
+    final avgScore = _stats?['average_score']?.toString() ?? '0';
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -672,10 +672,10 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
   // =========================================================================
   Widget _buildCoreSkillsSection() {
     final skills = _stats?['core_skills'] as Map<String, dynamic>?;
-    final listening = (skills?['listening'] as num?)?.toInt() ?? 45;
-    final reading = (skills?['reading'] as num?)?.toInt() ?? 50;
-    final grammar = (skills?['grammar'] as num?)?.toInt() ?? 67;
-    final speaking = (skills?['speaking'] as num?)?.toInt() ?? 45;
+    final listening = (skills?['listening'] as num?)?.toInt() ?? 0;
+    final reading = (skills?['reading'] as num?)?.toInt() ?? 0;
+    final grammar = (skills?['grammar'] as num?)?.toInt() ?? 0;
+    final speaking = (skills?['speaking'] as num?)?.toInt() ?? 0;
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -767,7 +767,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
   // =========================================================================
   Widget _buildPracticeSection() {
     final practiceList = (_stats?['practice_stats']?['topics'] as List<dynamic>?) ?? [];
-    final practicePercent = (_stats?['practice_stats']?['completion_percent'] as num?)?.toDouble() ?? 85.7;
+    final practicePercent = (_stats?['practice_stats']?['completion_percent'] as num?)?.toDouble() ?? 0.0;
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -822,7 +822,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
           ...practiceList.map((p) {
             final title = p['title'] ?? 'Practice Topic';
             final desc = p['description'] ?? '';
-            final percent = (p['percentage'] as num?)?.toInt() ?? 80;
+            final percent = (p['percentage'] as num?)?.toInt() ?? 0;
             return Container(
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(12),
@@ -867,8 +867,8 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
   // =========================================================================
   Widget _buildGamesSection() {
     final gamesList = (_stats?['games_stats']?['games'] as List<dynamic>?) ?? [];
-    final stars = _stats?['games_stats']?['stars_earned']?.toString() ?? '14';
-    final gamesPercent = (_stats?['games_stats']?['completion_percent'] as num?)?.toDouble() ?? 84.2;
+    final stars = _stats?['games_stats']?['stars_earned']?.toString() ?? '0';
+    final gamesPercent = (_stats?['games_stats']?['completion_percent'] as num?)?.toDouble() ?? 0.0;
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -923,9 +923,9 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
           ...gamesList.map((g) {
             final title = g['title'] ?? 'Game';
             final desc = g['description'] ?? '';
-            final highScore = g['high_score']?.toString() ?? '150';
-            final percent = (g['percentage'] as num?)?.toInt() ?? 85;
-            final gameStars = (g['stars'] as num?)?.toInt() ?? 3;
+            final highScore = g['high_score']?.toString() ?? '0';
+            final percent = (g['percentage'] as num?)?.toInt() ?? 0;
+            final gameStars = (g['stars'] as num?)?.toInt() ?? 0;
 
             return Container(
               margin: const EdgeInsets.only(bottom: 10),
@@ -1028,9 +1028,9 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
           else
             ...progressions.map((cp) {
               final name = cp['course_name'] ?? 'Course';
-              final total = cp['total_chapters']?.toString() ?? '12';
-              final done = cp['completed_chapters']?.toString() ?? '4';
-              final percent = (cp['percentage'] as num?)?.toDouble() ?? 33.3;
+              final total = cp['total_chapters']?.toString() ?? '0';
+              final done = cp['completed_chapters']?.toString() ?? '0';
+              final percent = (cp['percentage'] as num?)?.toDouble() ?? 0.0;
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
