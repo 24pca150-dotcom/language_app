@@ -47,7 +47,7 @@ export class UserActivity implements OnInit, OnDestroy {
   userName = signal<string>('Learner');
 
   // 3-Stage Navigation State: courses -> chapters -> player (User Request: Like Practice)
-  stage = signal<'courses' | 'chapters' | 'player'>('courses');
+  stage = signal<'courses' | 'chapters' | 'activities' | 'player'>('courses');
   isLoadingStructure = signal<boolean>(false);
 
   // Courses & Hierarchy state
@@ -146,6 +146,20 @@ export class UserActivity implements OnInit, OnDestroy {
     return Array.from(types);
   });
 
+  // One card per activity kind inside the selected chapter
+  chapterActivityGroups = computed(() => {
+    const groups = new Map<string, { type: string; typeName: string; count: number }>();
+    this.allActivities().forEach(activity => {
+      const group = groups.get(activity.type);
+      if (group) {
+        group.count++;
+      } else {
+        groups.set(activity.type, { type: activity.type, typeName: activity.typeName, count: 1 });
+      }
+    });
+    return Array.from(groups.values());
+  });
+
   getChapterImage(name: string, idx: number): string {
     const lower = (name || '').toLowerCase();
     if (lower.includes('writing') || lower.includes('write') || lower.includes('noun')) return '/assets/images/level_writing.jpg';
@@ -198,6 +212,10 @@ export class UserActivity implements OnInit, OnDestroy {
 
   goBack(): void {
     if (this.stage() === 'player') {
+      this.setTypeFilter('all');
+      this.isSessionFinished.set(false);
+      this.stage.set('activities');
+    } else if (this.stage() === 'activities') {
       this.stage.set('chapters');
       if (this.selectedCourseId()) {
         this.location.replaceState(`/learn/games/${this.selectedCourseId()}`);
@@ -263,7 +281,7 @@ export class UserActivity implements OnInit, OnDestroy {
       this.selectedCourseId.set(courseId);
 
       if (targetChapterId) {
-        this.stage.set('player');
+        this.stage.set('activities');
       } else {
         this.stage.set('chapters');
         if (updateUrl) {
@@ -305,7 +323,7 @@ export class UserActivity implements OnInit, OnDestroy {
   pickChapter(chapterId: number, updateUrl: boolean = true): void {
     const doPick = () => {
       this.selectedChapterId.set(chapterId);
-      this.stage.set('player');
+      this.stage.set('activities');
       if (updateUrl && this.selectedCourseId()) {
         this.location.replaceState(`/learn/games/${this.selectedCourseId()}/${chapterId}`);
       }
@@ -315,8 +333,18 @@ export class UserActivity implements OnInit, OnDestroy {
     doPick();
   }
 
-  selectChapter(chapterId: number): void {
+  pickActivityType(type: string): void {
+    this.setTypeFilter(type);
+    this.isSessionFinished.set(false);
+    this.hearts.set(5);
+    this.stage.set('player');
+  }
+
+  selectChapter(chapterId: number, keepTypeFilter: boolean = false): void {
     this.selectedChapterId.set(chapterId);
+    if (!keepTypeFilter) {
+      this.selectedTypeFilter.set('all');
+    }
     this.isLoading.set(true);
     this.currentPlayIndex.set(0);
     this.isAnswered.set(false);
@@ -444,6 +472,7 @@ export class UserActivity implements OnInit, OnDestroy {
             let humanType = actType.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
             if (actType === 'mcq') humanType = 'Multiple Choice';
             if (actType === 'fill-blanks') humanType = 'Fill in the Blanks';
+            if (actType === 'match') humanType = 'Match It';
 
             const stepTitle = block.data.title || `${content.title || content.name} - ${humanType} ${idx + 1}`;
             const blockData = (block.data && typeof block.data === 'object') ? { ...block.data } : {};
@@ -699,7 +728,7 @@ export class UserActivity implements OnInit, OnDestroy {
   restartSession(): void {
     const cid = this.selectedChapterId();
     if (cid) {
-      this.selectChapter(cid);
+      this.selectChapter(cid, true);
     } else {
       this.currentPlayIndex.set(0);
       this.isSessionFinished.set(false);

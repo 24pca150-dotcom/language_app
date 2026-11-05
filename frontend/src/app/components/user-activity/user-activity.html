@@ -111,6 +111,19 @@
               </h2>
               <p class="text-white-50 mb-0 small">Pick a chapter to start its interactive language drills and fun games.</p>
             </div>
+          } @else if (stage() === 'activities') {
+            <div>
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-warning text-dark fw-bold rounded-pill px-3 py-0.5" style="font-size: 0.75rem;">
+                  {{ selectedCourse()?.name || 'Course' }}
+                </span>
+              </div>
+              <h2 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+                <i class="bi bi-joystick text-warning"></i>
+                <span>{{ selectedChapter()?.name || 'Chapter' }}</span>
+              </h2>
+              <p class="text-white-50 mb-0 small">Pick an activity to play from this chapter.</p>
+            </div>
           } @else if (stage() === 'player') {
             <div>
               <div class="d-flex align-items-center gap-2 mb-1">
@@ -138,6 +151,10 @@
           } @else if (stage() === 'chapters') {
             <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold shadow-sm">
               {{ availableChapters().length }} Chapters Available
+            </div>
+          } @else if (stage() === 'activities' && chapterActivityGroups().length > 0) {
+            <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold shadow-sm">
+              {{ chapterActivityGroups().length }} Activities Available
             </div>
           } @else if (stage() === 'player' && filteredActivities().length > 0) {
             <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold shadow-sm">
@@ -290,7 +307,71 @@
       }
 
       <!-- ============================================================== -->
-      <!-- 🎮 STAGE 3: INTERACTIVE QUESTIONS PLAYER                       -->
+      <!-- 🧩 STAGE 3: ACTIVITIES INSIDE THE CHOSEN CHAPTER                -->
+      <!-- ============================================================== -->
+      @else if (stage() === 'activities') {
+        <div class="tab-fade-in">
+          @if (isLoading()) {
+            <div class="mascot-loader-container py-5 my-4">
+              <div class="mascot-loading-wrapper mb-3 animate-bounce">
+                <img src="/assets/images/mascot.png" alt="Loading Mascot" style="width: 140px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.35));">
+              </div>
+              <h3 class="mascot-loading-title animate-pulse">Loading chapter activities...</h3>
+              <p class="mascot-loading-sub">Gathering interactive exercises and games for you!</p>
+            </div>
+          } @else if (chapterActivityGroups().length > 0) {
+            <div class="row g-4 justify-content-start py-2">
+              @for (group of chapterActivityGroups(); track group.type; let idx = $index) {
+                <div class="col-12 col-md-6 animate-slide-down" [style.animation-delay]="idx * 0.06 + 's'">
+                  <div class="adventure-portal-stage cursor-pointer d-flex align-items-center gap-3 position-relative"
+                       (click)="pickActivityType(group.type)"
+                       title="Play {{ group.typeName }}">
+                    <div class="adventure-portal-avatar-wrap position-relative flex-shrink-0">
+                      <div class="adventure-portal-glow-ring"></div>
+                      <div class="adventure-portal-circle activity-type-circle">
+                        <i class="bi {{ getTypeIcon(group.type) }}"></i>
+                      </div>
+                    </div>
+
+                    <div class="adventure-portal-details flex-grow-1 text-start">
+                      <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="adventure-track-tag">
+                          {{ group.count }} {{ group.count === 1 ? 'Exercise' : 'Exercises' }}
+                        </span>
+                      </div>
+
+                      <h3 class="adventure-portal-title mb-2 text-truncate" [title]="group.typeName">{{ group.typeName }}</h3>
+
+                      <div class="adventure-portal-action d-flex align-items-center pt-2">
+                        <button class="btn btn-adventure-start d-flex align-items-center gap-2 px-4 py-2"
+                                (click)="pickActivityType(group.type); $event.stopPropagation()">
+                          <span>Play</span>
+                          <i class="bi bi-play-circle-fill fs-5"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-activities-card glass-panel text-center p-5 mx-auto my-auto rounded-5 shadow-lg" style="max-width: 560px;">
+              <div class="mb-3" style="font-size: 4.5rem;">🎮</div>
+              <h3 class="fw-bold text-white mb-2">No Games Yet!</h3>
+              <p class="text-white-50 mb-4" style="line-height: 1.6;">
+                There are currently no games added inside this chapter's content pages.
+                Admins add activities and games directly inside the content editor!
+              </p>
+              <button class="btn btn-warning rounded-pill px-4 py-2.5 fw-bold text-dark shadow-sm hover-lift" (click)="goBack()">
+                <i class="bi bi-arrow-left me-2"></i> Choose Another Chapter
+              </button>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ============================================================== -->
+      <!-- 🎮 STAGE 4: INTERACTIVE QUESTIONS PLAYER                       -->
       <!-- ============================================================== -->
       @else if (stage() === 'player') {
         <div class="tab-fade-in">
@@ -353,7 +434,7 @@
                 <button class="btn btn-outline-light rounded-pill px-4 py-2.5 fw-bold hover-lift d-flex align-items-center gap-2"
                   (click)="goBack()">
                   <i class="bi bi-arrow-left fs-5"></i>
-                  <span>Back to Chapters</span>
+                  <span>Back to Activities</span>
                 </button>
               </div>
             </div>

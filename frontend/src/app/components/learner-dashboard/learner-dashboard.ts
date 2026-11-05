@@ -1034,9 +1034,7 @@ export class LearnerDashboard implements OnInit {
   // ⚡ PRACTICE INTERACTION & NAVIGATION METHODS
   // =========================================================================
   selectPracticeCourse(course: Course) {
-    this.selectedPracticeCourse.set(course);
-    this.practiceStage.set('topics');
-    this.fetchDynamicActivities(course.id);
+    this.router.navigate(['/learn/games', course.id]);
   }
 
   backToPracticeCourses() {

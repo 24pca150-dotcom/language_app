@@ -1276,4 +1276,15 @@
   }
 }
 
+/* Chapter activity cards */
+.activity-type-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #FFF8E1 0%, #FFE082 100%);
+  color: #E65100;
+}
 
+.activity-type-circle i {
+  font-size: 3rem;
+}
