@@ -154,11 +154,11 @@
             </div>
           } @else if (stage() === 'activities' && chapterActivityGroups().length > 0) {
             <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold shadow-sm">
-              {{ chapterActivityGroups().length }} Activities Available
+              {{ chapterActivityGroups().length }} {{ chapterActivityGroups().length === 1 ? 'Game' : 'Games' }} Available
             </div>
-          } @else if (stage() === 'player' && filteredActivities().length > 0) {
+          } @else if (stage() === 'player' && filteredActivities().length > 1) {
             <div class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold shadow-sm">
-              Game {{ currentPlayIndex() + 1 }} of {{ filteredActivities().length }}
+              Question {{ currentPlayIndex() + 1 }} of {{ filteredActivities().length }}
             </div>
           }
         </div>
@@ -321,11 +321,11 @@
             </div>
           } @else if (chapterActivityGroups().length > 0) {
             <div class="row g-4 justify-content-start py-2">
-              @for (group of chapterActivityGroups(); track group.type; let idx = $index) {
+              @for (group of chapterActivityGroups(); track group.key; let idx = $index) {
                 <div class="col-12 col-md-6 animate-slide-down" [style.animation-delay]="idx * 0.06 + 's'">
                   <div class="adventure-portal-stage cursor-pointer d-flex align-items-center gap-3 position-relative"
-                       (click)="pickActivityType(group.type)"
-                       title="Play {{ group.typeName }}">
+                       (click)="pickActivity(group.key)"
+                       title="Play {{ group.title }}">
                     <div class="adventure-portal-avatar-wrap position-relative flex-shrink-0">
                       <div class="adventure-portal-glow-ring"></div>
                       <div class="adventure-portal-circle activity-type-circle">
@@ -336,15 +336,18 @@
                     <div class="adventure-portal-details flex-grow-1 text-start">
                       <div class="d-flex align-items-center gap-2 mb-1">
                         <span class="adventure-track-tag">
-                          {{ group.count }} {{ group.count === 1 ? 'Exercise' : 'Exercises' }}
+                          {{ group.typeName }}
                         </span>
+                        @if (group.count > 1) {
+                          <span class="adventure-track-tag">{{ group.count }} Questions</span>
+                        }
                       </div>
 
-                      <h3 class="adventure-portal-title mb-2 text-truncate" [title]="group.typeName">{{ group.typeName }}</h3>
+                      <h3 class="adventure-portal-title mb-2 text-truncate" [title]="group.title">{{ group.title }}</h3>
 
                       <div class="adventure-portal-action d-flex align-items-center pt-2">
                         <button class="btn btn-adventure-start d-flex align-items-center gap-2 px-4 py-2"
-                                (click)="pickActivityType(group.type); $event.stopPropagation()">
+                                (click)="pickActivity(group.key); $event.stopPropagation()">
                           <span>Play</span>
                           <i class="bi bi-play-circle-fill fs-5"></i>
                         </button>
@@ -411,7 +414,7 @@
                 <img src="/assets/images/mascot.png" alt="Super Mascot" class="cartoon-mascot-img mascot-super-anim" style="width: 140px;">
               </div>
               <h2 class="display-6 fw-bold text-warning mb-2 font-fredoka" style="text-shadow: 2px 2px 0px #b08d00;">Chapter Games Completed!</h2>
-              <p class="text-white-50 mb-4">You did a wonderful job practicing all the games for this chapter!</p>
+              <p class="text-white-50 mb-4">You did a wonderful job finishing this game!</p>
 
               <div class="d-flex justify-content-center gap-3 mb-4">
                 <div class="card stat-box border-0 shadow-sm rounded-4 p-3 text-center" style="min-width: 120px; background: rgba(255,255,255,0.9);">
@@ -508,7 +511,7 @@
                   <!-- Right: Next / Finish Button -->
                   <button class="btn btn-warning rounded-pill fw-bold text-dark shadow-sm hover-lift border border-2 border-white d-flex align-items-center gap-1.5 ms-auto activity-nav-btn activity-nav-next"
                     (click)="nextActivity()">
-                    <span>{{ (currentPlayIndex() + 1 === filteredActivities().length) ? 'Finish' : 'Next Activity' }}</span>
+                    <span>{{ (currentPlayIndex() + 1 === filteredActivities().length) ? 'Finish' : 'Next Question' }}</span>
                     <i class="bi bi-chevron-right"></i>
                   </button>
                 </div>

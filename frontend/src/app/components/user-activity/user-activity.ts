@@ -25,6 +25,8 @@ export interface ExtractedActivityItem {
   typeName: string;
   data: any;
   difficulty?: string;
+  groupKey: string; // the activity this question or card belongs to
+  groupTitle: string;
 }
 
 @Component({
@@ -71,6 +73,7 @@ export class UserActivity implements OnInit, OnDestroy {
   isLoading = signal<boolean>(true);
   searchQuery = signal<string>('');
   selectedTypeFilter = signal<string>('all');
+  selectedGroupKey = signal<string | null>(null);
   viewMode = signal<'play' | 'catalog'>('play');
 
   // Play Mode State
@@ -117,6 +120,11 @@ export class UserActivity implements OnInit, OnDestroy {
       list = list.filter(a => a.type === filter);
     }
 
+    const groupKey = this.selectedGroupKey();
+    if (groupKey) {
+      list = list.filter(a => a.groupKey === groupKey);
+    }
+
     if (query) {
       list = list.filter(a =>
         a.title.toLowerCase().includes(query) ||
@@ -146,15 +154,21 @@ export class UserActivity implements OnInit, OnDestroy {
     return Array.from(types);
   });
 
-  // One card per activity kind inside the selected chapter
+  // One card per activity added to the chapter, however many questions it holds
   chapterActivityGroups = computed(() => {
-    const groups = new Map<string, { type: string; typeName: string; count: number }>();
+    const groups = new Map<string, { key: string; title: string; type: string; typeName: string; count: number }>();
     this.allActivities().forEach(activity => {
-      const group = groups.get(activity.type);
+      const group = groups.get(activity.groupKey);
       if (group) {
         group.count++;
       } else {
-        groups.set(activity.type, { type: activity.type, typeName: activity.typeName, count: 1 });
+        groups.set(activity.groupKey, {
+          key: activity.groupKey,
+          title: activity.groupTitle,
+          type: activity.type,
+          typeName: activity.typeName,
+          count: 1
+        });
       }
     });
     return Array.from(groups.values());
@@ -212,7 +226,10 @@ export class UserActivity implements OnInit, OnDestroy {
 
   goBack(): void {
     if (this.stage() === 'player') {
-      this.setTypeFilter('all');
+      this.selectedGroupKey.set(null);
+      this.currentPlayIndex.set(0);
+      this.isAnswered.set(false);
+      this.feedbackState.set(null);
       this.isSessionFinished.set(false);
       this.stage.set('activities');
     } else if (this.stage() === 'activities') {
@@ -333,17 +350,21 @@ export class UserActivity implements OnInit, OnDestroy {
     doPick();
   }
 
-  pickActivityType(type: string): void {
-    this.setTypeFilter(type);
+  pickActivity(groupKey: string): void {
+    this.selectedGroupKey.set(groupKey);
+    this.currentPlayIndex.set(0);
+    this.isAnswered.set(false);
+    this.feedbackState.set(null);
+    this.activityRenderKey.update(k => k + 1);
     this.isSessionFinished.set(false);
     this.hearts.set(5);
     this.stage.set('player');
   }
 
-  selectChapter(chapterId: number, keepTypeFilter: boolean = false): void {
+  selectChapter(chapterId: number, keepSelectedActivity: boolean = false): void {
     this.selectedChapterId.set(chapterId);
-    if (!keepTypeFilter) {
-      this.selectedTypeFilter.set('all');
+    if (!keepSelectedActivity) {
+      this.selectedGroupKey.set(null);
     }
     this.isLoading.set(true);
     this.currentPlayIndex.set(0);
@@ -434,7 +455,8 @@ export class UserActivity implements OnInit, OnDestroy {
             block.data = {
               ...realData,
               type: act.type,
-              title: act.title
+              title: act.title,
+              activityReferenceId: pos.refId
             };
             content.text_content = JSON.stringify(parsed);
           } catch (e) { }
@@ -454,6 +476,7 @@ export class UserActivity implements OnInit, OnDestroy {
     courseInfo: { id: number; name: string }
   ): ExtractedActivityItem[] {
     const list: ExtractedActivityItem[] = [];
+    const addedActivityIds = new Set<number>();
 
     contents.forEach(content => {
       if (!content.text_content) return;
@@ -469,12 +492,21 @@ export class UserActivity implements OnInit, OnDestroy {
             let actType = block.data.type || 'mcq';
             if (actType === 'cloud_match') actType = 'match';
 
+            // Still a reference here means the activity no longer exists
+            if (actType === 'activity_reference') return;
+
+            // The same activity linked twice in a chapter is one game
+            const activityId: number | undefined = block.data.activityReferenceId;
+            if (activityId && addedActivityIds.has(activityId)) return;
+            if (activityId) addedActivityIds.add(activityId);
+
             let humanType = actType.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
             if (actType === 'mcq') humanType = 'Multiple Choice';
             if (actType === 'fill-blanks') humanType = 'Fill in the Blanks';
             if (actType === 'match') humanType = 'Match It';
 
             const stepTitle = block.data.title || `${content.title || content.name} - ${humanType} ${idx + 1}`;
+            const groupKey = activityId ? `activity_${activityId}` : `${content.id}_${idx}`;
             const blockData = (block.data && typeof block.data === 'object') ? { ...block.data } : {};
 
             // 🎯 Handle question pools: if MCQ has a questions pool of > 1 item, pick 5 random questions and create 5 separate steps
@@ -483,6 +515,8 @@ export class UserActivity implements OnInit, OnDestroy {
               selectedQs.forEach((q: any, qIdx: number) => {
                 list.push({
                   id: `${content.id}_${idx}_q${qIdx}_${Date.now()}`,
+                  groupKey,
+                  groupTitle: stepTitle,
                   contentId: content.id,
                   contentTitle: content.title || content.name,
                   chapterId: chapterInfo.id,
@@ -510,6 +544,8 @@ export class UserActivity implements OnInit, OnDestroy {
               selectedSentences.forEach((s: any, sIdx: number) => {
                 list.push({
                   id: `${content.id}_${idx}_fb${sIdx}_${Date.now()}`,
+                  groupKey,
+                  groupTitle: stepTitle,
                   contentId: content.id,
                   contentTitle: content.title || content.name,
                   chapterId: chapterInfo.id,
@@ -537,6 +573,8 @@ export class UserActivity implements OnInit, OnDestroy {
               selectedCards.forEach((c: any, cIdx: number) => {
                 list.push({
                   id: `${content.id}_${idx}_fc${cIdx}_${Date.now()}`,
+                  groupKey,
+                  groupTitle: stepTitle,
                   contentId: content.id,
                   contentTitle: content.title || content.name,
                   chapterId: chapterInfo.id,
@@ -578,6 +616,8 @@ export class UserActivity implements OnInit, OnDestroy {
 
             list.push({
               id: `${content.id}_${idx}_${Date.now()}`,
+              groupKey,
+              groupTitle: stepTitle,
               contentId: content.id,
               contentTitle: content.title || content.name,
               chapterId: chapterInfo.id,
