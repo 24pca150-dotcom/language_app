@@ -130,7 +130,7 @@ class DatabaseSeeder extends Seeder
         );
 
         // $this->call(WritingSkillSeeder::class);
-        // $this->call(ListeningSkillSeeder::class);
+         $this->call(ListeningSkillSeeder::class);
         // $this->call(ReadingSkillSeeder::class);
         // $this->call(SpeakingSkillSeeder::class);
         // $this->call(AllActivitiesSeeder::class);
