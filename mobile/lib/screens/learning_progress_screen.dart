@@ -307,6 +307,8 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
     final gamesStars = _stats?['games_stats']?['stars_earned']?.toString() ?? '0';
     final passedTests = _stats?['passed_attempts']?.toString() ?? '0';
     final totalTests = _stats?['assessment_stats']?['total_assessments']?.toString() ?? '0';
+    final practiceDone = _stats?['practice_stats']?['completed_count']?.toString() ?? '0';
+    final practiceTotal = _stats?['practice_stats']?['total_topics']?.toString() ?? '0';
 
     return Row(
       children: [
@@ -324,7 +326,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
           child: _buildMiniKpiCard(
             title: 'Practice Drills',
             value: '${practicePercent.round()}%',
-            subtitle: '5 Topics Practiced',
+            subtitle: '$practiceDone/$practiceTotal Topics Done',
             color: const Color(0xFF00D2FC),
             icon: Icons.bolt_rounded,
           ),
@@ -361,16 +363,32 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: const TextStyle(fontSize: 10, color: AppTheme.textSecondary, fontWeight: FontWeight.bold)),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(fontSize: 10, color: AppTheme.textSecondary, fontWeight: FontWeight.bold),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 4),
               Icon(icon, color: color, size: 16),
             ],
           ),
           const SizedBox(height: 6),
-          Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
+          ),
           const SizedBox(height: 2),
-          Text(subtitle, style: const TextStyle(fontSize: 9, color: AppTheme.textMuted)),
+          Text(
+            subtitle,
+            style: const TextStyle(fontSize: 9, color: AppTheme.textMuted),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );
@@ -738,13 +756,23 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                Icon(icon, color: color, size: 14),
-                const SizedBox(width: 6),
-                Text(label, style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500)),
-              ],
+            Expanded(
+              child: Row(
+                children: [
+                  Icon(icon, color: color, size: 14),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
             ),
+            const SizedBox(width: 8),
             Text('$percent%', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color)),
           ],
         ),
@@ -794,12 +822,12 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
                       child: const Icon(Icons.extension_rounded, color: Color(0xFF845EC2), size: 20),
                     ),
                     const SizedBox(width: 10),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Practice Arena Mastery', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.textPrimary), maxLines: 1, overflow: TextOverflow.ellipsis),
-                          Text('5 Interactive language drills & accuracy', style: TextStyle(fontSize: 11, color: AppTheme.textSecondary), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          const Text('Practice Arena Mastery', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.textPrimary), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          Text('${practiceList.length} Interactive language drills & accuracy', style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary), maxLines: 1, overflow: TextOverflow.ellipsis),
                         ],
                       ),
                     ),

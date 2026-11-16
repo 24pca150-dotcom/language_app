@@ -1613,13 +1613,6 @@
                 <i class="bi bi-clipboard-check-fill me-1"></i>Assessments ({{ allAssessments().length }})
               </button>
               <button type="button" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold progress-filter-btn"
-                      [class.btn-warning]="progressFilter() === 'practice'"
-                      [class.text-dark]="progressFilter() === 'practice'"
-                      [class.btn-outline-light]="progressFilter() !== 'practice'"
-                      (click)="setProgressFilter('practice')">
-                <i class="bi bi-puzzle-fill me-1"></i>Practice ({{ totalPracticeTopics() }})
-              </button>
-              <button type="button" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold progress-filter-btn"
                       [class.btn-warning]="progressFilter() === 'games'"
                       [class.text-dark]="progressFilter() === 'games'"
                       [class.btn-outline-light]="progressFilter() !== 'games'"
@@ -1641,7 +1634,7 @@
           <!-- ================================================================ -->
           <div class="row g-3 g-md-4 mb-4">
             <!-- 1. Assessments KPI -->
-            <div class="col-6 col-lg-3">
+            <div class="col-12 col-md-4">
               <div class="dashboard-glass-card progress-kpi-card p-3 p-md-4 rounded-4 h-100 cursor-pointer"
                    (click)="setProgressFilter('assessments')">
                 <div class="d-flex align-items-center justify-content-between mb-2">
@@ -1666,34 +1659,8 @@
               </div>
             </div>
 
-            <!-- 2. Practice Drills KPI -->
-            <div class="col-6 col-lg-3">
-              <div class="dashboard-glass-card progress-kpi-card p-3 p-md-4 rounded-4 h-100 cursor-pointer"
-                   (click)="setProgressFilter('practice')">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                  <span class="badge bg-info bg-opacity-25 text-info rounded-pill px-2.5 py-1 small fw-bold">
-                    <i class="bi bi-puzzle-fill me-1"></i>Practice
-                  </span>
-                  <div class="kpi-icon-wrap bg-info bg-opacity-10 text-info rounded-circle d-flex align-items-center justify-content-center">
-                    <i class="bi bi-lightning-charge fs-5"></i>
-                  </div>
-                </div>
-                <div class="display-6 fw-bold text-white mb-1">
-                  {{ practiceAvgPercent() }}<span class="fs-5 text-info">%</span>
-                </div>
-                <div class="text-white-50 small mb-2 text-truncate">Practice Drill Mastery</div>
-                <div class="progress rounded-pill mb-2" style="height: 6px;">
-                  <div class="progress-bar bg-info rounded-pill" [style.width]="practiceAvgPercent() + '%'"></div>
-                </div>
-                <div class="d-flex justify-content-between text-white-50 extra-small">
-                  <span>{{ practiceCompletedCount() }} / {{ totalPracticeTopics() }} Topics</span>
-                  <span class="text-info fw-semibold">Interactive</span>
-                </div>
-              </div>
-            </div>
-
             <!-- 3. Arcade Games KPI -->
-            <div class="col-6 col-lg-3">
+            <div class="col-12 col-md-4">
               <div class="dashboard-glass-card progress-kpi-card p-3 p-md-4 rounded-4 h-100 cursor-pointer"
                    (click)="setProgressFilter('games')">
                 <div class="d-flex align-items-center justify-content-between mb-2">
@@ -1719,7 +1686,7 @@
             </div>
 
             <!-- 4. Course Syllabus KPI -->
-            <div class="col-6 col-lg-3">
+            <div class="col-12 col-md-4">
               <div class="dashboard-glass-card progress-kpi-card p-3 p-md-4 rounded-4 h-100 cursor-pointer"
                    (click)="setProgressFilter('courses')">
                 <div class="d-flex align-items-center justify-content-between mb-2">
@@ -2045,67 +2012,6 @@
                   </div>
                 </div>
               }
-            </div>
-          }
-
-          <!-- ================================================================ -->
-          <!-- 🧩 SECTION 2: PRACTICE TOPICS & DRILLS PROGRESS                  -->
-          <!-- ================================================================ -->
-          @if (progressFilter() === 'all' || progressFilter() === 'practice') {
-            <div class="dashboard-glass-card p-3 p-md-4 rounded-4 mb-4">
-              <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-                <div>
-                  <h4 class="fw-bold text-white mb-1 d-flex align-items-center gap-2">
-                    <i class="bi bi-puzzle-fill text-info"></i>
-                    Practice Arena Mastery
-                  </h4>
-                  <p class="text-white-50 mb-0 small">Completion and accuracy rates across interactive practice drills.</p>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                  <span class="badge bg-info bg-opacity-25 text-info rounded-pill px-3 py-1.5 fw-semibold">
-                    {{ practiceAvgPercent() }}% Completed
-                  </span>
-                  <button type="button" class="btn btn-sm btn-info rounded-pill px-3 py-1.5 fw-bold text-dark shadow-sm"
-                          (click)="setTab('practice')">
-                    <i class="bi bi-arrow-right-circle me-1"></i>Open Practice Tab
-                  </button>
-                </div>
-              </div>
-
-              <div class="row g-3">
-                @for (topic of practiceTopicsList(); track topic.id) {
-                  <div class="col-12 col-md-6 col-lg-4">
-                    <div class="progress-topic-card p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-15 h-100 d-flex flex-column justify-content-between">
-                      <div>
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                          <span class="badge rounded-pill px-2.5 py-1 extra-small fw-bold"
-                                [style.backgroundColor]="topic.color + '33'"
-                                [style.color]="topic.color">
-                            {{ topic.title }}
-                          </span>
-                          <span class="fw-bold fs-6" [style.color]="topic.color">{{ topic.percentage }}%</span>
-                        </div>
-                        <p class="text-white-50 small mb-3">{{ topic.description }}</p>
-                      </div>
-
-                      <div>
-                        <div class="progress rounded-pill mb-3" style="height: 8px;">
-                          <div class="progress-bar rounded-pill"
-                               [style.width]="topic.percentage + '%'"
-                               [style.backgroundColor]="topic.color"></div>
-                        </div>
-
-                        <button type="button" class="btn btn-sm w-100 rounded-pill py-1.5 fw-semibold"
-                                [style.backgroundColor]="topic.color"
-                                style="color: #0F172A;"
-                                (click)="openPracticeTopicFromProgress(topic.id)">
-                          <i class="bi bi-play-circle-fill me-1"></i>Practice Drill
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
             </div>
           }
 

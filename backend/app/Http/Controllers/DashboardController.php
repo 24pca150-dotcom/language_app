@@ -477,12 +477,12 @@ class DashboardController extends Controller
         $totalStudyMinutes = ($completedChapters * 45) + ($totalAttempts * 20) + ($activityCompletions * 15);
         $studyTimeHours = round($totalStudyMinutes / 60, 1);
 
-        // 16. Dynamic Core Skills Competency
+        // 16. Dynamic Core Skills Competency (purely activity-based: a new learner starts at 0%)
         $coreSkills = [
-            'listening' => min(100, max(25, (int) round(($completionPercentage * 0.65) + ($averageScore * 0.35)))),
-            'reading' => min(100, max(30, (int) round(($completionPercentage * 0.75) + min(25, $wordsMastered * 0.35)))),
-            'grammar' => min(100, max(20, (int) round(($averageScore > 0 ? $averageScore * 0.8 : 35) + ($completedChapters * 3.5)))),
-            'speaking' => min(100, max(15, (int) round(($completionPercentage * 0.5) + ($streak * 8) + 20))),
+            'listening' => min(100, max(0, (int) round(($completionPercentage * 0.65) + ($averageScore * 0.35)))),
+            'reading' => min(100, max(0, (int) round(($completionPercentage * 0.75) + min(25, $wordsMastered * 0.35)))),
+            'grammar' => min(100, max(0, (int) round(($averageScore * 0.8) + ($completedChapters * 3.5)))),
+            'speaking' => min(100, max(0, (int) round(($completionPercentage * 0.5) + ($streak * 8)))),
         ];
 
         return response()->json([

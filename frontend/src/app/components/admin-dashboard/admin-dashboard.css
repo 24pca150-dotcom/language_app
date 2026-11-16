@@ -1,7 +1,13 @@
 /* Admin Dashboard Styles */
+:host {
+  display: block;
+  width: 100%;
+}
+
 .dashboard-container {
-  max-width: 1440px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
 }
 
 /* KPI Cards */

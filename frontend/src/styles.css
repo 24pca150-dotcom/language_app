@@ -1368,4 +1368,20 @@ html, body {
 
 
 
-
+
+/* ===== Admin layout: every routed page fills the full workspace width ===== */
+.admin-page-wrapper > *:not(router-outlet) {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+.admin-page-wrapper > * > .container-fluid,
+.admin-page-wrapper > * > .dashboard-container {
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
