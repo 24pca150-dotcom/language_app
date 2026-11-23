@@ -119,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: AppTheme.navBarGreen,
         elevation: 0,
-        shape: const Border(
+        shape: Border(
           bottom: BorderSide(color: AppTheme.navBarGreenBorder, width: 1.2),
         ),
         surfaceTintColor: Colors.transparent,
@@ -131,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: const Color(0xFF1B5E20).withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.school_rounded,
                 color: AppTheme.navBarGreenDark,
                 size: 20,
@@ -141,10 +141,10 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(
               child: Text(
                 'Welcome, ${user.name} 👋',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: AppTheme.textPrimary,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -170,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 backgroundColor: AppTheme.navBarGreen,
                 child: Text(
                   user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.navBarGreenDark,
@@ -196,21 +196,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   _buildStat(
                     '🔥 ${user.streakDays} Days',
                     'Streak',
-                    const Color(0xFF161F38),
+                    AppTheme.surfaceWhite,
                     const Color(0xFFFB7185),
                   ),
                   const SizedBox(width: 10),
                   _buildStat(
                     '⚡ ${user.xp}',
                     'Total XP',
-                    const Color(0xFF161F38),
+                    AppTheme.surfaceWhite,
                     const Color(0xFF38BDF8),
                   ),
                   const SizedBox(width: 10),
                   _buildStat(
                     '🪙 ${user.coins}',
                     'Coins',
-                    const Color(0xFF161F38),
+                    AppTheme.surfaceWhite,
                     const Color(0xFFFBBF24),
                   ),
                 ],
@@ -362,7 +362,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
               if (_courses.isEmpty && _loadError == null)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(vertical: 12),
                   child: Text(
                     'No active courses are assigned to your account yet.',
@@ -383,7 +383,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: Row(
                       children: [
-                        const Text(
+                        Text(
                           'Active Assessments',
                           style: TextStyle(
                             fontSize: 18,
@@ -443,15 +443,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF161F38),
+                    color: AppTheme.surfaceWhite,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFF283548)),
+                    border: Border.all(color: AppTheme.boxBorder),
                   ),
                   child: Row(
                     children: [
                       const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 22),
                       const SizedBox(width: 10),
-                      const Expanded(
+                      Expanded(
                         child: Text(
                           'No pending assessments right now! You are all caught up.',
                           style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
@@ -471,14 +471,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF161F38),
+                      color: AppTheme.surfaceWhite,
                       borderRadius: BorderRadius.circular(18),
                       border: Border.all(
                         color: isPassed
                             ? const Color(0xFF10B981).withValues(alpha: 0.4)
                             : (hasScore
                                 ? const Color(0xFFF59E0B).withValues(alpha: 0.4)
-                                : const Color(0xFF283548)),
+                                : AppTheme.boxBorder),
                       ),
                       boxShadow: [
                         BoxShadow(
@@ -549,7 +549,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Expanded(
                                         child: Text(
                                           '${a.totalQuestions} Qs • ${a.timeLimitMinutes}m • Pass: ${a.passPercentage}%',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             color: AppTheme.textMuted,
                                             fontSize: 10,
                                           ),
@@ -562,7 +562,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   const SizedBox(height: 3),
                                   Text(
                                     a.title,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13,
                                       color: AppTheme.textPrimary,
@@ -633,7 +633,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Learning Zones',
                     style: TextStyle(
                       fontSize: 19,
@@ -709,7 +709,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Row(
               children: [
-                const Text(
+                Text(
                   'Live Classes',
                   style: TextStyle(
                     fontSize: 19,
@@ -761,7 +761,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             IconButton(
-              icon: const Icon(Icons.refresh_rounded, size: 20, color: AppTheme.textSecondary),
+              icon: Icon(Icons.refresh_rounded, size: 20, color: AppTheme.textSecondary),
               tooltip: 'Refresh live classes',
               onPressed: () async {
                 final list = await LiveClassService.getUpcomingLiveClasses();
@@ -779,9 +779,9 @@ class _HomeScreenState extends State<HomeScreen> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              color: const Color(0xFF161F38),
+              color: AppTheme.surfaceWhite,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFF283548)),
+              border: Border.all(color: AppTheme.boxBorder),
             ),
             child: Row(
               children: [
@@ -794,7 +794,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: const Icon(Icons.videocam_off_rounded, color: Color(0xFF60A5FA), size: 20),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'No live classes scheduled right now! Check back soon for upcoming sessions.',
                     style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
@@ -817,12 +817,12 @@ class _HomeScreenState extends State<HomeScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFF161F38),
+        color: AppTheme.surfaceWhite,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: isLive
               ? const Color(0xFFEF4444).withValues(alpha: 0.6)
-              : const Color(0xFF283548),
+              : AppTheme.boxBorder,
           width: isLive ? 1.5 : 1,
         ),
         boxShadow: [
@@ -861,7 +861,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Text(
                       c.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.textPrimary,
@@ -872,7 +872,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 2),
                     Text(
                       c.description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         color: AppTheme.textSecondary,
                       ),
@@ -903,7 +903,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          const Divider(color: Color(0xFF283548), height: 1),
+          Divider(color: AppTheme.boxBorder, height: 1),
           const SizedBox(height: 10),
 
           Row(
@@ -920,7 +920,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Expanded(
                           child: Text(
                             c.instructorName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                               color: AppTheme.textPrimary,
@@ -939,7 +939,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Expanded(
                           child: Text(
                             '${c.formattedTime} • ${c.durationMinutes}m',
-                            style: const TextStyle(fontSize: 10, color: AppTheme.textSecondary),
+                            style: TextStyle(fontSize: 10, color: AppTheme.textSecondary),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -1008,7 +1008,7 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFF283548)),
+          border: Border.all(color: AppTheme.boxBorder),
         ),
         child: Column(
           children: [
@@ -1048,9 +1048,9 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: const Color(0xFF161F38),
+          color: AppTheme.surfaceWhite,
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: const Color(0xFF283548)),
+          border: Border.all(color: AppTheme.boxBorder),
           boxShadow: [
             BoxShadow(
               color: color.withValues(alpha: 0.08),
@@ -1073,7 +1073,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 14),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.bold,
                 color: AppTheme.textPrimary,
@@ -1082,7 +1082,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 color: AppTheme.textSecondary,
               ),

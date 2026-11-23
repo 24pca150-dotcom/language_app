@@ -1,6 +1,16 @@
 <div class="mb-4 glass-card sequencing-container">
 
-  <h5 class="text-dark fw-bold mb-4" [innerHTML]="activity?.question || 'Arrange the following events in the correct chronological order:'"></h5>
+  <h5 class="text-dark fw-bold mb-3" [innerHTML]="activity?.question || 'Arrange the following events in the correct chronological order:'"></h5>
+
+  @if (activity?.audioText) {
+    <div class="mb-4">
+      <button type="button" class="btn btn-warning rounded-pill px-4 py-2 border-0 shadow-sm d-inline-flex align-items-center gap-2"
+              style="background: linear-gradient(135deg, #f59e0b, #d97706);" (click)="speakStory()">
+        <i class="bi {{ isSpeaking() ? 'bi-stop-fill' : 'bi-volume-up-fill' }} text-white"></i>
+        <span class="text-white fw-semibold">{{ isSpeaking() ? 'Stop' : 'Listen to the story' }}</span>
+      </button>
+    </div>
+  }
 
   <!-- List of Scrambled Events -->
   <div class="d-flex flex-column gap-2 mb-4">

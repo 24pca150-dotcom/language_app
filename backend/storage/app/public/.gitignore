@@ -1,2 +1,4 @@
 *
 !.gitignore
+!game-covers/
+!game-covers/*

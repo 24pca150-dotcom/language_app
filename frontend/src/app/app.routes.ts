@@ -184,9 +184,9 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
   { 
-    path: 'learn/practice', 
-    component: LearnerDashboard, 
-    canActivate: [roleGuard(['student', 'super_admin', 'admin', 'staff']), cloudTransitionGuard] 
+    path: 'learn/practice',
+    redirectTo: 'learn/dashboard',
+    pathMatch: 'full'
   },
   { 
     path: 'learn/assessments', 

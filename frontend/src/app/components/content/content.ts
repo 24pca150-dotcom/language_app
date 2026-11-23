@@ -26,7 +26,6 @@ import { CustomList as List } from '../../editor-plugins/custom-list';
 import Table from '@editorjs/table';
 import Header from '@editorjs/header';
 import { ActivityBlock } from '../../editor-plugins/activity-block';
-import { ActivityRenderer } from '../activity-engine/activity-renderer/activity-renderer';
 import { NotificationService } from '../../services/notification.service';
 
 import {
@@ -44,8 +43,7 @@ import {
     McvInputField,
     McvToggleField,
     TranslateModule,
-    SafeHtmlPipe,
-    ActivityRenderer
+    SafeHtmlPipe
   ],
   templateUrl: './content.html',
   styleUrls: ['./content.css'],
@@ -370,6 +368,11 @@ export class Content implements OnInit {
     } catch (e) {
       return [];
     }
+  }
+
+  /** Number of activity blocks in a content (shown once as a note instead of the activities). */
+  countActivityBlocks(text?: string): number {
+    return this.getParsedPreviewBlocks(text).filter((b: any) => b?.type === 'activity').length;
   }
 
   getItemText(item: any): string {

@@ -506,7 +506,18 @@ export class UserActivity implements OnInit, OnDestroy {
             if (actType === 'match') humanType = 'Match It';
 
             const stepTitle = block.data.title || `${content.title || content.name} - ${humanType} ${idx + 1}`;
-            const groupKey = activityId ? `activity_${activityId}` : `${content.id}_${idx}`;
+            // One card per activity TYPE (Multiple Choice, Match It, Fill in the Blanks...):
+            // opening a card plays every question of that type in the chapter with Next/Next.
+            let typeKey = actType.replace(/-/g, '_');
+            if (typeKey === 'multiple_choice') typeKey = 'mcq';
+            if (typeKey === 'cloud_match') typeKey = 'match';
+            if (typeKey === 'mcq') humanType = 'Multiple Choice';
+            else if (typeKey === 'match') humanType = 'Match It';
+            else if (typeKey === 'fill_blanks') humanType = 'Fill in the Blanks';
+            else {
+              humanType = typeKey.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            }
+            const groupKey = `type_${typeKey}`;
             const blockData = (block.data && typeof block.data === 'object') ? { ...block.data } : {};
 
             // 🎯 Handle question pools: if MCQ has a questions pool of > 1 item, pick 5 random questions and create 5 separate steps
@@ -516,7 +527,7 @@ export class UserActivity implements OnInit, OnDestroy {
                 list.push({
                   id: `${content.id}_${idx}_q${qIdx}_${Date.now()}`,
                   groupKey,
-                  groupTitle: stepTitle,
+                  groupTitle: humanType,
                   contentId: content.id,
                   contentTitle: content.title || content.name,
                   chapterId: chapterInfo.id,
@@ -545,7 +556,7 @@ export class UserActivity implements OnInit, OnDestroy {
                 list.push({
                   id: `${content.id}_${idx}_fb${sIdx}_${Date.now()}`,
                   groupKey,
-                  groupTitle: stepTitle,
+                  groupTitle: humanType,
                   contentId: content.id,
                   contentTitle: content.title || content.name,
                   chapterId: chapterInfo.id,
@@ -574,7 +585,7 @@ export class UserActivity implements OnInit, OnDestroy {
                 list.push({
                   id: `${content.id}_${idx}_fc${cIdx}_${Date.now()}`,
                   groupKey,
-                  groupTitle: stepTitle,
+                  groupTitle: humanType,
                   contentId: content.id,
                   contentTitle: content.title || content.name,
                   chapterId: chapterInfo.id,
@@ -617,7 +628,7 @@ export class UserActivity implements OnInit, OnDestroy {
             list.push({
               id: `${content.id}_${idx}_${Date.now()}`,
               groupKey,
-              groupTitle: stepTitle,
+              groupTitle: humanType,
               contentId: content.id,
               contentTitle: content.title || content.name,
               chapterId: chapterInfo.id,

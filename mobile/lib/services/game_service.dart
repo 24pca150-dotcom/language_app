@@ -1,6 +1,8 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
 import '../config/api_config.dart';
 import 'auth_service.dart';
 
@@ -15,6 +17,9 @@ class MobileGameItem {
   final String badge;
   final int questionCount;
   final Map<String, dynamic>? dataJson;
+  final int? courseId;
+  final String? coverImage;
+  final List<int> levelIds; // Levels this activity is used in (content -> chapter -> level)
 
   MobileGameItem({
     required this.id,
@@ -27,17 +32,83 @@ class MobileGameItem {
     required this.badge,
     this.questionCount = 5,
     this.dataJson,
+    this.courseId,
+    this.coverImage,
+    this.levelIds = const [],
   });
+
+  /// Same activity with different question data (used to split question pools into steps).
+  MobileGameItem copyWith({Map<String, dynamic>? dataJson, String? title}) => MobileGameItem(
+    id: id,
+    title: title ?? this.title,
+    subtitle: subtitle,
+    type: type,
+    icon: icon,
+    color: color,
+    xp: xp,
+    badge: badge,
+    questionCount: questionCount,
+    dataJson: dataJson ?? this.dataJson,
+    courseId: courseId,
+    coverImage: coverImage,
+    levelIds: levelIds,
+  );
+}
+
+class MobileLevelInfo {
+  final int id;
+  final String name;
+  final int sortOrder;
+  const MobileLevelInfo({required this.id, required this.name, this.sortOrder = 0});
 }
 
 class GameService {
+  /// Server origin of the API (e.g. http://127.0.0.1:8000), used to fix image hosts.
+  static String _mediaOrigin = '';
+
+  /// Images are saved with the host the admin used (e.g. localhost). Point uploaded
+  /// /storage/ files at the server this app actually talks to so they load on phones.
+  static String resolveMediaUrl(String url) {
+    final i = url.indexOf('/storage/');
+    if (i < 0 || _mediaOrigin.isEmpty) return url;
+    return _mediaOrigin + url.substring(i);
+  }
+
+  /// Levels (Listening skill, Speaking skill...) used to filter games.
+  static Future<List<MobileLevelInfo>> getLevels() async {
+    try {
+      final token = await AuthService.getToken();
+      final tenantCode = await ApiConfig.getTenantCode();
+      final baseUrl = await ApiConfig.getBaseUrl();
+      final res = await http
+          .get(
+            Uri.parse('$baseUrl/levels'),
+            headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
+          )
+          .timeout(const Duration(seconds: 8));
+      if (res.statusCode == 200) {
+        final decoded = jsonDecode(res.body);
+        final list = decoded is List ? decoded : (decoded is Map && decoded['data'] is List ? decoded['data'] as List : []);
+        final levels =
+            list
+                .whereType<Map>()
+                .map(
+                  (l) => MobileLevelInfo(
+                    id: l['id'] is int ? l['id'] as int : int.tryParse('${l['id']}') ?? 0,
+                    name: '${l['name'] ?? 'Level'}',
+                    sortOrder: l['sort_order'] is int ? l['sort_order'] as int : int.tryParse('${l['sort_order']}') ?? 0,
+                  ),
+                )
+                .toList()
+              ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+        return levels;
+      }
+    } catch (_) {}
+    return [];
+  }
+
   /// Saves a finished game on the server so its points show on web and mobile.
-  static Future<void> recordActivity(
-    String activityType, {
-    int score = 100,
-    int total = 100,
-    int count = 1,
-  }) async {
+  static Future<void> recordActivity(String activityType, {int score = 100, int total = 100, int count = 1}) async {
     final token = await AuthService.getToken();
     final tenantCode = await ApiConfig.getTenantCode();
     final baseUrl = await ApiConfig.getBaseUrl();
@@ -47,12 +118,7 @@ class GameService {
           .post(
             Uri.parse('$baseUrl/dashboard/record-activity'),
             headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
-            body: jsonEncode({
-              'activity_type': activityType,
-              'score': score,
-              'total': total,
-              'count': count.clamp(1, 100),
-            }),
+            body: jsonEncode({'activity_type': activityType, 'score': score, 'total': total, 'count': count.clamp(1, 100)}),
           )
           .timeout(const Duration(seconds: 8));
     } catch (_) {}
@@ -65,21 +131,19 @@ class GameService {
       final token = await AuthService.getToken();
       final tenantCode = await ApiConfig.getTenantCode();
       final baseUrl = await ApiConfig.getBaseUrl();
+      _mediaOrigin = baseUrl.replaceFirst(RegExp(r'/api/?$'), '');
 
       final res = await http
           .get(
-            Uri.parse('$baseUrl/activities'),
+            // with_levels: lets the Games tab ask "which level?" before playing
+            Uri.parse('$baseUrl/activities?with_levels=1'),
             headers: ApiConfig.headers(token: token, tenantCode: tenantCode),
           )
           .timeout(const Duration(seconds: 8));
 
       if (res.statusCode == 200) {
         final decoded = jsonDecode(res.body);
-        final List<dynamic> list = decoded is List
-            ? decoded
-            : (decoded is Map && decoded['data'] is List
-                ? decoded['data'] as List
-                : []);
+        final List<dynamic> list = decoded is List ? decoded : (decoded is Map && decoded['data'] is List ? decoded['data'] as List : []);
 
         final List<MobileGameItem> games = [];
         for (var raw in list) {
@@ -182,6 +246,14 @@ class GameService {
               badge: type.toUpperCase().replaceAll('_', ' '),
               questionCount: count,
               dataJson: dataJson,
+              courseId: item['course_id'] is int ? item['course_id'] as int : int.tryParse('${item['course_id']}'),
+              coverImage: (item['cover_image'] ?? '').toString().trim().isEmpty
+                  ? null
+                  : resolveMediaUrl(item['cover_image'].toString().trim()),
+              levelIds: (item['level_ids'] is List ? item['level_ids'] as List : const [])
+                  .map((v) => v is int ? v : int.tryParse('$v') ?? 0)
+                  .where((v) => v > 0)
+                  .toList(),
             ),
           );
         }

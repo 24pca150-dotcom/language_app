@@ -40,6 +40,7 @@ export interface NormalizedActivity {
 
   // MCQ and Fill Blanks enhancements
   audioUrl?: string;
+  audioText?: string; // Sentence read aloud (TTS) by the MCQ speaker instead of the blanked question
   imageUrl?: string;
 
   // Speaking properties
@@ -252,6 +253,7 @@ export class ActivityRenderer implements OnChanges, OnDestroy {
       normalized.question = this.convertEditorJsToHtml(raw.question || raw.question_text || '');
       normalized.imageUrl = raw.image_url ?? additional.imageUrl ?? '';
       normalized.audioUrl = raw.media_url || additional.audioUrl || '';
+      normalized.audioText = raw.audioText || additional.audioText || '';
       const rawOptions = raw.options || additional.options || [];
       normalized.options = rawOptions.map((opt: any, idx: number) => ({
         id: opt.id ?? idx,
@@ -263,6 +265,7 @@ export class ActivityRenderer implements OnChanges, OnDestroy {
     } else if (type === 'fill_blanks') {
       normalized.text = this.convertEditorJsToHtml(raw.text || raw.question_text || '');
       normalized.audioUrl = raw.media_url || additional.audioUrl || '';
+      normalized.audioText = raw.audioText || additional.audioText || '';
       normalized.imageUrl = additional.imageUrl || '';
     } else if (type === 'flashcard') {
       normalized.front = this.convertEditorJsToHtml(raw.front || additional.front || raw.question_text || '');
@@ -318,6 +321,7 @@ export class ActivityRenderer implements OnChanges, OnDestroy {
     } else if (type === 'sequencing') {
       normalized.question = this.convertEditorJsToHtml(raw.question || raw.question_text || '');
       normalized.events = raw.events || additional.events || [];
+      normalized.audioText = raw.audioText || additional.audioText || '';
     } else if (type === 'parts_of_speech') {
       normalized.question = this.convertEditorJsToHtml(raw.question || raw.question_text || '');
       normalized.text = this.convertEditorJsToHtml(raw.text || raw.question_text || '');

@@ -39,6 +39,7 @@ dependencies:
   google_fonts: ^9.0.0
   flutter_tts: ^4.2.3
   url_launcher: ^6.3.3
+  flutter_svg: ^2.5.0
 
 dev_dependencies:
   flutter_test:

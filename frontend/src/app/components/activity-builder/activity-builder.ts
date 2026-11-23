@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, ViewChild, ElementRef, effect } from '@angular/core';
+import { Component, signal, computed, inject, ViewChild, ElementRef, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -8,6 +8,7 @@ import { ActivityService, Activity } from '../../services/activity.service';
 import { NotificationService } from '../../services/notification.service';
 import { CourseService, CourseData } from '../../services/course';
 import { ContentService, ContentData } from '../../services/content';
+import { LevelService, LevelData } from '../../services/level';
 import { ActivityBlock } from '../../editor-plugins/activity-block';
 import { ActivityRenderer } from '../activity-engine/activity-renderer/activity-renderer';
 
@@ -28,6 +29,43 @@ interface ContainerNode {
   contents: BlockContent[];
 }
 
+/**
+ * Default mobile game cover per activity type (served by the backend from storage/app/public/game-covers).
+ * Keep in sync with Activity::defaultCoverFor() in the backend.
+ */
+const GAME_COVER_FILES: Record<string, string> = {
+  car_racer: 'car_racer.jpg',
+  word_ninja: 'word_ninja.jpg',
+  flappy_word: 'flappy_word.jpg',
+  space_defender: 'space_defender.jpg',
+  balloon_pop: 'balloon_pop.svg',
+  crossword: 'crossword.svg',
+  mcq: 'mcq.jpg',
+  fill_blanks: 'fill_blanks.svg',
+  match: 'match.jpg',
+  flashcard: 'flashcard.svg',
+  word_arrange: 'word_arrange.jpg',
+  speaking: 'speaking.jpg',
+  role_play: 'role_play.svg',
+  sequencing: 'sequencing.svg',
+  parts_of_speech: 'parts_of_speech.jpg',
+  mind_map: 'mind_map.svg',
+  writing: 'writing.svg',
+  custom: 'custom.svg',
+};
+
+export function defaultGameCover(type: string): string {
+  let key = (type || '').toLowerCase().replace(/-/g, '_');
+  // Same aliases as Activity::defaultCoverFor()
+  if (key === 'multiple_choice') key = 'mcq';
+  if (key === 'cloud_match') key = 'match';
+  if (key === 'canvas' || key === 'custom_canvas') key = 'custom';
+  const file = GAME_COVER_FILES[key];
+  return file ? `${environment.baseUrl}/storage/game-covers/${file}` : '';
+}
+
+const isDefaultGameCover = (url: string) => !url || url.includes('/game-covers/');
+
 @Component({
   selector: 'app-activity-builder',
   standalone: true,
@@ -40,6 +78,7 @@ export class ActivityBuilder {
   private notificationService = inject(NotificationService);
   private courseService = inject(CourseService);
   private contentService = inject(ContentService);
+  private levelService = inject(LevelService);
   private http = inject(HttpClient);
 
   // Mapping State
@@ -106,10 +145,13 @@ export class ActivityBuilder {
   filterType = signal('all');
   selectedSkillTab = signal<'all' | 'listening' | 'speaking' | 'reading' | 'writing' | 'games'>('all');
   selectedCourseFilter = signal<number | 'all' | null>('all');
+  selectedLevelFilter = signal<number | 'all' | null>('all'); // null = not used in any level
+  levelsList = signal<LevelData[]>([]);
   selectedStatusFilter = signal<'all' | 'linked' | 'unassigned'>('all');
 
   // Custom Dropdown Menus State
   isCourseFilterOpen = signal(false);
+  isLevelFilterOpen = signal(false);
   isTypeFilterOpen = signal(false);
   isPageSizeOpen = signal(false);
 
@@ -199,6 +241,14 @@ export class ActivityBuilder {
       }
     }
 
+    // 3b. Level Filter
+    const levelId = this.selectedLevelFilter();
+    if (levelId !== 'all') {
+      list = list.filter(act => levelId === null
+        ? !(act.level_ids && act.level_ids.length)
+        : !!act.level_ids?.includes(levelId));
+    }
+
     // 4. Search Query Filter
     if (query) {
       list = list.filter(act => 
@@ -268,6 +318,8 @@ export class ActivityBuilder {
   activityTitle = signal<string>('');
   activityType = signal<string>('mcq');
   activityCourseId = signal<number | null>(null);
+  activityCoverImage = signal<string>(''); // Background picture of the mobile game card
+  isCoverUploading = signal<boolean>(false);
   coursesList = signal<CourseData[]>([]);
 
   // Custom Builder State
@@ -297,12 +349,45 @@ export class ActivityBuilder {
       if (this.isFormVisible() && !this.activityId() && !this.isTitleManuallyEdited()) {
         this.activityTitle.set(this.generateNextTitle(type));
       }
+
+      // Pick the game type's picture automatically, unless the admin uploaded their own
+      if (this.isFormVisible() && isDefaultGameCover(untracked(() => this.activityCoverImage()))) {
+        this.activityCoverImage.set(defaultGameCover(type));
+      }
     });
   }
 
   ngOnInit() {
     this.loadActivities();
     this.loadCourses();
+    this.loadLevels();
+  }
+
+  loadLevels() {
+    this.levelService.getAll().subscribe({
+      next: (levels) => this.levelsList.set(levels || []),
+      error: () => {}
+    });
+  }
+
+  toggleLevelDropdown(): void {
+    this.isLevelFilterOpen.update(v => !v);
+    this.isCourseFilterOpen.set(false);
+    this.isTypeFilterOpen.set(false);
+    this.isPageSizeOpen.set(false);
+  }
+
+  setLevelFilterValue(val: number | 'all' | null | undefined): void {
+    this.selectedLevelFilter.set(val === undefined ? 'all' : val);
+    this.isLevelFilterOpen.set(false);
+    this.onFilterChange();
+  }
+
+  getLevelFilterLabel(): string {
+    const lId = this.selectedLevelFilter();
+    if (lId === 'all') return 'All Levels';
+    if (lId === null) return 'Not in any Level';
+    return this.levelsList().find(l => l.id === lId)?.name || 'All Levels';
   }
 
   setSkillTab(tab: 'all' | 'listening' | 'speaking' | 'reading' | 'writing' | 'games') {
@@ -325,6 +410,7 @@ export class ActivityBuilder {
     this.filterType.set('all');
     this.selectedSkillTab.set('all');
     this.selectedCourseFilter.set('all');
+    this.selectedLevelFilter.set('all');
     this.currentPage.set(1);
   }
 
@@ -382,18 +468,21 @@ export class ActivityBuilder {
 
   toggleCourseDropdown(): void {
     this.isCourseFilterOpen.update(v => !v);
+    this.isLevelFilterOpen.set(false);
     this.isTypeFilterOpen.set(false);
     this.isPageSizeOpen.set(false);
   }
 
   toggleTypeDropdown(): void {
     this.isTypeFilterOpen.update(v => !v);
+    this.isLevelFilterOpen.set(false);
     this.isCourseFilterOpen.set(false);
     this.isPageSizeOpen.set(false);
   }
 
   togglePageSizeDropdown(): void {
     this.isPageSizeOpen.update(v => !v);
+    this.isLevelFilterOpen.set(false);
     this.isCourseFilterOpen.set(false);
     this.isTypeFilterOpen.set(false);
   }
@@ -486,7 +575,7 @@ export class ActivityBuilder {
   }
 
   loadActivities() {
-    this.activityService.getActivities().subscribe({
+    this.activityService.getActivities(undefined, undefined, true).subscribe({
       next: (activities) => this.savedActivities.set(activities),
       error: (err) => console.error('Failed to load activities', err)
     });
@@ -497,6 +586,7 @@ export class ActivityBuilder {
     this.isTitleManuallyEdited.set(false);
     this.activityType.set(type);
     this.activityCourseId.set(null);
+    this.activityCoverImage.set('');
     this.activityTitle.set(this.generateNextTitle(type));
     this.nodes.set([]);
     this.customQuestion.set('');
@@ -510,6 +600,7 @@ export class ActivityBuilder {
     this.activityId.set(activity.id || null);
     this.activityTitle.set(activity.title);
     this.activityCourseId.set(activity.course_id || null);
+    this.activityCoverImage.set(activity.cover_image || '');
     this.isTitleManuallyEdited.set(true);
     
     const type = activity.type;
@@ -603,6 +694,7 @@ export class ActivityBuilder {
       title: this.activityTitle(),
       type: type,
       course_id: this.activityCourseId(),
+      cover_image: this.activityCoverImage() || null,
       data_json: data_json
     };
 
@@ -749,6 +841,33 @@ export class ActivityBuilder {
     });
   }
 
+  onCoverImageSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const formData = new FormData();
+    formData.append('file', input.files[0]);
+    this.isCoverUploading.set(true);
+
+    this.http.post<any>(`${environment.apiUrl}/contents/upload`, formData).subscribe({
+      next: (res) => {
+        this.isCoverUploading.set(false);
+        if (res && res.url) {
+          this.activityCoverImage.set(res.url);
+          this.notificationService.show('success', 'Cover image uploaded!');
+        } else {
+          this.notificationService.show('error', 'Upload failed: Invalid response');
+        }
+        input.value = '';
+      },
+      error: () => {
+        this.isCoverUploading.set(false);
+        this.notificationService.show('error', 'Cover image upload failed');
+        input.value = '';
+      }
+    });
+  }
+
   onBlockImageSelected(block: BlockContent, event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
@@ -843,6 +962,7 @@ export class ActivityBuilder {
     const payload = {
       title: `${activity.title} (Copy)`,
       type: activity.type,
+      cover_image: activity.cover_image || null,
       data_json: activity.data_json
     };
     this.isSaving.set(true);
@@ -923,7 +1043,7 @@ export class ActivityBuilder {
       case 'word_arrange':
         return `Sentence: "${data.text || ''}"`;
       case 'speaking':
-        return `Target Speech: "${data.targetText || ''}"`;
+        return `Target Speech: "${data.targetText || data.text || ''}"`;
       case 'role_play':
         return `Role play with ${data.dialogue?.length || 0} lines of dialogue`;
       case 'sequencing':

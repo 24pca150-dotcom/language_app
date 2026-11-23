@@ -52,10 +52,14 @@ export class ActivityBlock {
       activityReferenceTitle: data?.activityReferenceTitle || '',
       activityReferenceType: data?.activityReferenceType || '',
       question: data?.question || '',
-      options: data?.options || [
-        { text: '', isCorrect: true },
-        { text: '', isCorrect: false }
-      ],
+      // Accept both isCorrect and is_correct so existing activities keep their correct answer when edited
+      options: Array.isArray(data?.options)
+        ? data.options.map((opt: any) => ({ ...opt, isCorrect: !!(opt.isCorrect ?? opt.is_correct) }))
+        : [
+          { text: '', isCorrect: true },
+          { text: '', isCorrect: false }
+        ],
+      audioText: data?.audioText || '',
       text: data?.text || '',
       front: data?.front || '',
       back: data?.back || '',
@@ -636,14 +640,20 @@ export class ActivityBlock {
     if (type === 'mcq') {
       savedData.question = this.data.question || '';
       savedData.audioUrl = this.data.audioUrl || '';
-      savedData.options = (this.data.options || []).map((opt: any) => ({
+      savedData.audioText = this.data.audioText || '';
+      savedData.imageUrl = this.data.imageUrl || '';
+      savedData.options = (this.data.options || []).map((opt: any, idx: number) => ({
+        id: opt.id ?? idx + 1,
         text: opt.text || '',
-        isCorrect: !!opt.isCorrect
+        isCorrect: !!opt.isCorrect,
+        imageUrl: opt.imageUrl || '',
+        audioUrl: opt.audioUrl || ''
       }));
     } else if (type === 'fill_blanks') {
       savedData.text = this.data.text || '';
       savedData.imageUrl = this.data.imageUrl || '';
       savedData.audioUrl = this.data.audioUrl || '';
+      savedData.audioText = this.data.audioText || '';
       savedData.additional_data = {
         imageUrl: this.data.imageUrl || ''
       };
@@ -709,6 +719,7 @@ export class ActivityBlock {
     } else if (type === 'sequencing') {
       savedData.question = this.data.question || '';
       savedData.events = (this.data.events || []).filter((e: string) => e.trim().length > 0);
+      savedData.audioText = this.data.audioText || '';
     } else if (type === 'parts_of_speech') {
       savedData.question = this.data.question || '';
       savedData.text = this.data.text || '';

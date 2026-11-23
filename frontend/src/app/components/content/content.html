@@ -400,10 +400,16 @@
                     </table>
                   </div>
                 } @else if (block.type === 'activity') {
-                  <app-activity-renderer [activity]="block.data" [showFeedback]="true"></app-activity-renderer>
+                  <!-- Activities are not shown inside content; they live in the Activity Builder -->
                 } @else {
                   <div class="mb-3 text-dark" [innerHTML]="block.data.text || ''"></div>
                 }
+              }
+              @if (countActivityBlocks(content.text_content); as activityCount) {
+                <div class="alert alert-light border d-flex align-items-center gap-2 mt-4 mb-0 small text-secondary">
+                  <i class="bi bi-controller text-primary fs-5"></i>
+                  <span>{{ activityCount }} {{ activityCount === 1 ? 'activity is' : 'activities are' }} linked to this content — view and edit them in the <strong>Activity Builder</strong>.</span>
+                </div>
               }
             </div>
           } @else {

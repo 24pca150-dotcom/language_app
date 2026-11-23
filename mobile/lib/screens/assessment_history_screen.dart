@@ -74,7 +74,7 @@ class _AssessmentHistoryScreenState extends State<AssessmentHistoryScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 36),
                           child: Column(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.cloud_off_rounded,
                                 color: AppTheme.textMuted,
                                 size: 36,
@@ -83,7 +83,7 @@ class _AssessmentHistoryScreenState extends State<AssessmentHistoryScreen> {
                               Text(
                                 'Could not load assessments.\n$_loadError',
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: AppTheme.textSecondary,
                                 ),
                               ),
@@ -157,7 +157,7 @@ class _AssessmentHistoryScreenState extends State<AssessmentHistoryScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      const Text(
+                      Text(
                         'Assigned & Attempted Tests',
                         style: TextStyle(
                           fontSize: 17,
@@ -168,7 +168,7 @@ class _AssessmentHistoryScreenState extends State<AssessmentHistoryScreen> {
                       const SizedBox(height: 12),
 
                       if (_assessments.isEmpty)
-                        const Padding(
+                        Padding(
                           padding: EdgeInsets.symmetric(vertical: 24),
                           child: Center(
                             child: Text(
@@ -244,7 +244,7 @@ class _AssessmentHistoryScreenState extends State<AssessmentHistoryScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.boxColor,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppTheme.cardBorder),
         boxShadow: [
@@ -297,7 +297,7 @@ class _AssessmentHistoryScreenState extends State<AssessmentHistoryScreen> {
                         children: [
                           Text(
                             a.title,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
                               color: AppTheme.textPrimary,

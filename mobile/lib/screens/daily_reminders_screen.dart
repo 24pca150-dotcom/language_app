@@ -114,12 +114,11 @@ class _DailyRemindersScreenState extends State<DailyRemindersScreen> {
       initialTime: initial,
       builder: (context, child) {
         return Theme(
-          data: ThemeData.dark().copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: AppTheme.accent,
-              surface: Color(0xFF1E293B),
-              onSurface: Colors.white,
-            ),
+          // Follow the app's light/dark mode so the clock text is never white on white
+          data: (AppTheme.isDark ? ThemeData.dark() : ThemeData.light()).copyWith(
+            colorScheme: AppTheme.isDark
+                ? ColorScheme.dark(primary: AppTheme.accent, surface: AppTheme.boxColor, onSurface: AppTheme.textPrimary)
+                : ColorScheme.light(primary: AppTheme.accent, surface: AppTheme.boxColor, onSurface: AppTheme.textPrimary),
           ),
           child: child!,
         );
@@ -237,7 +236,7 @@ class _DailyRemindersScreenState extends State<DailyRemindersScreen> {
                           ),
                         ),
                         const SizedBox(width: 14),
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -274,7 +273,7 @@ class _DailyRemindersScreenState extends State<DailyRemindersScreen> {
 
                   if (_reminderEnabled) ...[
                     // Daily Learning Goal Section
-                    const Text(
+                    Text(
                       'DAILY LEARNING GOAL',
                       style: TextStyle(
                         fontSize: 12,
@@ -294,7 +293,7 @@ class _DailyRemindersScreenState extends State<DailyRemindersScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'How much time would you like to dedicate each day?',
                             style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
                           ),
@@ -316,7 +315,7 @@ class _DailyRemindersScreenState extends State<DailyRemindersScreen> {
                     const SizedBox(height: 24),
 
                     // Reminder Time Section
-                    const Text(
+                    Text(
                       'REMINDER TIME',
                       style: TextStyle(
                         fontSize: 12,
@@ -342,7 +341,7 @@ class _DailyRemindersScreenState extends State<DailyRemindersScreen> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
+                                  Text(
                                     'Selected Alarm Time',
                                     style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
                                   ),
@@ -371,9 +370,9 @@ class _DailyRemindersScreenState extends State<DailyRemindersScreen> {
                             ],
                           ),
                           const SizedBox(height: 16),
-                          const Divider(color: AppTheme.cardBorder),
+                          Divider(color: AppTheme.cardBorder),
                           const SizedBox(height: 12),
-                          const Text(
+                          Text(
                             'Quick Time Presets:',
                             style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
                           ),
@@ -398,7 +397,7 @@ class _DailyRemindersScreenState extends State<DailyRemindersScreen> {
                                   setState(() => _reminderTime = time);
                                 },
                                 selectedColor: AppTheme.primary,
-                                backgroundColor: const Color(0xFF1E293B),
+                                backgroundColor: AppTheme.boxColor,
                                 labelStyle: TextStyle(
                                   color: isSelected ? Colors.white : AppTheme.textSecondary,
                                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
@@ -419,7 +418,7 @@ class _DailyRemindersScreenState extends State<DailyRemindersScreen> {
                     const SizedBox(height: 24),
 
                     // Frequency & Alert Preferences
-                    const Text(
+                    Text(
                       'ALERT PREFERENCES',
                       style: TextStyle(
                         fontSize: 12,
@@ -444,9 +443,9 @@ class _DailyRemindersScreenState extends State<DailyRemindersScreen> {
                             title: const Text('Reminder Schedule', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                             trailing: DropdownButton<String>(
                               value: _selectedFrequency,
-                              dropdownColor: const Color(0xFF1E293B),
+                              dropdownColor: AppTheme.boxColor,
                               underline: const SizedBox(),
-                              style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.bold),
                               items: ['Everyday', 'Weekdays (Mon-Fri)', 'Weekends Only']
                                   .map((freq) => DropdownMenuItem(value: freq, child: Text(freq)))
                                   .toList(),
@@ -455,22 +454,22 @@ class _DailyRemindersScreenState extends State<DailyRemindersScreen> {
                               },
                             ),
                           ),
-                          const Divider(color: AppTheme.cardBorder, height: 1),
+                          Divider(color: AppTheme.cardBorder, height: 1),
                           SwitchListTile(
                             contentPadding: EdgeInsets.zero,
                             secondary: const Icon(Icons.volume_up_rounded, color: Color(0xFF10B981)),
                             title: const Text('Sound Alerts', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                            subtitle: const Text('Play gentle chime when alert triggers', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+                            subtitle: Text('Play gentle chime when alert triggers', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
                             value: _soundEnabled,
                             activeThumbColor: const Color(0xFF10B981),
                             onChanged: (val) => setState(() => _soundEnabled = val),
                           ),
-                          const Divider(color: AppTheme.cardBorder, height: 1),
+                          Divider(color: AppTheme.cardBorder, height: 1),
                           SwitchListTile(
                             contentPadding: EdgeInsets.zero,
                             secondary: const Icon(Icons.vibration_rounded, color: Color(0xFF00D2FC)),
                             title: const Text('Vibration', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                            subtitle: const Text('Vibrate phone on reminder', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+                            subtitle: Text('Vibrate phone on reminder', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
                             value: _vibrationEnabled,
                             activeThumbColor: const Color(0xFF00D2FC),
                             onChanged: (val) => setState(() => _vibrationEnabled = val),
@@ -519,7 +518,7 @@ class _DailyRemindersScreenState extends State<DailyRemindersScreen> {
         decoration: BoxDecoration(
           color: isSelected
               ? const Color(0xFFD97706).withValues(alpha: 0.2)
-              : const Color(0xFF1E293B),
+              : AppTheme.boxColor,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected ? const Color(0xFFD97706) : AppTheme.cardBorder,

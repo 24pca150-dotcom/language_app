@@ -13,6 +13,8 @@ export interface Activity {
   title: string;
   type: string;
   data_json: any;
+  cover_image?: string | null; // Mobile game card background picture
+  level_ids?: number[]; // Levels this activity is used in (via content -> chapter -> level)
   created_by?: number;
   created_at?: string;
   updated_at?: string;
@@ -25,8 +27,11 @@ export class ActivityService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/activities`;
 
-  getActivities(type?: string, course_id?: number): Observable<Activity[]> {
+  getActivities(type?: string, course_id?: number, withLevels = false): Observable<Activity[]> {
     let params = new HttpParams();
+    if (withLevels) {
+      params = params.set('with_levels', '1');
+    }
     if (type) {
       params = params.set('type', type);
     }

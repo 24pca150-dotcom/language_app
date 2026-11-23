@@ -1919,18 +1919,6 @@ export class LearnerDashboard implements OnInit {
     this.playCourse(course);
   }
 
-  launchQuickPractice() {
-    this.audioService.playSuccessSoundOnly();
-    try {
-      confetti({
-        particleCount: 60,
-        spread: 70,
-        origin: { y: 0.5 }
-      });
-    } catch (e) {}
-    this.setTab('practice');
-  }
-
   logout() {
     this.authService.logout().subscribe({
       complete: () => {

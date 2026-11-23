@@ -1,11 +1,13 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, SimpleChanges, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AudioService } from '../../../services/audio.service';
 
 export interface SequencingData {
   id?: number;
   question?: string;
   events: string[]; // Correct order list, e.g., ["Woke up", "Had breakfast", "Went to school"]
   explanation?: string;
+  audioText?: string; // Story read aloud (TTS) by the Listen button
 }
 
 interface RenderedEvent {
@@ -20,7 +22,10 @@ interface RenderedEvent {
   templateUrl: './sequencing.html',
   styleUrls: ['./sequencing.css']
 })
-export class SequencingComponent implements OnInit, OnChanges {
+export class SequencingComponent implements OnInit, OnChanges, OnDestroy {
+  private audioService = inject(AudioService);
+  isSpeaking = signal<boolean>(false);
+
   @Input() activity: SequencingData | null = null;
   @Input() showFeedback: boolean = true;
 
@@ -62,6 +67,25 @@ export class SequencingComponent implements OnInit, OnChanges {
     this.scrambledEvents.set(shuffled);
     this.hasSubmitted.set(false);
     this.isCorrect.set(false);
+  }
+
+  ngOnDestroy(): void {
+    if (this.isSpeaking()) this.audioService.stopAll();
+  }
+
+  speakStory(): void {
+    if (!this.activity?.audioText) return;
+    if (this.isSpeaking()) {
+      this.audioService.stopAll();
+      this.isSpeaking.set(false);
+      return;
+    }
+    this.isSpeaking.set(true);
+    this.audioService.speak(this.activity.audioText, {
+      rate: 0.9,
+      onEnd: () => this.isSpeaking.set(false),
+      onError: () => this.isSpeaking.set(false)
+    });
   }
 
   private shuffleArray<T>(array: T[]): T[] {

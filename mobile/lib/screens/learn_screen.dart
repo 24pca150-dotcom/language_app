@@ -107,15 +107,15 @@ class _LearnScreenState extends State<LearnScreen> {
       appBar: AppBar(
         backgroundColor: AppTheme.navBarGreen,
         elevation: 0,
-        shape: const Border(
+        shape: Border(
           bottom: BorderSide(color: AppTheme.navBarGreenBorder, width: 1.2),
         ),
         surfaceTintColor: Colors.transparent,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
+        iconTheme: IconThemeData(color: AppTheme.textPrimary),
+        title: Text(
           'My Courses',
           style: TextStyle(
-            color: Colors.white,
+            color: AppTheme.textPrimary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -124,9 +124,9 @@ class _LearnScreenState extends State<LearnScreen> {
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
+              color: AppTheme.boxColor,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFF283548), width: 1),
+              border: Border.all(color: AppTheme.boxBorder, width: 1),
             ),
             child: Row(
               children: [
@@ -204,7 +204,7 @@ class _LearnScreenState extends State<LearnScreen> {
               ),
               const SizedBox(height: 22),
 
-              const Text(
+              Text(
                 'Available Courses',
                 style: TextStyle(
                   fontSize: 19,
@@ -221,7 +221,7 @@ class _LearnScreenState extends State<LearnScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 36),
                     child: Column(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.cloud_off_rounded,
                           color: AppTheme.textMuted,
                           size: 36,
@@ -230,7 +230,7 @@ class _LearnScreenState extends State<LearnScreen> {
                         Text(
                           'Could not load courses.\n$_loadError',
                           textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppTheme.textSecondary),
+                          style: TextStyle(color: AppTheme.textSecondary),
                         ),
                         TextButton(
                           onPressed: _loadCourses,
@@ -241,7 +241,7 @@ class _LearnScreenState extends State<LearnScreen> {
                   ),
                 )
               else if (_courses.isEmpty)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(vertical: 36),
                   child: Center(
                     child: Text(
@@ -267,9 +267,9 @@ class _LearnScreenState extends State<LearnScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 18),
       decoration: BoxDecoration(
-        color: const Color(0xFF161F38),
+        color: AppTheme.surfaceWhite,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFF283548), width: 1.2),
+        border: Border.all(color: AppTheme.boxBorder, width: 1.2),
         boxShadow: [
           BoxShadow(
             color: courseColor.withValues(alpha: 0.12),
@@ -321,7 +321,7 @@ class _LearnScreenState extends State<LearnScreen> {
                         children: [
                           Text(
                             course.name,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
                               color: AppTheme.textPrimary,
@@ -330,7 +330,7 @@ class _LearnScreenState extends State<LearnScreen> {
                           const SizedBox(height: 4),
                           Text(
                             '${course.code}  ·  ${course.levelsCount} Levels  ·  ${course.chaptersCount} Chapters',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               color: AppTheme.textSecondary,
                             ),
@@ -351,7 +351,7 @@ class _LearnScreenState extends State<LearnScreen> {
                   child: LinearProgressIndicator(
                     value: course.progress,
                     minHeight: 8,
-                    backgroundColor: const Color(0xFF1E293B),
+                    backgroundColor: AppTheme.boxColor,
                     valueColor: AlwaysStoppedAnimation<Color>(courseColor),
                   ),
                 ),
@@ -486,9 +486,9 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          iconTheme: const IconThemeData(color: AppTheme.textPrimary),
+          iconTheme: IconThemeData(color: AppTheme.textPrimary),
           leading: IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.arrow_back_rounded,
               color: AppTheme.textPrimary,
             ),
@@ -502,7 +502,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
           ),
           title: Text(
             widget.course.name,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppTheme.textPrimary,
               fontWeight: FontWeight.bold,
             ),
@@ -517,15 +517,15 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
     return Scaffold(
       backgroundColor: AppTheme.bgLight,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF161F38),
+        backgroundColor: AppTheme.surfaceWhite,
         elevation: 0,
-        shape: const Border(
-          bottom: BorderSide(color: Color(0xFF283548), width: 1.2),
+        shape: Border(
+          bottom: BorderSide(color: AppTheme.boxBorder, width: 1.2),
         ),
         surfaceTintColor: Colors.transparent,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: AppTheme.textPrimary),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          icon: Icon(Icons.arrow_back_rounded, color: AppTheme.textPrimary),
           onPressed: () {
             if (widget.onBack != null) {
               widget.onBack!();
@@ -536,8 +536,8 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
         ),
         title: Text(
           widget.course.name,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: AppTheme.textPrimary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -546,9 +546,9 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
+              color: AppTheme.boxColor,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFF283548), width: 1),
+              border: Border.all(color: AppTheme.boxBorder, width: 1),
             ),
             child: Row(
               children: [
@@ -581,9 +581,9 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF161F38),
+                  color: AppTheme.surfaceWhite,
                   borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: const Color(0xFF283548)),
+                  border: Border.all(color: AppTheme.boxBorder),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.15),
@@ -599,7 +599,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                       children: [
                         Text(
                           widget.course.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
                             color: AppTheme.textPrimary,
@@ -669,12 +669,12 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Course Curriculum Levels',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                      color: AppTheme.textPrimary,
                     ),
                   ),
                   if (_levels.isNotEmpty)
@@ -710,7 +710,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 32),
                     child: Column(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.cloud_off_rounded,
                           color: AppTheme.textMuted,
                           size: 36,
@@ -719,7 +719,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                         Text(
                           'Could not load this course.\n$_loadError',
                           textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppTheme.textSecondary),
+                          style: TextStyle(color: AppTheme.textSecondary),
                         ),
                         TextButton(
                           onPressed: _loadCourseData,
@@ -730,7 +730,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                   ),
                 )
               else if (_levels.isEmpty)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(vertical: 32),
                   child: Center(
                     child: Text(
@@ -775,7 +775,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                                 vertical: 10,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF161F38),
+                                color: AppTheme.surfaceWhite,
                                 borderRadius: BorderRadius.circular(18),
                                 border: Border.all(
                                   color: isExpanded
@@ -832,7 +832,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                                         fontWeight: isExpanded
                                             ? FontWeight.w800
                                             : FontWeight.w700,
-                                        color: Colors.white,
+                                        color: AppTheme.textPrimary,
                                       ),
                                     ),
                                   ),
@@ -865,7 +865,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                                     decoration: BoxDecoration(
                                       color: isExpanded
                                           ? levelColor.withValues(alpha: 0.2)
-                                          : const Color(0xFF1E293B),
+                                          : AppTheme.boxColor,
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(
@@ -892,14 +892,14 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                               width: double.infinity,
                               padding: const EdgeInsets.all(22),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF161F38),
+                                color: AppTheme.surfaceWhite,
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: const Color(0xFF283548)),
+                                border: Border.all(color: AppTheme.boxBorder),
                               ),
                               child: Center(
                                 child: Text(
                                   'No chapters available in ${level.name} yet.',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: AppTheme.textSecondary,
                                     fontSize: 13,
                                   ),
@@ -1030,12 +1030,12 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-        color: const Color(0xFF161F38),
+        color: AppTheme.surfaceWhite,
         borderRadius: BorderRadius.circular(22),
         border: Border.all(
           color: progress > 0
               ? color.withValues(alpha: 0.4)
-              : const Color(0xFF283548),
+              : AppTheme.boxBorder,
           width: progress > 0 ? 1.5 : 1.0,
         ),
         boxShadow: [
@@ -1081,7 +1081,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                     children: [
                       Text(
                         chapter.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: AppTheme.textPrimary,
@@ -1092,7 +1092,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                         const SizedBox(height: 4),
                         Text(
                           chapter.description!,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             color: AppTheme.textSecondary,
                           ),
@@ -1111,7 +1111,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
               child: LinearProgressIndicator(
                 value: progress,
                 minHeight: 6,
-                backgroundColor: const Color(0xFF1E293B),
+                backgroundColor: AppTheme.boxColor,
                 valueColor: AlwaysStoppedAnimation<Color>(color),
               ),
             ),
@@ -1122,7 +1122,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
               children: [
                 Text(
                   '${chapter.contents.length} Lessons • ${chapter.activities.length} Activities',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.textMuted,
@@ -1151,7 +1151,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
             // 📖 MAPPED LESSONS & CONTENT SECTION
             if (chapter.contents.isNotEmpty) ...[
               const SizedBox(height: 16),
-              const Divider(height: 1, color: Color(0xFF283548)),
+              Divider(height: 1, color: AppTheme.boxBorder),
               const SizedBox(height: 12),
               Row(
                 children: [
@@ -1159,7 +1159,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                   const SizedBox(width: 6),
                   Text(
                     'Lessons & Content (${chapter.contents.length})',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
                       color: AppTheme.textPrimary,
@@ -1173,9 +1173,9 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E293B),
+                    color: AppTheme.boxColor,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFF283548)),
+                    border: Border.all(color: AppTheme.boxBorder),
                   ),
                   child: Row(
                     children: [
@@ -1195,7 +1195,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                           children: [
                             Text(
                               content.title.isNotEmpty ? content.title : content.name,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
                                 color: AppTheme.textPrimary,
@@ -1203,7 +1203,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const Text(
+                            Text(
                               'Interactive Audio & Vocabulary Lesson',
                               style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
                             ),
@@ -1245,7 +1245,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                   const SizedBox(width: 6),
                   Text(
                     'Practice Activities & Games (${chapter.activities.length})',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
                       color: AppTheme.textPrimary,
@@ -1261,9 +1261,9 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E293B),
+                    color: AppTheme.boxColor,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFF283548)),
+                    border: Border.all(color: AppTheme.boxBorder),
                   ),
                   child: Row(
                     children: [
@@ -1283,7 +1283,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                           children: [
                             Text(
                               act.title,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
                                 color: AppTheme.textPrimary,
@@ -1293,7 +1293,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
                             ),
                             Text(
                               act.subtitle,
-                              style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                              style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),

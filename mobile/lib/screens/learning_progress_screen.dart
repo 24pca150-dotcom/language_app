@@ -278,9 +278,9 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
               selected: isSelected,
               onSelected: (_) => setState(() => _activeFilter = f['id'] as String),
               selectedColor: const Color(0xFFF59E0B),
-              backgroundColor: const Color(0xFF1E293B),
+              backgroundColor: AppTheme.boxColor,
               labelStyle: TextStyle(
-                color: isSelected ? Colors.black : Colors.white,
+                color: isSelected ? Colors.black : AppTheme.textPrimary,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 fontSize: 12,
               ),
@@ -367,7 +367,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(fontSize: 10, color: AppTheme.textSecondary, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 10, color: AppTheme.textSecondary, fontWeight: FontWeight.bold),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -385,7 +385,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
           const SizedBox(height: 2),
           Text(
             subtitle,
-            style: const TextStyle(fontSize: 9, color: AppTheme.textMuted),
+            style: TextStyle(fontSize: 9, color: AppTheme.textMuted),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -439,7 +439,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
                       child: const Icon(Icons.assignment_turned_in_rounded, color: Color(0xFFF59E0B), size: 20),
                     ),
                     const SizedBox(width: 10),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -476,11 +476,11 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          const Divider(color: AppTheme.cardBorder, height: 1),
+          Divider(color: AppTheme.cardBorder, height: 1),
           const SizedBox(height: 14),
 
           if (allAssessmentsList.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 20),
               child: Center(
                 child: Text(
@@ -541,7 +541,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: AppTheme.boxColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: statusColor.withValues(alpha: 0.25)),
       ),
@@ -554,7 +554,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.textPrimary),
                 ),
               ),
               Container(
@@ -571,7 +571,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
             ],
           ),
           const SizedBox(height: 2),
-          Text(course, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+          Text(course, style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
           const SizedBox(height: 12),
 
           // Score Comparison Row
@@ -586,7 +586,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
                   ),
                   child: Column(
                     children: [
-                      const Text('Your Score', style: TextStyle(fontSize: 10, color: AppTheme.textSecondary)),
+                      Text('Your Score', style: TextStyle(fontSize: 10, color: AppTheme.textSecondary)),
                       const SizedBox(height: 2),
                       Text(
                         score != null ? '$score%' : '—',
@@ -610,7 +610,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
                   ),
                   child: Column(
                     children: [
-                      const Text('Pass Requirement', style: TextStyle(fontSize: 10, color: AppTheme.textSecondary)),
+                      Text('Pass Requirement', style: TextStyle(fontSize: 10, color: AppTheme.textSecondary)),
                       const SizedBox(height: 2),
                       Text(
                         '$passReq%',
@@ -630,11 +630,11 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
                   ),
                   child: Column(
                     children: [
-                      const Text('Attempts', style: TextStyle(fontSize: 10, color: AppTheme.textSecondary)),
+                      Text('Attempts', style: TextStyle(fontSize: 10, color: AppTheme.textSecondary)),
                       const SizedBox(height: 2),
                       Text(
                         attempts,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
                       ),
                     ],
                   ),
@@ -720,7 +720,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
                       child: const Icon(Icons.pie_chart_rounded, color: Color(0xFF00D2FC), size: 20),
                     ),
                     const SizedBox(width: 10),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -764,7 +764,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
                   Expanded(
                     child: Text(
                       label,
-                      style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500),
+                      style: TextStyle(fontSize: 12, color: AppTheme.textPrimary, fontWeight: FontWeight.w500),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -782,7 +782,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
           child: LinearProgressIndicator(
             value: (percent / 100).clamp(0.0, 1.0),
             minHeight: 8,
-            backgroundColor: const Color(0xFF283548),
+            backgroundColor: AppTheme.boxBorder,
             valueColor: AlwaysStoppedAnimation<Color>(color),
           ),
         ),
@@ -826,8 +826,8 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Practice Arena Mastery', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.textPrimary), maxLines: 1, overflow: TextOverflow.ellipsis),
-                          Text('${practiceList.length} Interactive language drills & accuracy', style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          Text('Practice Arena Mastery', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.textPrimary), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          Text('${practiceList.length} Interactive language drills & accuracy', style: TextStyle(fontSize: 11, color: AppTheme.textSecondary), maxLines: 1, overflow: TextOverflow.ellipsis),
                         ],
                       ),
                     ),
@@ -855,7 +855,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
+                color: AppTheme.boxColor,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: AppTheme.cardBorder),
               ),
@@ -865,19 +865,19 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
+                      Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textPrimary)),
                       Text('$percent%', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF845EC2))),
                     ],
                   ),
                   const SizedBox(height: 2),
-                  Text(desc, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+                  Text(desc, style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
                   const SizedBox(height: 8),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: (percent / 100).clamp(0.0, 1.0),
                       minHeight: 6,
-                      backgroundColor: const Color(0xFF283548),
+                      backgroundColor: AppTheme.boxBorder,
                       valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF845EC2)),
                     ),
                   ),
@@ -923,7 +923,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
                       child: const Icon(Icons.sports_esports_rounded, color: Color(0xFFFF5E7E), size: 20),
                     ),
                     const SizedBox(width: 10),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -959,7 +959,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
+                color: AppTheme.boxColor,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: AppTheme.cardBorder),
               ),
@@ -969,7 +969,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
+                      Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textPrimary)),
                       Row(
                         children: [
                           ...List.generate(
@@ -989,16 +989,16 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
                     ],
                   ),
                   const SizedBox(height: 2),
-                  Text(desc, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+                  Text(desc, style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
                   const SizedBox(height: 4),
-                  Text('High Score: $highScore pts', style: const TextStyle(fontSize: 10, color: Colors.white70, fontWeight: FontWeight.bold)),
+                  Text('High Score: $highScore pts', style: TextStyle(fontSize: 10, color: AppTheme.textSecondary, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: (percent / 100).clamp(0.0, 1.0),
                       minHeight: 6,
-                      backgroundColor: const Color(0xFF283548),
+                      backgroundColor: AppTheme.boxBorder,
                       valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFF5E7E)),
                     ),
                   ),
@@ -1038,7 +1038,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
                 child: const Icon(Icons.book_rounded, color: Color(0xFF10B981), size: 20),
               ),
               const SizedBox(width: 10),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1052,7 +1052,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
           const SizedBox(height: 16),
 
           if (progressions.isEmpty)
-            const Text('No courses enrolled.', style: TextStyle(color: AppTheme.textMuted))
+            Text('No courses enrolled.', style: TextStyle(color: AppTheme.textMuted))
           else
             ...progressions.map((cp) {
               final name = cp['course_name'] ?? 'Course';
@@ -1064,7 +1064,7 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E293B),
+                  color: AppTheme.boxColor,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: AppTheme.cardBorder),
                 ),
@@ -1074,19 +1074,19 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
+                        Text(name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textPrimary)),
                         Text('$percent% Done', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF10B981))),
                       ],
                     ),
                     const SizedBox(height: 2),
-                    Text('$done of $total Chapters Finished', style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+                    Text('$done of $total Chapters Finished', style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
                     const SizedBox(height: 8),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
                         value: (percent / 100).clamp(0.0, 1.0),
                         minHeight: 8,
-                        backgroundColor: const Color(0xFF283548),
+                        backgroundColor: AppTheme.boxBorder,
                         valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF10B981)),
                       ),
                     ),
@@ -1106,9 +1106,9 @@ class _LearningProgressScreenState extends State<LearningProgressScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.cloud_off_rounded, size: 48, color: AppTheme.textMuted),
+            Icon(Icons.cloud_off_rounded, size: 48, color: AppTheme.textMuted),
             const SizedBox(height: 14),
-            Text('Could not load analytics:\n$_error', textAlign: TextAlign.center, style: const TextStyle(color: AppTheme.textSecondary)),
+            Text('Could not load analytics:\n$_error', textAlign: TextAlign.center, style: TextStyle(color: AppTheme.textSecondary)),
             const SizedBox(height: 14),
             ElevatedButton(onPressed: _loadAllProgress, child: const Text('Try Again')),
           ],

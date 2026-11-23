@@ -269,7 +269,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppTheme.boxColor,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: AppTheme.cardBorder),
                         boxShadow: [
@@ -282,7 +282,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                       ),
                       child: Text(
                         currentQ.questionText,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
                           color: AppTheme.textPrimary,
@@ -292,7 +292,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    const Text(
+                    Text(
                       'Select the correct answer:',
                       style: TextStyle(
                         fontSize: 13,
@@ -324,7 +324,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                             decoration: BoxDecoration(
                               color: isSelected
                                   ? AppTheme.primary.withValues(alpha: 0.08)
-                                  : Colors.white,
+                                  : AppTheme.boxColor,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
                                 color: isSelected
@@ -393,7 +393,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppTheme.boxColor,
                 border: Border(top: BorderSide(color: AppTheme.cardBorder)),
               ),
               child: Row(

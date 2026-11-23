@@ -717,7 +717,7 @@ class _GamePlayScreenState extends State<GamePlayScreen> with SingleTickerProvid
               const SizedBox(height: 12),
               Text(
                 'You scored $_score XP in ${widget.game.title}!',
-                style: const TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+                style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
               ),
               const SizedBox(height: 20),
               SizedBox(

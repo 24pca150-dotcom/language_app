@@ -33,7 +33,9 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            // Must stay false: Laravel's signed "serve" route also uses /storage/{path} and
+            // would shadow the public /storage route in routes/web.php (uploaded images → 403).
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],

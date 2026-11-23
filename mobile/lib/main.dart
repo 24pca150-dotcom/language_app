@@ -14,14 +14,48 @@ void main() async {
       (_) => false,
     );
   };
+  await AppTheme.loadThemePreference();
   final loggedIn = await AuthService.isLoggedIn();
   runApp(LangNestMobileApp(initialLoggedIn: loggedIn));
 }
 
-class LangNestMobileApp extends StatelessWidget {
+class LangNestMobileApp extends StatefulWidget {
   final bool initialLoggedIn;
 
   const LangNestMobileApp({super.key, required this.initialLoggedIn});
+
+  @override
+  State<LangNestMobileApp> createState() => _LangNestMobileAppState();
+}
+
+class _LangNestMobileAppState extends State<LangNestMobileApp> {
+  @override
+  void initState() {
+    super.initState();
+    AppTheme.isDarkNotifier.addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    AppTheme.isDarkNotifier.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    setState(() {});
+    // Screens read AppTheme colors directly (not via Theme.of), so const
+    // widgets would not repaint on their own. Mark every element dirty —
+    // navigation stack and widget state are preserved.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      void rebuild(Element el) {
+        el.markNeedsBuild();
+        el.visitChildren(rebuild);
+      }
+
+      (context as Element).visitChildren(rebuild);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +63,9 @@ class LangNestMobileApp extends StatelessWidget {
       navigatorKey: _navigatorKey,
       title: 'LangNest Mobile',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: initialLoggedIn ? const MainNavigationScreen() : const LoginScreen(),
+      theme: AppTheme.currentTheme,
+      themeAnimationDuration: Duration.zero,
+      home: widget.initialLoggedIn ? const MainNavigationScreen() : const LoginScreen(),
     );
   }
 }

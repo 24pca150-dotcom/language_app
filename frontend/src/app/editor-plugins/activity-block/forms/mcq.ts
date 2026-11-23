@@ -28,6 +28,19 @@ export function renderMCQForm(
   const audioInput = audioGroup.querySelector('.mcq-audio') as HTMLInputElement;
   audioInput.addEventListener('input', (e: any) => { data.audioUrl = e.target.value; });
 
+  // 1b-2. Audio sentence (read aloud by text-to-speech when no audio URL is given)
+  const audioTextGroup = document.createElement('div');
+  audioTextGroup.classList.add('activity-form-group');
+  audioTextGroup.innerHTML = `
+    <label class="activity-editor-label">Audio Sentence (Optional – spoken aloud when no Audio URL)</label>
+    <input type="text" class="activity-input-text mcq-audio-text" placeholder="E.g., I can hear music coming from the next room.">
+  `;
+  parent.appendChild(audioTextGroup);
+
+  const audioTextInput = audioTextGroup.querySelector('.mcq-audio-text') as HTMLInputElement;
+  audioTextInput.value = data.audioText || '';
+  audioTextInput.addEventListener('input', (e: any) => { data.audioText = e.target.value; });
+
   // 1c. Question Image URL input
   const imageGroup = document.createElement('div');
   imageGroup.classList.add('activity-form-group');

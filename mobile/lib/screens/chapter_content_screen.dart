@@ -223,13 +223,13 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
       appBar: AppBar(
         backgroundColor: AppTheme.surfaceWhite,
         elevation: 0,
-        shape: const Border(
-          bottom: BorderSide(color: Color(0xFF283548), width: 1.2),
+        shape: Border(
+          bottom: BorderSide(color: AppTheme.boxBorder, width: 1.2),
         ),
         surfaceTintColor: Colors.transparent,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: AppTheme.textPrimary),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          icon: Icon(Icons.arrow_back_rounded, color: AppTheme.textPrimary),
           onPressed: () {
             if (widget.onBack != null) {
               widget.onBack!();
@@ -251,10 +251,10 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
             ),
             Text(
               widget.chapter.name,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: AppTheme.textPrimary,
               ),
             ),
           ],
@@ -296,7 +296,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.cloud_off_rounded,
                       color: AppTheme.textMuted,
                       size: 36,
@@ -305,7 +305,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                     Text(
                       'Could not load lesson content.\n$_loadError',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: AppTheme.textSecondary),
+                      style: TextStyle(color: AppTheme.textSecondary),
                     ),
                     TextButton(
                       onPressed: _loadContents,
@@ -328,23 +328,23 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                         color: Colors.white.withValues(alpha: 0.05),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.menu_book_rounded,
                         size: 40,
                         color: AppTheme.textMuted,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
+                    Text(
                       'No Content Available Yet',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: AppTheme.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'No lesson content has been added to this chapter in the database.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -378,7 +378,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                               onSelected: (_) =>
                                   setState(() => _activeContentIndex = idx),
                               selectedColor: AppTheme.primary,
-                              backgroundColor: const Color(0xFF161F38),
+                              backgroundColor: AppTheme.surfaceWhite,
                               labelStyle: TextStyle(
                                 color: isSelected
                                     ? Colors.white
@@ -393,7 +393,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                                 side: BorderSide(
                                   color: isSelected
                                       ? AppTheme.primary
-                                      : const Color(0xFF283548),
+                                      : AppTheme.boxBorder,
                                 ),
                               ),
                             ),
@@ -471,12 +471,12 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                   // Render Table Content (e.g. 111 animal sounds or homophones)
                   if (currentContent.tableData.isNotEmpty) ...[
                     const SizedBox(height: 14),
-                    const Text(
+                    Text(
                       'Vocabulary & Sound Directory (Tap to Listen):',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: AppTheme.textPrimary,
                         shadows: [
                           Shadow(
                             color: Colors.black54,
@@ -517,7 +517,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
 
                             if (isHeader) {
                               return Container(
-                                color: const Color(0xFF1E293B),
+                                color: AppTheme.boxColor,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                   vertical: 12,
@@ -546,7 +546,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(
+                                    SizedBox(
                                       width: 44,
                                       child: Center(
                                         child: Text(
@@ -554,7 +554,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 12,
-                                            color: Color(0xFF94A3B8),
+                                            color: AppTheme.textSecondary,
                                           ),
                                         ),
                                       ),
@@ -586,7 +586,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
                                 ),
                                 title: Text(
                                   word,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 14,
                                     color: AppTheme.textPrimary,
@@ -733,10 +733,10 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
         padding: const EdgeInsets.only(top: 16, bottom: 8),
         child: Text(
           block.data['text'] ?? '',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AppTheme.textPrimary,
             shadows: [
               Shadow(
                 color: Colors.black54,
@@ -754,9 +754,9 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFF161F38),
+            color: AppTheme.surfaceWhite,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF283548)),
+            border: Border.all(color: AppTheme.boxBorder),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.1),
@@ -767,7 +767,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
           ),
           child: Text(
             block.data['text'] ?? '',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14.5,
               height: 1.6,
               color: AppTheme.textPrimary,
@@ -838,9 +838,9 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF161F38),
+          color: AppTheme.surfaceWhite,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFF283548)),
+          border: Border.all(color: AppTheme.boxBorder),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -850,7 +850,7 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text('• ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.primary)),
-                Expanded(child: Text(it.toString(), style: const TextStyle(fontSize: 14, height: 1.4, color: AppTheme.textPrimary))),
+                Expanded(child: Text(it.toString(), style: TextStyle(fontSize: 14, height: 1.4, color: AppTheme.textPrimary))),
               ],
             ),
           )).toList(),

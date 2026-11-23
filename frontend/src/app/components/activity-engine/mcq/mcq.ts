@@ -15,6 +15,7 @@ export interface MCQActivity {
   type: 'mcq';
   question: string;
   audioUrl?: string;
+  audioText?: string;
   imageUrl?: string;
   options: MCQOption[];
   explanation?: string;
@@ -112,7 +113,7 @@ export class MCQComponent implements OnInit, OnChanges, OnDestroy {
     this.audioService.stopAll();
     this.isQuestionSpeaking.set(true);
 
-    const raw = this.activity?.question || '';
+    const raw = this.activity?.audioText || this.activity?.question || '';
     const readable = raw
       .replace(/_{2,}/g, ' blank ')
       .replace(/[^\w\s.,?!'-]/g, ' ')

@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'storage/*'], // storage/*: images used by the mobile (Flutter web) app
 
     'allowed_methods' => ['*'],
 

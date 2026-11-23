@@ -8,6 +8,7 @@ export interface FillBlanksData {
   text: string; // "The [cat] is on the [mat]."
   explanation?: string;
   audioUrl?: string;
+  audioText?: string; // Read aloud (TTS) by the Listen button when there is no audio file
   imageUrl?: string;
 }
 
@@ -77,6 +78,11 @@ export class FillBlanksComponent implements OnInit, OnChanges, OnDestroy {
         segmentType = 'dropdown';
         dropdownOptions = answerValue.split(/[|\/]/).map(o => o.trim()).filter(Boolean);
         correctVal = dropdownOptions[0]; // first option is correct
+        // Shuffle the display order so the answer is not always the first choice
+        for (let i = dropdownOptions.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [dropdownOptions[i], dropdownOptions[j]] = [dropdownOptions[j], dropdownOptions[i]];
+        }
       }
 
       // Add blank or dropdown segment
@@ -141,6 +147,21 @@ export class FillBlanksComponent implements OnInit, OnChanges, OnDestroy {
 
     this.isPlaying.set(true);
     this.audioService.playAudioUrl(this.activity.audioUrl);
+  }
+
+  speakAudioText(): void {
+    if (!this.activity?.audioText) return;
+    if (this.isPlaying()) {
+      this.audioService.stopAll();
+      this.isPlaying.set(false);
+      return;
+    }
+    this.isPlaying.set(true);
+    this.audioService.speak(this.activity.audioText, {
+      rate: 0.9,
+      onEnd: () => this.isPlaying.set(false),
+      onError: () => this.isPlaying.set(false)
+    });
   }
 
   checkAnswers(): void {

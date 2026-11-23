@@ -76,8 +76,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
           child: Container(
             padding: EdgeInsets.fromLTRB(24, 20, 24, bottomInset > 0 ? bottomInset + 20 : 32),
-            decoration: const BoxDecoration(
-              color: Color(0xFF161F38),
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceWhite,
               borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
             ),
           child: Column(
@@ -90,7 +90,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF283548),
+                    color: AppTheme.boxBorder,
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -106,7 +106,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: const Icon(Icons.edit_note_rounded, color: AppTheme.primary, size: 24),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
+                  Text(
                     'Edit Profile',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
                   ),
@@ -115,7 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 20),
 
               // Name Field
-              const Text('Full Name', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
+              Text('Full Name', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
               const SizedBox(height: 6),
               TextField(
                 controller: nameController,
@@ -128,7 +128,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 16),
 
               // Email Field
-              const Text('Email Address', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
+              Text('Email Address', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
               const SizedBox(height: 6),
               TextField(
                 controller: emailController,
@@ -203,14 +203,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Text('Logout Confirmation', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ],
         ),
-        content: const Text(
+        content: Text(
           'Are you sure you want to log out of LangNest mobile app?',
           style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx),
-            child: const Text('Cancel', style: TextStyle(color: AppTheme.textSecondary)),
+            child: Text('Cancel', style: TextStyle(color: AppTheme.textSecondary)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -249,18 +249,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         backgroundColor: AppTheme.navBarGreen,
         elevation: 0,
-        shape: const Border(
+        shape: Border(
           bottom: BorderSide(color: AppTheme.navBarGreenBorder, width: 1.2),
         ),
         surfaceTintColor: Colors.transparent,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
+        iconTheme: IconThemeData(color: AppTheme.textPrimary),
+        title: Text(
           'My Profile',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_outlined, color: Colors.white),
+            icon: Icon(Icons.edit_outlined, color: AppTheme.textPrimary),
             tooltip: 'Edit Profile',
             onPressed: _showEditProfileDialog,
           ),
@@ -320,7 +320,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 12),
                   Text(
                     user.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: AppTheme.textPrimary,
@@ -329,7 +329,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 4),
                   Text(
                     user.email,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       color: AppTheme.textSecondary,
                     ),
@@ -392,13 +392,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
+                  gradient: LinearGradient(
+                    colors: [AppTheme.boxColor, AppTheme.bgAlt],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFF334155)),
+                  border: Border.all(color: AppTheme.boxBorderStrong),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.25),
@@ -425,7 +425,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         const SizedBox(width: 10),
-                        const Expanded(
+                        Expanded(
                           child: Text(
                             'Assessment Performance',
                             style: TextStyle(
@@ -467,14 +467,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       return Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF161F38),
+                          color: AppTheme.surfaceWhite,
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
                             color: isPassed
                                 ? const Color(0xFF10B981).withValues(alpha: 0.3)
                                 : (hasScore
                                     ? const Color(0xFFF59E0B).withValues(alpha: 0.3)
-                                    : const Color(0xFF283548)),
+                                    : AppTheme.boxBorder),
                           ),
                         ),
                         child: Column(
@@ -486,7 +486,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 Expanded(
                                   child: Text(
                                     attempted.title,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13,
                                       color: AppTheme.textPrimary,
@@ -542,7 +542,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               children: [
                                 Text(
                                   'Pass Mark: ${attempted.passPercentage}%',
-                                  style: const TextStyle(color: AppTheme.textMuted, fontSize: 11),
+                                  style: TextStyle(color: AppTheme.textMuted, fontSize: 11),
                                 ),
                                 ElevatedButton(
                                   onPressed: () async {
@@ -645,6 +645,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       }
                     },
                   ),
+                  const Divider(height: 1, indent: 60),
+
+                  _buildOptionTile(
+                    icon: AppTheme.isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                    iconColor: AppTheme.isDark ? const Color(0xFF818CF8) : const Color(0xFFF59E0B),
+                    title: 'Dark Mode',
+                    subtitle: AppTheme.isDark ? 'Dark theme is on' : 'Light theme is on',
+                    onTap: () => AppTheme.toggleTheme(),
+                    trailing: Switch(
+                      value: AppTheme.isDark,
+                      activeThumbColor: Colors.white,
+                      activeTrackColor: AppTheme.primary,
+                      onChanged: (v) => AppTheme.setDarkMode(v),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -711,7 +726,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: AppTheme.textPrimary,
@@ -720,7 +735,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 4),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
                 color: AppTheme.textSecondary,
                 fontWeight: FontWeight.w500,
@@ -739,6 +754,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required VoidCallback onTap,
     Color? iconColor,
     String? badge,
+    Widget? trailing,
   }) {
     final color = iconColor ?? AppTheme.textPrimary;
     return Material(
@@ -757,7 +773,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: AppTheme.textPrimary,
@@ -785,9 +801,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         subtitle: Text(
           subtitle,
-          style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+          style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
         ),
-        trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.textMuted, size: 20),
+        trailing: trailing ?? Icon(Icons.chevron_right_rounded, color: AppTheme.textMuted, size: 20),
         onTap: onTap,
       ),
     );

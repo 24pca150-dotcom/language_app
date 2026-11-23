@@ -134,6 +134,42 @@
           }
         </div>
 
+        <!-- Level Filter (Custom Dropdown) -->
+        <div class="position-relative" style="min-width: 160px; flex: 1 1 170px;">
+          <button type="button"
+                  class="btn bg-light border-0 py-2 px-3 w-100 text-start d-flex justify-content-between align-items-center shadow-none text-secondary rounded-3"
+                  style="height: 40px;"
+                  (click)="toggleLevelDropdown()">
+            <span class="text-truncate fw-medium small">{{ getLevelFilterLabel() }}</span>
+            <i class="bi bi-chevron-down small ms-2 text-muted" [class.bi-chevron-up]="isLevelFilterOpen()"></i>
+          </button>
+
+          @if (isLevelFilterOpen()) {
+            <div class="custom-dropdown-menu position-absolute start-0 end-0 mt-1 bg-white rounded-3 shadow-lg border p-1 z-3" style="max-height: 250px; overflow-y: auto;">
+              <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                      [class.active-item]="selectedLevelFilter() === 'all'"
+                      (click)="setLevelFilterValue('all')">
+                <span>All Levels</span>
+                @if (selectedLevelFilter() === 'all') { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+              @for (l of levelsList(); track l.id) {
+                <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                        [class.active-item]="selectedLevelFilter() === l.id"
+                        (click)="setLevelFilterValue(l.id)">
+                  <span class="text-truncate">{{ l.name }}</span>
+                  @if (selectedLevelFilter() === l.id) { <i class="bi bi-check-lg text-primary"></i> }
+                </button>
+              }
+              <button type="button" class="dropdown-item py-2 px-3 rounded-2 text-start d-flex justify-content-between align-items-center"
+                      [class.active-item]="selectedLevelFilter() === null"
+                      (click)="setLevelFilterValue(null)">
+                <span>Not in any Level</span>
+                @if (selectedLevelFilter() === null) { <i class="bi bi-check-lg text-primary"></i> }
+              </button>
+            </div>
+          }
+        </div>
+
         <!-- Activity Type Filter (Custom Dropdown) -->
         <div class="position-relative" style="min-width: 180px; flex: 1 1 190px;">
           <button type="button" 
@@ -526,20 +562,48 @@
             }
           </select>
         </div>
+
+        <!-- Mobile game card background picture -->
+        <div class="col-12">
+          <label class="form-label fw-bold text-secondary small">Game Cover Image (Mobile App)</label>
+          <div class="d-flex flex-wrap align-items-center gap-3">
+            <div class="border rounded-3 bg-light d-flex align-items-center justify-content-center overflow-hidden"
+              style="width: 120px; height: 80px;">
+              @if (activityCoverImage()) {
+              <img [src]="activityCoverImage()" alt="Cover" style="width: 100%; height: 100%; object-fit: cover;">
+              } @else {
+              <i class="bi bi-image text-muted fs-3"></i>
+              }
+            </div>
+            <div class="flex-grow-1" style="min-width: 240px;">
+              <div class="input-group">
+                <input type="text" class="form-control border-secondary" placeholder="Paste image URL or upload a picture..."
+                  [ngModel]="activityCoverImage()" (ngModelChange)="activityCoverImage.set($event)">
+                <label class="btn btn-outline-primary mb-0 d-flex align-items-center gap-1">
+                  @if (isCoverUploading()) {
+                  <span class="spinner-border spinner-border-sm"></span>
+                  } @else {
+                  <i class="bi bi-upload"></i>
+                  }
+                  Upload
+                  <input type="file" accept="image/*" hidden (change)="onCoverImageSelected($event)">
+                </label>
+                @if (activityCoverImage()) {
+                <button type="button" class="btn btn-outline-danger" title="Remove image" (click)="activityCoverImage.set('')">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+                }
+              </div>
+              <div class="form-text">Shown as the game card background in the mobile app. Leave empty to use the default picture.</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Content Area -->
       <div class="content-area mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h5 class="fw-bold text-dark mb-0">Configuration</h5>
-
-          <!-- Global Live Preview Toggle -->
-          <div class="form-check form-switch fs-5 mb-0">
-            <input class="form-check-input cursor-pointer shadow-none" type="checkbox" role="switch" id="previewSwitch"
-              [checked]="isPreviewMode()" (change)="togglePreview()">
-            <label class="form-check-label ms-2 fs-6 fw-bold" [class.text-primary]="isPreviewMode()"
-              for="previewSwitch">Live Preview Mode</label>
-          </div>
         </div>
 
         <!-- Standard Engine Renderers -->

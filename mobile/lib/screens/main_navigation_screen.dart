@@ -34,24 +34,15 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     return Scaffold(
       backgroundColor: AppTheme.bgLight,
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF0A0F1D), // Deep Midnight Navy
-              Color(0xFF0F172A), // Deep Slate Navy
-              Color(0xFF080D1A), // Dark Navy
-            ],
-            stops: [0.0, 0.5, 1.0],
-          ),
+        decoration: BoxDecoration(
+          gradient: AppTheme.backgroundGradient,
         ),
         child: IndexedStack(index: _currentIndex, children: screens),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: _onTabTapped,
-        backgroundColor: const Color(0xFF0A0F1D),
+        backgroundColor: AppTheme.bgLight,
         indicatorColor: AppTheme.primary.withValues(alpha: 0.25),
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         destinations: const [
