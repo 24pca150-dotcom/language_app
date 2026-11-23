@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_theme.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
@@ -65,10 +66,10 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
 
   /// Courses plus a "General Practice" card when some games have no course.
   List<MobileCourseItem> get _courseCards => [
-        ..._courses,
-        if (_activitiesOfCourse(_generalCourseId).isNotEmpty)
-          MobileCourseItem(id: _generalCourseId, name: 'General Practice', code: '', description: 'Games not linked to a course'),
-      ];
+    ..._courses,
+    if (_activitiesOfCourse(_generalCourseId).isNotEmpty)
+      MobileCourseItem(id: _generalCourseId, name: 'General Practice', code: '', description: 'Games not linked to a course'),
+  ];
 
   void _openCourse(MobileCourseItem course) {
     Navigator.push(
@@ -84,7 +85,25 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildCourseCard(MobileCourseItem course) {
+  /// Picks a picture for every course card, preferring one no earlier card uses.
+  Map<int, String> _courseCoverMap() {
+    final used = <String>{};
+    final result = <int, String>{};
+    for (final course in _courseCards) {
+      final covers =
+          _activitiesOfCourse(course.id)
+              .where((a) => (a.coverImage ?? '').isNotEmpty && !a.coverImage!.toLowerCase().split('?').first.endsWith('.svg'))
+              .toList()
+            ..sort((a, b) => b.id.compareTo(a.id)); // newest first
+      final urls = covers.map((a) => a.coverImage!).toSet().toList();
+      final pick = urls.firstWhere((u) => !used.contains(u), orElse: () => urls.isEmpty ? '' : urls.first);
+      if (pick.isNotEmpty) used.add(pick);
+      result[course.id] = pick;
+    }
+    return result;
+  }
+
+  Widget _buildCourseCard(MobileCourseItem course, String courseCover) {
     final activities = _activitiesOfCourse(course.id);
     final typeCount = activities.map((a) => activityTypeKey(a.type)).toSet().length;
     return Padding(
@@ -99,9 +118,7 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               // Newest game picture the admin uploaded in this course; else a colour gradient
-              image: gameCoverOf(activities).isNotEmpty && !gameCoverOf(activities).toLowerCase().endsWith('.svg')
-                  ? DecorationImage(image: NetworkImage(gameCoverOf(activities)), fit: BoxFit.cover)
-                  : null,
+              image: courseCover.isNotEmpty ? DecorationImage(image: NetworkImage(courseCover), fit: BoxFit.cover) : null,
               gradient: const LinearGradient(colors: [Color(0xFF6366F1), Color(0xFFEC4899)]),
             ),
             child: Container(
@@ -139,7 +156,10 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('Enter', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                        Text(
+                          'Enter',
+                          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                        ),
                         SizedBox(width: 4),
                         Icon(Icons.arrow_forward_rounded, color: Colors.black, size: 18),
                       ],
@@ -155,84 +175,39 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
   }
 
   void _openHighwayRacer([String title = 'Highway Racer']) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => HighwayRacerScreen(title: title),
-      ),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => HighwayRacerScreen(title: title)));
   }
 
   void _openWordNinja([String title = 'Word Ninja']) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => WordNinjaScreen(title: title),
-      ),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => WordNinjaScreen(title: title)));
   }
 
   void _openFlappyWord([String title = 'Flappy Word']) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => FlappyWordScreen(title: title),
-      ),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => FlappyWordScreen(title: title)));
   }
 
   void _openBalloonPop([String title = 'Balloon Word Pop']) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => BalloonPopScreen(title: title),
-      ),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => BalloonPopScreen(title: title)));
   }
 
   void _openMatchGame([String title = 'Match It: Pairs']) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MatchGameScreen(title: title),
-      ),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => MatchGameScreen(title: title)));
   }
 
   void _openSentenceBuilder([String title = 'Fill in the Blanks']) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => FillBlanksGameScreen(title: title),
-      ),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => FillBlanksGameScreen(title: title)));
   }
 
   void _openMcqArena([String title = 'MCQ Quiz Arena']) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => McqGameScreen(title: title),
-      ),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => McqGameScreen(title: title)));
   }
 
   void _openCrossword([String title = 'Crossword Quest']) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CrosswordGameScreen(title: title),
-      ),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => CrosswordGameScreen(title: title)));
   }
 
   void _openFlashcards([String title = 'Flashcard Mastery']) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => FlashcardGameScreen(title: title),
-      ),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => FlashcardGameScreen(title: title)));
   }
 
   void _openGame(MobileGameItem game) {
@@ -256,12 +231,7 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
     } else if (type.contains('flashcard') || type.contains('card')) {
       _openFlashcards(game.title);
     } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => GamePlayScreen(game: game),
-        ),
-      );
+      Navigator.push(context, MaterialPageRoute(builder: (context) => GamePlayScreen(game: game)));
     }
   }
 
@@ -270,9 +240,7 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
     if (_isLoading) {
       return Scaffold(
         backgroundColor: AppTheme.bgLight,
-        body: Center(
-          child: CircularProgressIndicator(color: Color(0xFF6366F1)),
-        ),
+        body: Center(child: CircularProgressIndicator(color: Color(0xFF6366F1))),
       );
     }
 
@@ -281,9 +249,7 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
     return Scaffold(
       backgroundColor: AppTheme.bgLight, // Deep Midnight Navy
       body: Container(
-        decoration: BoxDecoration(
-          gradient: AppTheme.backgroundGradient,
-        ),
+        decoration: BoxDecoration(gradient: AppTheme.backgroundGradient),
         child: SafeArea(
           child: RefreshIndicator(
             onRefresh: _loadData,
@@ -300,14 +266,7 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
                   Row(
                     children: [
                       // Only Cartoon Mascot (clean, no face icon or background box)
-                      SizedBox(
-                        width: 48,
-                        height: 48,
-                        child: Image.asset(
-                          'assets/images/mascot.png',
-                          fit: BoxFit.contain,
-                        ),
-                      ),
+                      SizedBox(width: 48, height: 48, child: Image.asset('assets/images/mascot.png', fit: BoxFit.contain)),
                       const SizedBox(width: 12),
 
                       // Two-line Title in English: Games / Arena
@@ -317,19 +276,11 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
                           children: [
                             Text(
                               'Games',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                                color: AppTheme.textPrimary,
-                              ),
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.textPrimary),
                             ),
                             Text(
                               'Arena',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                                color: Color(0xFF818CF8),
-                              ),
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF818CF8)),
                             ),
                           ],
                         ),
@@ -349,11 +300,7 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
                             const SizedBox(width: 4),
                             Text(
                               '${_games.length}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF38BDF8),
-                                fontSize: 12,
-                              ),
+                              style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF38BDF8), fontSize: 12),
                             ),
                           ],
                         ),
@@ -374,11 +321,7 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
                             const SizedBox(width: 4),
                             Text(
                               '$userStars',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFFFBBF24),
-                                fontSize: 12,
-                              ),
+                              style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFBBF24), fontSize: 12),
                             ),
                           ],
                         ),
@@ -398,7 +341,10 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
                   if (_courseCards.isEmpty)
                     _buildEmptyGamesState()
                   else
-                    ..._courseCards.map(_buildCourseCard),
+                    ...() {
+                      final covers = _courseCoverMap();
+                      return _courseCards.map((c) => _buildCourseCard(c, covers[c.id] ?? ''));
+                    }(),
                   const SizedBox(height: 24),
                 ],
               ),
@@ -423,30 +369,18 @@ class _GamesScreenState extends State<GamesScreen> with SingleTickerProviderStat
                 shape: BoxShape.circle,
                 border: Border.all(color: AppTheme.boxBorder, width: 1.5),
               ),
-              child: const Icon(
-                Icons.sports_esports_rounded,
-                size: 54,
-                color: Color(0xFF818CF8),
-              ),
+              child: const Icon(Icons.sports_esports_rounded, size: 54, color: Color(0xFF818CF8)),
             ),
             const SizedBox(height: 20),
             const Text(
               'No Games Added Yet',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             const SizedBox(height: 8),
             Text(
               'Activities created in the admin dashboard will automatically appear here with their matching game artwork and challenges.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: AppTheme.textSecondary,
-                height: 1.5,
-              ),
+              style: TextStyle(fontSize: 13, color: AppTheme.textSecondary, height: 1.5),
             ),
             const SizedBox(height: 22),
             ElevatedButton.icon(
